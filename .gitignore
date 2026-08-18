@@ -1,0 +1,22 @@
+# Datasets (large, regenerable via the generator scripts)
+Synthetic Dataset/
+Synthetic Dataset 276x600/
+
+# Training run outputs: checkpoints, TF event logs, predictions (large binaries, regenerable)
+unet_run/
+unet_run_gpu/
+unet_run_faircompare/
+hybrid_run_paperdim/
+
+# Preview images (regenerable)
+preview/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
