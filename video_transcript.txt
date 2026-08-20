@@ -1,0 +1,347 @@
+0.24s: What is machine learning? At its core,
+2.72s: machine learning is about teaching
+4.16s: computers to learn from experience.
+7.04s: But instead of giving a computer exact
+8.96s: step-by-step instructions, [music] we
+10.88s: let it figure things out by showing it
+12.639s: examples and letting math do the rest.
+15.519s: So basically, machine learning is when
+17.359s: computers learn patterns from data and
+19.6s: use them to make predictions or
+21.039s: decisions without being explicitly
+22.88s: programmed for every single step. It's
+25.439s: kind of like how you learn not to touch
+26.8s: a hot stove as a kid once you got
+28.8s: burned. But before I really get into
+31.119s: what machine learning is, [music] let me
+32.88s: give you more of a contextual
+34.079s: understanding. You might have heard of
+36.32s: this little thing called AI over the
+38.16s: past few years. I mean, it's not like
+40.8s: it's ever mentioned.
+44.559s: Okay? Yeah, it's everywhere. If
+46.48s: buzzwords had a leaderboard, AI would be
+48.48s: number one. But the thing about AI is
+51.28s: that it's a very broad field. At its
+54.32s: core, AI or artificial intelligence is
+57.28s: about building systems that can perform
+59.12s: tasks that normally require human
+61.199s: intelligence. Things like recognizing
+62.899s: [music]
+63.52s: speech, making decisions, answering
+66.08s: questions, or suggesting what you should
+67.68s: watch next when you really should be
+69.04s: going to bed.
+71.04s: Okay, cool. So, [music] what does this
+73.439s: have to do with machine learning?
+75.84s: Well, it turns out that machine learning
+77.759s: is a subset of AI. It's basically the
+81.2s: engine that powers AI's digital brain to
+83.68s: actually learn and improve.
+86.0s: Basically, if AI is about simulating
+88.159s: human intelligence, then machine
+90.08s: learning is the way to actually make
+91.68s: that happen.
+93.52s: Instead of explicit programming, nine
+96.079s: learning uses algorithms to analyze
+98.159s: large amounts of data in order to learn
+100.32s: and improve from experience. Yep.
+103.04s: >> Along with AI and machine learning,
+104.88s: there is an even further subset of
+106.64s: machine learning called deep learning
+108.56s: that uses layered neural networks
+110.56s: inspired by the human brain, [music]
+112.399s: which learns even more complex patterns
+114.479s: from data. Feel free to comment below if
+117.119s: you want a separate video for deep
+118.479s: learning, as it's a beast of a topic on
+120.64s: its own.
+122.719s: Okay, now that we've established what
+124.479s: machine learning is, let's talk about
+126.32s: the core components that make a machine
+127.92s: learning system actually work. To keep
+130.239s: it simple, we will focus on four key
+132.48s: areas. Data, algorithms, models, and
+136.4s: training and evaluation.
+138.879s: First up, data. Data is like the
+141.68s: ingredients that the machine learning
+143.28s: feeds on. Without data, there's
+145.44s: literally nothing for the machines to
+146.959s: learn from. No [music] data would be
+149.36s: like having a car with no gasoline. But
+152.16s: here's the thing. While you need a lot
+154.239s: of data to train your machine, the
+156.16s: quality of your data can be more
+157.68s: important than the quantity. You put
+160.08s: garbage data in, you often get garbage
+162.239s: data out. For example, if you have a
+165.04s: data set that's full of errors, biases,
+167.12s: or irrelevant features, well, no
+169.68s: algorithm can fix that. The importance
+172.4s: of having quality data is largely the
+174.48s: reason why data analysts and data
+176.16s: scientists exist.
+178.4s: So, what does quality data look like?
+181.12s: Quality data has three things. Accuracy,
+184.057s: [music] which means the data should
+185.599s: represent reality as closely as
+187.28s: possible. Relevance, which means the
+189.952s: [music] features should directly relate
+191.36s: to the prediction task. And cleanliness,
+194.48s: which removes duplicates, fixes typos,
+196.959s: and handles missing [music] values.
+200.319s: Also, more data generally equals better
+202.72s: performance because it covers more
+204.64s: scenarios for edge cases and lets the
+206.959s: model learn subtle relationships it
+208.64s: couldn't spot with a limited sample
+210.08s: size.
+211.599s: But more data only helps if it's good
+214.799s: data. Millions of noisy or irrelevant
+217.84s: data features will actually work against
+219.76s: your goals.
+221.92s: Next up, we have [music] algorithms.
+224.239s: Algorithms are the learning process
+226.0s: where we actually extract meaningful
+227.68s: insights from the data. It's a set of
+230.239s: rules and calculations we use to extract
+232.319s: patterns, structions or decision
+234.239s: strategies from the data set. If data is
+237.599s: like the ingredients that machine
+238.959s: learning needs, [music] then algorithms
+240.959s: are kind of like the chef that turns the
+242.799s: raw data into something useful.
+245.439s: There are tons of different algorithms
+247.04s: in machine learning such as linear
+248.72s: regression, logistic regression,
+250.799s: principal component analysis,
+252.4s: clustering, anomaly detection.
+254.159s: Basically, there's way too many [music]
+255.519s: algorithms to cover in the scope of this
+257.199s: one video. But the point is that the
+259.359s: algorithms vary by task. Some algorithms
+262.24s: are good for prediction, others for
+264.56s: pattern discovery, and others for trial
+266.4s: and error learning. These algorithms
+269.28s: iteratively adjust their internal
+271.199s: parameters called weights and biases to
+273.84s: improve their accuracy.
+276.0s: It's kind of like tuning an old AMFM
+278.32s: radio. At first, you hear a bunch of
+280.639s: static, but you adjust the dials with
+282.72s: tiny [music] nudges until the station
+284.24s: comes through. That's basically what a
+286.8s: learning algorithm does. It keeps
+288.72s: tweaking its internal parameters step by
+290.96s: step to reduce the noise or the errors
+294.16s: until the predictions come through
+295.6s: clearly.
+297.12s: The next component is the model. If data
+300.24s: is the ingredients and [music] the
+301.68s: algorithm is the chef, then the model is
+304.16s: like the dish. It's what you get after
+306.8s: the algorithm is done learning.
+309.199s: Basically, the model is a mathematical
+311.12s: function that takes input and produces
+313.12s: an output. Whether that's a prediction,
+315.36s: classification, [music]
+316.4s: recommendation, or action, all based on
+319.039s: what it learned from the training data.
+320.298s: [music]
+321.68s: For example, your model can predict
+323.36s: whether your emails are spam or not
+325.199s: spam, which is called classification.
+328.4s: Or you can train your model to estimate
+330.32s: the price of a house based on the
+332.088s: [music] details of a home, which is
+334.4s: something called regression. The
+336.56s: complexity of the model can vary. It
+338.8s: really depends on your end goal. So for
+341.759s: example, these models can range from a
+343.919s: simple straight line regression equation
+346.4s: to complex deep networks with billions
+349.199s: of parameters. That complexity depends
+352.0s: on your problem data scale and depth of
+355.039s: your pockets.
+356.88s: In short, the model is basically the
+358.72s: brain that is the result of your
+360.56s: training data and your algorithm.
+364.24s: Lastly, [music] we have training and
+365.919s: evaluation. Training is the model's
+368.4s: practice phase. This is where the
+370.319s: algorithm has access to data and uses it
+372.56s: to learn patterns, adjust parameters,
+374.88s: and of course, [music] get better at
+376.24s: making predictions or decisions. Machine
+378.8s: learning models don't start knowing the
+380.479s: rules. They discover them from exposure
+382.8s: to more quality data. Just like how a
+386.16s: pro boxer needs to train to improve and
+388.319s: sharpen his skills, the model needs
+390.479s: training as well. Otherwise, it will end
+392.72s: up just making random guesses.
+394.16s: >> Wrong. [music]
+395.36s: >> Each cycle of training reduces error and
+398.08s: improves the ability of the model.
+400.72s: Evaluation is exactly how it sounds,
+402.72s: which [music] is to assess how our model
+404.319s: is doing. If our model is like the dish,
+407.199s: then the evaluation is like the taste
+409.759s: test. It's where we find out if all that
+412.72s: training actually resulted in a capable
+414.88s: model.
+416.8s: In practice, you will typically see
+418.479s: training and evaluation performed by
+420.16s: dividing up the data into three
+421.919s: categories. The training set which is
+424.4s: used to initially teach the model using
+426.479s: the data. the validation set which is
+429.12s: used to tune hyperparameters like the
+431.199s: learning rate and a test [music] set
+433.28s: which is used to measure the performance
+435.12s: of your model.
+437.039s: The model starts with random or default
+439.36s: parameters. As data flows through the
+441.759s: algorithm, predictions are made. A math
+444.8s: formula called a loss function which
+446.88s: might look something like this is used
+449.039s: to measure how wrong the predictions
+450.72s: are. In case this equation you see on
+453.599s: screen makes you want to go,
+454.8s: >> "Oh, hell no.
+457.919s: Don't worry, I'll make it sound super
+459.599s: simple. This equation is a way of
+462.16s: telling the [music] model just how badly
+463.759s: it messed up. It's kind of like a parent
+466.24s: telling their kid, "You were this close.
+469.12s: Try again."
+471.12s: Basically, a loss function tells the
+472.88s: model what it needs to fix.
+475.36s: After that, an optimization method such
+477.44s: as [music] gradient descent is used to
+479.36s: adjust parameters to reduce that loss.
+482.8s: This process repeats itself a bunch of
+484.8s: times across the training set until
+487.12s: performance reaches an acceptable level.
+489.919s: So to sum it all up, training builds the
+492.24s: skill and evaluation measures the skill.
+497.84s: The types of machine learning you'll
+499.28s: hear most often about are supervised,
+501.44s: unsupervised, reinforcement, and
+503.84s: semi-supervised learning.
+506.4s: Supervised learning is when the machine
+507.919s: learning model learns from labeled
+509.599s: examples. Unsupervised learning is when
+511.84s: the model finds patterns [music] or
+513.36s: structure in data without any labels.
+515.839s: Reinforcement learning is when the model
+517.519s: learns by taking actions and receiving
+519.519s: rewards or penalties from the
+521.2s: environment. And in semi-supervised
+524.0s: learning, the model learns from a
+525.76s: combination of labeled and unlabeled
+527.76s: data. In supervised learning, for
+530.0s: example, if you have photos of apples
+531.6s: and bananas with the correct labels,
+534.24s: eventually the model will be able to
+535.76s: look at a brand new photo and determine
+537.6s: whether it's an apple or a banana. This
+540.24s: is what's known as classification. When
+542.48s: you predict a discrete output, if you
+545.279s: feed the model thousands of housing
+546.931s: [music] details and prices, it learns to
+549.2s: estimate a price for a new house. This
+551.279s: is known as regression, where you
+552.88s: predict a continuous output. It's kind
+555.36s: of like studying for a test with all the
+557.12s: answers.
+559.36s: Unsupervised learning is where there are
+561.04s: no correct answers provided, [music]
+562.72s: meaning it's just raw data with no
+564.32s: labels. So, what does the model do?
+567.92s: Well, the model's job here is to spot
+569.6s: structure. Here, the focus is to group
+572.24s: things that are similar, [music] find
+573.76s: patterns, and detect anomalies. It
+575.76s: initially has no idea that these are
+577.68s: circles, [music]
+578.24s: squares, and triangles. But it learns to
+580.48s: group them together based on similar
+582.24s: patterns, [music] such as the color of
+584.08s: the circles being blue or the squares
+586.24s: having four sides. Unsupervised learning
+588.56s: is kind of like walking into a room full
+590.32s: of people and figuring out which ones
+592.16s: are introverts versus extroverts based
+594.08s: on their behavior patterns.
+596.16s: Reinforcement learning is a bit
+597.6s: different. It's all about trial and
+599.6s: error. Here, there's something called an
+601.92s: agent that interacts with an
+603.36s: environment, takes actions, gets rewards
+605.92s: or penalties, and then tunes its
+608.0s: strategy, which is something called a
+609.6s: policy, in order to maximize long-term
+612.32s: reward. It's a lot like learning how to
+614.48s: play a difficult video game. You die
+617.04s: repeatedly, but you get slightly further
+619.12s: each time until you master the level.
+621.36s: Here's a real world example of
+623.6s: reinforcement learning in action. As you
+626.32s: can see, the robot failed at first,
+628.152s: [music] but eventually was successful at
+630.079s: walking over the obstacle, much like
+631.92s: humans attempting things for the first
+633.44s: time before getting good at it. [music]
+635.04s: And lastly, we have semi-supervised
+636.959s: learning. Semi-supervised learning is
+639.68s: like the fusion between supervised and
+641.6s: unsupervised [music] learning. It's
+642.959s: exactly what it sounds like. You have
+645.12s: some labeled data, but not enough to
+647.04s: train a great supervised model. So you
+649.44s: let the algorithm use the unlabeled data
+651.76s: to learn additional structure and
+653.44s: improve [music] performance. For
+655.12s: instance, if you have a few photos of
+657.04s: dogs and cats, each [music] with labels,
+659.36s: the model will look at these labels and
+661.04s: features and use what it learned to try
+663.12s: and identify the unlabeled ones.
+667.12s: Think of these as different ways to get
+668.72s: good at something. Kind of like the way
+670.48s: we humans learn, either by having a
+672.16s: teacher, figuring stuff on our own, or
+674.64s: just messing around until we finally get
+676.24s: it right.
+678.8s: And now you're smarter in machine
+680.399s: learning than you were 10 [music]
+681.279s: minutes ago. Congratulations.
+683.68s: Machine learning is a fascinating and
+685.519s: constantly evolving world. But at the
+687.76s: core of it, it isn't some mysterious
+689.839s: black box or magic. It's really just
+692.24s: data, algorithms, and some trial and
+694.399s: error doing their thing.
+696.64s: If you want to learn more about machine
+698.079s: learning, I've got a free ebook that
+699.839s: breaks machine learning down in a super
+701.76s: simple and easy way. It goes over all
+704.48s: the concepts that I've covered here, but
+706.16s: it also does a deeper dive into the
+707.839s: different [music] algorithms used as
+709.36s: well as cover some more of the
+710.48s: fundamentals of machine learning. It's
+712.8s: called machine learning simplified. No
+714.64s: scary math or complex jargon. You can
+717.76s: click the link in the description or
+719.12s: scan the QR code on screen to get your
+721.04s: copy.
+722.56s: Go ahead and read it at your own pace.
+724.079s: And again, it's totally [music] free. If
+726.959s: you like this video, please like and
+728.48s: subscribe and leave a comment down below
+730.079s: of what topic you'd like to see covered
+731.839s: next. I'll see you guys in the next
+733.76s: video.
+736.883s: [music]
