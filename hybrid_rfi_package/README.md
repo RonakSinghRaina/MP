@@ -23,29 +23,62 @@ Both read the SAME `Synthetic Dataset/` folder, so put this folder beside
 
 ## How to run
 
-```bash
-source ~/tf-env/bin/activate
-cd "Minor Project/hybrid_rfi_package"
-pip install torch
+> **Do NOT install torch into `~/tf-env`.** An earlier version of this README
+> said `source ~/tf-env/bin/activate` then `pip install torch`. That is the exact
+> action `CLAUDE.md` §3 documents as having broken this project once: installing
+> torch silently downgrades the cuDNN build TensorFlow needs, and the `tf_unet`
+> baseline then dies with a `CuDNN version mismatch`. The two frameworks require
+> incompatible cuDNN versions and cannot share one environment. Use
+> `~/torch-env` for everything in this folder.
 
-python3 make_val_split.py      # once. moves 150 train images -> val/
-python3 train_hybrid.py        # rerun the same command to resume after a restart
-python3 evaluate_hybrid_test.py   # ONCE, at the very end
+```bash
+source ~/torch-env/bin/activate          # NOT tf-env -- see the warning above
+cd "Minor Project/hybrid_rfi_package"
+pip install -r ../requirements-torch.txt
+
+python3 train_hybrid.py \
+    --dataset_dir "../Synthetic Dataset 276x600" \
+    --output_dir "../hybrid_run_paperdim" \
+    --patch_size 0 --batch_size 8 --n_val_images 150 \
+    --deterministic --early_stop_patience 3
+
+# ONCE, at the very end. --patch_size 0 is now the default, but pass it
+# explicitly so the command is self-documenting.
+python3 evaluate_hybrid_test.py \
+    --dataset_dir "../Synthetic Dataset 276x600" \
+    --output_dir "../hybrid_run_paperdim" \
+    --patch_size 0 --per_image_csv --strength_report
 ```
 
-## IMPORTANT: `make_val_split.py` changes the shared dataset
+Rerunning the same `train_hybrid.py` command resumes from `progress.json` after
+an interruption.
 
-It moves 150 images from `train/` into a new `val/` folder. Your already
-trained baseline model is NOT affected (it is already trained). But if you
-ever RE-train the baseline afterwards, it will then be training on 550
-images instead of 700, so its numbers would no longer be directly comparable
-to your existing baseline result. Note the split in your report.
+## `make_val_split.py` is NOT needed for the 276x600 dataset
+
+`dataset_generator_v3_strength.py` already writes `train/` (700), `val/` (150)
+and `test/` (150) directly, and stamps a `split` field into each
+`metadata.jsonl` record. On that dataset `make_val_split.py` prints
+*"val/ already exists -- nothing to do"* and changes nothing.
+
+Only run it on a dataset that has `train/` and `test/` but no `val/`. If you do,
+it moves 150 images out of `train/`, so training then sees **550** images, not
+700 — and any baseline retrained afterwards is no longer comparable to one
+trained on 700. **State in the write-up which of the two situations applies**;
+`RFI_Project_Model_Comparison.md` currently says 700 while this file used to
+imply 550, and nothing in the repository resolves it.
 
 ## Preserved from the baseline debugging work
 
-batch_size=1 and 512px patches (6 GB VRAM), min-max normalization WITHOUT
-`fabs()`, Adam @ 1e-3 (not the paper's 0.2, which killed training at
-iteration 4), measured class weights, resumability across laptop restarts,
-best-checkpoint tracking, VRAM preflight, one-image-at-a-time evaluation,
-collapse detection. Plus gradient clipping and GroupNorm (BatchNorm is
-meaningless at batch_size=1).
+Min-max normalization WITHOUT `fabs()` (the baseline's own normalization took
+absolute values first, turning strong negative noise dips into
+maximum-brightness pixels the mask still called clean), Adam @ 1e-3 (not the
+paper's 0.2, which killed training at iteration 4), measured class weights,
+resumability across restarts, best-checkpoint tracking, VRAM preflight,
+one-image-at-a-time evaluation, collapse detection, gradient clipping, and
+GroupNorm rather than BatchNorm.
+
+> Note: the small-batch arguments above (`batch_size=1`, 512 px patches) come
+> from the original 1024×1024 work. The reported 276×600 result was trained at
+> `--batch_size 8 --patch_size 0`. GroupNorm is still the right choice at batch
+> 8, but do not repeat "BatchNorm is meaningless at batch_size=1" as the
+> justification for the run that was actually published.

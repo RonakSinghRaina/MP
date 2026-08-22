@@ -27,8 +27,13 @@ width, persistent band width, blob size, and scattered cluster size.
 Parameters expressed in MHz (the bandpass gain curve) are already
 resolution-independent and are deliberately NOT scaled.
 
-Verified: RFI pixel fraction stays comparable across resolutions
-(12.4% at 276x600 vs 14.5% at 1024x1024).
+Verified: RFI pixel fraction stays comparable across resolutions.
+
+**Corrected (audit):** this previously claimed *"12.4% at 276x600"*. Regenerating
+with the documented command and `--seed 42` gives a mean RFI pixel fraction of
+**14.67%** (median 11.32%, min 0.00%, max 62.93%) — see the `dataset_statistics.txt`
+the generator writes. The test split specifically is **15.0808%**
+(3,746,075 of 24,840,000 pixels). Quote those numbers, not 12.4%.
 
 ## Regenerate the dataset
 
@@ -53,8 +58,21 @@ python3 train_unet_rfi_gpu.py \
     --patch_size 0 --batch_size 32 \
     --optimizer momentum --learning_rate 0.2 \
     --layers 3 --features_root 64 \
+    --training_iters 22 \
     --total_epochs 100
 ```
+
+> **`--training_iters` is not optional.** Without it tf_unet defaults to 64
+> gradient steps per "epoch" regardless of dataset size, so an "epoch" is not a
+> pass over the data and the run is not comparable to anything else in this
+> project. One full pass is `ceil(n_train / batch_size)` — 22 at batch 32,
+> 88 at batch 8, 175 at batch 4. Prefer `run_fair_comparison.py`, which computes
+> this for you and writes the settings it used to `run_config.json`.
+>
+> This command is the *paper-settings* run, which is **not** the run reported in
+> `RFI_Project_Model_Comparison.md`. That one used `--batch_size 4
+> --features_root 32 --optimizer adam --learning_rate 0.001` for 22 epochs. Do
+> not mix the two configurations in one table.
 
 `--patch_size 0` means no cropping: train on whole 276x600 images, exactly
 like the paper.

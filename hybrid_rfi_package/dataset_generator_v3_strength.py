@@ -525,10 +525,20 @@ def generate_spectrogram(n_freq=1024, n_time=1024, rfi_density=None):
         n_time: Number of time bins (columns)
         rfi_density: One of 'clean', 'light', 'moderate', 'heavy', or None (random)
     
-    Returns:
-        spectrogram: 2D array (n_freq, n_time) float32 — the contaminated image
-        mask: 2D array (n_freq, n_time) uint8 — ground truth binary mask (1=RFI, 0=clean)
-        metadata: dict with generation parameters for reproducibility
+    Returns FOUR values (the docstring previously listed three):
+        spectrogram:  2D array (n_freq, n_time) float32 — the contaminated image
+        mask:         2D array (n_freq, n_time) uint8 — binary ground truth (1=RFI)
+        strength_map: 2D array (n_freq, n_time) float16 — injected RFI amplitude
+                      divided by that channel's local noise sigma
+        metadata:     dict with generation parameters for reproducibility
+
+    NOTE ON HOW THE LABEL IS DEFINED (this matters for interpreting any score):
+    the mask is the hard injected footprint OR'd with `rfi_layer > 0.5*local_sigma`
+    (step 4 below). The ground truth is therefore a deterministic, noise-free
+    threshold on a smooth latent field, with zero label ambiguity: no
+    clean-labelled pixel carries more than 0.5 sigma of injected RFI, by
+    construction. Real telescope flags are not like this. See
+    `experiments/dataset_difficulty.py` and `AUDIT_REPORT.md`.
     """
     # Determine RFI density if not specified.
     # Thresholds tuned to sit inside the guide's recommended ranges:

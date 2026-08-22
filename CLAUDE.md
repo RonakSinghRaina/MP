@@ -203,7 +203,11 @@ pattern in any new evaluation code.
 # TensorFlow baseline work
 source ~/tf-env/bin/activate
 cd "/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/unet_rfi_package copy"
-python3 run_fair_comparison.py --batch_size 4          # matched comparison run
+# --features_root MUST be passed here too. run_fair_comparison.py defaults to 64
+# (the paper's width), but the run reported in RFI_Project_Model_Comparison.md
+# used 32. Omitting it trains a 64-wide model that evaluate_test_set.py --features_root 32
+# then cannot restore (shape mismatch -- see section 10).
+python3 run_fair_comparison.py --batch_size 4 --features_root 32
 python3 evaluate_test_set.py --checkpoint_dir "../unet_run_faircompare/best_checkpoint" \
     --dataset_dir "../Synthetic Dataset 276x600" --patch_size 0 --features_root 32
 
@@ -211,9 +215,14 @@ python3 evaluate_test_set.py --checkpoint_dir "../unet_run_faircompare/best_chec
 source ~/torch-env/bin/activate
 cd "/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/hybrid_rfi_package"
 python3 train_hybrid.py --dataset_dir "../Synthetic Dataset 276x600" \
-    --output_dir "../hybrid_run_paperdim" --patch_size 0 --batch_size 8 --n_val_images 150
+    --output_dir "../hybrid_run_paperdim" --patch_size 0 --batch_size 8 \
+    --n_val_images 150 --deterministic --early_stop_patience 3
+# --patch_size 0 is REQUIRED here. It used to be omitted, and the old default of
+# 512 centre-crops every 276x600 image to 276x512 -- silently dropping 88 of 600
+# time bins and producing numbers that do not match the published ones.
 python3 evaluate_hybrid_test.py --dataset_dir "../Synthetic Dataset 276x600" \
-    --output_dir "../hybrid_run_paperdim"
+    --output_dir "../hybrid_run_paperdim" --patch_size 0 \
+    --per_image_csv --strength_report
 ```
 
 Both training scripts are resumable — rerunning the exact same command
