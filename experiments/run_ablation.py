@@ -78,7 +78,23 @@ def _collect(model, loader, device):
     return np.concatenate(yt), np.concatenate(yp)
 
 
-def evaluate(model, val_loader, test_loader, device):
+def load_strength(dataset_dir, split="test"):
+    """
+    Per-pixel injected RFI amplitude in units of local noise sigma, flattened to
+    match the concatenated test labels. Returns None if not available.
+    """
+    import glob as _glob
+    sdir = os.path.join(dataset_dir, split, "strength")
+    files = sorted(_glob.glob(os.path.join(sdir, "*.npy")))
+    if not files:
+        return None
+    return np.concatenate([np.load(f).astype(np.float32).ravel() for f in files])
+
+
+STRENGTH_BINS = [(0, 1), (1, 2), (2, 4), (4, 8), (8, np.inf)]
+
+
+def evaluate(model, val_loader, test_loader, device, strength=None):
     """Threshold on val, apply once to test -- same protocol as evaluate_hybrid_test.py."""
     vy, vp = _collect(model, val_loader, device)
     prec, rec, thr = precision_recall_curve(vy, vp)
@@ -95,16 +111,34 @@ def evaluate(model, val_loader, test_loader, device):
     tn, fp, fn, tp = confusion_matrix(ty, pred, labels=[0, 1]).ravel()
     P = tp / (tp + fp + 1e-10)
     R = tp / (tp + fn + 1e-10)
-    return dict(roc_auc=float(auc(fpr, tpr)), pr_auc=float(auc(r2, p2)),
-                threshold=best_thr, val_oracle_f1=val_oracle,
-                f1=float(2 * P * R / (P + R + 1e-10)),
-                precision=float(P), recall=float(R),
-                iou=float(tp / (tp + fp + fn + 1e-10)),
-                mcc=float(matthews_corrcoef(ty, pred)),
-                tn=int(tn), fp=int(fp), fn=int(fn), tp=int(tp))
+    out = dict(roc_auc=float(auc(fpr, tpr)), pr_auc=float(auc(r2, p2)),
+               threshold=best_thr, val_oracle_f1=val_oracle,
+               f1=float(2 * P * R / (P + R + 1e-10)),
+               precision=float(P), recall=float(R),
+               iou=float(tp / (tp + fp + fn + 1e-10)),
+               mcc=float(matthews_corrcoef(ty, pred)),
+               tn=int(tn), fp=int(fp), fn=int(fn), tp=int(tp))
+
+    # Recall stratified by injected RFI strength. This is the precise test of
+    # the strip convolutions' stated purpose: hybrid_model.py argues they exist
+    # so that "a 1.5-sigma line becomes detectable" by integrating along
+    # coherent structure. If that mechanism is real, use_strip=True should beat
+    # use_strip=False specifically in the weakest bins. Pooled F1 cannot show
+    # this, because the weak bins are a small share of the pixels.
+    if strength is not None and strength.shape == ty.shape:
+        pb = pred.astype(bool)
+        rep = []
+        for lo, hi in STRENGTH_BINS:
+            sel = ty & (strength >= lo) & (strength < hi)
+            n = int(sel.sum())
+            rep.append({"bin_sigma": (f"{lo:g}-{hi:g}" if np.isfinite(hi) else f">{lo:g}"),
+                        "n_rfi_px": n,
+                        "recall": float((pb & sel).sum() / n) if n else float("nan")})
+        out["strength_recall"] = rep
+    return out
 
 
-def train_one(name, a, loaders, cw, seed, device):
+def train_one(name, a, loaders, cw, seed, device, strength=None):
     train_loader, val_loader, test_loader = loaders
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -134,11 +168,15 @@ def train_one(name, a, loaders, cw, seed, device):
                 print(f"  step {step}/{a.steps} loss={np.mean(losses[-25:]):.4f} "
                       f"({time.time() - t0:.0f}s)", flush=True)
     secs = time.time() - t0
-    m = evaluate(model, val_loader, test_loader, device)
+    m = evaluate(model, val_loader, test_loader, device, strength=strength)
     m.update(name=name, seed=seed, params=n_par, train_secs=secs,
              final_train_loss=float(np.mean(losses[-25:])))
     print(f"  -> ROC {m['roc_auc']:.4f}  F1 {m['f1']:.4f}  P {m['precision']:.4f}  "
           f"R {m['recall']:.4f}  MCC {m['mcc']:.4f}   ({secs / 60:.1f} min)", flush=True)
+    if "strength_recall" in m:
+        print("     recall by injected strength: " +
+              "  ".join(f"{b['bin_sigma']}s={b['recall']:.3f}" for b in m["strength_recall"]),
+              flush=True)
     return m
 
 
@@ -183,12 +221,17 @@ def main():
                DataLoader(_Head(va, a.n_val), batch_size=1, shuffle=False, num_workers=0),
                DataLoader(te, batch_size=1, shuffle=False, num_workers=0))
 
+    strength = load_strength(a.dataset_dir, "test")
+    if strength is None:
+        print("NOTE: no test/strength/ maps found -- skipping the strength-stratified "
+              "recall breakdown. Regenerate with dataset_generator_v3_strength.py to get it.")
+
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     results = []
     for seed in a.seeds:
         for name in a.variants:
             try:
-                results.append(train_one(name, a, loaders, cw, seed, device))
+                results.append(train_one(name, a, loaders, cw, seed, device, strength=strength))
             except Exception as e:                                   # keep the grid going
                 print(f"  !! {name} (seed {seed}) failed: {e}", flush=True)
             json.dump({"config": vars(a), "results": results}, open(a.out, "w"), indent=2)

@@ -39,13 +39,38 @@ python3 experiments/run_ablation.py --dataset_dir "Synthetic Dataset 276x600" \
 
 ## Reference results (CPU, reduced budget)
 
-Measured on the `seed=42`, 276×600 dataset. The ablation used a deliberately
-reduced budget (`base=16`, 400 training images, 200 gradient steps, batch 4)
-so that all variants fit on 2 CPU cores. **Absolute numbers are therefore below
-the 0.98 reported for the full-budget hybrid; the point is the ordering and the
-gaps, which are measured under an identical budget for every row.**
+Measured on the `seed=42`, 276×600 dataset. Raw output in `../results/`.
 
-See `AUDIT_REPORT.md` for the full table and interpretation.
+The ablation used a deliberately reduced budget (`base=16`, 400 training images,
+200 gradient steps, batch 4) so all seven variants fit on 2 CPU cores.
+**Absolute F1 is therefore below the 0.98 reported for the full-budget hybrid;
+the point is the ordering and the gaps, measured under an identical budget for
+every row.**
+
+| Variant | Res | Strip | ECA | Params | ROC AUC | F1 | MCC |
+|---|:---:|:---:|:---:|---:|---:|---:|---:|
+| `logistic_pixel` | – | – | – | 4 | 0.3165 | 0.2621 | 0.0000 |
+| `tiny_cnn` | – | – | – | 2,578 | 0.9574 | 0.7823 | 0.7493 |
+| `plain_unet` | ✗ | ✗ | ✗ | 1,942,306 | 0.9838 | 0.8814 | 0.8614 |
+| `no_strip` | ✓ | ✗ | ✓ | 2,029,386 | 0.9859 | 0.8785 | 0.8579 |
+| `no_res` | ✗ | ✓ | ✓ | 2,255,418 | 0.9900 | 0.9033 | 0.8867 |
+| `no_eca` | ✓ | ✓ | ✗ | 2,342,450 | **0.9919** | **0.9117** | **0.8963** |
+| `hybrid_full` | ✓ | ✓ | ✓ | 2,342,474 | 0.9889 | 0.8928 | 0.8737 |
+
+Marginal effect per component (mean F1 present − mean F1 absent):
+**strip convolutions +0.0226**, residual blocks +0.0020, ECA **−0.0050**.
+
+No-learning baselines on the same test set:
+
+| Method | ROC AUC | PR AUC | F1 | MCC |
+|---|---:|---:|---:|---:|
+| Constant global threshold | 0.9308 | 0.8257 | 0.7421 | 0.7092 |
+| Per-channel sigma clipping | 0.5787 | 0.2169 | 0.2788 | 0.0851 |
+| SumThreshold-lite | 0.6432 | 0.3608 | 0.3460 | 0.2507 |
+| *reported `tf_unet` baseline* | *0.6681* | *0.4350* | *0.3879* | – |
+
+**One seed per cell.** Differences below ~0.03 F1 are not established by this
+run. See `AUDIT_REPORT.md` §A2 for the full interpretation and caveats.
 
 ## Why a matched-budget ablation and not a full retrain
 

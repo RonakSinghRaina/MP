@@ -2,6 +2,48 @@
 
 **Task:** Detect radio frequency interference (RFI) in synthetic GMRT-style spectrograms using image segmentation.
 
+> ## ⚠ DO NOT COPY THIS TABLE INTO A PAPER AS-IS
+>
+> A publication-readiness audit (2026-08-22, see **`AUDIT_REPORT.md`**) found
+> that the comparison below does not support the conclusion drawn from it. On the
+> **identical test set**, measured independently:
+>
+> | Method | Params | ROC AUC | F1 |
+> |---|---:|---:|---:|
+> | A constant threshold on the raw pixel value | 0 | 0.9308 | 0.7421 |
+> | A 3-layer toy CNN, 200 gradient steps | 2,578 | 0.9574 | 0.7823 |
+> | A plain U-Net using the hybrid's own training recipe | 1.9 M | 0.9838 | 0.8814 |
+> | **Model 2 below (`tf_unet`)** | ~2.0 M | **0.6681** | **0.3879** |
+>
+> **Model 2 loses to a constant threshold.** It is a failed training run, not a
+> demonstration of an architectural limit, so §6's one-line summary — that the
+> gap is "attributable to architectural limitations of the plain U-Net" — is not
+> currently supported.
+>
+> A controlled ablation (holding data, order, seed, loss, optimiser and
+> gradient-step budget fixed, changing **only** the architecture) puts the
+> hybrid's three components at:
+>
+> | Component | Δ F1 |
+> |---|---:|
+> | Multiscale anisotropic strip convolutions | **+0.023** |
+> | Residual blocks | +0.002 |
+> | Efficient channel attention | **−0.005** |
+>
+> The full architecture beats a plain U-Net of the same family by **+0.011 F1**,
+> not +0.59. The strip convolutions are a real contribution and worth reporting;
+> the other two are not measurable. See `AUDIT_REPORT.md` §A2 and
+> `results/ablation_reduced_budget.json`.
+>
+> Three further problems: Models 2 and 3 are scored with **different metrics over
+> different pixel regions** (audit §A4); the Model 2 configuration recorded in §3
+> is **arithmetically self-contradictory** (§A3); and every number here comes
+> from a **single run with no error bars** (§B1).
+>
+> The hybrid's own numbers appear honest — I reproduced the dataset bit-exactly
+> and found no leakage or fabrication. It is the *comparison* that needs work.
+> Read `AUDIT_REPORT.md` §8 for the fix order.
+
 ---
 
 ## 1. Summary Table — All Trained Models
@@ -12,7 +54,24 @@
 | 2 | Authors' U-Net, fair comparison | 276×600 (paper-matched) | 0.6681 | 0.4350 | 0.3879 | `unet_run_faircompare/best_checkpoint/` |
 | 3 | **Hybrid model (this project)** | 276×600 (paper-matched) | **0.9995** | **0.9982** | **0.9808** | `hybrid_run_paperdim/best.pt` |
 
-All three were evaluated on their respective **150-image, never-trained-on test sets** — not validation sets, not training sets.
+All three were evaluated on their respective 150-image test sets.
+
+> **Caveats on this table (audit):**
+> - **The F1 columns are not the same metric.** Models 1 and 2 report `max_f1` —
+>   the best F1 over *all* thresholds, computed **on the test set** (an oracle).
+>   Model 3 reports F1 at a threshold fixed on validation beforehand. The oracle
+>   favours the baselines, so the true gap is if anything larger — but these are
+>   two different quantities in one column.
+> - **Different pixel regions.** `tf_unet` uses valid padding: at `layers=3` its
+>   output is 40 px smaller per axis, so Models 1–2 are scored on 236×560 =
+>   132,160 px/image while Model 3 is scored on the full 276×600 = 165,600.
+> - **Model 1's provenance is unconfirmed.** `evaluate_test_set.py`'s own
+>   docstring warns that when a dataset has no `val/` folder, training already
+>   used the test set for checkpoint selection. Verify whether that applied to
+>   Model 1 before describing it as held-out.
+> - **None of these runs' evidence is committed** — no logs, checkpoints or
+>   metrics files are in the repository, so nothing here is independently
+>   checkable (audit §A5).
 
 ---
 
@@ -130,4 +189,40 @@ Models 2 and 3 both use this dataset, so they are directly comparable to each ot
 
 ## 6. Suggested One-Line Summary for a Report/Abstract
 
+> ### ⚠ WITHDRAWN — do not use this wording
+>
+> The summary below asserts that the gap is "attributable to architectural
+> limitations of the plain U-Net rather than training configuration". The audit
+> found this is not supported: the F1=0.39 baseline is beaten by a *constant
+> threshold* (F1=0.74) and by a 2,578-parameter CNN (F1=0.78) on the same test
+> set, and a **plain** U-Net trained with the hybrid's own recipe reaches
+> F1=0.88 under a tenth of the training budget. Whatever produced the gap, it
+> was not the absence of residual blocks, strip convolutions and ECA.
+
+<details>
+<summary>Original wording (kept for the record)</summary>
+
 > "The authors' original U-Net (Akeret et al. 2017), reproduced faithfully and evaluated under matched training conditions on our synthetic 276×600 RFI dataset, achieved F1=0.39 (ROC AUC=0.67) — only modestly above its performance on our original, unmatched 1024×1024 setup (F1=0.34, ROC AUC=0.55). A hybrid architecture combining residual blocks, multiscale anisotropic strip convolutions, and efficient channel attention, trained under identical conditions on the same dataset, achieved F1=0.98 (ROC AUC=0.9995), indicating the performance gap is attributable to architectural limitations of the plain U-Net rather than training configuration."
+
+</details>
+
+### Defensible wording, given only what is currently verified
+
+> "On a synthetic 276×600 RFI benchmark generated by a rule-based simulator, a
+> U-Net variant trained with GroupNorm, raw output logits and a combined
+> cross-entropy + Dice objective reaches F1 = 0.98 at a threshold selected on a
+> held-out validation split. We report reference points on the same benchmark: a
+> constant intensity threshold reaches F1 = 0.74 and a 2.6 k-parameter CNN
+> reaches F1 = 0.78, indicating the benchmark is not difficult in absolute
+> terms — 90.9% of the labelled RFI lies at or above the local noise level and
+> the labels are a deterministic function of the injected amplitude. We make no
+> claim about performance on real telescope observations."
+
+A reduced-budget ablation has already been run
+(`results/ablation_reduced_budget.json`) and gives:
+strip convolutions **+0.023 F1**, residual blocks +0.002, ECA −0.005. Rerun
+`experiments/run_ablation.py` at full budget with ≥3 seeds and put the measured
+per-component contributions in place of the middle sentence. On present evidence
+the honest headline is *"anisotropic strip convolutions matched to RFI morphology
+give a small but consistent improvement over a plain U-Net"* — a narrower claim
+than the current draft, and one that survives review.
