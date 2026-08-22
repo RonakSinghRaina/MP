@@ -1,0 +1,7 @@
+{
+    "antigravity.toolExecutionPolicy": "always-proceed",
+    "antigravity.artifactReviewMode": "always-proceed",
+    "antigravity.nonWorkspaceFileAccess": "allow",
+    "antigravity.internetAccessPolicy": "allow",
+    "antigravity.autoApprove": true
+}
