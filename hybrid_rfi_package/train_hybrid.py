@@ -1,6 +1,16 @@
 """
 Trains HybridRFINet on the synthetic RFI dataset.
 
+NOTE ON THE DEFAULTS BELOW (corrected in audit)
+------------------------------------------------
+Items 1 and 2 describe the ORIGINAL 1024x1024 work and are NOT how the reported
+276x600 result was produced. That run used `--batch_size 8 --patch_size 0`
+(whole images) on the 276x600 dataset, for 22 epochs of a planned 40, stopped
+by hand. The argparse defaults in this file (`patch_size=512`, `batch_size=1`,
+`dataset_dir=../Synthetic Dataset`) are still the 1024x1024 ones, so running
+this script with no flags does NOT reproduce anything that was published --
+pass the flags shown in README.md.
+
 EVERY FIX FROM THE BASELINE WORK IS PRESERVED HERE
 ----------------------------------------------------
 1. batch_size = 1, patch_size = 512   -- fits a 6 GB RTX 3060 Laptop GPU.
@@ -165,8 +175,20 @@ def evaluate(model, loader, device, max_images=None):
     prec, rec, thr = precision_recall_curve(yt, yp)
     f1 = 2 * prec * rec / (prec + rec + 1e-10)
     bi = int(np.argmax(f1))
-    # threshold chosen on VALIDATION only -- never on test
-    best_thr = float(thr[bi]) if bi < len(thr) else 0.5
+    # threshold chosen on VALIDATION only -- never on test.
+    #
+    # precision_recall_curve returns prec/rec of length n+1 but thr of length n:
+    # the extra point is the degenerate (precision=1, recall=0) endpoint, which
+    # has no threshold. If argmax lands there, the old code silently substituted
+    # 0.5 and reported it as "the validation-selected threshold" -- a number that
+    # was never selected by anything. Clamp to the last real threshold and say so.
+    if bi < len(thr):
+        best_thr = float(thr[bi])
+    else:
+        best_thr = float(thr[-1]) if len(thr) else 0.5
+        print(f"  WARNING: best F1 fell on the degenerate endpoint of the PR curve; "
+              f"clamping threshold to {best_thr:.4f}. This usually means the model is "
+              f"predicting almost nothing as RFI -- check before trusting this epoch.")
     return {"roc_auc": float(auc(fpr, tpr)), "pr_auc": float(auc(rec, prec)),
             "max_f1": float(f1[bi]), "best_threshold": best_thr, "collapsed": collapsed}
 
@@ -212,15 +234,44 @@ def main():
     parser.add_argument("--n_val_images", type=int, default=50)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--skip_vram_check", action="store_true")
+    parser.add_argument("--allow_cpu", action="store_true",
+                        help="run on CPU without the interactive prompt (needed for "
+                             "unattended/scripted runs, where input() would hang forever)")
+    parser.add_argument("--deterministic", action="store_true",
+                        help="make the run bit-reproducible: seeds cuDNN, disables "
+                             "nondeterministic kernels. Slower, but required if you want the "
+                             "published numbers to be exactly regenerable.")
+    parser.add_argument("--early_stop_patience", type=int, default=0,
+                        help="stop after N consecutive evaluations with no improvement in val "
+                             "F1 (0 = disabled). Use this instead of stopping a run by hand: "
+                             "the reported run was halted manually at epoch 22 of a planned 40, "
+                             "which is not a criterion anyone can reproduce.")
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
+    if args.deterministic:
+        # Without this, cuDNN picks convolution algorithms nondeterministically and
+        # two runs of the same command give slightly different numbers. That is
+        # tolerable for a demo and not tolerable for a published table.
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+        try:
+            torch.use_deterministic_algorithms(True, warn_only=True)
+        except Exception as e:
+            print(f"NOTE: could not enable fully deterministic algorithms: {e}")
+        print("Deterministic mode ON.")
 
     if not torch.cuda.is_available():
         print("!! NO GPU DETECTED !! This will be extremely slow on CPU.")
-        if input("Continue on CPU anyway? [y/N]: ").strip().lower() != "y":
-            return
+        if not args.allow_cpu:
+            if not sys.stdin.isatty():
+                print("Not running interactively and --allow_cpu was not passed. Aborting "
+                      "rather than hanging on a prompt nobody can answer.")
+                return
+            if input("Continue on CPU anyway? [y/N]: ").strip().lower() != "y":
+                return
         device = torch.device("cpu")
     else:
         device = torch.device("cuda")
@@ -284,10 +335,28 @@ def main():
         print(f"Resumed at epoch {progress['epochs_completed']} "
               f"(best F1={progress['best_f1']:.4f} @ epoch {progress['best_epoch']})")
 
+    # Record the exact configuration next to the outputs. Without this, the only
+    # record of how a result was produced is whatever the write-up remembers.
+    with open(os.path.join(args.output_dir, "run_config.json"), "w") as f:
+        json.dump({**vars(args), "n_train_images": len(train_ds),
+                   "n_val_images_available": len(val_ds),
+                   "steps_per_epoch": (len(train_ds) + args.batch_size - 1) // args.batch_size,
+                   "n_parameters": count_parameters(model),
+                   "class_weights": cw, "device": str(device),
+                   "torch_version": torch.__version__}, f, indent=2)
+
     if not os.path.exists(log_path):
         with open(log_path, "w") as f:
-            f.write("epoch,train_loss,roc_auc,pr_auc,max_f1,best_threshold,is_best,secs\n")
+            # NOTE: one row per CHUNK, not per epoch. `epoch` is the cumulative
+            # epoch count reached, and `train_loss` is the mean loss over the
+            # whole chunk (epochs_per_chunk epochs), not over the single epoch
+            # named in the first column. With the default epochs_per_chunk=2 a
+            # 22-epoch run produces 11 rows. Do not plot this as a per-epoch
+            # curve without saying so.
+            f.write("epoch,train_loss_chunk_mean,epochs_in_chunk,roc_auc,pr_auc,"
+                    "max_f1,best_threshold,is_best,secs\n")
 
+    stale = 0
     while progress["epochs_completed"] < args.total_epochs:
         chunk = min(args.epochs_per_chunk, args.total_epochs - progress["epochs_completed"])
         print(f"\n=== Epochs {progress['epochs_completed']+1}-"
@@ -333,15 +402,28 @@ def main():
 
         save_progress(args.output_dir, progress)
         with open(log_path, "a") as f:
-            f.write(f"{progress['epochs_completed']},{train_loss:.4f},{m['roc_auc']:.4f},"
+            f.write(f"{progress['epochs_completed']},{train_loss:.4f},{chunk},{m['roc_auc']:.4f},"
                     f"{m['pr_auc']:.4f},{m['max_f1']:.4f},{m['best_threshold']:.4f},"
                     f"{int(is_best)},{secs:.1f}\n")
 
-        print(f"Epoch {progress['epochs_completed']}: loss={train_loss:.4f}  "
+        print(f"Epoch {progress['epochs_completed']}: loss={train_loss:.4f} (mean over {chunk} epochs)  "
               f"ROC={m['roc_auc']:.4f}  PR={m['pr_auc']:.4f}  F1={m['max_f1']:.4f}"
               f"{'  <-- NEW BEST' if is_best else ''}  ({secs:.0f}s)")
 
+        # Pre-declared stopping criterion. The published run was stopped by hand
+        # at epoch 22 of 40 "once gains had flattened" -- a judgement call nobody
+        # else can reproduce, and one that also fixes the epoch budget the
+        # baseline was then matched to. Set --early_stop_patience so the stopping
+        # rule is part of the configuration instead of part of the operator.
+        stale = 0 if is_best else stale + 1
+        if args.early_stop_patience and stale >= args.early_stop_patience:
+            print(f"\nEarly stop: {stale} consecutive evaluations without improvement "
+                  f"(--early_stop_patience {args.early_stop_patience}).")
+            break
+
     print(f"\nDone. Best val F1={progress['best_f1']:.4f} @ epoch {progress['best_epoch']}")
+    print(f"NOTE: best val F1 above is the ORACLE (threshold-tuned) F1 on validation. "
+          f"It is not directly comparable to a fixed-threshold test F1 -- see AUDIT_REPORT.md.")
     print(f"Best model: {ckpt_best}")
     print(f"Validation-selected threshold: {progress.get('best_threshold', 0.5):.4f}")
     print("The TEST set has not been touched. Evaluate on it once, at the very end.")

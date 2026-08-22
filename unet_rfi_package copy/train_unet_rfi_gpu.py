@@ -432,9 +432,32 @@ def main():
     val_img_dir = os.path.join(args.dataset_dir, "val", "images")
     val_mask_dir = os.path.join(args.dataset_dir, "val", "masks")
     if not os.path.exists(val_img_dir):
-        val_img_dir = os.path.join(args.dataset_dir, "test", "images")
-        val_mask_dir = os.path.join(args.dataset_dir, "test", "masks")
-    val_provider = RFINpyDataProvider(val_img_dir, val_mask_dir, patch_size=patch_size, shuffle_data=False)
+        # DO NOT fall back to test/. A previous version of this script silently
+        # substituted the test set here when val/ was missing, which meant the
+        # "best" checkpoint was selected on the same data later reported as a
+        # held-out result -- i.e. real leakage, invisible in the logs. Any
+        # number produced that way is invalid and cannot be published.
+        # Failing loudly is the only safe behaviour. See CLAUDE.md section 10.
+        print(f"\nERROR: no validation split at {val_img_dir}")
+        print("Refusing to run: without val/, checkpoint selection would have to use")
+        print("the TEST set, which invalidates every number this run produces.")
+        print("Create a validation split first (this does not touch test/):")
+        print(f'  python3 ../hybrid_rfi_package/make_val_split.py --dataset_dir "{args.dataset_dir}"')
+        print("or regenerate the dataset with dataset_generator_v3_strength.py, which")
+        print("writes train/val/test directly.")
+        return
+
+    # Validation must be DETERMINISTIC. RFINpyDataProvider._post_process takes a
+    # RANDOM crop whenever patch_size is set, regardless of shuffle_data, so
+    # passing patch_size here would score every checkpoint on a different random
+    # window. That is exactly the noisy-selection mechanism behind the inflated
+    # "best F1 = 0.8138" that collapsed to 0.34 on the real test set
+    # (CLAUDE.md section 10). Evaluate on whole images instead.
+    if patch_size is not None:
+        print(f"NOTE: training uses {patch_size}x{patch_size} random crops, but validation "
+              f"will use FULL images so checkpoint selection is deterministic and comparable "
+              f"across epochs.")
+    val_provider = RFINpyDataProvider(val_img_dir, val_mask_dir, patch_size=None, shuffle_data=False)
 
     cost_kwargs = dict(regularizer=0.001)  # paper Sec 2.2 / authors' own rfi_launcher.py
     if class_weights is not None:

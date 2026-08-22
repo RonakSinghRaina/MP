@@ -32,10 +32,26 @@ In tf_unet, one "epoch" is NOT a full pass over the dataset -- it is exactly
 pass: 700 images / batch 8 = 87 steps.
 
 Left at the default, the baseline would perform 22 x 64 = 1408 steps versus
-the hybrid's 22 x 87 = 1914 steps -- only 74% as much training, which would
+the hybrid's 22 x 88 = 1936 steps -- only 73% as much training, which would
 unfairly handicap the baseline and inflate any apparent hybrid advantage.
-This script sets training_iters = 87 so both models see the same amount of
-data. If you change the batch size, this recomputes automatically.
+This script sets training_iters so both models see the same amount of data,
+and recomputes it automatically if you change the batch size.
+
+CORRECTION (audit): this used to compute `n_train // batch_size`, i.e. FLOOR.
+PyTorch's DataLoader does not drop the short final batch, so the hybrid's real
+epoch is CEIL(700/8) = 88 steps, not 87. The floor version silently gave the
+baseline one step per epoch less. It now uses ceil, matching the hybrid exactly
+(88 x 22 = 1936, which is the Adam step count stored in the hybrid checkpoint).
+
+WATCH THE BATCH SIZE HERE. training_iters is derived FROM --batch_size, so a
+batch size passed on the command line and a training_iters quoted in the
+write-up must be consistent. `RFI_Project_Model_Comparison.md` currently
+reports Model 2 as "batch_size 4" AND "training_iters=87" -- those two cannot
+both be true: at batch 4 one full pass is 175 steps, and 87 steps at batch 4
+covers only 348 of the 700 training images, i.e. HALF the training set per
+epoch. This script now writes the settings it actually used to
+`<output_dir>/run_config.json` so the write-up can be checked against the run
+instead of against memory.
 
 THE n_eval_images DETAIL (this one already burned us once)
 -----------------------------------------------------------
@@ -59,6 +75,8 @@ State it that way.
 import os
 import sys
 import glob
+import json
+import math
 import subprocess
 import argparse
 
@@ -73,7 +91,12 @@ def main():
     p.add_argument("--optimizer", default="adam", choices=["adam", "momentum"])
     p.add_argument("--learning_rate", type=float, default=0.001)
     p.add_argument("--layers", type=int, default=3, help="paper's recommended depth")
-    p.add_argument("--features_root", type=int, default=64, help="paper's recommended width")
+    p.add_argument("--features_root", type=int, default=64,
+                   help="paper's recommended width. NOTE: the run reported in "
+                        "RFI_Project_Model_Comparison.md used 32, not this default, because 64 "
+                        "did not fit in VRAM at batch 4. Pass --features_root 32 explicitly to "
+                        "reproduce the reported baseline, and make sure the same value is passed "
+                        "to evaluate_test_set.py or the checkpoint will not restore.")
     p.add_argument("--epochs_per_chunk", type=int, default=2)
     p.add_argument("--dry_run", action="store_true", help="Print the command without running it")
     args = p.parse_args()
@@ -92,8 +115,11 @@ def main():
         return 1
     n_val = len(glob.glob(os.path.join(val_img, "*.npy")))
 
-    # One tf_unet "epoch" == one full pass over the training set
-    training_iters = max(1, n_train // args.batch_size)
+    # One tf_unet "epoch" == one full pass over the training set.
+    # CEIL, not floor: PyTorch's DataLoader keeps the short final batch, so the
+    # hybrid's epoch is ceil(n_train/batch). Using floor here handed the
+    # baseline one gradient step per epoch less than the model it is compared to.
+    training_iters = max(1, math.ceil(n_train / args.batch_size))
 
     script = os.path.join(_here, "train_unet_rfi_gpu.py")
     if not os.path.exists(script):
@@ -124,7 +150,7 @@ def main():
     print(f"  train images      : {n_train}")
     print(f"  val images        : {n_val}  (all used for checkpoint selection)")
     print(f"  batch size        : {args.batch_size}          [matched to hybrid]")
-    print(f"  training_iters    : {training_iters}         [= {n_train}/{args.batch_size}, one full pass per epoch]")
+    print(f"  training_iters    : {training_iters}         [= ceil({n_train}/{args.batch_size}), one full pass per epoch]")
     print(f"  epochs            : {args.epochs}          [matched to hybrid]")
     print(f"  total grad steps  : {training_iters * args.epochs}")
     print(f"  optimizer         : {args.optimizer} @ lr={args.learning_rate}   [matched to hybrid]")
@@ -137,6 +163,19 @@ def main():
         print("DRY RUN -- command that would be executed:\n")
         print(" ".join(f'"{c}"' if " " in c else c for c in cmd))
         return 0
+
+    # Record exactly what was run, next to the results. Without this the only
+    # record of the configuration is whatever the write-up remembers, which is
+    # how RFI_Project_Model_Comparison.md ended up quoting a batch size and a
+    # training_iters that are arithmetically incompatible.
+    os.makedirs(args.output_dir, exist_ok=True)
+    with open(os.path.join(args.output_dir, "run_config.json"), "w") as f:
+        json.dump({**vars(args), "n_train": n_train, "n_val": n_val,
+                   "training_iters": training_iters,
+                   "total_gradient_steps": training_iters * args.epochs,
+                   "command": cmd}, f, indent=2)
+    print(f"Wrote {os.path.join(args.output_dir, 'run_config.json')} -- "
+          f"quote THIS in the paper, not remembered values.\n")
 
     return subprocess.call(cmd)
 
