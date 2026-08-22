@@ -1,22 +1,76 @@
-# Datasets (large, regenerable via the generator scripts)
+# ---------------------------------------------------------------------------
+# Datasets (large, and fully regenerable from the seeded generator)
+#   python3 hybrid_rfi_package/dataset_generator_v3_strength.py \
+#       --n_images 1000 --n_freq 276 --n_time 600 --seed 42 \
+#       --output_dir "Synthetic Dataset 276x600"
+# ---------------------------------------------------------------------------
 Synthetic Dataset/
 Synthetic Dataset 276x600/
 
-# Training run outputs: checkpoints, TF event logs, predictions (large binaries, regenerable)
+# ---------------------------------------------------------------------------
+# Training run outputs.
+#
+# WARNING (audit): excluding these wholesale is why no reported number in this
+# repository can currently be checked by a reader. The heavy binaries
+# (checkpoints, TF event files, prediction dumps) are reasonable to exclude, but
+# the small text artefacts that constitute the EVIDENCE for a result are not:
+#
+#     training_log.csv        progress.json
+#     run_config.json         eval_*/metrics.json
+#     eval_*/per_image_metrics.csv
+#
+# Those are kilobytes. Commit them (the negations below un-ignore them), or
+# archive the full run directories somewhere citable (Zenodo/OSF) and link the
+# DOI from the paper. See AUDIT_REPORT.md section A5.
+# ---------------------------------------------------------------------------
 unet_run/
 unet_run_gpu/
 unet_run_faircompare/
+unet_run_paperdim/
+hybrid_run/
 hybrid_run_paperdim/
+
+# ...but keep the small, human-readable evidence files from any run directory.
+!*/training_log.csv
+!*/progress.json
+!*/run_config.json
+!*/eval_*/metrics.json
+!*/eval_*/per_image_metrics.csv
+
+# Results written by experiments/
+!results/
+results/*.npy
 
 # Preview images (regenerable)
 preview/
 
+# ---------------------------------------------------------------------------
 # Python
+# ---------------------------------------------------------------------------
 __pycache__/
 *.pyc
 *.pyo
 .ipynb_checkpoints/
+.venv/
+venv/
+*.egg-info/
 
-# OS
+# ---------------------------------------------------------------------------
+# Editor / OS -- machine-local settings do not belong in a shared repository
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Do NOT commit publisher PDFs of papers. Redistributing a paywalled article
+# infringes copyright; cite the DOI instead. RFI_Using_UNET.pdf (the Elsevier
+# PDF of Akeret et al. 2017) was removed for this reason -- and is still present
+# in git history, which must be rewritten before the repository is made public.
+# See AUDIT_REPORT.md section C1.
+#
+# Figures you generate yourself are fine to commit; this rule is deliberately
+# narrow rather than a blanket *.pdf.
+# ---------------------------------------------------------------------------
+RFI_Using_UNET.pdf

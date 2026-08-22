@@ -1,0 +1,69 @@
+cff-version: 1.2.0
+title: >-
+  RFI Detection in Synthetic Radio Spectrograms: Baseline vs. Hybrid U-Net
+message: >-
+  If you use this software, please cite it as below, and cite the original
+  U-Net RFI method of Akeret et al. (2017) that the baseline reproduces.
+type: software
+authors:
+  - family-names: Singh Raina
+    given-names: Ronak
+repository-code: "https://github.com/RonakSinghRaina/MP"
+license: GPL-3.0-or-later
+abstract: >-
+  Pixel-wise segmentation of radio frequency interference (RFI) in synthetic
+  radio-telescope spectrograms. Contains a reproduction harness for the U-Net of
+  Akeret et al. (2017) using the authors' unmodified tf_unet package, a hybrid
+  architecture combining residual blocks, multiscale anisotropic strip
+  convolutions and efficient channel attention, a seeded synthetic dataset
+  generator that also emits per-pixel RFI strength maps, and a set of control
+  experiments (no-learning baselines and a matched-budget architecture ablation).
+keywords:
+  - radio frequency interference
+  - RFI mitigation
+  - radio astronomy
+  - semantic segmentation
+  - U-Net
+  - deep learning
+references:
+  - type: article
+    title: >-
+      Radio frequency interference mitigation using deep convolutional neural
+      networks
+    authors:
+      - family-names: Akeret
+        given-names: Joel
+      - family-names: Chang
+        given-names: Chihway
+      - family-names: Lucchi
+        given-names: Aurelien
+      - family-names: Refregier
+        given-names: Alexandre
+    journal: Astronomy and Computing
+    volume: 18
+    start: 35
+    end: 39
+    year: 2017
+    doi: 10.1016/j.ascom.2017.01.002
+  - type: article
+    title: >-
+      Post-correlation radio frequency interference classification methods
+    authors:
+      - family-names: Offringa
+        given-names: A. R.
+      - family-names: de Bruyn
+        given-names: A. G.
+      - family-names: Biehl
+        given-names: M.
+      - family-names: Zaroubi
+        given-names: S.
+      - family-names: Bernardi
+        given-names: G.
+      - family-names: Pandey
+        given-names: V. N.
+    journal: Monthly Notices of the Royal Astronomical Society
+    volume: 405
+    start: 155
+    end: 167
+    year: 2010
+    doi: 10.1111/j.1365-2966.2010.16471.x

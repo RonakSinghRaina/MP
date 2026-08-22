@@ -1,0 +1,11 @@
+# TensorFlow environment (~/tf-env) -- the Akeret et al. tf_unet baseline.
+# NEVER install torch into this env (CLAUDE.md section 3).
+#
+# tf_unet is TensorFlow 1.x code; it is run through tf.compat.v1 with
+# disable_v2_behavior(), so a TF2 build is what you want here.
+tensorflow[and-cuda]==2.16.1
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.1
+matplotlib==3.9.2
+Pillow==10.4.0

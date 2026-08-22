@@ -1,0 +1,12 @@
+# PyTorch environment (~/torch-env) -- the hybrid model and experiments/.
+# NEVER install these into the TensorFlow env: torch pulls a cuDNN build that
+# breaks TensorFlow's GPU support on this setup (CLAUDE.md section 3).
+#
+# Versions are pinned because an unpinned environment cannot reproduce a
+# published number. Adjust the torch build to match your CUDA version:
+#   https://pytorch.org/get-started/locally/
+torch==2.4.1
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.1
+matplotlib==3.9.2
