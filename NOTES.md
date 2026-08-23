@@ -520,6 +520,9 @@ Beyond introducing non-linearity, activation functions serve a critical role in 
 **Source Video:** [Artificial vs. Convolutional Neural Network with Real Life Examples | Beginners Friendly](https://youtu.be/o7n9OcvcHVY?si=4XgHKk7c6ueOm4sN)
 **Presenter:** Gate Smashers
 
+
+jnfskbef
+
 ---
 
 ## 1. Introduction: The Need for Spatial Vision in AI
