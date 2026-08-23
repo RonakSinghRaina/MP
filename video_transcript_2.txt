@@ -1,0 +1,646 @@
+0.64s: In this video, we will discuss the unit
+3.84s: which is a neural network that was
+6.16s: developed for image segmentation. I will
+9.28s: first show some of its applications
+12.24s: and then illustrate how the calculations
+14.88s: are done for up and down sampling based
+17.76s: on a simple example before we look into
+20.88s: the details of the units. Finally, I
+24.32s: will show some basic code in Python that
+27.199s: you can use to train a unit to locate
+29.92s: tumors in an X-ray image.
+33.36s: If you're not familiar with neural
+35.28s: networks and convolutional neural
+37.44s: networks, I suggest that you have a look
+40.0s: at these videos. This video also shows
+43.28s: the basics of Python and how you can set
+46.0s: up and train a simple neural network.
+49.52s: Suppose that we have a satellite image
+52.8s: and that we like to create a segmented
+54.96s: map like this. Note that a segmented
+58.48s: image is also referred to as a mask. One
+62.32s: way is to manually start to draw the
+64.799s: roads,
+66.32s: lakes, houses,
+69.28s: and the green area. A simpler way would
+72.64s: be to plug in the image into a trained
+76.0s: unit and let the unit create a segmented
+79.84s: image automatically.
+82.4s: To create a unit that can perform
+84.72s: segmentations like this, we first need
+87.6s: to train the network on thousands of
+90.08s: satellite images
+92.56s: so that it learns to convert the
+94.479s: satellite images into segmented images
+97.759s: based on handmade ground truth images.
+102.32s: Once the network has been trained, we
+105.36s: can plug in a new satellite image and
+108.64s: let the network predict the
+110.24s: corresponding mask.
+112.32s: Similarly, we can train the network on
+114.72s: X-ray images
+117.28s: which have been segmented by a
+119.28s: specialized medical doctor who knows how
+122.399s: to identify tumors in such images.
+126.24s: Once we have trained such a network, we
+129.599s: can plug in a new X-ray image into the
+132.8s: network and let the network identify
+136.4s: possible tumors and also predict their
+139.28s: location and shape.
+142.0s: To explain how a unit works, I will here
+145.28s: use the following simple image with 25
+148.4s: pixels
+150.08s: and train the network to recreate this
+152.64s: ground truth mask.
+155.519s: Note that an image is just a matrix with
+158.48s: numbers. The numbers have here been
+161.44s: normalized
+163.2s: where one represents the brightest color
+166.319s: and zero represents the white
+168.56s: background.
+170.16s: Since these pixels do not belong to the
+172.64s: background, they're here defined as
+175.12s: belonging to the foreground, the ground
+178.0s: truth image only includes ones and
+180.64s: zeros, where the ones represent the
+183.519s: foreground, such as a tumor, whereas the
+187.04s: zeros represent the background.
+190.159s: If you want to classify several
+192.0s: different types of objects as
+194.08s: foreground, we assign each object type a
+197.519s: unique integer in the ground truth mask.
+201.12s: For example, 1 2 3.
+204.239s: We will now use this image to illustrate
+206.72s: the basic steps in how a unit computes a
+210.239s: segmented image.
+212.799s: We will first use convolution to create
+215.44s: a feature map which extracts local
+218.239s: features in the image. This convolution
+221.599s: procedure is the same as the one used in
+224.64s: convolutional neural networks.
+227.36s: I will here use the following filter
+229.76s: also known as a kernel. This filter has
+233.44s: four weights that will be optimized
+236.0s: during the training process.
+238.56s: For this simple example, the weights
+240.959s: were optimized to the following values.
+244.64s: The filter is then placed on top of the
+247.28s: image where we perform a dot product
+250.799s: which means that we multiply the values
+253.12s: in the overlapping elements like this.
+260.799s: This is a so-called bias weight that is
+263.68s: also optimized during the training
+265.84s: process.
+267.68s: Then we add the terms and plug in the
+270.16s: sum in our feature map. Then we slide
+273.68s: the filter one step to the right. Since
+277.28s: we move the filter one step to the
+279.68s: right, the stride length is here equal
+282.639s: to one.
+284.479s: Then we do the same calculations
+287.44s: and plug in the value in our feature
+289.759s: map.
+295.84s: In this case, we like the feature map to
+298.72s: be of the same size
+301.199s: as our image,
+303.68s: which can be done if you use padding. To
+306.96s: apply padding, we will in this example
+309.68s: add an extra row and an extra column
+312.72s: with zeros.
+314.8s: Then we can slide the filter one
+317.28s: additional step
+319.919s: and do the calculations.
+323.919s: Then we continue to slide the filter
+326.08s: until we have filled the whole feature
+328.16s: map.
+337.44s: Once we have filled the feature map, we
+340.0s: should apply some activation function
+343.199s: such as the relu function. The rel
+346.24s: function takes a value and returns the
+349.28s: maximum value between zero and the value
+352.08s: that we plug in. If you plug in this
+355.12s: value here, the function will return the
+358.24s: value zero because zero is the maximum
+361.44s: value out of0.11
+364.479s: and zero. This means that all negative
+367.6s: values in the feature map will be set to
+370.24s: zero whereas the positive values will be
+373.28s: left unchanged.
+375.6s: Next, we perform pooling by using a 2x
+378.88s: two window with a stride length of two.
+382.4s: We'll here use max pooling, which means
+385.28s: that we find the maximum value in this
+387.68s: window and plug in this value in the
+391.039s: so-called pulled feature map.
+395.36s: We may here also use padding so that we
+398.4s: use all values in the feature map.
+408.96s: So this is our pulled feature map. We
+412.0s: will now perform upsampling by using the
+414.8s: method of nearest neighbor. Which means
+417.68s: that we plug in the first value from the
+419.919s: pool feature map here and then copy this
+423.36s: value to its nearest neighbors.
+427.52s: Then we plug in the next value and copy
+431.36s: its values.
+434.4s: Once we're done, we should have the
+436.56s: following matrix.
+438.639s: So we started with this image created
+442.4s: this feature map after applying the relu
+445.44s: activation function. Then we performed
+448.8s: down sampling with max pooling which
+452.08s: reduced the size. And then we performed
+455.44s: up sampling which increased the size of
+458.24s: the matrix. This looks like a U which
+461.919s: explains the name unit. Another step in
+465.36s: units is that we perform a skip
+468.16s: connection which means that we
+470.56s: concatenate the feature map with the
+473.199s: upsampled feature map
+476.879s: like this.
+479.199s: We then need to crop the upsampled
+481.68s: feature map so that the two feature maps
+484.4s: have the same size. Let's put the two
+487.36s: feature maps next to each other.
+491.039s: We now compute a final convolution by
+494.16s: using a filter with a height and width
+496.639s: of one but which has a depth of two.
+500.479s: This is because we will slide the filter
+503.12s: over the two overlapping feature maps.
+506.16s: We now do basically the same
+508.08s: calculations as before and plug in this
+511.44s: sum in the sigmoid activation function
+514.24s: to constrain the output values between
+516.719s: zero and one. Then we plug in this value
+520.399s: in the final predicted output matrix.
+524.0s: This is called a probability map. Then
+527.44s: we slide a filter one step to the right
+531.2s: and fill in the computed value.
+534.399s: These values can be seen as the
+536.399s: probability that the corresponding pixel
+539.2s: in the input image belongs to the
+541.36s: foreground. For example, the probability
+544.8s: that this pixel belongs to the
+547.12s: foreground is 40%.
+549.839s: If a given probability is larger than
+552.48s: 0.5, we usually classify the pixel as
+556.08s: belonging to the foreground in the
+558.16s: image. And if it is less than 0.5, we
+562.08s: classify the pixel as belonging to the
+564.72s: background. If we apply this rule on
+567.839s: these probabilities,
+570.0s: we will end up with our final predicted
+572.72s: segmentation map.
+575.2s: This means that we gone from this image
+579.2s: to this image.
+582.0s: During the training of the unit, the
+584.8s: eight weights that are associated with
+587.519s: the filters are optimized
+590.959s: so that the predicted segmentation map
+594.32s: recreates the ground truth image as good
+597.12s: as possible.
+599.04s: This means that the network tries to
+601.2s: reduce these probability values down to
+604.0s: zero and these probability values up to
+607.839s: one by changing the values of the
+610.88s: weights.
+613.279s: Remember that we previously upsampled
+615.6s: the image by copying a value from the
+618.32s: pool feature map and place these values
+621.279s: in the nearest neighboring elements. One
+624.48s: drawback of this method is that it does
+627.36s: not involve any trainable weights.
+630.64s: I will here show another method for
+632.8s: upsampling that is called transposed
+635.839s: convolution.
+637.76s: If you use this method, we will get
+640.32s: other values in our pool feature map
+642.959s: because the previous weights in the
+644.8s: filter will be optimized to other values
+647.92s: when we add additional weights to our
+650.32s: network. This is the additional filter
+653.76s: that we will use to perform upsampling.
+656.72s: The filter has the following optimized
+659.2s: weights and the following optimized
+661.839s: value of the bias weight.
+664.72s: We start by multiplying these values
+668.8s: and add the bias weight to this product
+672.64s: and fill in the resulting value here.
+676.48s: Then we multiply these values
+679.92s: and fill in the computed value here.
+683.68s: Once we are done with this value, we
+686.48s: move to this value and do the same
+688.8s: calculations
+690.72s: which will result in these values.
+694.56s: Once we have filled the upsampled
+696.72s: feature map, we proceed with the exact
+699.519s: same steps as before such as cropping
+702.72s: and concatenation.
+705.519s: Note that when we use transpose
+708.0s: convolution, the network will have five
+710.959s: additional weights to tune during the
+713.279s: training compared to when we used the
+715.76s: nearest neighbor method. I will now go
+718.959s: through the structure of the original
+721.2s: unit that was published in 2015.
+726.56s: So the network starts with an image. In
+729.839s: this case, they used a grayscale image,
+733.279s: which explains why the network only
+735.36s: starts with one channel, which is
+737.68s: basically a two-dimensional matrix.
+740.959s: However, units works fine also for color
+744.399s: images that have three channels. The
+748.0s: image is rescaled to a two-dimensional
+751.2s: matrix with 572
+754.24s: rows and 572 columns. They used 64
+759.6s: different filters with a size of 3x3 in
+763.279s: the first convolution step. The network
+766.639s: will therefore result in 64 different
+768.8s: feature maps after the first
+771.2s: convolution.
+772.959s: Since each filter has nine weights plus
+776.32s: a bias weight and that we have 64 such
+780.48s: filters,
+782.24s: there will be 640 weights to tune in the
+785.279s: first convolution during the training
+787.519s: process.
+789.04s: Every convolution is followed by
+791.279s: applying the real activation function.
+794.56s: Since they did not use any padding, the
+797.44s: resulting feature maps will have two
+799.68s: rows and two columns less than the input
+803.519s: matrix. Then they performed a second
+806.88s: convolution of the 64 feature maps with
+810.56s: a three-dimensional 3x3 filter that has
+814.0s: a depth of 64 because it will be applied
+817.68s: on the 64 feature maps. They use 64 such
+821.76s: deep filters which result in 36,928
+827.12s: weights to tune for the second
+829.279s: convolution.
+831.279s: Since they did not use any padding, the
+833.92s: new feature maps have two rows and two
+836.56s: columns less than the previous ones.
+839.839s: Then they performed max pooling by using
+842.959s: a 2x two window with a stride length of
+846.24s: two which results in 64 pulled feature
+849.519s: maps with half the size. In each down
+853.199s: sampling they used twice as many filters
+856.88s: which results in 128 feature maps in
+860.399s: this step. The smallest feature maps in
+863.68s: the bottleneck have a size of 28 * 28.
+868.48s: Then they used transpose convolution
+871.44s: with 512 filters for upscaling.
+875.6s: Each such filter had a size of two rows
+878.8s: and two columns and a depth of 1,024.
+884.56s: This therefore results in 512 upsampled
+888.079s: feature maps that are twice as big as
+891.519s: the previous feature maps.
+894.24s: The upsample feature maps were then
+896.639s: concatenated with the corresponding
+898.959s: feature maps in a down sampling phase.
+903.12s: Since these feature maps were larger
+906.72s: than these ones, they were cropped by
+910.079s: removing eight columns and eight rows so
+913.92s: that they had the same size as the
+916.079s: upsampled feature maps.
+919.04s: Convolution with 512 3x3 filters with a
+923.6s: depth of 1,024
+926.079s: was then applied on the concatenated
+928.48s: feature maps followed by the relu
+931.279s: function. In the upsampling phase, all
+935.04s: upsampled feature maps were concatenated
+938.0s: with the corresponding feature maps in
+940.16s: the downsampling phase which is called
+943.279s: skip connection. A skip connection means
+946.16s: that you skip over some layers by
+948.8s: passing feature maps directly from
+951.04s: earlier layers to later layers. Skip
+954.88s: connections
+956.88s: help to recover the spatial information
+960.399s: that gets lost during the downsampling
+963.04s: process due to the pooling.
+966.399s: In the last step, they used a one by one
+969.44s: filter with a depth of 64
+972.959s: followed by the soft max function which
+976.0s: then generated one channel for each
+978.639s: class.
+980.16s: The softmax function is usually applied
+982.72s: if you like to predict more than two
+984.639s: outcome classes.
+986.72s: One channel or matrix will in this case
+989.839s: include probability values that the
+992.399s: certain pixel belongs to the foreground
+995.279s: whereas the second channel includes
+997.36s: probability values that the certain
+999.6s: pixel belongs to the background.
+1003.199s: However, if you instead use the sigmoid
+1005.759s: activation function that we used in our
+1008.639s: simple example, we will only get one
+1011.44s: output channel, which is enough if you
+1014.56s: have a binary outcome. This channel will
+1017.759s: therefore only contain probability
+1019.68s: values that the certain pixel belongs to
+1022.56s: the foreground.
+1024.48s: Note that this part of the network is
+1026.799s: referred to as the encoder, which
+1029.199s: captures important features in the
+1031.839s: image.
+1033.12s: Whereas this part is referred to as the
+1035.28s: decoder which helps to locate where in
+1038.4s: the image the features are located.
+1042.24s: To evaluate how well the network
+1044.559s: performs, we can use a number of
+1047.199s: different measures. The simplest one is
+1050.08s: to calculate the pixel accuracy.
+1053.36s: For example, if this is our ground truth
+1056.16s: image
+1057.919s: and this is the corresponding predicted
+1060.24s: mask, we see that one
+1064.24s: out of the 25 pixels is incorrect,
+1068.64s: which gives a pixel accuracy of 96%.
+1074.0s: However, the pixel accuracy can be
+1076.559s: misleading because if the ground truth
+1078.88s: image includes just a small foreground
+1083.2s: and the predicted image has for example
+1085.919s: not identify the foreground at all,
+1089.84s: the accuracy would still be about 95% in
+1093.679s: this example because all the pixels in
+1096.72s: the background of the ground truth image
+1099.44s: are correctly predicted whereas only a
+1102.24s: few pixels s of the foreground in the
+1105.039s: ground truth image are incorrectly
+1107.2s: predicted as background.
+1109.84s: A better measure is the so-called
+1112.16s: intersection over union also known as
+1115.44s: the accard index
+1117.84s: which divides the number of pixels in
+1120.48s: the intersection by the union which
+1123.679s: includes all the pixels where either the
+1126.96s: prediction or the ground truth represent
+1129.52s: the foreground. A value one indicates a
+1133.12s: perfect match between a ground truth and
+1135.679s: the prediction.
+1138.4s: Another metric is the dice coefficient
+1141.84s: which multiplies the intersection by two
+1146.0s: and divides the total number of pixels
+1148.64s: that represent the foreground in both
+1151.039s: the ground truth and the predicted mask.
+1154.64s: The dice coefficient usually tends to
+1157.039s: generate a bit higher scores than the
+1159.6s: intersection of a union.
+1163.28s: I will now show a simple tutorial in
+1165.679s: Python on how you can apply a unit based
+1168.64s: on real data.
+1170.96s: I will here use the following data set
+1174.32s: which you can download here.
+1177.36s: This data set contains breast ultrasound
+1180.4s: images. If you like to use this data set
+1183.679s: for research, I suggest that you have a
+1186.4s: look at this paper where they suggest
+1188.88s: removing some of the lowquality images.
+1193.2s: After you have unzipped the downloaded
+1195.84s: file, you should see the following three
+1198.72s: folders.
+1200.48s: To reduce the amount of images, we can
+1203.36s: delete this folder because these images
+1206.08s: do not contain any tumors and the ground
+1209.12s: truth images are therefore just black.
+1212.32s: If you look at these images, note that
+1214.96s: bening tumors have a round or oval shape
+1218.64s: that is separated from the surrounding
+1220.88s: tissue. Whereas malignant tumors have
+1224.559s: irregular shapes and are more integrated
+1227.76s: in the surrounding tissues.
+1230.559s: Also note that some images have two or
+1233.76s: more ground truth masks because more
+1236.799s: than one tumor has been identified in
+1239.28s: these images.
+1241.36s: We therefore need to combine these
+1243.12s: multiple masks into one.
+1246.4s: The code that I will explain can be
+1248.64s: found on my homepage.
+1251.52s: The code was modified based on the
+1253.76s: following notebook. We begin by
+1257.12s: importing the following classes and
+1259.44s: functions. Then we define the paths to
+1262.96s: the two foolers with our downloaded
+1265.679s: images. Note that you need to change
+1268.0s: these paths to where you have saved the
+1271.2s: two foolers.
+1273.2s: The images that we have are of size 483
+1277.679s: * 560 pixels and have three channels.
+1282.64s: We therefore first need to reshape these
+1284.88s: images to a squared size and with only
+1288.72s: one channel to reduce the time for
+1291.84s: training. I will here use an input size
+1295.039s: of only 128 * 128. A larger input size
+1300.64s: increases the computational cost but can
+1303.84s: however give better predictions.
+1307.039s: Next, we create two empty lists that we
+1310.32s: will store the original images and the
+1312.96s: masks in.
+1315.44s: With this piece of code, we will combine
+1318.08s: the multiple ground truth images for the
+1321.12s: same image.
+1323.2s: We will begin by setting this variable
+1325.36s: to false. Then we loop through all the
+1328.559s: folders where we have the images.
+1332.0s: Inside each of this loop, we loop over
+1335.36s: all sorted image paths in the current
+1338.96s: folder.
+1341.12s: For a certain image path, we load the
+1343.76s: image
+1345.36s: and resize it to 128 * 128.
+1350.32s: Then we convert the image to grayscale,
+1353.12s: which means that the image will only
+1355.12s: have one channel.
+1357.28s: The pixel values in an image span
+1360.4s: between 0 and 255.
+1363.36s: For training neural networks, it is best
+1366.159s: to normalize these values. We here
+1368.96s: normalize the values by simply dividing
+1371.76s: them by 255
+1374.32s: which means that the pixel values will
+1376.4s: now span between zero and one. If the
+1380.08s: image file does not contain mask in its
+1382.88s: name, we know that it is an original
+1386.4s: image
+1388.24s: which means that we save the image in
+1390.559s: the list images and then set this flag
+1394.32s: to false.
+1396.24s: The code is then repeated for the next
+1398.64s: image path which includes the path to
+1401.6s: the corresponding mask which means that
+1404.72s: this statement will now be true.
+1408.4s: Since this flag is still false,
+1412.4s: the masked image will be saved in the
+1415.12s: list called masks and the flag is now
+1418.48s: set to true. If the next file path
+1421.6s: includes a second mask,
+1424.4s: these two statements will now be true.
+1427.919s: And we will therefore add the pixel
+1429.84s: values, the ones and zeros of the
+1432.72s: current mask with the previous mask. To
+1436.08s: make sure that the pixel values are only
+1438.32s: ones and zeros, we set all pixel values
+1441.76s: that are greater than 0.5 to one and all
+1445.52s: pixel values that are less than 0.5 to
+1448.24s: zero. Next, we convert the lists with
+1451.679s: the images into numpy arrays
+1455.12s: and add a new axis as the last dimension
+1458.24s: of the arrays.
+1460.32s: If you now print our arrays,
+1463.52s: we will see that we have stored 647
+1466.48s: original images and 647 masks
+1471.2s: with a size of 128 * 128. This
+1476.4s: additional dimension is used to define
+1478.88s: the number of channels for the images.
+1481.919s: Since we converted the images to
+1483.919s: grayscale, the images will only have one
+1487.52s: channel.
+1489.279s: Next, we split the data set into 90%
+1492.32s: training data and 10% validation data.
+1496.32s: The network will therefore optimize its
+1498.799s: weights based on the training images and
+1502.08s: will be validated based on the images in
+1504.799s: the validation data.
+1507.2s: We will now build our unit.
+1510.159s: Our resized input images have one
+1513.44s: channel and a size of 128 * 128.
+1518.88s: Similar to the original unit, we'll here
+1522.24s: use 64 filters with a size of 3x3 for
+1526.88s: the first convolution
+1529.12s: followed by the relu function. In
+1532.48s: comparison to the original unit, we will
+1535.36s: here use padding, which means that we do
+1538.24s: not need to crop the feature maps when
+1540.72s: we later will use the skip connections.
+1544.24s: Also, by using padding, the input image
+1547.6s: will have the same size as the output
+1550.32s: image, which makes it easier to compare
+1553.6s: the resized original image with the
+1556.159s: predicted mask. We then perform a second
+1559.919s: convolution
+1562.24s: and pull the feature maps with max
+1564.96s: pooling using a 2x two window with the
+1568.559s: stride length of two which is the
+1571.279s: default stride length for a 2x two
+1573.76s: window. Then we just continue with the
+1576.72s: other blocks
+1582.0s: until we reach the bottleneck.
+1585.919s: Then we start with the upsampling by
+1588.559s: using transposed convolution with a 2x
+1591.76s: two window and with a stride length of
+1594.559s: two. Next we concatenate the
+1597.6s: corresponding feature maps since we
+1600.24s: previously used padding. There is no
+1602.559s: need for copying because the feature
+1604.64s: maps have the same size.
+1607.6s: Then we perform convolution of the
+1610.08s: concatenated feature maps
+1615.44s: and continue with the upsampling.
+1621.76s: Finally, we use one filter with the size
+1624.96s: of one by one and the sigmoid activation
+1629.2s: function to constrain the values between
+1631.679s: zero and one. In our example, the output
+1636.24s: layer will be a 128x 128 matrix with
+1640.24s: probability values between zero and one.
+1644.08s: We then build our model.
+1647.2s: If we run the summary function on our
+1649.6s: model, we can see that the first
+1652.0s: convolution involves 640 weights whereas
+1656.159s: the second convolution involves 36,928
+1660.48s: weights.
+1661.919s: The last convolution involves 65 weights
+1665.76s: because we use a one by one filter with
+1668.32s: a depth of 64 plus a bias weight.
+1673.2s: In total, the network has about 31
+1675.919s: million weights that will be optimized
+1678.559s: during the training.
+1681.44s: Next, we compile the model and start the
+1685.52s: training.
+1688.24s: Note that the loss function is here
+1690.32s: based on the difference between the
+1692.72s: output probability values and the ones
+1695.36s: and zeros in the ground truth mask. You
+1699.039s: may also try to base the loss function
+1701.44s: based on the dice score or the
+1703.679s: intersection over union
+1707.039s: to reduce the training. For this
+1708.96s: example, I have here only around 40
+1711.679s: epochs because the intersection of
+1714.32s: reunion and the dice score does not
+1716.799s: improve much of the 40 epochs.
+1720.24s: This training took about 2 hours on my
+1722.799s: simple laptop.
+1725.2s: Once the training is done, we can for
+1727.84s: example compute the intersection of a
+1730.32s: union score with the following function
+1733.76s: where we use the trained unit to compute
+1736.08s: the predicted masks based on the
+1738.72s: original images in the validation data.
+1741.919s: Note that one should here actually
+1743.52s: instead use a separate test data set to
+1746.32s: get an unbiased estimate. However, since
+1749.76s: we do not have a separate test data set
+1752.24s: with images, we compute the metric based
+1755.36s: on the validation data set. The output
+1758.48s: from the predictions will be probability
+1760.559s: values between zero and one to convert
+1763.919s: these probabilities to ones and zeros.
+1766.88s: We use this code to get the predicted
+1769.36s: masks. This is the ground truth in the
+1772.64s: validation data that we will compare
+1774.64s: with. Finally, we compute the score
+1778.24s: which should result in a value about
+1780.32s: 0.6.
+1790.24s: To visualize how well the network can
+1792.399s: segment an arbitrary image, we can plot
+1796.08s: the original image in grayscale,
+1799.2s: the ground truth mask, and the predicted
+1802.64s: mask.
+1804.96s: Note that the images are randomly split
+1807.679s: into validation and training data, which
+1810.399s: means that you will probably see another
+1812.32s: image than the one shown here. We see
+1816.08s: that the predicted mask is quite similar
+1819.12s: to the ground truth mask, although there
+1822.159s: is plenty of room for improvements.
+1825.2s: To improve, you can try to optimize the
+1828.399s: hyperparameters
+1830.08s: such as the input image size, batch
+1832.96s: size, initial weights, type of loss
+1836.48s: function, and the number of epochs.
+1840.159s: In the paper, they also suggest that the
+1842.72s: random initial weights in the filters
+1845.44s: used for convolution followed by the
+1848.24s: relu function should be drawn from a
+1850.88s: normal distribution with a mean of zero
+1853.919s: and the standard deviation of the square
+1856.159s: root of 2 /n where n is the filter size
+1860.72s: times the number of channels or feature
+1863.44s: maps from the previous layers.
+1866.799s: For example, if the filter has a size of
+1869.52s: 3x3 and the previous layer has 64
+1873.039s: feature maps, n is equal to 576.
+1878.64s: This can be used in our code if we
+1880.72s: initialize the weights in the filters by
+1883.44s: using the so-called he normal
+1885.52s: initialization.
+1887.2s: By adding this to the code, the
+1889.919s: intersection of a union score increased
+1892.72s: from around 0.6 6 to 0.7 after training
+1896.48s: the network for 40 epochs.
+1899.44s: This shows the importance of starting
+1902.08s: with appropriate initial random weights.
+1905.76s: However, note that you will get
+1907.36s: different results each time you run the
+1909.679s: code as the initial weights are randomly
+1912.32s: assigned on each run.
+1915.679s: Finally, since UNET was published in
+1918.799s: 2015,
+1920.48s: there have been several improvements
+1922.96s: such as the integration of residual
+1925.279s: blocks and attention gates to focus the
+1928.399s: network on relevant regions.
+1931.2s: This was the end of this video about
+1933.2s: units. Thanks for watching.
