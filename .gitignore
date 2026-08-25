@@ -6,29 +6,27 @@
 # ---------------------------------------------------------------------------
 Synthetic Dataset/
 Synthetic Dataset 276x600/
+hera_transfer_test/HERA_npy/
+*.pkl
 
 # ---------------------------------------------------------------------------
-# Training run outputs.
-#
-# WARNING (audit): excluding these wholesale is why no reported number in this
-# repository can currently be checked by a reader. The heavy binaries
-# (checkpoints, TF event files, prediction dumps) are reasonable to exclude, but
-# the small text artefacts that constitute the EVIDENCE for a result are not:
-#
-#     training_log.csv        progress.json
-#     run_config.json         eval_*/metrics.json
-#     eval_*/per_image_metrics.csv
-#
-# Those are kilobytes. Commit them (the negations below un-ignore them), or
-# archive the full run directories somewhere citable (Zenodo/OSF) and link the
-# DOI from the paper. See AUDIT_REPORT.md section A5.
+# Training run outputs & Checkpoints (>100MB rejected by GitHub)
 # ---------------------------------------------------------------------------
+*.pt
+*.pth
+*.h5
+*.ckpt
+
 unet_run/
 unet_run_gpu/
 unet_run_faircompare/
 unet_run_paperdim/
 hybrid_run/
 hybrid_run_paperdim/
+unet_run_control_per_image/
+unet_run_control_per_image_cw/
+unet_run_fixednorm/
+hera_transfer_test/runs/
 
 # ...but keep the small, human-readable evidence files from any run directory.
 !*/training_log.csv
@@ -36,13 +34,15 @@ hybrid_run_paperdim/
 !*/run_config.json
 !*/eval_*/metrics.json
 !*/eval_*/per_image_metrics.csv
+!hera_transfer_test/results/
 
 # Results written by experiments/
 !results/
 results/*.npy
 
-# Preview images (regenerable)
+# Preview images & temporary transcripts
 preview/
+video_transcript_*.txt
 
 # ---------------------------------------------------------------------------
 # Python
@@ -64,13 +64,6 @@ venv/
 Thumbs.db
 
 # ---------------------------------------------------------------------------
-# Do NOT commit publisher PDFs of papers. Redistributing a paywalled article
-# infringes copyright; cite the DOI instead. RFI_Using_UNET.pdf (the Elsevier
-# PDF of Akeret et al. 2017) was removed for this reason -- and is still present
-# in git history, which must be rewritten before the repository is made public.
-# See AUDIT_REPORT.md section C1.
-#
-# Figures you generate yourself are fine to commit; this rule is deliberately
-# narrow rather than a blanket *.pdf.
+# Copyrighted PDFs
 # ---------------------------------------------------------------------------
 RFI_Using_UNET.pdf

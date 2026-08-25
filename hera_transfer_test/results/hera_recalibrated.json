@@ -1,0 +1,35 @@
+{
+  "norm": "log_per_image",
+  "roc_auc": 0.8964562961392541,
+  "pr_auc": 0.4909340300561897,
+  "oracle_f1": 0.4481331905720373,
+  "before": {
+    "threshold": 0.6112715601921082,
+    "f1": 0.141522870042622,
+    "precision": 0.0770425466232633,
+    "recall": 0.86794209517628,
+    "iou": 0.0761499120852697,
+    "mcc": 0.20287691986717793,
+    "tn": 25180475,
+    "fp": 10508992,
+    "fn": 133470,
+    "tp": 877223
+  },
+  "after": {
+    "threshold": 0.9999325275421143,
+    "f1": 0.4480579563239943,
+    "precision": 0.3830079438747067,
+    "recall": 0.53972472353128,
+    "iou": 0.28870791806456836,
+    "mcc": 0.43645799261018176,
+    "tn": 34810721,
+    "fp": 878746,
+    "fn": 465197,
+    "tp": 545496
+  },
+  "f1_gain": 0.30653508628137227,
+  "n_test_pixels": 36700160,
+  "test_rfi_fraction": 0.02753919873918806,
+  "checkpoint": "/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/hybrid_run_paperdim/best.pt",
+  "note": "threshold chosen on HERA train, applied once to HERA test; model weights unchanged"
+}

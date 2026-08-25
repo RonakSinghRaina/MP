@@ -6,6 +6,7 @@ Akeret et al. (2017) against a hybrid architecture (residual blocks +
 multiscale anisotropic strip convolutions + efficient channel attention).
 
 > ### ⚠ Read `AUDIT_REPORT.md` before citing any number from this repository.
+>
 > An independent audit (2026-08-22) reproduced the dataset bit-exactly and found
 > that the headline comparison does not currently support its stated conclusion.
 > In particular a **2,578-parameter, 3-layer CNN** and even a **constant global
@@ -71,14 +72,14 @@ python3 hybrid_rfi_package/dataset_generator_v3_strength.py \
     --output_dir "Synthetic Dataset 276x600"
 ```
 
-| Property | Value |
-|---|---|
-| Splits | train 700 / val 150 / test 150 |
-| Image size | 276 × 600 (frequency × time), `float32` `.npy` |
-| Mean RFI pixel fraction | 14.67% (test split: 15.0808%) |
-| Test set totals | 3,746,075 RFI of 24,840,000 pixels |
-| Images with no RFI at all | 9 / 150 in test |
-| Size on disk | ~1.1 GB |
+| Property                  | Value                                               |
+| ------------------------- | --------------------------------------------------- |
+| Splits                    | train 700 / val 150 / test 150                      |
+| Image size                | 276 × 600 (frequency × time),`float32` `.npy` |
+| Mean RFI pixel fraction   | 14.67% (test split: 15.0808%)                       |
+| Test set totals           | 3,746,075 RFI of 24,840,000 pixels                  |
+| Images with no RFI at all | 9 / 150 in test                                     |
+| Size on disk              | ~1.1 GB                                             |
 
 Each split also carries `metadata.jsonl` (per-image density, RFI types, strength
 percentiles) and `strength/` maps giving the injected RFI amplitude in units of

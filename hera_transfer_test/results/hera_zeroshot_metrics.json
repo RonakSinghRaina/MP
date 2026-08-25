@@ -1,0 +1,66 @@
+{
+  "n_test_images": 140,
+  "hera_rfi_fraction": 0.02753919873918806,
+  "checkpoint": "/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/hybrid_run_paperdim/best.pt",
+  "train_threshold": 0.6112715601921082,
+  "results": {
+    "hybrid_per_image": {
+      "roc_auc": 0.8026117796398002,
+      "pr_auc": 0.4350655532191915,
+      "max_f1": 0.4966325716081431,
+      "f1_at_train_thr": 0.1153300498254044,
+      "precision_at_train_thr": 0.061874783847808056,
+      "recall_at_train_thr": 0.84755707222668,
+      "train_thr": 0.6112715601921082,
+      "pred_min": 1.470160970740153e-08,
+      "pred_max": 1.0,
+      "pred_std": 0.4709536135196686
+    },
+    "hybrid_log_per_image": {
+      "roc_auc": 0.8964562961392541,
+      "pr_auc": 0.4909340300561897,
+      "max_f1": 0.4481331905720373,
+      "f1_at_train_thr": 0.141522870042622,
+      "precision_at_train_thr": 0.0770425466232633,
+      "recall_at_train_thr": 0.86794209517628,
+      "train_thr": 0.6112715601921082,
+      "pred_min": 2.345328098396493e-10,
+      "pred_max": 1.0,
+      "pred_std": 0.44892618060112
+    },
+    "hybrid_percentile": {
+      "roc_auc": 0.8116447665620098,
+      "pr_auc": 0.38565761977267565,
+      "max_f1": 0.4190606140093575,
+      "f1_at_train_thr": 0.112059181580038,
+      "precision_at_train_thr": 0.05999909294502595,
+      "recall_at_train_thr": 0.8468882242184322,
+      "train_thr": 0.6112715601921082,
+      "pred_min": 9.837851422389576e-08,
+      "pred_max": 1.0,
+      "pred_std": 0.4764573276042938
+    },
+    "hybrid_log_percentile": {
+      "roc_auc": 0.8654529088348979,
+      "pr_auc": 0.4200742261073675,
+      "max_f1": 0.41130798859466045,
+      "f1_at_train_thr": 0.13218754802797483,
+      "precision_at_train_thr": 0.07167623449562942,
+      "recall_at_train_thr": 0.8486137729261011,
+      "train_thr": 0.6112715601921082,
+      "pred_min": 3.923688929319269e-09,
+      "pred_max": 1.0,
+      "pred_std": 0.4525673985481262
+    },
+    "threshold_raw_value": {
+      "roc_auc": 0.8119951757284627,
+      "pr_auc": 0.4582138520962656,
+      "max_f1": 0.5664605286900446
+    },
+    "threshold_log10_value": {
+      "roc_auc": 0.8119951757284627,
+      "pr_auc": 0.4582138520962656,
+      "max_f1": 0.5664605286900446
+    }
+  }
+}
