@@ -281,9 +281,12 @@ def main():
             d if a.init == "pretrained" else -d))
         print("=" * 76)
     else:
-        print("\nNow run the other one:")
-        print("  python3 hera_transfer_test/finetune_on_hera.py --init {}".format(
+        # NOTE: must repeat --data_dir, otherwise the other arm silently trains on a
+        # different dataset and the two runs are not comparable.
+        print("\nNow run the other one (SAME --data_dir, or the comparison is void):")
+        print("  python3 hera_transfer_test/finetune_on_hera.py --init {} \\".format(
             "scratch" if a.init == "pretrained" else "pretrained"))
+        print("      --data_dir {} --fresh".format(a.data_dir))
 
 
 if __name__ == "__main__":
