@@ -1,0 +1,19 @@
+{
+  "source": "/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/hera_transfer_test/HERA_npy",
+  "drop_from": "train",
+  "original": {
+    "train": 420,
+    "test": 140
+  },
+  "dropped_within": {
+    "train": 38,
+    "test": 5
+  },
+  "cross_split_overlap": 31,
+  "contradictory_label_images": 0,
+  "final": {
+    "train": 351,
+    "test": 135
+  },
+  "overlap_after": 0
+}
