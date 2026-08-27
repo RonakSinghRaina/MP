@@ -222,6 +222,24 @@ def train_one_width(base, a, cw, device):
         model.load_state_dict(st["model"])
         opt.load_state_dict(st["optimizer"])
         sched.load_state_dict(st["scheduler"])
+        # Restore the shuffling RNG as well. Without this, a resumed run resets
+        # the seed to 42 at process start and therefore shuffles differently
+        # from epoch N onward than an uninterrupted run would -- a small effect,
+        # but it makes "seed 42" stop meaning one fixed thing.
+        _rng = st.get("rng")
+        if _rng:
+            _t = _rng["torch"]
+            torch.set_rng_state(_t.cpu() if hasattr(_t, "cpu") else _t)
+            np.random.set_state(_rng["numpy"])
+            if device.type == "cuda" and "cuda" in _rng:
+                try:
+                    torch.cuda.set_rng_state_all([x.cpu() for x in _rng["cuda"]])
+                except Exception as e:
+                    print("  note: CUDA RNG not restored ({})".format(e), flush=True)
+            print("  RNG restored -- batch order continues as if never interrupted", flush=True)
+        else:
+            print("  NOTE: this checkpoint predates RNG saving, so the batch order from "
+                  "here differs slightly from an uninterrupted run.", flush=True)
         print("  resuming base={} from epoch {}".format(base, prog["epochs_completed"]), flush=True)
 
     steps = (len(train_ds) + a.batch - 1) // a.batch
@@ -259,8 +277,11 @@ def train_one_width(base, a, cw, device):
         vf1 = float(np.max(f1))
         del vy, vp
         is_best = vf1 > prog["best_f1"]
+        rng = {"torch": torch.get_rng_state(), "numpy": np.random.get_state()}
+        if device.type == "cuda":
+            rng["cuda"] = torch.cuda.get_rng_state_all()
         torch.save({"model": model.state_dict(), "optimizer": opt.state_dict(),
-                    "scheduler": sched.state_dict(),
+                    "scheduler": sched.state_dict(), "rng": rng,
                     "epoch": prog["epochs_completed"]}, last)
         if is_best:
             prog["best_f1"] = vf1
