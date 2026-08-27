@@ -1,0 +1,2 @@
+epoch,train_loss,val_oracle_f1,is_best,minutes
+1,1.3089,0.6885,1,0.7
