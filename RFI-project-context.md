@@ -1,0 +1,560 @@
+# RFI Project — shared context for any Claude chat in this project
+
+Updated 2026-08-27 (fourth revision). **Read this first.** It carries the findings
+from a deep audit so any new chat, Cowork session, or Claude Code terminal
+session starts with the same picture instead of re-deriving it.
+
+> **If you read nothing else:**
+> 1. The strip-convolution architecture is **no longer novel** — see PART 4
+>    (MARS, arXiv:2608.05546, does the same thing at 34× fewer parameters).
+> 2. The model is **oversized** — see PART 6. base 16 (2.3M params) scores
+>    0.9788 against base 32's (9.3M) 0.9812. Roughly 8.7M parameters buy about
+>    half a percent of F1.
+> 3. The paper should be reframed around the failure diagnoses in PART 1 and the
+>    efficiency finding in PART 6, not around the architecture.
+
+---
+
+## The project in one paragraph
+
+Detecting radio frequency interference (RFI) in synthetic radio-telescope
+spectrograms as pixel-wise segmentation. Two models: a reproduction of the U-Net
+from Akeret et al. 2017 (`tf_unet`, TensorFlow) as the baseline, and a custom
+PyTorch "hybrid" (residual blocks + multiscale anisotropic strip convolutions +
+efficient channel attention, GroupNorm, 9,304,186 parameters). Dataset generated
+by `dataset_generator_v3_strength.py` at 276×600 with `--seed 42`.
+Repo: `RonakSinghRaina/MP`.
+
+---
+
+## PART 1 — Why the tf_unet baseline scored F1 0.39 (fully diagnosed)
+
+Four controlled runs. Identical dataset, architecture (layers=3,
+features_root=32), optimiser (Adam @ 1e-3) and batch size (4). Only the listed
+variables changed.
+
+| # | Normalisation | Class weights | Epochs | ROC AUC | max F1 | Behaviour |
+|---|---|---|---:|---:|---:|---|
+| 1 | per-image | ON | 22 | 0.6681 | **0.3879** | froze at 81.1% error for 15 epochs |
+| 2 | per-image | ON | died at 5 | 0.5677 | **0.3064** | **collapsed** — constant 0.537 everywhere |
+| 3 | per-image | OFF | 60 | 0.8747 | **0.7191** | trained normally |
+| 4 | **fixed range** | OFF | 60 | 0.9908 | **0.9317** | trained well |
+
+### Decomposition
+
+| Change | Gain in F1 | Share |
+|---|---:|---:|
+| **Class weights OFF** | **+0.413** | **66%** |
+| **Fixed-range normalisation** | **+0.213** | **34%** |
+| More epochs (22 → 60) | ≈0 | ≈0% |
+
+**Class weighting was the primary cause. Normalisation was secondary but real.
+Epoch count was irrelevant** — run 2 collapsed at epoch 5, so the extra epochs
+never mattered.
+
+The gap to the hybrid fell from **0.59 → ≈0.05**. The claim *"the gap is
+attributable to architectural limitations of the plain U-Net"* is **dead**.
+
+> **CORRECTION HISTORY:** revision 2 of this doc claimed normalisation was the
+> main cause at "~85% confidence". Runs 2 and 3 refuted that. Two pieces of
+> evidence had been misread — the "frozen at 81%" run also had class weights ON,
+> and the "collapsed to a constant" run used momentum @ lr 0.2. Both were
+> confounded. Trust the table above.
+
+### Cause A — class weighting kills this network (the ReLU trap)
+
+Class weighting is the correct textbook remedy for an 85/15 imbalance. It is
+lethal *here* because of one line of the authors' code:
+
+```python
+output_map = tf.nn.relu(conv)      # tf_unet/unet.py line 145 — AUTHORS' code
+```
+
+The network emits two raw scores per pixel, `score_clean` and `score_rfi`.
+The mechanism:
+
+1. ReLU forces both scores to be ≥ 0.
+2. The 3.45× weight on RFI pushes `score_clean` negative.
+3. ReLU clamps it to exactly 0.
+4. **ReLU's slope at a negative input is exactly 0**, so nudging `score_clean`
+   changes nothing and produces no learning signal. It can never climb back.
+
+Verified against the observed output: a constant 0.537 for all 24,840,000 test
+pixels. Working backwards, `softmax(0, c) = 0.537 → c = 0.148`. The network
+settled on `score_clean` clamped at 0 and `score_rfi` frozen at 0.148 everywhere
+— it stopped being a detector and became a constant.
+
+**Neither piece is the villain alone.** ReLU alone is fine (the authors trained
+with it). Class weights alone are fine (the hybrid uses them happily — it has no
+output ReLU). Together they are fatal. That is the sharp, publishable finding:
+
+> **The plain U-Net's ReLU-gated output makes the standard remedy for class
+> imbalance drive it into an unrecoverable dead state.**
+
+### Cause B — per-image normalisation (+0.213)
+
+`RFIPatchDataset` and `RFINpyDataProvider` scale each image by its own min/max.
+Measured on this dataset the per-image **maximum ranges 27 → 222 (8.2×)**, so
+identical physical noise lands at different values in different images and no
+single decision threshold generalises.
+
+Worked example — noise (raw 10) and faint RFI (raw 20) in two images:
+
+| | per-image, quiet img (max 27) | per-image, loud img (max 222) | fixed ruler |
+|---|---:|---:|---:|
+| noise (10) | 0.370 | 0.045 | **0.345 in both** |
+| faint RFI (20) | 0.741 | 0.090 | **0.520 in both** |
+
+Under per-image scaling, *noise in the quiet image (0.370) reads brighter than
+real RFI in the loud image (0.090)*. The ordering breaks across images.
+
+The authors avoided this: their `scripts/rfi_launcher.py` passes
+`a_min=30, a_max=210`, clipping every image into one fixed physical range. That
+parameter pair was never carried into this project's provider.
+
+`tf_unet` has **no normalisation layers** (2015 design) so it cannot compensate.
+The hybrid's **GroupNorm** re-standardises activations at every layer, which is
+why the identical loader never hurt the hybrid.
+
+**The fix** — `np.clip((data - LO) / (HI - LO), 0, 1)` with `LO, HI = -9.69, 47.40`.
+Those are **measured, not chosen**: the 0.5th and 99.5th percentile of each image,
+averaged over 40 *training* images (test never touched), recomputed each run by
+`calibrate()`. Percentiles rather than min/max because min/max are set by a single
+pixel — the 0.5th percentile has sd 4.43 across images versus the raw minimum's
+19.59.
+
+Full write-up: `BASELINE_FAILURE_DECOMPOSITION.md`.
+
+---
+
+## PART 2 — HERA transfer test (external dataset)
+
+Source: Zenodo 6724065 / 8275061, `HERA_04-03-2022_all.pkl` (440 MB), simulated
+HERA data from Mesarcik et al. Structure: 420 train + 140 test, 512×512, with
+boolean masks. **2.75% RFI** versus our synthetic 15.08%. Exported to
+`hera_transfer_test/HERA_npy/` in the project's `.npy` layout.
+
+### ⚠ THE PUBLISHED HERA SPLIT HAS TRAIN/TEST LEAKAGE
+
+Verified by SHA-256 over raw pixels:
+
+| Check | Result |
+|---|---|
+| Unique train images | **382 / 420** (38 internal duplicates) |
+| Unique test images | **135 / 140** (5 internal duplicates) |
+| **Train∩test overlap** | **31 images — 22% of the test set** |
+
+**31 test images are byte-identical copies of training images.** This is the
+dataset's own published split, not something introduced here. This is a finding
+about a published, peer-reviewed benchmark and is worth a sentence in the
+write-up.
+
+### Zero-shot results (valid — no training involved)
+
+| Experiment | Result |
+|---|---|
+| Zero-shot, our threshold 0.6113 | ROC 0.8965 · F1 **0.1415** (P 0.077 / R 0.868) |
+| Zero-shot, recalibrated on HERA train | F1 **0.4481** @ thr 0.9999 |
+| Constant threshold, no model | ROC 0.8120 · oracle F1 **0.5665** |
+
+**Read:** the hybrid *ranks* HERA pixels sensibly (ROC 0.90) but its threshold is
+badly miscalibrated for 2.75% RFI — recall 0.87 at precision 0.077. Recalibration
+alone triples F1 (0.14 → 0.45). But even recalibrated it **loses to a constant
+brightness threshold** (0.4481 vs 0.5665). Partial transfer only.
+
+Do **not** quote "recovered 100% of the gap to the oracle" — the train-chosen and
+test-oracle thresholds coinciding is an artefact of the model's saturation (huge
+numbers of predictions sit at ~0.9999), not a meaningful claim.
+
+A float16 bug was found and fixed in `recalibrate_threshold.py`: softmax
+saturates near 1.0 and float16's spacing there is 0.000488, which collapsed
+thousands of distinct scores into one and made the threshold search coarse.
+Everything now uses float32. It cost ~0.015 F1.
+
+---
+
+## PART 3 — HERA, deduplicated and re-run (CLOSED)
+
+Deduplication done (`hera_transfer_test/dedupe_hera.py`), output in
+`hera_transfer_test/HERA_npy_clean/`:
+
+| | Before | After |
+|---|---:|---:|
+| Train images | 420 | **351** |
+| Test images | 140 | **135** |
+| Train∩test overlap | 31 | **0** |
+| Contradictory labels | — | **0** |
+| RFI fraction | — | train 2.78% / test 2.71% |
+
+Both arms re-run on the clean split, 40 epochs each:
+
+| Arm | Test F1 |
+|---|---:|
+| Fine-tuned from `hybrid_run_paperdim/best.pt` | **0.9964** |
+| **Trained from scratch (the control)** | **0.9996** |
+| Difference (pretrained − scratch) | **−0.0032** |
+
+**The transferable value of the synthetic dataset measured negative.** Starting
+from the synthetic weights was very slightly *worse* than starting from random.
+The honest read is not "pretraining hurts" — it is that **HERA is too easy for
+this comparison to say anything**. Both arms sit at 0.999+, i.e. at ceiling, so
+there is no headroom in which pretraining could show a benefit. Note also that
+leakage was *not* what was propping up the number: 0.9974 (contaminated) →
+0.9964 (clean) barely moved, because the task was already saturated.
+
+**Conclusion: HERA is a solved/ceiling benchmark and is not a useful transfer
+target. Stop spending runs on it.** Report the dedup finding (31 leaked test
+images in a published benchmark) as a data-quality note and move on.
+
+---
+
+## PART 4 — PRIOR ART: the strip-convolution idea is no longer novel
+
+**MARS, arXiv:2608.05546 (2026)** is direct prior art for this project's central
+architectural claim. What it does:
+
+- Parallel **anisotropic convolutions**: 3×3 local, **1×9 horizontal, 9×1
+  vertical**; decoder widens to **1×31 / 31×1**
+- Plain Conv-BN-ReLU, additive skips, **no attention**
+- U-Net widths (8, 16, 32, 64)
+- **270,769 parameters**, **F1 0.978**
+- Trained on 4,800 synthetic 512×512 patches, **evaluated on real GMRT
+  observations**, benchmarked against RFDL and filtool
+
+That is the same core idea — anisotropic strip kernels matched to RFI morphology
+— at **34× fewer parameters** (270,769 vs 9,304,186) for effectively the same F1
+(0.978 vs 0.9808), and validated on **real telescope data** rather than only
+synthetic.
+
+**Consequence for the write-up:** "multiscale strip convolutions for RFI" cannot
+be presented as novel. This is consistent with the project's own matched-budget
+ablation, where strip convolutions were worth only **+0.023 F1** and ECA was
+**−0.005**.
+
+**What is still genuinely the project's own contribution** — and it is a better
+paper than the architecture one:
+
+1. **The ReLU-gated-output failure mode** (Part 1, Cause A). A named, mechanically
+   explained, reproducible failure in a widely-cited baseline, where the standard
+   textbook remedy for class imbalance drives the network into an unrecoverable
+   dead state. Nobody has written this up.
+2. **The per-image normalisation failure** (Part 1, Cause B), with the measured
+   8.2× per-image dynamic-range spread and the fixed-range fix that recovers
+   F1 0.39 → 0.9317.
+3. **The benchmark-difficulty audit** — showing a 2,578-parameter CNN reaches
+   F1 0.7823 and a constant threshold reaches 0.7421 on this task.
+4. **The leakage finding in the published HERA split** (Part 3).
+
+Reframe the paper around diagnosis and reproducibility, not architecture.
+
+---
+
+## PART 5 — real telescope data with human ground truth (LOFAR)
+
+`L629174_RFI_dataset.pkl` is in the project root and is genuinely real LOFAR
+observation data (not simulated). The larger `LOFAR_Full_RFI_dataset.pkl`
+(~10 GB, not yet downloaded) carries **109 expert-labelled baselines** — actual
+human ground-truth masks on real telescope data, which is what a reviewer will
+want to see the model tested on.
+
+`lofar_analysis/analyse_lofar.py` is **written but not yet run**. It needs
+~8–10 GB RAM, so it must run in WSL (`~/torch-env`), not in a Cowork device
+session (that VM has only 3.9 GB).
+
+---
+
+## PART 6 — parameter-efficiency sweep (DONE — the model is oversized)
+
+`experiments/width_sweep/run_width_sweep.py`. All four widths trained under one
+identical protocol: 276×600 full images, the project's own `CEDiceLoss`, measured
+class weights, Adam 1e-3, CosineAnnealingLR(T_max=22), 22 epochs, batch 8,
+depth 4, dropout 0.2, seed 42; best checkpoint by val F1; threshold chosen on the
+150 val images and applied ONCE to test.
+
+| base | parameters | model | ROC AUC | **F1** | IoU | vs base 32 | img/s |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 4 | 152,582 | 0.6 MB | 0.9980 | **0.9547** | 0.9134 | −0.0265 | 61.3 |
+| 8 | 593,842 | 2.4 MB | 0.9993 | **0.9749** | 0.9510 | −0.0063 | 65.5 |
+| 16 | 2,342,474 | 9.4 MB | 0.9994 | **0.9788** | 0.9585 | −0.0024 | 37.2 |
+| **32** | **9,304,186** | 37.2 MB | 0.9995 | **0.9812** | 0.9631 | — | 16.2 |
+
+**The control worked.** base 32 under this harness scored **0.9812** against the
+published **0.9808** — a difference of +0.0004. The harness faithfully reproduces
+the published model, so every other row in the table is trustworthy.
+
+### What it says
+
+- **base 16 is indistinguishable from base 32**: 4× fewer parameters for
+  −0.0024 F1, far inside the ~0.01 single-seed noise floor.
+- **base 8 is very close**: 15.7× fewer parameters for −0.0063 F1, still inside
+  the noise floor.
+- **base 4 genuinely breaks**: −0.0265 is a real drop. The capacity floor for
+  this architecture sits **between 152k and 594k parameters**.
+- ROC AUC barely moves at all (0.9980 → 0.9995). Ranking ability is almost
+  width-independent; only the threshold-dependent metrics separate.
+- **Speed has a floor too.** base 4 (61.3 img/s) is *slower* than base 8
+  (65.5 img/s) — below a certain size the work is dominated by walking all
+  165,600 pixels, not by the parameters, and a tiny model also leaves the GPU
+  idle. Do not expect shrinking to keep buying speed.
+
+**Conclusion: roughly 8.7 million of the published model's 9.3 million parameters
+buy about half a percent of F1.** This is consistent with the matched-budget
+ablation (strip convolutions +0.023, residual blocks +0.002, ECA −0.005).
+
+### ⚠ Before this goes in a paper
+
+**N = 1 per width.** The two headline gaps (−0.0024 and −0.0063) are both smaller
+than the ~0.01 threshold below which one seed proves nothing. The claim "the
+small model matches the big one" is **not yet established** — it needs ≥3 seeds
+at base 8 and base 32, reported as mean ± spread.
+
+Output folders are named by width only, **not by seed**, so a second seed written
+into the same `--out_root` would skip the finished widths and silently report the
+seed-42 numbers. The script now refuses that. Use:
+
+```bash
+python3 experiments/width_sweep/run_width_sweep.py --base 8 32 --seed 0 \
+    --out_root hybrid_run_width_sweep_seed0
+```
+
+### Runtime (measured, on the user's GPU, batch 8)
+
+base 4 ≈ 10 min · base 8 ≈ 23 min · base 16 ≈ 31 min · base 32 ≈ 30 min.
+**An earlier estimate of "9 hours" in this doc's history was wrong** — it was
+extrapolated from the original run, which used `batch_size=1` (the script
+default), 8× more steps and very poor GPU utilisation.
+
+### Relative to MARS
+
+MARS reaches F1 0.978 with **270,769** parameters. That count sits right in the
+zone where *this* architecture starts to degrade (between base 4's 152k and base
+8's 594k). So MARS is genuinely more parameter-efficient than HybridRFINet, and
+that — not raw accuracy — is the gap a new design has to close.
+
+---
+
+## PART 7 — machine migration: Windows/WSL2 → Fedora 44 (2026-08-29)
+
+### Why the move happened
+
+Ronak's supervisor advised doing the whole project on a Linux dual boot rather
+than WSL2, because WSL2's **split RAM** was blocking work — WSL2 defaults to
+roughly half of system RAM, and the 10 GB LOFAR dataset needs more than that.
+
+> **Worth knowing:** that specific problem has a two-line fix without changing
+> OS. A `C:\Users\<user>\.wslconfig` containing `[wsl2]` / `memory=24GB` raises
+> WSL2's limit, then `wsl --shutdown`. The dual boot went ahead anyway and is a
+> better long-term setup, but if anyone asks why WSL2 "couldn't" do it, the
+> honest answer is that it could have.
+
+The Windows + WSL2 environment was never broken and still works. It is now the
+**only second copy** of the `.pt` weights and the `.pkl` datasets, neither of
+which is in git. **Do not reclaim the Windows partition.**
+
+### How the files moved, and what got lost
+
+Copied by **USB stick** — which was FAT32, so it carries a **4 GB per-file
+ceiling**. `L629174_RFI_dataset.pkl` (3.78 GB) only just fitted. **The 10 GB
+`LOFAR_Full_RFI_dataset.pkl` cannot pass through that stick — download it
+directly onto the Linux disk.**
+
+The copy was incomplete, and the gaps were found in three separate rounds:
+
+| Round | What was missing | How it was recovered |
+|---|---|---|
+| 1 | 6 tracked files: `AUDIT_REPORT.md`, `BASELINE_FAILURE_DECOMPOSITION.md`, `CITATION.cff`, `CLAUDE.md`, `LICENSE`, `.gitignore` | `git restore` — git had them |
+| 2 | `hybrid_run_width_sweep/base32/eval_test/` — the whole results folder for the base-32 control | copied from the mounted Windows partition |
+| 3 | `sweep_results.json` was a **stale** copy holding only `[4, 16]` | copied from Windows, then rebuilt to hold all four widths |
+| — | both `.pkl` datasets (4.2 GB) | copied from Windows, verified byte-exact |
+
+Round 1's losses were a contiguous alphabetical block from `AUDIT` to `LICENSE`,
+which suggests the copy was sorted alphabetically and the first chunk failed.
+
+**Lesson — do this after any bulk copy, before trusting it:**
+
+```bash
+( cd "$WIN" && find . -type f -not -path './.git/*' | sort ) > /tmp/win.txt
+( cd "$FED" && find . -type f -not -path './.git/*' | sort ) > /tmp/fed.txt
+comm -23 /tmp/win.txt /tmp/fed.txt        # on the source but not the destination
+```
+
+The Windows partition is `/dev/nvme0n1p3` (835 GB NTFS). **Mount it read-only:**
+
+```bash
+sudo mount -o ro /dev/nvme0n1p3 /mnt/win
+# project at: /mnt/win/Users/RONAK SINGH/Documents/Coding/Minor Project
+```
+
+### Line endings
+
+The Windows copy arrived with **CRLF** line terminators throughout. Git compared
+them against its own LF copies and reported **26 modified files, 4,702
+insertions** — of which only **3 files, 61 lines** were real changes (all of them
+width-sweep output). The rest was invisible-character noise.
+
+Fixed by restoring the CRLF-only files from git, stripping CRs from the 3 real
+ones with `sed -i 's/\r$//'`, then adding `.gitattributes` (`* text=auto eol=lf`)
+and `git config core.autocrlf false` so it cannot recur.
+
+### The GPU saga — one full day
+
+Summarised in **Other things that bite** below; the short version is that Secure
+Boot had to be disabled (the MOK enrollment screen never accepted keyboard input
+on this Legion), and kernel **7.1.10 renders the GNOME desktop on the RTX 3060**,
+which makes the UI crawl. **Kernel 6.19.10 is the one to boot** and is pinned as
+default. Verified working: driver 610.57.04, CUDA 13.3, torch 2.13.0+cu130,
+`torch.cuda.is_available() == True`.
+
+### State at the end of the migration
+
+Everything verified present, committed as **`2295372`** and pushed to
+`origin/main`. Full width sweep re-runs on Fedora and skips all four widths,
+confirming the whole chain works. TensorFlow is the one loose end — it needs
+`python3.12 -m venv ~/tf-env`, because Fedora 44's default Python 3.14 has no
+TensorFlow wheels.
+
+### Claude tooling on Fedora
+
+The **Claude desktop app supports Debian and Ubuntu only** — not Fedora — so the
+Cowork folder bridge cannot reach this machine and Cowork sessions cannot read or
+write the project directly. Use the **Claude Code CLI**, which does support
+Fedora via dnf:
+
+```bash
+sudo tee /etc/yum.repos.d/claude-code.repo <<'EOF'
+[claude-code]
+name=Claude Code
+baseurl=https://downloads.claude.ai/claude-code/rpm/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://downloads.claude.ai/keys/claude-code.asc
+EOF
+sudo dnf install claude-code
+```
+
+Start it from the project directory with `claude`, and open the session with
+`read RFI-project-context.md before we begin`.
+
+---
+
+## Verified facts about the synthetic dataset (trust these)
+
+Regenerates **bit-exactly** from `--seed 42`:
+
+| | Value |
+|---|---|
+| Splits | train 700 / val 150 / test 150 |
+| Test set | 24,840,000 pixels, 3,746,075 RFI (15.0808%) |
+| Dataset mean RFI fraction | 14.67% (NOT 12.4% — PAPER_DIMENSIONS.md was wrong) |
+| Test images with no RFI | 9 / 150 |
+| `HybridRFINet` parameters | 9,304,186 |
+| Split overlap | **zero** shared SHA-256 hashes — no leakage |
+
+**Hybrid's results — checked against the actual `eval_test/metrics.json` on disk,
+correct to 6+ decimals.** Confusion-matrix totals match the real data exactly
+(24,840,000 px; TP+FN = 3,746,075):
+
+ROC AUC **0.9995** · PR AUC **0.9982** · F1 **0.9808** · Precision 0.9801 ·
+Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
+
+---
+
+## Still outstanding before publication
+
+1. **The architecture is not novel** (PART 4). Reframe the paper around the
+   failure diagnoses. This is the biggest single issue.
+2. **The baseline comparison is not matched.** Baseline got 60 epochs, hybrid 22.
+   Baseline reports **oracle max-F1**; hybrid reports F1 at a **fixed
+   validation-selected threshold**. `tf_unet`'s valid padding scores it on
+   236×560 vs the hybrid's full 276×600. Rerun both under one protocol.
+3. **The architecture contributes little.** Matched-budget ablation: all U-Net
+   variants F1 0.8785–0.9117. Strip convolutions **+0.023**, residual blocks
+   +0.002, ECA **−0.005**. Best variant was the full model **with ECA removed**.
+4. **The benchmark is easy.** Label is `injected_RFI > 0.5σ` — noise-free, zero
+   ambiguity. 90.9% of RFI sits ≥1σ. A constant threshold scores ROC 0.9308 /
+   F1 0.7421; a 2,578-parameter CNN scores 0.9574 / 0.7823.
+5. **N = 1.** No seed repeats anywhere. Run ≥3 seeds. **This is now the single
+   blocking item for the efficiency finding** — base 16 vs base 32 (−0.0024) and
+   base 8 vs base 32 (−0.0063) are both inside the one-seed noise floor, so the
+   headline claim is unproven until seeds 0 and 1 are run.
+6. **No result on real telescope data with human labels yet** (PART 5). This is
+   what a reviewer will ask for.
+7. **`unet_run_gpu/eval_test/metrics.json` is mislabelled** — it holds the
+   *faircompare* numbers (`checkpoint_dir` field proves it). Model 1's original
+   metrics were overwritten and no longer exist. `unet_run_faircompare/` has no
+   `eval_test/` at all.
+
+---
+
+## Where the trained models live
+
+| Model | Folder | Weights | F1 |
+|---|---|---|---:|
+| Authors', 1024×1024 | `unet_run_gpu/` | `best_checkpoint/model.ckpt.*` | ⚠ metrics overwritten |
+| Authors', first 276×600 | `unet_run_faircompare/` | `best_checkpoint/model.ckpt.*` | 0.3879 |
+| Control: per-image + weights | `unet_run_control_per_image_cw/` | `best_checkpoint/` | 0.3064 |
+| Control: per-image, no weights | `unet_run_control_per_image/` | `best_checkpoint/` | 0.7191 |
+| **Authors' + both fixes** | `unet_run_fixednorm/` | `best_checkpoint/` | **0.9317** |
+| **Hybrid (synthetic)** | `hybrid_run_paperdim/` | `best.pt` | **0.9808** |
+| HERA fine-tuned, clean split | `hera_transfer_test/runs/…pretrained/` | `best.pt` | 0.9964 |
+| HERA from scratch, clean split | `hera_transfer_test/runs/…scratch/` | `best.pt` | 0.9996 |
+| Width sweep, base 4 | `hybrid_run_width_sweep/base04/` | `best.pt` | 0.9547 |
+| Width sweep, base 8 | `hybrid_run_width_sweep/base08/` | `best.pt` | 0.9749 |
+| Width sweep, base 16 | `hybrid_run_width_sweep/base16/` | `best.pt` | 0.9788 |
+| **Width sweep, base 32 (control)** | `hybrid_run_width_sweep/base32/` | `best.pt` | **0.9812** |
+
+TF checkpoints are three files sharing the `model.ckpt` prefix — keep all three.
+Always use `best_checkpoint/` or `best.pt`, never `checkpoints/` or `last.pt`.
+Fine-tuning **never modifies** `hybrid_run_paperdim/best.pt`; it writes elsewhere,
+so the synthetic specialist and any HERA specialist coexist as separate files.
+
+---
+
+## Other things that bite
+
+- `evaluate_hybrid_test.py --patch_size` defaulted to **512**, silently cropping
+  276×600 → 276×512 (14.7% of every image). Fixed to 0.
+- `train_unet_rfi_gpu.py` had a **silent fallback to the test set** when `val/`
+  was missing. Removed — it now errors.
+- `RFI_Project_Model_Comparison.md` §3 says batch_size 4 **and**
+  `training_iters=87` — arithmetically impossible (at batch 4 a full pass is 175).
+- `unet_run_faircompare/training_log.csv` shows val F1 **still climbing** at epoch
+  22 (0.2927 → 0.3068 → 0.3213, flagged best) — cut off mid-climb.
+- The published hybrid run used `CosineAnnealingLR(T_max=40)` but was **halted by
+  hand at epoch 22**, and validated on only 50 of the 150 val images. Any rerun
+  that uses a clean 22-epoch schedule is therefore *not* bit-comparable to it.
+- `HybridRFINet` uses `GroupNorm(min(8, C), C)`, so every channel count must be
+  divisible by 8 (or be 1/2/4). `base=12` and `base=20` cannot be built.
+- `RFI_Using_UNET.pdf` (Elsevier PDF) removed — copyright. **Still in git
+  history**; needs `git filter-repo` before the repo goes public.
+- `tf_unet` is GPL-3.0 and vendored, so the repo must be GPL-3.0. `LICENSE` added.
+- **MACHINE MOVED (2026-08-29): WSL2 -> Fedora 44 dual boot.** Project now at
+  `~/Documents/minor project/Minor Project` (note the nested lowercase parent).
+  The old WSL2 setup on the Windows partition still works and is the only
+  second copy of the `.pt` and `.pkl` files - do not reclaim that partition.
+- **Fedora specifics that cost a day to find, do not rediscover them:**
+  - **Boot kernel 6.19.10-300.fc44** (pinned via `grubby --set-default`).
+    Kernel 7.1.10-200 has the NVIDIA driver built too, but GNOME renders the
+    desktop on the RTX 3060 there (`gnome-shell` holds 115 MiB in `nvidia-smi`),
+    which makes the whole UI crawl. On 6.19 it holds 2 MiB and the AMD iGPU
+    drives the display. If a future kernel update brings the lag back, check
+    `nvidia-smi`'s process list first.
+  - **Secure Boot is OFF.** The MOK enrollment screen never accepted keyboard
+    input on this Legion. BitLocker is not enabled (proved: the NTFS partition
+    mounts and reads fine from Linux), so disabling it was safe.
+  - Driver 610.57.04, CUDA UMD 13.3, RTX 3060 Laptop 6 GB.
+  - `~/torch-env` = **Python 3.14**, torch 2.13.0+cu130, `GPU: True`.
+  - `~/tf-env` must use **Python 3.12** (`python3.12 -m venv ~/tf-env`) -
+    TensorFlow publishes no wheels for Fedora 44's default Python 3.14.
+  - Never install torch into `tf-env` or TensorFlow into `torch-env`.
+- Git hygiene after the move: `.gitattributes` with `* text=auto eol=lf` and
+  `core.autocrlf false` (the Windows copy arrived with CRLF everywhere, making
+  26 files look modified when only 3 were). `*.pt` and `*.pkl` are gitignored -
+  `base32/best.pt` is 112 MB and GitHub hard-rejects anything over 100 MB.
+
+## Key documents in the repo
+
+`AUDIT_REPORT.md` · `BASELINE_FAILURE_DECOMPOSITION.md` ·
+`MODEL_COMPARISON_EXPLAINED.md` · `experiments/` ·
+`experiments/width_sweep/run_width_sweep.py` · `hera_transfer_test/` ·
+`lofar_analysis/` · `results/`
