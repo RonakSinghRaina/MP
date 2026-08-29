@@ -348,6 +348,20 @@ def main():
 
     if not os.path.isdir(os.path.join(a.dataset_dir, "train", "images")):
         raise SystemExit("ERROR: dataset not found at {}".format(a.dataset_dir))
+
+    # A width's output folder is named by width alone, NOT by seed. A second
+    # seed written into the same --out_root would find the first seed's
+    # metrics.json, skip the width, and silently report the OLD seed's numbers
+    # as if they were the new seed's. Refuse that outright.
+    _default_root = os.path.join(_ROOT, "hybrid_run_width_sweep")
+    if a.seed != 42 and os.path.abspath(a.out_root) == os.path.abspath(_default_root):
+        raise SystemExit(
+            "ERROR: seed {} would be written into the seed-42 folder.\n"
+            "  Widths already finished there would be SKIPPED and their seed-42\n"
+            "  numbers reported as if they were seed {}.\n"
+            "  Give this seed its own folder, e.g.:\n"
+            "    --seed {} --out_root hybrid_run_width_sweep_seed{}".format(
+                a.seed, a.seed, a.seed, a.seed))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cw, mean_rfi = class_weights(a.dataset_dir)
     os.makedirs(a.out_root, exist_ok=True)
