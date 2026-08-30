@@ -1,0 +1,55 @@
+{
+  "shape": "(1024, 265)",
+  "counts": {
+    "train": 700,
+    "val": 150,
+    "test": 150
+  },
+  "leakage": {
+    "train^val": 0,
+    "test^train": 0,
+    "test^val": 0
+  },
+  "rfi_fraction": {
+    "by_split": {
+      "train": 0.140321044263814,
+      "val": 0.1489267148191824,
+      "test": 0.14237104461477987
+    },
+    "overall": 0.14191939489976416
+  },
+  "max_spread": 14.489277693994275,
+  "normalisation": {
+    "LO": -2.8883098356886707,
+    "HI": 44.885018375676104,
+    "split": "train"
+  },
+  "class_weights": {
+    "mean_rfi": 0.140321044263814,
+    "weights": [
+      0.5816124690080671,
+      3.5632574046410515
+    ]
+  },
+  "difficulty_floor": {
+    "f1": 0.7668427295246752,
+    "threshold": 18.260324194622278,
+    "reference": 0.7421,
+    "delta": 0.024742729524675267
+  },
+  "bandpass_cost": {
+    "injected": 37073066,
+    "excluded": 54403,
+    "excluded_frac": 0.0014674534876613658,
+    "channels_losing_over_half": 9,
+    "n_freq": 1024
+  },
+  "bit_exact": {
+    "compared": 4025,
+    "identical": 4025,
+    "differing": 0
+  },
+  "passed": true,
+  "failures": [],
+  "warnings": []
+}

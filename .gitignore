@@ -67,3 +67,19 @@ Thumbs.db
 # Copyrighted PDFs
 # ---------------------------------------------------------------------------
 RFI_Using_UNET.pdf
+
+# ---------------------------------------------------------------------------
+# Dataset v4, 1024x265 with instrument bandpass (1.9 GB, regenerable):
+#   python3 dataset_v4_bandpass/generate_dataset_v4.py   (seed 42)
+# ---------------------------------------------------------------------------
+Synthetic Dataset 1024x265/
+
+# TF checkpoints and TensorBoard event files from ANY run directory.
+# The small human-readable evidence (metrics.json / progress.json /
+# run_config.json / training_log.csv) is committed; these are not.
+model.ckpt.*
+events.out.tfevents.*
+**/checkpoint
+
+# tf_unet writes prediction preview JPEGs for the first few epochs only (~5 MB).
+pred/

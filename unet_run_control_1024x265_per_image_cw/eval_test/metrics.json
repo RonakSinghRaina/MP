@@ -1,0 +1,23 @@
+{
+  "roc_auc": 0.9129681071437763,
+  "pr_auc": 0.7716421125488365,
+  "max_f1": 0.6815014013283373,
+  "n_images": 150,
+  "pred_min": 1.2139698810642585e-05,
+  "pred_max": 1.0,
+  "pred_std": 0.21725447475910187,
+  "collapsed": false,
+  "norm_mode": "per_image",
+  "norm_range": [
+    -2.252381122791674,
+    46.23397754812247
+  ],
+  "class_weights": "on",
+  "epochs": 60,
+  "features_root": 32,
+  "layers": 3,
+  "batch_size": 4,
+  "learning_rate": 0.001,
+  "best_val_f1": 0.6945443736186694,
+  "best_epoch": 60
+}

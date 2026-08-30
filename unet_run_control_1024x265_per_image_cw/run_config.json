@@ -1,0 +1,17 @@
+{
+  "norm": "per_image",
+  "dataset_dir": "Synthetic Dataset 1024x265",
+  "output_dir": "unet_run_control_1024x265_per_image_cw",
+  "features_root": 32,
+  "layers": 3,
+  "batch_size": 4,
+  "epochs": 60,
+  "class_weights": "on",
+  "epochs_per_chunk": 5,
+  "n_val_images": 50,
+  "lr": 0.001,
+  "fresh": false,
+  "lo": -2.252381122791674,
+  "hi": 46.23397754812247,
+  "training_iters": 175
+}

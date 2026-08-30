@@ -1,0 +1,128 @@
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/compat/v2_compat.py:98: disable_resource_variables (from tensorflow.python.ops.resource_variables_toggle) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+==========================================================================
+ CONTROL RUN  --  norm=PER_IMAGE  class_weights=ON
+==========================================================================
+  GPU              : ['/physical_device:GPU:0']
+  normalisation    : PER-IMAGE min-max  (each image scaled by its own brightest pixel)
+  class weights    : ON  [0.582, 3.563]
+  ---- held constant ----
+  epochs           : 60
+  layers/features  : 3 / 32
+  batch / iters    : 4 / 175   (10500 steps total)
+  optimiser        : adam @ 0.001
+  output           : unet_run_control_1024x265_per_image_cw
+  RESUMING from epoch 40 (best val F1 0.6693)
+==========================================================================
+2026-08-30 19:12:24,605 Layers 3, features 32, filter size 3x3, pool size: 2x2
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+2026-08-30 19:12:24,624 From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:12:25,508 Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:12:25,578 Model restored from file: unet_run_control_1024x265_per_image_cw/model.ckpt
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1788097345.625830   71433 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+2026-08-30 19:12:28,944 Verification error= 8.4%, loss= 0.6788
+2026-08-30 19:12:29,071 Start optimization
+2026-08-30 19:12:43,002 Iter 0, Minibatch Loss= 0.5740, Training Accuracy= 0.9486, Minibatch error= 5.1%
+2026-08-30 19:13:34,563   [################........] Epoch 41/60 done  |  loss 0.5812  |  lr 0.00100  |  elapsed 1.2m  |  ETA 22.2m
+2026-08-30 19:13:34,718 Verification error= 34.7%, loss= 0.5547
+2026-08-30 19:14:28,640   [################........] Epoch 42/60 done  |  loss 0.5241  |  lr 0.00100  |  elapsed 2.1m  |  ETA 18.6m
+2026-08-30 19:14:28,792 Verification error= 49.2%, loss= 0.6364
+2026-08-30 19:15:24,229   [#################.......] Epoch 43/60 done  |  loss 0.5075  |  lr 0.00100  |  elapsed 3.0m  |  ETA 17.0m
+2026-08-30 19:15:24,384 Verification error= 17.7%, loss= 0.4529
+2026-08-30 19:16:21,299   [#################.......] Epoch 44/60 done  |  loss 0.5225  |  lr 0.00100  |  elapsed 3.9m  |  ETA 15.8m
+2026-08-30 19:16:21,460 Verification error= 9.8%, loss= 0.4623
+2026-08-30 19:17:16,594   [##################......] Epoch 45/60 done  |  loss 0.5324  |  lr 0.00100  |  elapsed 4.9m  |  ETA 14.6m
+2026-08-30 19:17:16,747 Verification error= 10.6%, loss= 0.4382
+2026-08-30 19:17:16,964 Optimization Finished!
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+E0000 00:00:1788097637.252316   71433 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  >> epoch 45/60 checkpointed  |  val ROC 0.8801  val maxF1 0.6654
+2026-08-30 19:17:24,778 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:17:25,459 Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:17:25,525 Model restored from file: unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:17:26,569 Verification error= 9.1%, loss= 0.2727
+2026-08-30 19:17:26,828 Start optimization
+2026-08-30 19:17:28,185 Iter 0, Minibatch Loss= 0.3361, Training Accuracy= 0.8996, Minibatch error= 10.0%
+2026-08-30 19:18:20,296   [##################......] Epoch 46/60 done  |  loss 0.2766  |  lr 0.00100  |  elapsed 5.9m  |  ETA 13.8m
+2026-08-30 19:18:20,445 Verification error= 13.5%, loss= 0.3081
+2026-08-30 19:19:13,531   [##################......] Epoch 47/60 done  |  loss 0.2755  |  lr 0.00100  |  elapsed 6.8m  |  ETA 12.7m
+2026-08-30 19:19:13,682 Verification error= 12.1%, loss= 0.2698
+2026-08-30 19:20:06,737   [###################.....] Epoch 48/60 done  |  loss 0.2793  |  lr 0.00100  |  elapsed 7.7m  |  ETA 11.6m
+2026-08-30 19:20:06,887 Verification error= 12.0%, loss= 0.2769
+2026-08-30 19:21:00,328   [###################.....] Epoch 49/60 done  |  loss 0.2584  |  lr 0.00100  |  elapsed 8.6m  |  ETA 10.5m
+2026-08-30 19:21:00,546 Verification error= 15.2%, loss= 0.3751
+2026-08-30 19:21:53,906   [####################....] Epoch 50/60 done  |  loss 0.2748  |  lr 0.00100  |  elapsed 9.5m  |  ETA 9.5m
+2026-08-30 19:21:54,056 Verification error= 12.6%, loss= 0.2843
+2026-08-30 19:21:54,284 Optimization Finished!
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+E0000 00:00:1788097914.560697   71433 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  >> epoch 50/60 checkpointed  |  val ROC 0.9029  val maxF1 0.6893   <-- NEW BEST
+2026-08-30 19:22:01,421 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:22:02,125 Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:22:02,191 Model restored from file: unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:22:03,252 Verification error= 8.8%, loss= 0.2057
+2026-08-30 19:22:03,394 Start optimization
+2026-08-30 19:22:04,718 Iter 0, Minibatch Loss= 0.2670, Training Accuracy= 0.8873, Minibatch error= 11.3%
+2026-08-30 19:22:56,916   [####################....] Epoch 51/60 done  |  loss 0.2722  |  lr 0.00100  |  elapsed 10.5m  |  ETA 8.6m
+2026-08-30 19:22:57,065 Verification error= 14.3%, loss= 0.3092
+2026-08-30 19:23:50,077   [####################....] Epoch 52/60 done  |  loss 0.2777  |  lr 0.00100  |  elapsed 11.4m  |  ETA 7.6m
+2026-08-30 19:23:50,225 Verification error= 9.3%, loss= 0.2108
+2026-08-30 19:24:43,304   [#####################...] Epoch 53/60 done  |  loss 0.2595  |  lr 0.00100  |  elapsed 12.3m  |  ETA 6.6m
+2026-08-30 19:24:43,458 Verification error= 9.3%, loss= 0.2108
+2026-08-30 19:25:36,595   [#####################...] Epoch 54/60 done  |  loss 0.2615  |  lr 0.00100  |  elapsed 13.2m  |  ETA 5.7m
+2026-08-30 19:25:36,745 Verification error= 10.4%, loss= 0.2306
+2026-08-30 19:26:29,946   [######################..] Epoch 55/60 done  |  loss 0.2595  |  lr 0.00100  |  elapsed 14.1m  |  ETA 4.7m
+2026-08-30 19:26:30,098 Verification error= 10.4%, loss= 0.2321
+2026-08-30 19:26:30,382 Optimization Finished!
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+E0000 00:00:1788098190.687186   71433 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+/home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/numpy_compat.py:78: RuntimeWarning: overflow encountered in cast
+  return np.asarray(values, order=order, copy=copy).astype(dtype, copy=copy)
+  >> epoch 55/60 checkpointed  |  val ROC 0.9063  val maxF1 0.6917   <-- NEW BEST
+2026-08-30 19:26:37,722 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:26:38,429 Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:26:38,498 Model restored from file: unet_run_control_1024x265_per_image_cw/model.ckpt
+2026-08-30 19:26:39,559 Verification error= 8.9%, loss= 0.2640
+2026-08-30 19:26:39,695 Start optimization
+2026-08-30 19:26:41,021 Iter 0, Minibatch Loss= 0.2879, Training Accuracy= 0.8946, Minibatch error= 10.5%
+2026-08-30 19:27:32,910   [######################..] Epoch 56/60 done  |  loss 0.2631  |  lr 0.00100  |  elapsed 15.1m  |  ETA 3.8m
+2026-08-30 19:27:33,059 Verification error= 6.7%, loss= 0.2001
+2026-08-30 19:28:25,999   [######################..] Epoch 57/60 done  |  loss 0.2619  |  lr 0.00100  |  elapsed 16.0m  |  ETA 2.8m
+2026-08-30 19:28:26,146 Verification error= 7.4%, loss= 0.2396
+2026-08-30 19:29:19,277   [#######################.] Epoch 58/60 done  |  loss 0.2705  |  lr 0.00100  |  elapsed 16.9m  |  ETA 1.9m
+2026-08-30 19:29:19,432 Verification error= 6.7%, loss= 0.1817
+2026-08-30 19:30:12,752   [#######################.] Epoch 59/60 done  |  loss 0.2521  |  lr 0.00100  |  elapsed 17.8m  |  ETA 0.9m
+2026-08-30 19:30:12,902 Verification error= 7.5%, loss= 0.2300
+2026-08-30 19:31:06,075   [########################] Epoch 60/60 done  |  loss 0.2517  |  lr 0.00100  |  elapsed 18.7m  |  ETA 0.0m
+2026-08-30 19:31:06,224 Verification error= 7.5%, loss= 0.2305
+2026-08-30 19:31:06,442 Optimization Finished!
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/model.ckpt
+E0000 00:00:1788098466.720699   71433 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  >> epoch 60/60 checkpointed  |  val ROC 0.9025  val maxF1 0.6945   <-- NEW BEST
+
+Evaluating BEST checkpoint on TEST (once) ...
+2026-08-30 19:31:13,528 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from unet_run_control_1024x265_per_image_cw/best_checkpoint/model.ckpt
+    evaluated 50/150
+    evaluated 100/150
+    evaluated 150/150
+
+==========================================================================
+  --norm PER_IMAGE   --class_weights ON
+  ROC AUC : 0.9130
+  PR  AUC : 0.7716
+  max F1  : 0.6815
+  collapsed: False   pred range [0.000, 1.000]  std 0.2173
+==========================================================================
+
+Saved: unet_run_control_1024x265_per_image_cw/eval_test/metrics.json

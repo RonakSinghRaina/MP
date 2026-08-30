@@ -78,6 +78,8 @@ The mechanism:
 3. ReLU clamps it to exactly 0.
 4. **ReLU's slope at a negative input is exactly 0**, so nudging `score_clean`
    changes nothing and produces no learning signal. It can never climb back.
+   **⚠ SUPERSEDED — see PART 8. On the 1024×265 dataset the network escaped this
+   state after 15 epochs. The freeze is long, not permanent.**
 
 Verified against the observed output: a constant 0.537 for all 24,840,000 test
 pixels. Working backwards, `softmax(0, c) = 0.537 → c = 0.148`. The network
@@ -89,7 +91,8 @@ with it). Class weights alone are fine (the hybrid uses them happily — it has 
 output ReLU). Together they are fatal. That is the sharp, publishable finding:
 
 > **The plain U-Net's ReLU-gated output makes the standard remedy for class
-> imbalance drive it into an unrecoverable dead state.**
+> imbalance drive it into a dead state.** (Earlier revisions said *unrecoverable*.
+> PART 8 shows it is escapable after ~15 frozen epochs — drop that word.)
 
 ### Cause B — per-image normalisation (+0.213)
 
@@ -409,9 +412,55 @@ default. Verified working: driver 610.57.04, CUDA 13.3, torch 2.13.0+cu130,
 
 Everything verified present, committed as **`2295372`** and pushed to
 `origin/main`. Full width sweep re-runs on Fedora and skips all four widths,
-confirming the whole chain works. TensorFlow is the one loose end — it needs
-`python3.12 -m venv ~/tf-env`, because Fedora 44's default Python 3.14 has no
-TensorFlow wheels.
+confirming the whole chain works. TensorFlow was the one loose end; it is now
+closed — see the next section.
+
+### TensorFlow on Fedora — CLOSED (2026-08-30)
+
+`~/tf-env` is **Python 3.12.14, TensorFlow 2.21.0** (Fedora 44's default Python
+3.14 has no TensorFlow wheels, so the venv must be built with
+`python3.12 -m venv ~/tf-env`). Two things were still broken and both are fixed.
+
+**1. TensorFlow saw no GPU.** `tf-env` has the `nvidia-*-cu12` wheels installed,
+but TF 2.21 does not add them to the loader path on Fedora, so it printed
+
+```
+Cannot dlopen some GPU libraries ... Skipping registering GPU devices
+```
+
+and silently ran on CPU. It never names the missing library, which is what makes
+this expensive to diagnose. **The fix is to put the pip CUDA libs on
+`LD_LIBRARY_PATH` before every tf-env run:**
+
+```bash
+export LD_LIBRARY_PATH="$(ls -d ~/tf-env/lib/python3.12/site-packages/nvidia/*/lib | tr '\n' ':')$LD_LIBRARY_PATH"
+```
+
+With that set, `tf.config.list_physical_devices('GPU')` returns
+`[PhysicalDevice(name='/physical_device:GPU:0', ...)]`. The export is **not**
+picked up from `~/tf-env/bin/activate`, because every script here is invoked as
+`~/tf-env/bin/python ...` rather than through an activated shell — so put the
+line in the command itself. Version skew is fine: TF 2.21 is built against CUDA
+12.5.1 / cuDNN 9, the wheels are 12.9 / 9.25, and driver 610.57.04 (CUDA 13.3)
+runs CUDA 12 binaries.
+
+**2. `PIL` and `matplotlib` were missing.** `tf_unet/util.py` imports both at
+module scope, so *any* import of the authors' code died with
+`ModuleNotFoundError: No module named 'PIL'`. Fixed with
+`~/tf-env/bin/pip install pillow matplotlib` (Pillow 12.3.0, matplotlib 3.11.1).
+
+**Verified working after both fixes** — `experiments/baseline_fixednorm.py` runs
+the full train → validate → best-checkpoint → test-once chain on the GPU. Measured
+on the RTX 3060 6 GB at 1024×265, features_root 32:
+
+| batch | peak VRAM | ms/step | steps/epoch | wall/epoch |
+|---:|---:|---:|---:|---:|
+| 2 | 1.49 GB | 87 | 350 | — |
+| **4** | **2.76 GB** | **174** | **175** | **~67 s** |
+| 6 | 3.91 GB | 265 | 117 | — |
+
+So a 60-epoch fixed-norm baseline at 1024×265 is **~75–80 min**, not an
+overnight job. Batch 4 leaves less than half the card in use.
 
 ### Claude tooling on Fedora
 
@@ -434,6 +483,104 @@ sudo dnf install claude-code
 
 Start it from the project directory with `claude`, and open the session with
 `read RFI-project-context.md before we begin`.
+
+---
+
+## PART 8 — the 1024×265 bandpass dataset (v4): baseline runs + the ESCAPE finding
+
+New dataset: `Synthetic Dataset 1024x265`, instrument-bandpass model, seed 42,
+700 train / 150 val / 150 test, 1024 (freq) × 265 (time). Mean RFI **14.03%**
+over the train split. Per-image maximum ranges **20.3 → 198.7 (9.8×)**, worse
+than the 276×600 set's 8.2×. Auto-calibrated fixed range: **lo −2.25, hi 46.23**.
+
+**Provenance, verified 2026-08-30:** the vendored `unet_rfi_package copy/tf_unet`
+is **byte-identical to upstream `github.com/jakeret/tf_unet` HEAD `0dcdf2f`**
+(2020-05-05). A full `diff -r` over the whole repo reports one difference, the
+`.github/` CI folder. All six package files match by md5. Nothing in the authors'
+code has been altered; every deviation lives in the provider subclass.
+
+**tf_unet output size here is 984×224**, not the nominal 984×225 — see the
+`net.offset` bullet in *Other things that bite*.
+
+### Run 1 — the flawed reimplementation (per-image norm + class weights ON)
+
+`experiments/normalisation_control/run_control.py --norm per_image --class_weights on`
+· 60 epochs · batch 4 · features_root 32 · layers 3 · Adam 1e-3 · seed 42 ·
+output `unet_run_control_1024x265_per_image_cw/`.
+
+**Test: ROC AUC 0.9130 · PR AUC 0.7716 · max F1 0.6815** · not collapsed ·
+pred range [0.000, 1.000] std 0.2173 · best val F1 0.6945 **@ epoch 60**.
+
+| epoch | 5 | 10 | 15 | 20 | 25 | 30 | 35 | 40 | 45 | 50 | 55 | 60 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| val F1 | .370 | .369 | .370 | .395 | .594 | .632 | .656 | .669 | .665 | .689 | .692 | **.695** |
+
+### ⚠ THIS CONTRADICTS "UNRECOVERABLE" IN PART 1 CAUSE A
+
+The network sat frozen at F1 ≈ 0.37 for **15 epochs** — the dead-state signature —
+then **escaped and climbed steadily for the remaining 45**. Best epoch is the
+last one, so **0.6815 is a lower bound, not a converged result.**
+
+Two consequences:
+
+1. **"It can never climb back" is too strong.** The ReLU-gated dead state is a
+   long frozen phase, not a grave. Reword to: *the standard remedy for class
+   imbalance drives the plain U-Net into a frozen phase costing ~15 epochs and a
+   large amount of final accuracy*. That version survives a reviewer who simply
+   trains it longer.
+2. **`unet_run_control_per_image_cw` (F1 0.3064) was halted at epoch 5 by the
+   collapse detector** — its `progress.json` says `epochs_completed: 5`. It was
+   never given the chance to escape, so 0.3064 is an **early-stop artefact**, not
+   evidence of permanent death. The PART 1 decomposition table needs re-deriving,
+   especially the row *"More epochs (22 → 60) ≈0"*: on this run 22 → 60 epochs
+   took F1 from ≈0.39 to 0.69.
+
+**The headline survives.** Per-image normalisation + class weights still cost a
+great deal. The *mechanism* story needs softening, not the finding.
+
+### Run 2 — the corrected baseline (fixed norm + class weights OFF)
+
+Same script, same seed, two flags flipped: `--norm fixed --class_weights off`.
+Output `unet_run_control_1024x265_fixed/`.
+
+**Test: ROC AUC 0.9902 · PR AUC 0.9789 · max F1 0.9483** · pred std 0.3300 ·
+best val F1 0.9525 **@ epoch 30** — i.e. genuinely **converged**, unlike Run 1.
+
+| epoch | 5 | 10 | 15 | 20 | 25 | 30 | 35 | 40 | 45 | 50 | 55 | 60 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| val F1 | .894 | .913 | .933 | .928 | .941 | **.953** | .952 | .951 | .933 | .951 | .952 | .946 |
+
+### Head-to-head on the 1024×265 dataset
+
+| arm | normalisation | class weights | test max F1 | best epoch |
+|---|---|---|---:|---:|
+| Run 1 | per-image | ON | 0.6815 | 60 (still climbing) |
+| **Run 2** | **fixed −2.25/46.23** | **OFF** | **0.9483** | 30 (converged) |
+| | | **difference** | **+0.2668** | |
+
+For reference the same two arms on 276×600 gave 0.3064 and 0.9317. The corrected
+baseline is **better on the new dataset** (0.9483 vs 0.9317) despite the harder
+bandpass structure.
+
+⚠ **This is the two changes together, not a decomposition.** The 276×600 split
+(class weights 66%, normalisation 34%) has *not* been reproduced here — that needs
+the third arm, `--norm per_image --class_weights off`, which has not been run on
+this dataset. Until it is, do not quote the 66/34 split as holding for v4.
+
+### The authors' own 30 / 210 clip cannot be reused here
+
+`scripts/rfi_launcher.py` passes `a_min=30, a_max=210`. Those constants are
+specific to their telescope data. Measured over 40 training images of this
+dataset: range **−25.3 → 198.7**, median **9.69**, and **94.08% of all pixels
+fall below 30** (nothing at all above 210). Clipping at 30 would flatten 94% of
+every image to a single value. The fixed-range arm therefore uses the authors'
+*method* — one ruler for every image — with the range **measured from this
+dataset**, not their numbers.
+
+Note their literal path is `clip(fabs(x), 30, 210)` then per-image min/max
+rescale; ours is `clip((x − lo)/(hi − lo), 0, 1)`. We drop `fabs()` (negative
+noise dips are real here) and drop the post-clip rescale (which is what
+reintroduces per-image variation when an image does not span the full range).
 
 ---
 
@@ -495,6 +642,8 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
 | Control: per-image + weights | `unet_run_control_per_image_cw/` | `best_checkpoint/` | 0.3064 |
 | Control: per-image, no weights | `unet_run_control_per_image/` | `best_checkpoint/` | 0.7191 |
 | **Authors' + both fixes** | `unet_run_fixednorm/` | `best_checkpoint/` | **0.9317** |
+| Reimpl., **1024×265 v4**, per-image + weights | `unet_run_control_1024x265_per_image_cw/` | `best_checkpoint/` | **0.6815** |
+| **Corrected baseline, 1024×265 v4**, fixed + no weights | `unet_run_control_1024x265_fixed/` | `best_checkpoint/` | **0.9483** |
 | **Hybrid (synthetic)** | `hybrid_run_paperdim/` | `best.pt` | **0.9808** |
 | HERA fine-tuned, clean split | `hera_transfer_test/runs/…pretrained/` | `best.pt` | 0.9964 |
 | HERA from scratch, clean split | `hera_transfer_test/runs/…scratch/` | `best.pt` | 0.9996 |
@@ -523,6 +672,14 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 - The published hybrid run used `CosineAnnealingLR(T_max=40)` but was **halted by
   hand at epoch 22**, and validated on only 50 of the 150 val images. Any rerun
   that uses a clean 22-epoch schedule is therefore *not* bit-comparable to it.
+- **tf_unet's output offset is not always 40.** `create_conv_net` hardcodes
+  `in_size = 1000` and returns `offset = in_size - size`, so it *claims* output =
+  input − 40 at layers=3 regardless of the real input. That holds only when every
+  pre-pool dimension is even. At **1024×265** the time axis goes 265 → 261 (odd) →
+  the max-pool floors to 130, and the real output is **984×224, not 984×225**.
+  `util.crop_to_shape` survives it (it splits the difference 20 left / 21 right)
+  so nothing crashes, but the scored region is 81% of each image and slightly
+  off-centre in time. Never trust `net.offset` — read `prediction.shape`.
 - `HybridRFINet` uses `GroupNorm(min(8, C), C)`, so every channel count must be
   divisible by 8 (or be 1/2/4). `base=12` and `base=20` cannot be built.
 - `RFI_Using_UNET.pdf` (Elsevier PDF) removed — copyright. **Still in git
@@ -546,6 +703,10 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
   - `~/torch-env` = **Python 3.14**, torch 2.13.0+cu130, `GPU: True`.
   - `~/tf-env` must use **Python 3.12** (`python3.12 -m venv ~/tf-env`) -
     TensorFlow publishes no wheels for Fedora 44's default Python 3.14.
+  - **Every tf-env run needs `LD_LIBRARY_PATH` exported over the pip CUDA libs**
+    or TensorFlow silently falls back to CPU without naming what is missing.
+    `tf-env` also needs `pillow` and `matplotlib` — `tf_unet/util.py` imports
+    both at module scope. Full detail in PART 7.
   - Never install torch into `tf-env` or TensorFlow into `torch-env`.
 - Git hygiene after the move: `.gitattributes` with `* text=auto eol=lf` and
   `core.autocrlf false` (the Windows copy arrived with CRLF everywhere, making
