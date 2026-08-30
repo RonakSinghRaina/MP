@@ -1,0 +1,67 @@
+==============================================================================
+ ACCURACY vs PARAMETER COUNT -- HybridRFINet width sweep
+==============================================================================
+  device        : cuda
+  dataset       : Synthetic Dataset 1024x265
+  widths        : [8]
+  held fixed    : depth 4 | dropout 0.2 | epochs 60 | batch 4 | Adam 0.001 | seed 42
+  class weights : [0.5816, 3.5633]  (train RFI 14.03%)
+  reference     : published HybridRFINet = 9,304,186 params, F1 0.9808
+                  MARS (arXiv 2608.05546) =   270,769 params, F1 0.978
+==============================================================================
+  sizes to be trained:
+    base  8  ->     593,842 params  (  2.38 MB)
+==============================================================================
+RFIPatchDataset: 700 pairs from Synthetic Dataset 1024x265/train/images (full images)
+RFIPatchDataset: 150 pairs from Synthetic Dataset 1024x265/val/images (full images)
+RFIPatchDataset: 150 pairs from Synthetic Dataset 1024x265/test/images (full images)
+
+==============================================================================
+ WIDTH base=8   593,842 parameters   (2.4 MB)
+   700 train / 150 val / 150 test | batch 4 | 175 steps/epoch | 60 epochs
+==============================================================================
+  [........................] Epoch 1/60  loss 1.0335  |  val F1 0.9087  <-- BEST  |  0.6m done, ~34m left
+  [........................] Epoch 2/60  loss 0.5217  |  val F1 0.9156  <-- BEST  |  1.1m done, ~33m left
+  [#.......................] Epoch 3/60  loss 0.3615  |  val F1 0.9321  <-- BEST  |  1.7m done, ~32m left
+  [#.......................] Epoch 4/60  loss 0.2978  |  val F1 0.9497  <-- BEST  |  2.2m done, ~31m left
+  [##......................] Epoch 5/60  loss 0.2190  |  val F1 0.9589  <-- BEST  |  2.7m done, ~30m left
+  [##......................] Epoch 6/60  loss 0.1937  |  val F1 0.9507  |  3.3m done, ~29m left
+  [##......................] Epoch 7/60  loss 0.1681  |  val F1 0.9629  <-- BEST  |  3.8m done, ~29m left
+  [###.....................] Epoch 8/60  loss 0.1475  |  val F1 0.9720  <-- BEST  |  4.3m done, ~28m left
+  [###.....................] Epoch 9/60  loss 0.1600  |  val F1 0.9739  <-- BEST  |  4.9m done, ~28m left
+  [####....................] Epoch 10/60  loss 0.1229  |  val F1 0.9763  <-- BEST  |  5.4m done, ~27m left
+  [####....................] Epoch 11/60  loss 0.1077  |  val F1 0.9780  <-- BEST  |  5.9m done, ~26m left
+  [####....................] Epoch 12/60  loss 0.1100  |  val F1 0.9746  |  6.4m done, ~26m left
+  [#####...................] Epoch 13/60  loss 0.1243  |  val F1 0.9716  |  7.0m done, ~25m left
+  [#####...................] Epoch 14/60  loss 0.0968  |  val F1 0.9787  <-- BEST  |  7.5m done, ~25m left
+  [######..................] Epoch 15/60  loss 0.0817  |  val F1 0.9803  <-- BEST  |  8.0m done, ~24m left
+  [######..................] Epoch 16/60  loss 0.0834  |  val F1 0.9824  <-- BEST  |  8.6m done, ~24m left
+  [######..................] Epoch 17/60  loss 0.0782  |  val F1 0.9813  |  9.1m done, ~23m left
+  [#######.................] Epoch 18/60  loss 0.0777  |  val F1 0.9829  <-- BEST  |  9.6m done, ~22m left
+  [#######.................] Epoch 19/60  loss 0.0759  |  val F1 0.9834  <-- BEST  |  10.1m done, ~22m left
+  [########................] Epoch 20/60  loss 0.0768  |  val F1 0.9810  |  10.7m done, ~21m left
+  [########................] Epoch 21/60  loss 0.0750  |  val F1 0.9832  |  11.2m done, ~21m left
+  [########................] Epoch 22/60  loss 0.0707  |  val F1 0.9829  |  11.7m done, ~20m left
+  [#########...............] Epoch 23/60  loss 0.0654  |  val F1 0.9840  <-- BEST  |  12.3m done, ~20m left
+  [#########...............] Epoch 24/60  loss 0.0651  |  val F1 0.9826  |  12.8m done, ~19m left
+  [##########..............] Epoch 25/60  loss 0.0734  |  val F1 0.9852  <-- BEST  |  13.3m done, ~19m left
+  [##########..............] Epoch 26/60  loss 0.0620  |  val F1 0.9854  <-- BEST  |  13.9m done, ~18m left
+  [##########..............] Epoch 27/60  loss 0.0699  |  val F1 0.9841  |  14.4m done, ~18m left
+  [###########.............] Epoch 28/60  loss 0.0598  |  val F1 0.9850  |  14.9m done, ~17m left
+  [###########.............] Epoch 29/60  loss 0.0565  |  val F1 0.9858  <-- BEST  |  15.5m done, ~17m left
+  [############............] Epoch 30/60  loss 0.0592  |  val F1 0.9841  |  16.0m done, ~16m left
+  [############............] Epoch 31/60  loss 0.0571  |  val F1 0.9862  <-- BEST  |  16.5m done, ~15m left
+  [############............] Epoch 32/60  loss 0.0556  |  val F1 0.9863  <-- BEST  |  17.1m done, ~15m left
+  [#############...........] Epoch 33/60  loss 0.0526  |  val F1 0.9861  |  17.6m done, ~14m left
+  [#############...........] Epoch 34/60  loss 0.0514  |  val F1 0.9864  <-- BEST  |  18.1m done, ~14m left
+  [##############..........] Epoch 35/60  loss 0.0516  |  val F1 0.9868  <-- BEST  |  18.7m done, ~13m left
+  [##############..........] Epoch 36/60  loss 0.0514  |  val F1 0.9858  |  19.2m done, ~13m left
+  [##############..........] Epoch 37/60  loss 0.0513  |  val F1 0.9861  |  19.7m done, ~12m left
+  [###############.........] Epoch 38/60  loss 0.0467  |  val F1 0.9871  <-- BEST  |  20.2m done, ~12m left
+  [###############.........] Epoch 39/60  loss 0.0484  |  val F1 0.9861  |  20.8m done, ~11m left
+  [################........] Epoch 40/60  loss 0.0478  |  val F1 0.9871  <-- BEST  |  21.3m done, ~11m left
+  [################........] Epoch 41/60  loss 0.0441  |  val F1 0.9872  <-- BEST  |  21.9m done, ~10m left
+  [################........] Epoch 42/60  loss 0.0483  |  val F1 0.9873  <-- BEST  |  22.4m done, ~10m left
+  [#################.......] Epoch 43/60  loss 0.0462  |  val F1 0.9868  |  23.0m done, ~9m left
+  [#################.......] Epoch 44/60  loss 0.0491  |  val F1 0.9873  |  23.5m done, ~9m left
+  [##################......] Epoch 45/60  loss 0.0460  |  val F1 0.9870  |  24.0m done, ~8m left
