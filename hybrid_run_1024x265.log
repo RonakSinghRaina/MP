@@ -74,3 +74,27 @@ RFIPatchDataset: 150 pairs from Synthetic Dataset 1024x265/test/images (full ima
   [####################....] Epoch 52/60  loss 0.0415  |  val F1 0.9878  |  27.8m done, ~4m left
   [#####################...] Epoch 53/60  loss 0.0399  |  val F1 0.9877  |  28.4m done, ~4m left
   [#####################...] Epoch 54/60  loss 0.0396  |  val F1 0.9878  |  28.9m done, ~3m left
+  [######################..] Epoch 55/60  loss 0.0401  |  val F1 0.9878  |  29.5m done, ~3m left
+  [######################..] Epoch 56/60  loss 0.0383  |  val F1 0.9879  <-- BEST  |  30.0m done, ~2m left
+  [######################..] Epoch 57/60  loss 0.0399  |  val F1 0.9879  |  30.5m done, ~2m left
+  [#######################.] Epoch 58/60  loss 0.0427  |  val F1 0.9879  <-- BEST  |  31.1m done, ~1m left
+  [#######################.] Epoch 59/60  loss 0.0399  |  val F1 0.9879  |  31.6m done, ~1m left
+  [########################] Epoch 60/60  loss 0.0414  |  val F1 0.9879  |  32.2m done, ~0m left
+  -> params 593,842 | ROC 0.9998 | F1 0.9877 | 143.0 img/s | 32.2 min
+
+==============================================================================
+ RESULT -- accuracy against size
+==============================================================================
+   base       params        MB   ROC AUC        F1       IoU      img/s
+      8      593,842       2.4    0.9998    0.9877    0.9757      143.0
+------------------------------------------------------------------------------
+==============================================================================
+
+  READ: if a small width holds F1 within ~0.01 of base 32, the published
+        model is oversized for this task and that is a reportable finding.
+        If F1 falls away sharply, the capacity is genuinely required.
+
+  CAVEAT: one seed per width. Differences below ~0.01 F1 are not established.
+          Repeat with --seed 0 and --seed 1 before quoting exact numbers.
+
+Saved: hybrid_run_1024x265/sweep_results.json
