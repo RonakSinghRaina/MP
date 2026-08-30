@@ -66,3 +66,11 @@ RFIPatchDataset: 150 pairs from Synthetic Dataset 1024x265/test/images (full ima
   [#################.......] Epoch 44/60  loss 0.0491  |  val F1 0.9873  |  23.5m done, ~9m left
   [##################......] Epoch 45/60  loss 0.0460  |  val F1 0.9870  |  24.0m done, ~8m left
   [##################......] Epoch 46/60  loss 0.0432  |  val F1 0.9872  |  24.6m done, ~7m left
+  [##################......] Epoch 47/60  loss 0.0421  |  val F1 0.9879  <-- BEST  |  25.1m done, ~7m left
+  [###################.....] Epoch 48/60  loss 0.0430  |  val F1 0.9874  |  25.7m done, ~6m left
+  [###################.....] Epoch 49/60  loss 0.0422  |  val F1 0.9878  |  26.2m done, ~6m left
+  [####################....] Epoch 50/60  loss 0.0403  |  val F1 0.9878  |  26.7m done, ~5m left
+  [####################....] Epoch 51/60  loss 0.0403  |  val F1 0.9878  |  27.3m done, ~5m left
+  [####################....] Epoch 52/60  loss 0.0415  |  val F1 0.9878  |  27.8m done, ~4m left
+  [#####################...] Epoch 53/60  loss 0.0399  |  val F1 0.9877  |  28.4m done, ~4m left
+  [#####################...] Epoch 54/60  loss 0.0396  |  val F1 0.9878  |  28.9m done, ~3m left
