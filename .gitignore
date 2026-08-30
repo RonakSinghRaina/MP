@@ -29,6 +29,10 @@ unet_run_fixednorm/
 hera_transfer_test/runs/
 
 # ...but keep the small, human-readable evidence files from any run directory.
+# NOTE: these ! lines DO NOT WORK on their own. Git cannot re-include a file
+# whose parent directory is excluded above, so the evidence files inside the
+# ignored run dirs had to be force-added (`git add -f`). Once tracked they stay
+# tracked. Any NEW ignored run dir needs the same treatment.
 !*/training_log.csv
 !*/progress.json
 !*/run_config.json

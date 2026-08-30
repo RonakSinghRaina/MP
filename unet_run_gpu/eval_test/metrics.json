@@ -1,0 +1,9 @@
+{
+  "roc_auc": 0.6680787475118961,
+  "pr_auc": 0.4349750111187076,
+  "max_f1": 0.38788709556971357,
+  "collapsed": false,
+  "n_images": 150,
+  "split": "test",
+  "checkpoint_dir": "../unet_run_faircompare/best_checkpoint"
+}

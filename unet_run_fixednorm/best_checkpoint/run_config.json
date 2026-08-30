@@ -1,0 +1,16 @@
+{
+  "dataset_dir": "Synthetic Dataset 276x600",
+  "output_dir": "/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/experiments/../unet_run_fixednorm",
+  "features_root": 32,
+  "layers": 3,
+  "batch_size": 4,
+  "epochs": 60,
+  "epochs_per_chunk": 5,
+  "n_val_images": 50,
+  "lr": 0.001,
+  "lo": -9.689338095366955,
+  "hi": 47.403320057749774,
+  "fresh": false,
+  "training_iters": 175,
+  "n_train": 700
+}

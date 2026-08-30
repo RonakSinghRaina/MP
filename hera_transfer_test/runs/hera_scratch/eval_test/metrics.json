@@ -1,0 +1,21 @@
+{
+  "init": "scratch",
+  "roc_auc": 0.9999988050708394,
+  "pr_auc": 0.9999840849809553,
+  "threshold": 0.9204886555671692,
+  "f1": 0.9995988563259954,
+  "precision": 0.9997134359961901,
+  "recall": 0.9994843030172961,
+  "iou": 0.9991980344553559,
+  "mcc": 0.9995876811013179,
+  "oracle_f1": 0.9996025148895515,
+  "epochs": 20,
+  "lr": 0.001,
+  "norm": "log_per_image",
+  "best_val_f1": 0.9997035948936784,
+  "best_epoch": 19,
+  "n_train": 271,
+  "n_val": 80,
+  "n_test": 135,
+  "note": "threshold chosen on HERA val, applied once to HERA test"
+}
