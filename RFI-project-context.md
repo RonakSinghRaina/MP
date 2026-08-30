@@ -567,6 +567,78 @@ bandpass structure.
 the third arm, `--norm per_image --class_weights off`, which has not been run on
 this dataset. Until it is, do not quote the 66/34 split as holding for v4.
 
+### Run 3 — the hybrid at base 8 (the efficient width)
+
+`experiments/width_sweep/run_width_sweep.py --base 8` · 60 epochs · batch 4 ·
+depth 4 · dropout 0.2 · Adam 1e-3 · CosineAnnealingLR(T_max=60) · seed 42 ·
+output `hybrid_run_1024x265/base08/`. Batch 4 was chosen to equalise gradient
+steps with the U-Net arms (175 steps/epoch x 60 = 10,500 for both).
+
+**593,842 params · 2.38 MB · 143.0 img/s · 32.2 min to train.**
+
+**Test: ROC AUC 0.9998 · PR AUC 0.9991 · F1 0.9877 · oracle F1 0.9878 ·
+precision 0.9922 · recall 0.9833 · IoU 0.9757 · MCC 0.9857** ·
+best val F1 0.9879 @ epoch 58 · threshold 0.8829 chosen on val.
+
+Confusion matrix over the full 40,704,000 test pixels (150 x 1024 x 265):
+TN 34,863,862 · FP 45,067 · FN 96,877 · TP 5,698,194.
+
+**The val-chosen threshold was essentially optimal**: F1 0.9877 at the val
+threshold versus 0.9878 oracle, a gap of 0.0001. So for this run the
+threshold-selection question that dogs the 276x600 comparison simply does not
+bite — quote either number.
+
+Base 8 on the *old* 276x600 set scored 0.9749 (22 epochs, batch 8); base 32
+scored 0.9812. Different dataset and epoch budget, so these are not comparable —
+do not read 0.9877 as "base 8 improved".
+
+### HEAD-TO-HEAD on 1024x265 — all three runs, one protocol
+
+Same dataset, same 60 epochs, same 10,500 gradient steps, same Adam @ 1e-3,
+same seed 42, best checkpoint on val, test scored once.
+
+| model | params | scored px/image | test F1 |
+|---|---:|---|---:|
+| tf_unet, per-image + class weights | 465,986 | 984x224 | 0.6815 |
+| tf_unet, fixed norm, no class weights | 465,986 | 984x224 | **0.9483** |
+| **HybridRFINet base 8** | **593,842** | **1024x265 (full)** | **0.9878** |
+
+**This is a near-matched-parameter comparison, not 594k vs 9.3M.** tf_unet at
+layers=3 / features_root=32 is **465,986** trainable parameters — *smaller* than
+base-8 hybrid. The hybrid spends **1.27x the parameters for +0.0395 F1** over the
+corrected baseline. That is a far more defensible efficiency claim than anything
+built on the 9.3M model, and it is the number to put in the paper.
+
+### tf_unet parameter counts — measured, not assumed
+
+Counted directly from `tf1.trainable_variables()` on the authors' unmodified code:
+
+| configuration | parameters | what it is |
+|---|---:|---|
+| layers 5, features_root 64 | **31,030,658** | **the authors' OWN defaults in `scripts/rfi_launcher.py`** |
+| layers 3, features_root 64 | 1,861,762 | the depth this project settled on, paper's width |
+| **layers 3, features_root 32** | **465,986** | **what every controlled run in this project used** |
+
+So the authors' published network is **31 million parameters — 52x larger than
+the 466k version this project benchmarks, and 52x larger than the base-8 hybrid**
+that beats it. Every "tf_unet baseline" number in this repo (0.3064, 0.3879,
+0.7191, 0.9317, 0.6815, 0.9483) comes from the 466k configuration, NOT from the
+authors' 31M one. State that explicitly in the paper — a reader will otherwise
+assume the baseline is the published 31M model.
+
+⚠ **Two things are still not equal, state them:**
+
+1. **Not the same pixels.** tf_unet's valid padding scores it on the interior
+   984x224 (33,062,400 px, 81% of each image); the hybrid is scored on the full
+   1024x265 (40,704,000 px). The border strip the U-Net never sees is excluded
+   from its score.
+2. **Not the same normalisation.** The U-Net arm uses the fixed range
+   [-2.25, 46.23]; `RFIPatchDataset` gives the hybrid per-image min/max. That is
+   the published hybrid setup and GroupNorm is argued to absorb it, but the two
+   arms are not preprocessed identically.
+
+**N = 1.** One seed. PART 6's caveat applies unchanged.
+
 ### The authors' own 30 / 210 clip cannot be reused here
 
 `scripts/rfi_launcher.py` passes `a_min=30, a_max=210`. Those constants are
@@ -644,6 +716,7 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
 | **Authors' + both fixes** | `unet_run_fixednorm/` | `best_checkpoint/` | **0.9317** |
 | Reimpl., **1024×265 v4**, per-image + weights | `unet_run_control_1024x265_per_image_cw/` | `best_checkpoint/` | **0.6815** |
 | **Corrected baseline, 1024×265 v4**, fixed + no weights | `unet_run_control_1024x265_fixed/` | `best_checkpoint/` | **0.9483** |
+| **Hybrid base 8, 1024×265 v4** | `hybrid_run_1024x265/base08/` | `best.pt` | **0.9878** |
 | **Hybrid (synthetic)** | `hybrid_run_paperdim/` | `best.pt` | **0.9808** |
 | HERA fine-tuned, clean split | `hera_transfer_test/runs/…pretrained/` | `best.pt` | 0.9964 |
 | HERA from scratch, clean split | `hera_transfer_test/runs/…scratch/` | `best.pt` | 0.9996 |
