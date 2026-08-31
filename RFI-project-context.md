@@ -1,6 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
-Updated 2026-08-27 (fourth revision). **Read this first.** It carries the findings
+Updated 2026-08-31. Body through PART 7 is the fourth revision (2026-08-27);
+PART 8 added 2026-08-30, PART 9 added 2026-08-31. **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
 
@@ -656,6 +657,149 @@ reintroduces per-image variation when an image does not span the full range).
 
 ---
 
+## PART 9 — the v4 bandpass model: what it is, and what is ours vs. published
+
+Added 2026-08-31. Written because a reviewer will ask "where does this bandpass
+come from?" and the honest answer needs to be ready before submission, not
+improvised.
+
+### The model as implemented
+
+`dataset_v4_bandpass/generate_dataset_v4.py`, Section 2. One multiplicative gain
+per frequency channel, redrawn for every image:
+
+```
+B(f) = max( W_e(f) * [ 1 + R(f) + S(f) ], B_floor )
+```
+
+| Term | Meaning | Form |
+|---|---|---|
+| `W_e(f)` | passband envelope | Tukey raised-cosine taper, `n_edge = round(eps*N)`, ramp `0.5*(1 - cos(pi*i/(n_edge+1)))`, mirrored at both edges |
+| `R(f)` | slow filter ripple | `(A_r/2) * (1/M) * sum_m sin(2*pi*f/P_m + phi_m)`, `P_m ~ U(0.4,1.5)*N`, `phi_m ~ U(0,2pi)` |
+| `S(f)` | standing wave | `(A_s/2) * sin(2*pi*f/P_sw + phi_sw)`, `P_sw` fixed in **channels** |
+
+Every one of `eps, A_r, P_sw, A_s` is jittered per image by
+`x -> x*(1 + J*u)`, `u ~ U(-1,1)`. Phases are always fresh, so even at `J = 0`
+no two images share a curve. That is deliberate: a single fixed bandpass shape
+would be memorisable and the task would collapse into "learn one curve".
+
+Defaults used for `Synthetic Dataset 1024x265`:
+
+| Symbol | Flag | Value |
+|---|---|---|
+| `eps` | `--edge_frac` | 0.08 |
+| `A_r` | `--ripple_amp` | 0.15 (fractional peak-to-peak) |
+| `M` | `--ripple_modes` | uniform int in [2, 4] |
+| `P_m/N` | `--ripple_period_frac` | [0.4, 1.5] |
+| `P_sw` | `--sw_period_channels` | 128 |
+| `A_s` | `--sw_amp` | 0.05 |
+| `J` | `--bandpass_jitter` | 0.25 |
+| `B_floor` | `--bandpass_floor` | 1e-3 |
+
+### Where it enters the image — the part that matters
+
+`generate_dataset_v4.py:594`
+
+```
+sigma_rx   = rx_noise_frac * median(sky_sigma_eff)          # 0.10 * median
+spectrogram = B(f) * (pure_signal + rfi_layer) + rx_noise
+```
+
+**The additive receiver noise sits OUTSIDE the gain.** This is the whole physical
+point of v4. Where `B(f)` is small (band edges) the sky *and* the RFI are both
+attenuated, but `n_rx` is not — so edge RFI genuinely drowns. This is what v3's
+`generate_bandpass_gain_curve` got wrong: it modulated the *additive* noise
+level, which is not a gain at all (see the comment at `generate_dataset_v4.py:136`).
+
+Labels follow the same physics (`:601`):
+
+```
+strength = B(f)*rfi_layer / sqrt( (B(f)*sky_sigma_eff)^2 + sigma_rx^2 )
+mask     = strength > 0.5
+```
+
+Thresholding the **post-bandpass** amplitude against the **local total** noise.
+RFI the gain has buried is not labelled — otherwise the labels are unsatisfiable
+and every F1 punishes the model for something invisible. Cost on this dataset:
+**54,403 of 37,073,066 injected pixels (0.147%)**, all at band edges. Per-channel
+breakdown in `Synthetic Dataset 1024x265/exclusion_by_channel.json`.
+
+Consequence worth stating in the paper: because `B(f)` multiplies the sky too,
+**dividing by `B(f)` recovers a uniform-noise image** — exactly what real
+bandpass calibration does. The models are being asked to work on *uncalibrated*
+data, which is the harder and more realistic setting.
+
+### PROVENANCE — do not overclaim this
+
+**The composite formula is NOT published anywhere. It is our construction.**
+Do not cite it as if it came from a paper; a reviewer who looks will not find it.
+Describe it as "a parametric bandpass model combining three standard
+instrumental effects."
+
+Each ingredient, however, is standard and citable:
+
+| Term | Status in the literature | Citation |
+|---|---|---|
+| Tukey taper | Textbook cosine-tapered window; identical to `scipy.signal.windows.tukey` | Harris 1978, *Proc. IEEE* |
+| Standing wave `S(f)` | Real, well studied — "standing waves" / "baseline ripple" / "fixed-pattern noise", from reflections between feed cabin and dish or at fibre joints. Genuinely sinusoidal in frequency. | Popping & Braun 2008 A&A (WSRT), arXiv:0712.2303; HiFAST III (FAST), doi:10.1088/1674-4527/ad9653 |
+| Slow ripple `R(f)` | Passband ripple from imperfect analogue filters | standard RF filter theory |
+| `B(f)*(sky+RFI) + n_rx` | Standard measurement-equation form: direction-independent gain multiplies, receiver noise adds | Hamaker, Bregman & Sault 1996; Smirnov 2011 (RIME) |
+
+The standing-wave physics gives a hard constraint we should be quoting:
+
+```
+delta_nu_ripple = c / (2L)        L = path-length difference
+```
+
+Checks out against published numbers: WSRT focal distance 8.75 m -> ~17 MHz
+period; FAST ~138 m -> ~1.09 MHz. Both appear in the papers above.
+
+### Closest published analogue: `hera_sim`
+
+`hera_sim.sigchain` (github.com/hera-team/hera_sim) does structurally the same
+thing — `gen_bandpass`, a `Bandpass` class, and
+`gen_reflection_coefficient` / `gen_reflection_gains` for cable reflections.
+Same architecture as ours: **a smooth envelope times a sinusoidal reflection
+term, redrawn per realisation.**
+
+One real difference, and it is the one a reviewer will find:
+
+- **hera_sim's envelope is empirical** — a degree-6 polynomial fit to *measured*
+  HERA feed bandpasses, then perturbed per antenna by convolution with complex
+  white noise plus a random delay/phase factor.
+- **Ours is analytic** — a Tukey taper with no measured instrument behind it.
+
+Defensible for a synthetic benchmark (we want a controlled difficulty knob, not
+one telescope's quirks) but it must be **said explicitly**, not left to be noticed.
+
+### The tf_unet authors built their own simulator — use this
+
+Akeret et al., the same group whose U-Net is our baseline, released
+**HIDE & SEEK** (arXiv:1607.07443, ASCL 1607.019). HIDE forward-models the whole
+single-dish instrument chain including gain; the paper discusses noise and RFI
+modelling in detail, and their RFI-detection work runs on HIDE output.
+
+This lets us position v4 as *"an independent bandpass model in the spirit of
+HIDE"* and gives a principled comparison point.
+
+> **NOT VERIFIED:** HIDE's internal gain parameterisation was never read. Only
+> that it forward-models the instrument is confirmed. **Read section 2 of
+> arXiv:1607.07443 before claiming any specific similarity or difference.**
+
+### Two concrete fixes before submission
+
+1. **`P_sw` is specified in channels (128), not MHz.** That severs it from the
+   physics — 128 is currently an arbitrary number. State the channel width, then
+   quote the implied path length `L = c / (2 * delta_nu_ch * P_sw)` and show it
+   lands somewhere physically plausible for a real dish. One line of arithmetic
+   turns an arbitrary constant into a defensible one.
+2. **Justify the analytic envelope in one sentence** — controlled, tunable,
+   telescope-agnostic, versus hera_sim's measured polynomial.
+
+Neither changes any result. Both close the obvious line of attack.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
@@ -698,7 +842,12 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
    headline claim is unproven until seeds 0 and 1 are run.
 6. **No result on real telescope data with human labels yet** (PART 5). This is
    what a reviewer will ask for.
-7. **`unet_run_gpu/eval_test/metrics.json` is mislabelled** — it holds the
+7. **The v4 bandpass formula is ours, not published** (PART 9). Two fixes
+   needed: express the standing-wave period in MHz and quote the implied path
+   length; and justify the analytic Tukey envelope against `hera_sim`'s measured
+   polynomial. Also read section 2 of arXiv:1607.07443 (HIDE) before comparing
+   to it.
+8. **`unet_run_gpu/eval_test/metrics.json` is mislabelled** — it holds the
    *faircompare* numbers (`checkpoint_dir` field proves it). Model 1's original
    metrics were overwritten and no longer exist. `unet_run_faircompare/` has no
    `eval_test/` at all.
@@ -791,4 +940,6 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 `AUDIT_REPORT.md` · `BASELINE_FAILURE_DECOMPOSITION.md` ·
 `MODEL_COMPARISON_EXPLAINED.md` · `experiments/` ·
 `experiments/width_sweep/run_width_sweep.py` · `hera_transfer_test/` ·
-`lofar_analysis/` · `results/`
+`lofar_analysis/` · `results/` ·
+`dataset_v4_bandpass/generate_dataset_v4.py` (the v4 bandpass generator — see PART 9) ·
+`experiments/normalisation_control/run_control.py` (the tf_unet arms in PART 8)
