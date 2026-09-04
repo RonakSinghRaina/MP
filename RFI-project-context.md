@@ -1,7 +1,8 @@
 # RFI Project — shared context for any Claude chat in this project
 
-Updated 2026-08-31. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31. **Read this first.** It carries the findings
+Updated 2026-09-04. Body through PART 7 is the fourth revision (2026-08-27);
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PART 10 added 2026-09-04.
+**Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
 
@@ -264,6 +265,10 @@ want to see the model tested on.
 `lofar_analysis/analyse_lofar.py` is **written but not yet run**. It needs
 ~8–10 GB RAM, so it must run in WSL (`~/torch-env`), not in a Cowork device
 session (that VM has only 3.9 GB).
+
+The full dataset structure (list of 4 arrays, shapes, axis order, which
+labels are AOFlagger vs. human) is now decoded in PART 10 — read that before
+touching `LOFAR_Full_RFI_dataset.pkl`.
 
 ---
 
@@ -800,6 +805,108 @@ Neither changes any result. Both close the obvious line of attack.
 
 ---
 
+## PART 10 — LOFAR_Full_RFI_dataset.pkl: structure, decoded (2026-09-04)
+
+Read in full: Mesarcik, Boonstra, Ranguelova & van Nieuwpoort (2022), *"Learning
+to detect RFI in radio astronomy without seeing it,"* MNRAS, arXiv:2207.00351.
+Copy saved at `notes/Mesarcik2022_Learning_to_detect_RFI_without_seeing_it.pdf`.
+Our professor pointed us at this paper specifically to understand how to open
+`LOFAR_Full_RFI_dataset.pkl` (9.3 GB, in the project root, not yet processed
+into `.npy`).
+
+### File structure (confirmed without loading the file — see method below)
+
+`pickle.load()` returns a plain Python **list of 4 arrays** (not a dict, not
+one array):
+
+| Index | Contents | Shape | dtype |
+|---|---|---|---|
+| `data[0]` | training spectrograms | `(7500, 512, 512, 1)` | float32 |
+| `data[1]` | training masks (AOFlagger-derived, **not** human) | `(7500, 512, 512, 1)` | bool |
+| `data[2]` | test spectrograms | `(109, 512, 512, 1)` | float32 |
+| `data[3]` | test masks (**hand-labelled by a human expert**) | `(109, 512, 512, 1)` | bool |
+
+- The 4th shape dimension (`1`) is a channel axis, kept only because the
+  paper's CNNs expect an image-like `(N,H,W,C)` tensor. It carries no
+  information — analogous to a greyscale image having 1 channel vs. RGB's 3.
+- 512×512 is **not** a natural instrument dimension: raw spectrograms are
+  599×616 (§4.2), randomly cropped to 512×512 so patches tile evenly.
+- 109 is exactly the number of independently expert-labelled baselines the
+  paper reports (§4.2) — this is the real ground-truth evaluation set.
+- 7500 training spectrograms are machine-labelled via **AOFlagger** (a
+  classical/heuristic flagger), not a human. Only the 109-baseline test set
+  has human labels. This matters for anyone using `data[1]` as "ground truth"
+  — it's a strong baseline's output, not verified truth.
+- Verified by pure arithmetic on the file's byte size (no file access, to
+  avoid a second 9.3 GB load on top of the user's already-open kernel):
+  `7500×512×512×1×4B + 7500×512×512×1×1B + 109×512×512×1×4B + 109×512×512×1×1B`
+  = 9.29 GiB predicted vs. 9.29 GiB actual (`stat -c '%s'`), agreement to
+  within 2 MB.
+
+### Axis order inside one spectrogram
+
+From the user's own `plt.matshow(data[1][0,:,:,0])` screenshot: the mask shows
+**vertical** streaks. RFI in real data is normally narrowband-persistent (one
+frequency channel, many time samples) or broadband-transient (one time sample,
+many frequency channels). Vertical streaks running down the image imply
+**rows = time, columns = frequency** for this array — the **opposite**
+convention from our own synthetic dataset (`Synthetic Dataset */`), which is
+frequency×time. Anyone feeding a LOFAR array into our existing pipeline code
+must `.T` it first, or explicitly relabel axes, or results will be silently
+transposed relative to what the model expects.
+
+### Why "axis=0 / axis=1" confused both student and professor
+
+The professor's shorthand ("axis=0 has the data, axis=1 has the masks")
+actually meant **list index** 0 and 1 of the outer 4-element list
+(`data[0]`, `data[1]`), not the numpy **array axis** 0/1 within one array
+(row vs. column of a single 512×512 image). Same word, two different
+concepts — this is the root confusion, not a dataset-structure problem.
+
+### Preprocessing pipeline used by the paper (§4.2)
+
+Clip to `[|μ−σ|, μ+4σ]` → natural log → standardize to `[0,1]`. This mirrors
+our own PART 1 finding that per-image vs. fixed-range normalization was a
+primary driver of the tf_unet baseline's failure — worth citing as external
+confirmation that normalization choice matters on this class of data, not
+just in our synthetic setup.
+
+### Benchmark numbers to compare against (paper's Table 2, real LOFAR data,
+### human-expert ground truth)
+
+| Method | F1 |
+|---|---|
+| AOFlagger (classical) | 0.5698 |
+| U-Net | 0.5876 |
+| **RFI-Net (best)** | **0.5979** |
+| R-Net | 0.5286 |
+| NLN (paper's own method; best AUROC/AUPRC despite lower F1) | 0.5114 |
+
+Contrast with our own synthetic-data F1 (~0.988, PART 8/9) — real data is a
+much harder task. This is the number our own model would need to be compared
+against for outstanding item 6 (no result yet on real telescope data with
+human labels).
+
+### NLN method (paper's own contribution, not what we're doing)
+
+Trains a discriminative autoencoder only on RFI-free patches (selected via
+AOFlagger weak labels), then flags anomalies at inference via combined
+latent-distance + pixel-reconstruction-error (paper Eq. 6–7). This is an
+**unsupervised** approach — different from our supervised U-Net/hybrid
+setup. Relevant as related work, not something we've implemented.
+
+### Not yet done
+
+- LOFAR pickle has not been converted to `.npy` / split into the project's
+  usual `{train,test}/{image,mask}/` layout. A converter script was offered
+  but not yet written — needs explicit go-ahead before starting (RAM-safe
+  streaming extraction required; do not `pickle.load` the whole file
+  alongside another already-loaded copy — system has 19 GB RAM total and was
+  at 15 GB used + 3 GB swap with one copy already loaded).
+- No model of ours has been run on `data[2]`/`data[3]` yet.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
@@ -840,8 +947,10 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
    blocking item for the efficiency finding** — base 16 vs base 32 (−0.0024) and
    base 8 vs base 32 (−0.0063) are both inside the one-seed noise floor, so the
    headline claim is unproven until seeds 0 and 1 are run.
-6. **No result on real telescope data with human labels yet** (PART 5). This is
-   what a reviewer will ask for.
+6. **No result on real telescope data with human labels yet** (PART 5, PART 10).
+   LOFAR dataset structure is now decoded (PART 10); target to beat is
+   RFI-Net F1 0.5979 (paper's Table 2). Still need: `.npy` converter for the
+   pickle, then a training/eval run against `data[2]`/`data[3]`.
 7. **The v4 bandpass formula is ours, not published** (PART 9). Two fixes
    needed: express the standing-wave period in MHz and quote the implied path
    length; and justify the analytic Tukey envelope against `hera_sim`'s measured
@@ -942,4 +1051,5 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 `experiments/width_sweep/run_width_sweep.py` · `hera_transfer_test/` ·
 `lofar_analysis/` · `results/` ·
 `dataset_v4_bandpass/generate_dataset_v4.py` (the v4 bandpass generator — see PART 9) ·
-`experiments/normalisation_control/run_control.py` (the tf_unet arms in PART 8)
+`experiments/normalisation_control/run_control.py` (the tf_unet arms in PART 8) ·
+`notes/Mesarcik2022_Learning_to_detect_RFI_without_seeing_it.pdf` (LOFAR dataset paper — see PART 10)
