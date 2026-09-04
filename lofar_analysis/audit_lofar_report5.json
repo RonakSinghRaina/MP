@@ -1,0 +1,111 @@
+{
+  "baseline_global_threshold_perimage_norm": {
+    "best_F1": 0.3061178790266998,
+    "precision": 0.42121648659463784,
+    "recall": 0.24042190661958512,
+    "threshold": 0.8742461652196463,
+    "note": "oracle threshold picked on the test set itself -> optimistic upper bound"
+  },
+  "baseline_per_image_sigma_clip": {
+    "1.0sigma": {
+      "F1": 0.049836816748467176,
+      "precision": 0.026365155104046738,
+      "recall": 0.45410692016390225
+    },
+    "1.5sigma": {
+      "F1": 0.1170032280671373,
+      "precision": 0.06867067977477681,
+      "recall": 0.3950555248479976
+    },
+    "2.0sigma": {
+      "F1": 0.2871692461308038,
+      "precision": 0.24771009941398422,
+      "recall": 0.3415817386974615
+    },
+    "2.5sigma": {
+      "F1": 0.41272382477105307,
+      "precision": 0.6774244004171012,
+      "recall": 0.2967644385161093
+    },
+    "3.0sigma": {
+      "F1": 0.33932021732277623,
+      "precision": 0.9017227106082706,
+      "recall": 0.20897990507557865
+    },
+    "4.0sigma": {
+      "F1": 0.25917690719039066,
+      "precision": 0.9678220015956033,
+      "recall": 0.1496224493058823
+    },
+    "5.0sigma": {
+      "F1": 0.21955878953068153,
+      "precision": 0.9793038570084666,
+      "recall": 0.12363928719890732
+    }
+  },
+  "baseline_per_column_MAD_clip": {
+    "1.0sigma": {
+      "F1": 0.04768437181616166,
+      "precision": 0.025643556633605,
+      "recall": 0.33940733905559795
+    },
+    "1.5sigma": {
+      "F1": 0.11490127044375792,
+      "precision": 0.07262879300793992,
+      "recall": 0.2749062404356108
+    },
+    "2.0sigma": {
+      "F1": 0.20166614304517722,
+      "precision": 0.18317156690863243,
+      "recall": 0.22431490423048636
+    },
+    "2.5sigma": {
+      "F1": 0.19647104375241992,
+      "precision": 0.2184904964015501,
+      "recall": 0.1784834932917944
+    },
+    "3.0sigma": {
+      "F1": 0.1749581678447063,
+      "precision": 0.2094575657978547,
+      "recall": 0.15021629794756775
+    },
+    "4.0sigma": {
+      "F1": 0.14528213957823477,
+      "precision": 0.18668244406196213,
+      "recall": 0.11891133839779637
+    }
+  },
+  "trivial_baselines": {
+    "predict_all_RFI": {
+      "precision": 0.007661277001057196,
+      "recall": 1.0,
+      "F1": 0.015206056193522178
+    },
+    "predict_no_RFI": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "F1": 0.0,
+      "pixel_accuracy": 0.9923387229989428
+    },
+    "accuracy_of_all_zero_predictor": 0.9923387229989428
+  },
+  "normalisation": {
+    "global_min_first2000": 0.0,
+    "global_max_first2000": 99925319680.0,
+    "global_mean": 1469963.6447535784,
+    "global_std": 20051706.301603183,
+    "global_dynamic_range": Infinity,
+    "per_image_clip_lo": {
+      "min": 5148.243674501078,
+      "median": 621351.4585482758,
+      "max": 197178256.7231661
+    },
+    "per_image_clip_hi": {
+      "min": 1649576.408555323,
+      "median": 4969992.263336981,
+      "max": 808549991.9062281
+    },
+    "per_image_hi_spread_ratio": 490.1561320304922,
+    "verdict": "per-image clip bounds vary by the ratio above; a single global scale would crush most images"
+  }
+}

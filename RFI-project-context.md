@@ -1,7 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
 Updated 2026-09-04. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31, PART 10 added 2026-09-04.
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
@@ -907,6 +907,237 @@ setup. Relevant as related work, not something we've implemented.
 
 ---
 
+## PART 11 — LOFAR deep audit: every number, measured (2026-09-04)
+
+Full empirical audit of `LOFAR_Full_RFI_dataset.pkl`, run in five stages.
+Scripts, JSON reports and figures are in `lofar_analysis/`
+(`deep_audit_stage1..5_*.py`, `audit_lofar_report*.json`,
+`fig_lofar_overview.png`, `fig_lofar_profiles.png`). Everything below is
+measured from the file, not quoted from the paper, unless marked otherwise.
+
+### 11.1 The data is RAW. It is not normalised, not log-scaled.
+
+| | train `data[0]` | test `data[2]` |
+|---|---|---|
+| min | 0.0 | 165.83 |
+| median | 1.194e6 | 1.220e6 |
+| mean | 1.439e6 | 1.507e6 |
+| p99 | 3.708e6 | 3.675e6 |
+| max | **1.4455e11** | **4.8214e10** |
+| std | 2.158e7 | 2.336e7 |
+| NaN / Inf / negative | 0 / 0 / 0 | 0 / 0 / 0 |
+| exact zeros | 12,285,980 (0.62 %) | 0 |
+
+The max is ~39,000× the p99. **This is why `plt.matshow(data[0][0])` looks
+like a flat purple square** — a handful of pixels set the colour scale and
+everything real sits in the bottom 0.001 % of it. Nothing is wrong with the
+data; the display is being crushed by outliers. Apply the paper's
+preprocessing (§11.7) and the structure appears immediately — see
+`fig_lofar_overview.png`.
+
+### 11.2 Axis order: rows = TIME, columns = FREQUENCY
+
+Proven three independent ways (this is the **opposite** of our synthetic
+datasets, which are frequency × time — transpose before reusing pipeline code):
+
+1. **Mask profile variability.** Coefficient of variation of RFI fraction
+   along columns = 0.616 (train) / 1.074 (test); along rows = 0.120 / 0.217.
+2. **Concentration.** 65.4 % (train) / 74.4 % (test) of all flagged pixels sit
+   in just **16 of the 512 columns** (test median: 87 %). Only 28.8 % / 21.2 %
+   sit in the top 16 rows.
+3. **Profile shape** (`fig_lofar_profiles.png`). The column profile has sharp
+   isolated spikes at fixed indices (~365, ~420, ~470–500) rising to 5.5 %
+   against a 1 % floor — fixed-frequency transmitters. The row profile is
+   featureless noise between 0.7 % and 1.5 %.
+
+The data column profile also shows a dip at columns ~40–60 and a rise past
+column 400 (band edge). The data row profile shows a smooth ~3 % downward
+drift across the 512 time samples — slow gain/elevation drift, not RFI.
+
+### 11.3 Class imbalance
+
+| | train (AOFlagger) | test (human) |
+|---|---|---|
+| RFI pixel fraction | 1.2703 % | 0.7661 % |
+| imbalance (clean : RFI) | 1 : 77.7 | 1 : 129.5 |
+| median per-image RFI frac | 0.207 % | 0.378 % |
+| images >10 % flagged | 123 | 0 |
+| images >50 % flagged | **35** | 0 |
+| images 100 % flagged | **35** | 0 |
+| completely clean images | 0 | 0 |
+
+**An all-zero predictor scores 99.23 % pixel accuracy and F1 = 0.** Accuracy
+is meaningless here. With no class weighting this is the failure mode to
+watch for in the first training run.
+
+### 11.4 Data-quality defects found
+
+- **35 training images are 100 % flagged** by AOFlagger (indices 986, 1086,
+  1264, 1473, 1598, 1750, 2050, 2094, 2430, 2518, 2566, 3135, 3639, 3718,
+  3872, 4026, 4104, 4336, 4417, 4594, 4663, 4838, 4841, 4894, 4926, 5476,
+  5882, 5995, 6246, 6827, 7074, 7113, 7219, 7381, 7462). These are dead
+  baselines — several have all-zero data. Training on them teaches the model
+  that everything is RFI.
+- **8.3 % of training images contain exact zeros**; 4 of the first 1500 are
+  entirely zero. All fully-zero rows/columns found belong to those images —
+  there are no partially-dead rows/columns.
+- **34 duplicate images inside the training set** (7466 unique of 7500).
+
+### 11.5 TEST-SET LEAKAGE — all 109 test images are inside the training set
+
+MD5 of every image array: **all 109 test spectrograms are byte-identical to
+109 training spectrograms.** Train on `data[0]` and evaluate on `data[2]` and
+the model has already seen every test image — only the *label* differs
+(AOFlagger in train, human in test).
+
+This is by construction (the same baselines were labelled twice), but it
+means a naive train/test split is contaminated. **Drop those 109 training
+indices before training.** They are saved as
+`lofar_analysis/lofar_leak_train_idx.npy`.
+
+Recommended training subset: **7356 of 7500** — drop 109 leaked + 35
+fully-flagged. Saved as `lofar_analysis/lofar_clean_train_idx.npy`.
+
+### 11.6 The training labels are ~44 % wrong (and this validates our reading)
+
+Because the 109 test images are duplicated in train, AOFlagger's label and
+the human's label can be compared **on identical pixels**:
+
+| metric | value |
+|---|---|
+| pixel-wise precision | 0.5598 |
+| pixel-wise recall | 0.5802 |
+| **pixel-wise F1** | **0.5698403** |
+| IoU | 0.3984 |
+| mean *per-image* F1 | 0.4663 |
+| AOFlagger RFI frac / human RFI frac | 1.036 |
+
+The paper's Table 2 reports AOFlagger F1 = **0.5698**. We measured
+**0.5698403**. Exact agreement to four decimals. That independently confirms
+(a) `data[1]` is AOFlagger and `data[3]` is human expert, (b) the 109
+image pairs are correctly matched, and (c) **the paper's metric is GLOBAL
+pixel-wise F1 over the pooled test set, not the mean of per-image F1s.**
+
+**Methodological trap:** mean per-image F1 is 0.4663 — a full 0.103 lower.
+Report per-image mean and our model will look 0.10 worse than it is against
+the published table. Pool the confusion matrix over all 109 images, then
+compute F1 once.
+
+**Ceiling implication:** every training label comes from AOFlagger, which is
+only ~56 % precise and ~58 % complete against the human. A supervised model
+trained on AOFlagger labels is fitting ~44 % label noise. That is the real
+reason no method in Table 2 exceeds F1 0.60, and it should be stated in the
+paper.
+
+### 11.7 Is the RFI actually faint? Yes — and it is bimodal
+
+Raw-amplitude comparison of flagged vs unflagged pixels:
+
+| | train | test |
+|---|---|---|
+| median flagged / median clean | **1.93×** | **2.28×** |
+| flagged pixels below the *median* clean pixel | **26.96 %** | **24.11 %** |
+| flagged pixels below clean p75 | 40.81 % | 38.38 % |
+| flagged pixels above clean p99 | 38.00 % | 43.04 % |
+
+So the RFI splits into two populations: **~40 % is very bright** (above the
+99th percentile of clean pixels — trivially detectable) and **~25–40 % sits
+at or below typical clean-pixel brightness**, carrying *no per-pixel
+amplitude evidence at all*. Those pixels are only recoverable from context —
+their neighbours in time and frequency.
+
+After the paper's preprocessing the separation, measured per image in units
+of that image's clean-pixel σ, is **median 1.49σ, mean 5.77σ** (heavily
+skewed by the bright population); 17.6 % of flagged pixels still sit below
+the clean median. In no test image does more than 49 % of the RFI fall below
+the clean median.
+
+**Contrast with our synthetic data:** there, `mask = strength > 0.5σ` makes
+every labelled pixel ≥0.5σ above local noise *by construction*, with 90.9 %
+at ≥1σ, and the label is noise-free. Here a quarter of the labels have no
+amplitude signal and ~44 % of the labels are themselves wrong. That is the
+concrete, quantified statement of why real data is harder — better than
+hand-waving about "complexity."
+
+### 11.8 Normalisation: per-image is effectively mandatory here
+
+The paper's pipeline is: clip to `[|μ−σ|, μ+4σ]` → natural log → min-max to
+[0,1], **computed per image**.
+
+| quantity | value |
+|---|---|
+| global min (first 2000 train images) | 0.0 |
+| global max (first 2000) | 9.99e10 |
+| per-image clip *upper* bound: min → max | 1.65e6 → 8.09e8 |
+| **spread of the per-image upper bound** | **490×** |
+| median raw dynamic range within one image | ~9,900 (train) / ~19,000 (test) |
+
+A single fixed global scale would map the median image into a sliver at the
+bottom of the range — the global max is 6×10⁴ times the median image's own
+clip ceiling, and the global min is exactly 0 so a global log is undefined.
+
+**This inverts our PART 1 finding.** On the synthetic dataset, *fixed-range*
+normalisation was correct and per-image normalisation was one of the causes
+of the tf_unet baseline's failure. On LOFAR the opposite holds: the
+per-image dynamic range and per-image offsets vary so much that per-image
+clip+log+min-max is the only workable choice. Do not carry the synthetic
+conclusion over to this dataset without re-testing — and if the plan is to
+run the authors' U-Net "with fixed normalisation," expect that arm to fail
+badly here, and treat that failure as a *result* rather than a bug.
+
+Guard needed: 4+ images are entirely zero, so `log` produces `-inf` and the
+min-max denominator is 0. Clamp the lower clip bound to a small positive
+value and skip/zero-fill degenerate images.
+
+### 11.9 Baselines on the 109-image human-labelled test set
+
+All numbers are global pixel-wise F1, so they are directly comparable to the
+paper's Table 2.
+
+| method | F1 | precision | recall |
+|---|---|---|---|
+| predict everything is RFI | 0.0152 | 0.0077 | 1.0 |
+| predict nothing is RFI | 0.0 | — | 0.0 (99.23 % accuracy) |
+| best global threshold, per-image normalised (**oracle**) | 0.3061 | 0.4212 | 0.2404 |
+| per-column MAD clip @2.0σ | 0.2017 | 0.1832 | 0.2243 |
+| per-image σ-clip @2.0σ | 0.2872 | 0.2477 | 0.3416 |
+| **per-image σ-clip @2.5σ (best simple baseline)** | **0.4127** | 0.6774 | 0.2968 |
+| per-image σ-clip @3.0σ | 0.3393 | 0.9017 | 0.2090 |
+| AOFlagger (the training labeller) | 0.5698 | 0.5598 | 0.5802 |
+| *paper's best — RFI-Net* | *0.5979* | — | — |
+
+So the ladder to climb is: **beat 0.41** (a three-line σ-clip) to show the
+model does anything; **beat 0.5698** to beat the classical flagger that
+produced its own training labels; **beat 0.5979** to beat the published
+state of the art.
+
+For perspective, on our synthetic dataset a constant threshold already scores
+F1 0.7421 and a 2,578-parameter CNN scores 0.7823 — both far above anything
+achievable here.
+
+Note the per-**column** MAD clip performs *worse* (0.2017) than the plain
+per-image σ-clip (0.4127), even though RFI is column-concentrated. Reason:
+persistent narrowband RFI occupies a large fraction of its own column, so the
+per-column median is contaminated by the very signal it is meant to baseline.
+Any per-frequency normalisation scheme has to be robust to that.
+
+### 11.10 What to actually do before the first training run
+
+1. Load with `pickle.load`; index the clean subset via
+   `lofar_analysis/lofar_clean_train_idx.npy` (7356 images).
+2. Preprocess **per image**: clip `[max(|μ−σ|, ε), μ+4σ]` → `log` → min-max.
+3. Keep rows = time, columns = frequency, or transpose — but be consistent,
+   and record which was used.
+4. Hold out a validation split from the 7356 (the 109 test images must not
+   appear anywhere in training).
+5. Evaluate with a **pooled** confusion matrix over all 109 test images, then
+   one F1. Also report AUROC/AUPRC since the paper does.
+6. Expect the no-class-weight run to collapse toward predicting nothing;
+   if it does, that is the expected consequence of 1:130 imbalance, and it is
+   a legitimate finding to report before adding weighting.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
@@ -947,10 +1178,13 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
    blocking item for the efficiency finding** — base 16 vs base 32 (−0.0024) and
    base 8 vs base 32 (−0.0063) are both inside the one-seed noise floor, so the
    headline claim is unproven until seeds 0 and 1 are run.
-6. **No result on real telescope data with human labels yet** (PART 5, PART 10).
-   LOFAR dataset structure is now decoded (PART 10); target to beat is
-   RFI-Net F1 0.5979 (paper's Table 2). Still need: `.npy` converter for the
-   pickle, then a training/eval run against `data[2]`/`data[3]`.
+6. **No result on real telescope data with human labels yet** (PARTS 5, 10, 11).
+   LOFAR is now fully audited (PART 11). Ladder: beat F1 0.4127 (sigma-clip),
+   then 0.5698 (AOFlagger), then 0.5979 (RFI-Net, published best). Three
+   traps that will silently corrupt the result: the 109 test images are
+   duplicated inside the training set and must be dropped; the metric must be
+   a pooled pixel-wise F1, not a mean of per-image F1s (0.103 difference);
+   and normalisation must be per-image here, unlike the synthetic data.
 7. **The v4 bandpass formula is ours, not published** (PART 9). Two fixes
    needed: express the standing-wave period in MHz and quote the implied path
    length; and justify the analytic Tukey envelope against `hera_sim`'s measured
@@ -1052,4 +1286,5 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 `lofar_analysis/` · `results/` ·
 `dataset_v4_bandpass/generate_dataset_v4.py` (the v4 bandpass generator — see PART 9) ·
 `experiments/normalisation_control/run_control.py` (the tf_unet arms in PART 8) ·
-`notes/Mesarcik2022_Learning_to_detect_RFI_without_seeing_it.pdf` (LOFAR dataset paper — see PART 10)
+`notes/Mesarcik2022_Learning_to_detect_RFI_without_seeing_it.pdf` (LOFAR dataset paper — see PART 10) ·
+`lofar_analysis/deep_audit_stage1..5_*.py` + `audit_lofar_report*.json` + `fig_lofar_*.png` (the PART 11 audit)
