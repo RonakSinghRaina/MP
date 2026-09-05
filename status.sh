@@ -19,7 +19,7 @@ show() {
       local et cpu out
       et=$(ps -o etime= -p "$pid" | tr -d ' ')
       cpu=$(ps -o %cpu= -p "$pid" | tr -d ' ')
-      out=$(echo "$rest" | grep -o '\-\-output_dir [^ ]*' | awk '{print $2}')
+      out=$(echo "$rest" | grep -o '[-][-]output_dir [^ ]*' | awk '{print $2}')
       echo "  RUNNING pid $pid   elapsed $et   cpu ${cpu}%"
       echo "          $out"
     done
