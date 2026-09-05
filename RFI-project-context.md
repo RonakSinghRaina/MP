@@ -1121,10 +1121,28 @@ persistent narrowband RFI occupies a large fraction of its own column, so the
 per-column median is contaminated by the very signal it is meant to baseline.
 Any per-frequency normalisation scheme has to be robust to that.
 
-### 11.10 What to actually do before the first training run
+### 11.10 Never open the pickle again — use the memory-mapped arrays
 
-1. Load with `pickle.load`; index the clean subset via
-   `lofar_analysis/lofar_clean_train_idx.npy` (7356 images).
+Loading the 9.3 GB pickle exhausts RAM on this machine (19 GB total, and the
+IDE crashes). `lofar_analysis/convert_pickle_to_memmap.py` has been run once
+and split it into `LOFAR_npy/{train,test}_{images,masks}.npy`. `lofar_data.py`
+memory-maps those: indexing is identical, but only the slice you touch is read
+from disk.
+
+    from lofar_data import load_lofar, preprocess, batches
+    d = load_lofar()          # 0.007 s, 28.7 MB RAM (measured)
+    img = d.train_images[1]   # ~1 MB read
+    X = preprocess(img)       # per-image clip -> log -> min-max
+
+Measured: 28.7 MB resident after opening all four arrays, vs ~10 GB for
+`pickle.load`. `LOFAR_npy/` is gitignored (9.3 GB); regenerate it with the
+converter if the machine changes. `preprocess()` guards the all-zero images
+that would otherwise produce `-inf`/NaN.
+
+### 11.11 What to actually do before the first training run
+
+1. Load via `lofar_data.load_lofar()`; index the clean subset via
+   `d.clean_train_idx` (7356 images).
 2. Preprocess **per image**: clip `[max(|μ−σ|, ε), μ+4σ]` → `log` → min-max.
 3. Keep rows = time, columns = frequency, or transpose — but be consistent,
    and record which was used.
@@ -1287,4 +1305,5 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 `dataset_v4_bandpass/generate_dataset_v4.py` (the v4 bandpass generator — see PART 9) ·
 `experiments/normalisation_control/run_control.py` (the tf_unet arms in PART 8) ·
 `notes/Mesarcik2022_Learning_to_detect_RFI_without_seeing_it.pdf` (LOFAR dataset paper — see PART 10) ·
-`lofar_analysis/deep_audit_stage1..5_*.py` + `audit_lofar_report*.json` + `fig_lofar_*.png` (the PART 11 audit)
+`lofar_analysis/deep_audit_stage1..5_*.py` + `audit_lofar_report*.json` + `fig_lofar_*.png` (the PART 11 audit) ·
+`lofar_data.py` (low-RAM memory-mapped LOFAR loader — see PART 11.10)

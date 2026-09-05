@@ -87,3 +87,6 @@ events.out.tfevents.*
 
 # tf_unet writes prediction preview JPEGs for the first few epochs only (~5 MB).
 pred/
+
+# LOFAR memory-mapped arrays (9.3 GB, regenerate with lofar_analysis/convert_pickle_to_memmap.py)
+LOFAR_npy/
