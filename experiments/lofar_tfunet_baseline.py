@@ -187,7 +187,15 @@ class _QuietRestore(logging.Filter):
 
 
 # ---------------------------------------------------------------------------
-def score(net, model_path, provider, n_images, quiet=True):
+def best_threshold(yt, yp):
+    """Threshold maximising F1 on THIS set. Used on validation, applied to test."""
+    pr, rc, th = precision_recall_curve(yt, yp)
+    f1 = 2 * pr * rc / (pr + rc + 1e-10)
+    k = int(np.argmax(f1[:-1])) if len(th) else 0
+    return float(th[k]) if len(th) else 0.5, float(f1[k])
+
+
+def score(net, model_path, provider, n_images, quiet=True, threshold=0.5):
     """Restore the checkpoint ONCE, then predict every image."""
     yt, yp = [], []
     root = logging.getLogger()
@@ -218,8 +226,9 @@ def score(net, model_path, provider, n_images, quiet=True):
     yt = np.concatenate(yt)
     yp = np.concatenate(yp)
 
-    # pooled confusion matrix at 0.5 -- the paper's metric
-    p = yp > 0.5
+    # pooled confusion matrix at the given threshold -- the paper's metric.
+    # For the test set this threshold is SELECTED ON VALIDATION, never on test.
+    p = yp > threshold
     tp = int((p & yt).sum()); fp = int((p & ~yt).sum()); fn = int((~p & yt).sum())
     tn = int((~p & ~yt).sum())
     prec = tp / max(tp + fp, 1)
@@ -231,7 +240,9 @@ def score(net, model_path, provider, n_images, quiet=True):
     f1_curve = 2 * pr_c * rc_c / (pr_c + rc_c + 1e-10)
 
     return dict(
+        threshold=float(threshold),
         pooled_f1=float(pooled_f1), pooled_precision=float(prec), pooled_recall=float(rec),
+        _yt=yt, _yp=yp,
         TP=tp, FP=fp, FN=fn, TN=tn,
         max_f1=float(np.max(f1_curve)),
         roc_auc=float(auc(fpr, tpr)), pr_auc=float(auc(rc_c, pr_c)),
@@ -346,7 +357,8 @@ def main():
                         cost_kwargs=dict(regularizer=0.001), summaries=False)
         val_p.pos = -1
         m = score(net, os.path.join(ckpt_dir, "model.ckpt"), val_p,
-                  min(len(val_idx), 120))
+                  min(len(val_idx), 150))      # 150 = PART 1's validation set size
+        m.pop("_yt", None); m.pop("_yp", None)
         print("  -> val pooled-F1 {:.4f}  max-F1 {:.4f}  ROC {:.4f}{}".format(
             m["pooled_f1"], m["max_f1"], m["roc_auc"],
             "   [COLLAPSED]" if m["collapsed"] else ""), flush=True)
@@ -368,9 +380,23 @@ def main():
     net = unet.Unet(channels=1, n_class=2, layers=a.layers,
                     features_root=a.features_root, cost="cross_entropy",
                     cost_kwargs=dict(regularizer=0.001), summaries=False)
+
+    # Select the operating threshold on VALIDATION, never on test.
+    val_p.pos = -1
+    vm = score(net, os.path.join(best_dir, "model.ckpt"), val_p, min(len(val_idx), 150))
+    th, vf1 = best_threshold(vm.pop("_yt"), vm.pop("_yp"))
+    print("  threshold selected on validation: {:.4f}  (val F1 there {:.4f})".format(th, vf1))
+
+    tf1.reset_default_graph()
+    net = unet.Unet(channels=1, n_class=2, layers=a.layers,
+                    features_root=a.features_root, cost="cross_entropy",
+                    cost_kwargs=dict(regularizer=0.001), summaries=False)
     test_p.pos = -1
-    m = score(net, os.path.join(best_dir, "model.ckpt"), test_p, 109, quiet=False)
-    m.update(norm=a.norm, fixed_range=[lo, hi], class_weights=False,
+    m = score(net, os.path.join(best_dir, "model.ckpt"), test_p, 109,
+              quiet=False, threshold=th)
+    m.pop("_yt", None); m.pop("_yp", None)
+    m.update(val_selected_threshold=th, val_f1_at_threshold=vf1,
+             norm=a.norm, fixed_range=[lo, hi], class_weights=False,
              layers=a.layers, features_root=a.features_root,
              batch_size=a.batch_size, epochs=prog["epochs_completed"],
              optimizer="adam", learning_rate=a.lr, seed=a.seed,
@@ -381,10 +407,12 @@ def main():
     print("\n" + "=" * 74)
     print("  RESULT on real LOFAR data, human ground truth")
     print("=" * 74)
-    print("  pooled F1 @0.5 : {:.4f}   <-- compare to the paper's Table 2".format(m["pooled_f1"]))
+    print("  pooled F1      : {:.4f}   <-- HEADLINE. threshold {:.4f} chosen on val.".format(
+        m["pooled_f1"], th))
     print("      precision  : {:.4f}".format(m["pooled_precision"]))
     print("      recall     : {:.4f}".format(m["pooled_recall"]))
-    print("  max F1 (oracle): {:.4f}   (optimistic; project convention)".format(m["max_f1"]))
+    print("  max F1 (oracle): {:.4f}   (threshold picked ON TEST -- optimistic;".format(m["max_f1"]))
+    print("                            report only to compare with PART 1's convention)")
     print("  ROC AUC        : {:.4f}".format(m["roc_auc"]))
     print("  PR  AUC        : {:.4f}".format(m["pr_auc"]))
     print("  collapsed      : {}   pred range [{:.3f}, {:.3f}]".format(

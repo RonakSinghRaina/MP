@@ -1280,6 +1280,56 @@ bottleneck; the GPU sat at 100 % utilisation and 4.3 GB throughout.
 timing.** On AC at PART 7's 174 ms/step, the matched 10,500-step run is
 ~30 min. On battery it is ~8 h.
 
+### 11.12 RECOMMENDED PROTOCOL for the LOFAR tf_unet run (2026-09-05)
+
+Decided rather than deferred. `./run_lofar_baseline.sh` runs all of it.
+
+**Hold the METHOD identical to PART 1 run #4** — these are the comparison, and
+none of them changes:
+
+| | value | why |
+|---|---|---|
+| architecture | tf_unet, layers 3, features_root 32 | authors' unmodified code |
+| optimiser | Adam @ 1e-3 | PART 1 |
+| batch | 4 | PART 1; also 4.3 GB of the 6 GB card at 512x512 |
+| cost | cross-entropy + 0.001 regulariser | PART 1 |
+| dropout | keep_prob 0.75 | tf_unet default, PART 1 |
+| normalisation | **fixed range** | PART 1 run #4; measured better here too (11.8) |
+| class weights | **OFF** | PART 1: the single biggest factor, +0.413 F1 |
+
+**Hold the BUDGET identical, not the epoch count.** 175 steps/epoch x 60
+epochs = 10,500 gradient steps, exactly what PART 1 gave the synthetic
+baseline. Matching "60 epochs" over 6620 images would instead be 99,300
+steps — 9.5x more training than the thing being compared against.
+
+**Run 3 seeds (0, 1, 2).** Outstanding item 5 has flagged N=1 as *the*
+blocking methodological problem in this project since revision 4. Do not carry
+it into the real-data result — it costs 1.5 h to fix it here, at the point
+where the number actually matters. Report mean +/- spread.
+
+**Add one convergence control**, 20 epochs of full passes (33,100 steps,
+seed 0). This is the answer to the obvious referee question: is the matched
+number low because real data is hard, or because 10,500 steps undertrains a
+9.5x larger dataset? If the control lands near the matched runs, the matched
+number stands and that is now demonstrated rather than assumed.
+
+**Select the operating threshold on VALIDATION, apply it to test.** The
+headline `pooled_f1` now does this. PART 1 quoted an oracle max-F1 chosen on
+the test set, which outstanding item 2 already criticises; `max_f1` is still
+reported, but only so the two can be lined up, and it must be labelled
+optimistic. The validation split is 150 images, matching PART 1's.
+
+**Cost on AC: ~3.1 h total** — 30 min per matched run, 1.5 h for three seeds,
+1.6 h for the control.
+
+### 11.13 GPU timing CONFIRMED on AC (2026-09-05)
+
+Re-measured after plugging in: **174 ms/step**, batch 4, 512x512,
+features_root 32 — identical to the PART 7 figure, GPU at 1672 MHz / 94 W /
+97 % / 4.3 GB. The 2658 ms measured on battery was a **15.3x** penalty and
+nothing else. PART 7's timing table is sound; it was simply taken on AC.
+`run_lofar_baseline.sh` refuses to start on battery for this reason.
+
 ### 11.11 What to actually do before the first training run
 
 1. Load via `lofar_data.load_lofar()`; index the clean subset via
