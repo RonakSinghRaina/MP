@@ -1454,6 +1454,77 @@ that are ~44 % wrong (AOFlagger vs human), ~25 % of RFI carrying no per-pixel
 amplitude evidence, and 1:129 imbalance — none of which the synthetic
 generator reproduces.
 
+### 12.7 Comparing to Mesarcik et al. correctly — we were using the wrong number
+
+Read out of the paper (section 5.1, section 5.3, Table 2) on 2026-09-05.
+
+**Their threshold protocol is ORACLE.** Section 5.1, verbatim: *"For all
+evaluations across all models in this work the threshold is fixed to the
+maximum obtainable F1 score."* They pick the threshold on the test set.
+
+So their 0.5876 must be compared with our **max_f1 = 0.4901 ± 0.0495**, NOT
+our validation-thresholded `pooled_f1` of 0.4563. Our pooled F1 is the more
+honest number and should stay the headline of our own work, but every
+cross-paper comparison must use max F1 or it is unfair to us by ~0.034.
+
+**Their Table 2 in full** (LOFAR, expert ground truth, 3 seeds — they use
+three runs too):
+
+| model | AUROC | AUPRC | F1 |
+|---|---|---|---|
+| AOFlagger | 0.7883 | 0.5716 | 0.5698 |
+| **U-Net (Akeret 2017) — the same tf_unet we ran** | **0.8017 ± 0.0058** | 0.5920 ± 0.0031 | **0.5876 ± 0.0031** |
+| RFI-Net | — | — | 0.5979 |
+| R-Net | — | — | 0.5286 |
+| NLN (theirs) | 0.8622 ± 0.0006 | 0.6216 ± 0.0005 | 0.5114 ± 0.0004 |
+
+Their AUROC formula is the standard one — AOFlagger's binary mask gives
+(0.5802 + 0.99648)/2 = 0.7883, matching their table exactly, so AUROC is
+directly comparable across the two papers.
+
+**THE HEADLINE FINDING: our AUROC is far HIGHER than theirs, on the same
+architecture.**
+
+| | AUROC | F1 (oracle) |
+|---|---|---|
+| their U-Net (Akeret 2017) | 0.8017 ± 0.0058 | 0.5876 ± 0.0031 |
+| **our tf_unet** | **0.9389 ± 0.0045** | 0.4901 ± 0.0495 |
+| difference | **+0.137** | −0.098 |
+
+Same architecture, same dataset, same ground truth. Our model **ranks RFI
+pixels substantially better** (+0.137 AUROC, and far outside either paper's
+seed spread) and yet **converts that into a worse decision** (−0.098 F1).
+
+This is PART 12.4's finding confirmed against an independent implementation,
+and it is much stronger evidence than our own threshold instability was. The
+information is there; the decision rule is what fails.
+
+**Three concrete differences that could explain the F1 gap** — all testable:
+
+| | Mesarcik et al. | ours |
+|---|---|---|
+| training unit | **32x32 patches** (5.1: fixed for all models "to keep comparison consistent") | full 512x512 images |
+| schedule | **100 epochs, Adam @ 1e-4** | 60 epochs / 10,500 steps, Adam @ **1e-3** |
+| normalisation | per-image clip 20 sigma -> log -> min-max | fixed range |
+
+Our learning rate is **10x higher** and our schedule shorter, both inherited
+from PART 1's synthetic recipe rather than from this paper. A higher LR with
+fewer steps plausibly produces a well-ranked but poorly-calibrated model —
+exactly the AUROC-high / F1-low signature observed. **Testing lr=1e-4 with
+100 epochs is the single highest-value next run.**
+
+Border cropping is *not* a confound: tf_unet's valid padding scores on
+472x472 of 512x512, and RFI density in the discarded border is 0.00747
+against 0.00770 overall (ratio 1.004).
+
+**Sources.** Paper: Mesarcik, Boonstra, Ranguelova & van Nieuwpoort (2022),
+MNRAS, arXiv:2207.00351 — `notes/Mesarcik2022_*.pdf`.
+Code: https://github.com/mesarcik/RFI-NLN .
+Dataset: https://zenodo.org/record/6724065 (doi:10.5281/zenodo.6724065).
+This is a **different paper from Akeret et al. 2017**, which contributed the
+tf_unet architecture; the 2022 paper uses that architecture as one of its
+baselines, which is why its 0.5876 row is directly our model.
+
 ### 12.6 Consequences for outstanding items
 
 - **Item 5 (N=1) is vindicated, hard.** Seed spread on real data is 0.052 —
