@@ -490,6 +490,47 @@ sudo dnf install claude-code
 Start it from the project directory with `claude`, and open the session with
 `read RFI-project-context.md before we begin`.
 
+### Where Claude Code sessions live, and how to resume one (2026-09-05)
+
+**Sessions are filed by the directory you launched `claude` from**, under
+`~/.claude/projects/<path-with-slashes-and-spaces-replaced-by-dashes>/`. Each
+session is one `.jsonl` transcript plus a same-named folder of tool results.
+
+This bit us: sessions from 2026-08-30 to 2026-09-05 were launched from
+`~/Downloads/Antigravity/Antigravity-x64` by mistake, so they were filed under
+`-home-ronaksingh-Downloads-Antigravity-Antigravity-x64/` and were invisible
+from the project directory. The correct directory is
+`-home-ronaksingh-Documents-minor-project-Minor-Project/`.
+
+**Two things live per-project and both must move if the launch directory
+changes** — the transcript *and* `memory/`. The Minor Project folder's
+`memory/` was completely empty, so a session started there would not have
+known the commit identity or to read this document first.
+
+```bash
+SRC=~/.claude/projects/-home-ronaksingh-Downloads-Antigravity-Antigravity-x64
+DST=~/.claude/projects/-home-ronaksingh-Documents-minor-project-Minor-Project
+cp -n "$SRC"/<session-id>.jsonl "$DST"/
+cp -rn "$SRC"/<session-id> "$DST"/
+cp -n "$SRC"/memory/*.md "$DST"/memory/
+```
+
+The long LOFAR/bandpass session is `dbe9e263-0f9a-4d0b-9c18-6fc448e05e3b`
+(1,582 records, 2026-08-30 → 2026-09-05); it has been copied across along with
+all three memory files. Re-copy the `.jsonl` after the source session finally
+closes, since it keeps growing while it is live.
+
+To resume: `cd` to the project directory, then `claude --resume` and pick the
+session, or `claude --continue` for the most recent. **Plain `claude` starts a
+new empty chat** — it does not resume anything.
+
+**Do not rely on this.** The transcript is convenience, not memory: long
+sessions get compacted, so older exchanges come back as a summary rather than
+verbatim, and transcripts are local to one machine (nothing syncs to the
+Windows install). *This document* is the actual persistence layer — it is in
+git, it survives machine changes and fresh chats, and it is why it gets
+updated whenever a run finishes.
+
 ---
 
 ## PART 8 — the 1024×265 bandpass dataset (v4): baseline runs + the ESCAPE finding
