@@ -1230,6 +1230,56 @@ Measured: 28.7 MB resident after opening all four arrays, vs ~10 GB for
 converter if the machine changes. `preprocess()` guards the all-zero images
 that would otherwise produce `-inf`/NaN.
 
+### 11.10b Splits, and the matched-conditions question (2026-09-05)
+
+**Who split what.** The train/test split is the **authors'**, already baked
+into the pickle: 7500 training + 109 test. We did NOT make it. What we added
+is a **validation split — 10 % of the clean training pool, 736 images**, held
+out for best-checkpoint selection only. So:
+
+| split | size | origin | labels |
+|---|---|---|---|
+| train | 6620 | authors', minus our exclusions | AOFlagger |
+| val | 736 | **ours**, 10 % of clean pool, seed 42 | AOFlagger |
+| test | 109 | authors' | **human expert** |
+
+**The exclusions.** 7500 − 109 leaked − 35 fully-flagged = 7356 clean, then
+split 90/10 into 6620 train + 736 val. The 109 leaked images (PART 11.5) are
+dropped from training entirely — they are the test set, byte for byte.
+
+**Epochs: matching the number would NOT match the conditions.** PART 1 gave
+the synthetic baseline 175 steps/epoch × 60 epochs = **10,500 gradient
+steps** (700 images / batch 4). LOFAR has 6620 training images, so a *full
+pass* is 1655 steps/epoch — 60 epochs of that is **99,300 steps, 9.5× more
+training** than the baseline being compared against.
+
+`lofar_tfunet_baseline.py` therefore fixes `--iters_per_epoch 175` and
+`--epochs 60`, holding the gradient-step budget **identical to PART 1** while
+sampling those batches at random from all 6620 images (~6.3 passes over the
+data). `--iters_per_epoch 0` gives full passes, but that must be declared in
+the paper as an unmatched comparison.
+
+### 11.10c GPU throughput — the laptop was on battery (2026-09-05)
+
+Measured on the RTX 3060 6 GB, batch 4, features_root 32, layers 3:
+
+| input | pixels | ms/step | note |
+|---|---|---|---|
+| 265×1024 | 271,360 | 2684 | PART 7 recorded **174 ms** for this exact case |
+| 512×512 | 262,144 | 2658 | LOFAR |
+| 256×256 | 65,536 | 612 | scales with pixel count |
+
+Step time tracks pixel count, not aspect ratio. The 15× gap against PART 7 is
+**not** the model and **not** the 512×512 shape — the laptop was **unplugged
+at 16 % battery**, and `nvidia-smi` reported the SM clock pinned at **210 MHz
+of a 2100 MHz maximum**, 15.2 W, with `SW Power Cap: Active` and `SW Thermal
+Slowdown: Active`. Data loading from the memmap is 14 ms/batch, i.e. never the
+bottleneck; the GPU sat at 100 % utilisation and 4.3 GB throughout.
+
+**Always check `cat /sys/class/power_supply/A*/online` before quoting a
+timing.** On AC at PART 7's 174 ms/step, the matched 10,500-step run is
+~30 min. On battery it is ~8 h.
+
 ### 11.11 What to actually do before the first training run
 
 1. Load via `lofar_data.load_lofar()`; index the clean subset via
@@ -1244,6 +1294,9 @@ that would otherwise produce `-inf`/NaN.
 6. Expect the no-class-weight run to collapse toward predicting nothing;
    if it does, that is the expected consequence of 1:130 imbalance, and it is
    a legitimate finding to report before adding weighting.
+7. **Plug the laptop in** (PART 11.10c) and run
+   `experiments/lofar_tfunet_baseline.py`. Defaults are the PART 1 recipe:
+   fixed-range norm, no class weights, 175×60 = 10,500 steps.
 
 ---
 

@@ -9,6 +9,8 @@ WHAT THIS RUNS
   architecture : tf_unet (Akeret et al. 2017), untouched authors' code
                  layers=3, features_root=32, cross-entropy + 0.001 regulariser
   optimiser    : Adam @ 1e-3, batch 4          (same as PART 1)
+  budget       : 175 steps/epoch x 60 epochs = 10,500 gradient steps,
+                 IDENTICAL to what PART 1 gave the synthetic baseline
   class weights: OFF                            (PART 1 found these lethal here)
   normalisation: FIXED range, one global [lo,hi] for every image
   train on     : the 7356 CLEAN training images (lofar_clean_train_idx.npy)
@@ -24,12 +26,16 @@ plus 35 fully-flagged dead baselines.
 NORMALISATION -- READ THIS BEFORE INTERPRETING THE RESULT
 ---------------------------------------------------------
 On the synthetic data, fixed-range beat per-image by +0.213 F1 (PART 1).
-On LOFAR the audit predicts the opposite (PART 11.8): the per-image clip
-bounds vary by ~490x and the raw range spans 0 to 1.4e11, so one global linear
-scale puts almost every pixel of almost every image into a tiny sliver of
-[0,1]. --norm fixed is therefore expected to do BADLY here. That is a result,
-not a bug: it is the direct test of whether the PART 1 finding transfers from
-synthetic to real data.
+An earlier draft of PART 11.8 predicted the opposite would hold on LOFAR.
+That prediction was RETRACTED on 2026-09-05 -- it was reasoned from the
+global min/max rather than measured. Measured over 200 clean training images,
+the fixed range calibrates to [283922, 4.776e6] and the images come out
+healthy (per-image means 0.096-0.607, under 2% of pixels saturated), and it
+separates RFI BETTER than the per-image recipe: 1.322 vs 0.718 clean-sigma.
+
+So fixed range is a sound default here, not a straw man. Run the other arms
+anyway -- whether PART 1's normalisation finding transfers from synthetic to
+real data is exactly the open question.
 
 Three arms are provided so the comparison is one flag away:
     --norm fixed      global linear clip+scale        (default; PART 1 recipe)
@@ -50,11 +56,33 @@ pooled F1 on this data (PART 11.6) and is not what the paper quotes.
 USAGE
 -----
     export LD_LIBRARY_PATH="$(ls -d ~/tf-env/lib/python3.12/site-packages/nvidia/*/lib | tr '\n' ':')$LD_LIBRARY_PATH"
-    ~/tf-env/bin/python experiments/lofar_tfunet_baseline.py --epochs 30
+    ~/tf-env/bin/python experiments/lofar_tfunet_baseline.py
 
     # smoke test first (a few minutes):
     ~/tf-env/bin/python experiments/lofar_tfunet_baseline.py \
         --epochs 1 --limit_train 200 --output_dir lofar_runs/smoke
+
+MATCHING PART 1's CONDITIONS
+----------------------------
+PART 1 trained on 700 synthetic images: 175 steps/epoch x 60 epochs = 10,500
+gradient steps. LOFAR has 6620 training images, so a *full pass* would be 1655
+steps/epoch -- 60 epochs of that is 99,300 steps, 9.5x more training than the
+baseline it is being compared against. Matching the epoch NUMBER would not
+match the CONDITIONS.
+
+So --iters_per_epoch defaults to 175, holding the gradient-step budget
+identical to PART 1 while drawing those batches at random from all 6620
+images. Pass --iters_per_epoch 0 for full passes, but then say so explicitly
+in the paper, because it is no longer a matched comparison.
+
+HARDWARE
+--------
+Measured 2026-09-05 on the RTX 3060 6 GB, batch 4, features_root 32:
+2.66 s/step ON BATTERY (GPU clamped to 210 MHz of 2100 MHz, "SW Power Cap
+Active"). PLUG THE LAPTOP IN before starting -- PART 7 recorded 174 ms/step
+on AC, which is ~15x faster and turns this run from ~8 h into ~30 min.
+Step time scales with pixel count, not aspect ratio: 265x1024 and 512x512
+measured within 1% of each other.
 
 RESUMING
     Re-run the identical command. It reads progress.json and continues.
@@ -232,8 +260,14 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--norm", choices=["fixed", "fixed_log", "per_image"], default="fixed",
                     help="fixed = PART 1 recipe (default). See module docstring.")
-    ap.add_argument("--epochs", type=int, default=30,
-                    help="PART 1 used 60; 30 is ~2.5 h here. Loss plateaus well before.")
+    ap.add_argument("--epochs", type=int, default=60,
+                    help="60 = PART 1. Do not lower it without saying so in the paper.")
+    ap.add_argument("--iters_per_epoch", type=int, default=175,
+                    help="175 = PART 1 (700 synthetic images / batch 4). Keeping this "
+                         "fixed means 60x175 = 10,500 gradient steps, the IDENTICAL "
+                         "budget PART 1 gave the synthetic baseline. Pass 0 for a full "
+                         "pass over the 6620 training images (1655 steps/epoch, i.e. "
+                         "9.5x more training than PART 1 -- no longer a matched comparison).")
     ap.add_argument("--chunk", type=int, default=2, help="epochs per resumable chunk")
     ap.add_argument("--batch_size", type=int, default=4)
     ap.add_argument("--layers", type=int, default=3)
@@ -266,6 +300,10 @@ def main():
     print("  val images        : {}".format(len(val_idx)))
     print("  test images       : 109  (human expert labels)")
     print("  leaked images excluded from training: {}".format(len(d.leak_train_idx)))
+    _it = a.iters_per_epoch if a.iters_per_epoch > 0 else max(1, len(tr_idx) // a.batch_size)
+    print("  steps/epoch       : {}   x {} epochs = {:,} gradient steps".format(
+        _it, a.epochs, _it * a.epochs))
+    print("                      (PART 1 synthetic baseline got 175 x 60 = 10,500)")
 
     lo = hi = None
     if a.norm in ("fixed", "fixed_log"):
@@ -277,7 +315,7 @@ def main():
     val_p = LofarProvider(d.train_images, d.train_masks, val_idx, a.norm, lo, hi, shuffle=False)
     test_p = LofarProvider(d.test_images, d.test_masks, np.arange(109), a.norm, lo, hi, shuffle=False)
 
-    iters = max(1, len(tr_idx) // a.batch_size)
+    iters = a.iters_per_epoch if a.iters_per_epoch > 0 else max(1, len(tr_idx) // a.batch_size)
     prog = load_progress(out)
     best_dir = os.path.join(out, "best")
     ckpt_dir = os.path.join(out, "ckpt")
