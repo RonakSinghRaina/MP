@@ -67,8 +67,16 @@ def load_lofar(mmap: bool = True) -> Lofar:
     )
 
 
-def preprocess(img: np.ndarray) -> np.ndarray:
-    """Mesarcik et al. 2022 §4.2: clip to [|mu-sigma|, mu+4sigma], log, min-max to [0,1].
+def preprocess(img: np.ndarray, sigma_hi: float = 20.0) -> np.ndarray:
+    """Mesarcik et al. 2022 §4.2: clip to [|mu-sigma|, mu+20sigma], log, min-max to [0,1].
+
+    NOTE the upper bound. The paper uses a DIFFERENT clip for its two datasets:
+    HERA (§4.1) is mu+4sigma, LOFAR (§4.2) is mu+20sigma. This is LOFAR, so the
+    default is 20. Pass sigma_hi=4.0 to reproduce the HERA setting.
+
+    At 4 sigma, 17.77% of the human-labelled RFI pixels are pushed to the clip
+    ceiling and lose their brightness ordering; at 20 sigma only 2.38% are
+    (measured on the 109-image test set).
 
     Applied PER IMAGE -- the per-image clip bounds vary by ~490x across this
     dataset, so a single global scale does not work here (PART 11.8).
@@ -76,7 +84,7 @@ def preprocess(img: np.ndarray) -> np.ndarray:
     """
     x = np.asarray(img, dtype=np.float64)
     mu, sd = float(x.mean()), float(x.std())
-    lo, hi = abs(mu - sd), mu + 4.0 * sd
+    lo, hi = abs(mu - sd), mu + sigma_hi * sd
     lo = max(lo, 1e-6)
     if not np.isfinite(hi) or hi <= lo:
         return np.zeros_like(x, dtype=np.float32)

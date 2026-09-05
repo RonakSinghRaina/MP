@@ -1070,6 +1070,30 @@ trained on AOFlagger labels is fitting ~44 % label noise. That is the real
 reason no method in Table 2 exceeds F1 0.60, and it should be stated in the
 paper.
 
+### 11.6b Correction: the paper uses TWO different clip bounds
+
+Caught 2026-09-05 while checking §4.2 against §4.1. The preprocessing upper
+clip is **not the same for both datasets**:
+
+| dataset | paper section | clip |
+|---|---|---|
+| HERA (simulated) | §4.1 | `[\|mu-sigma\|, mu + 4 sigma]` |
+| **LOFAR (real)** | **§4.2** | **`[\|mu-sigma\|, mu + 20 sigma]`** |
+
+`lofar_data.preprocess()` originally used 4 sigma (the HERA value) and has been
+corrected to default to 20; pass `sigma_hi=4.0` for the HERA setting. Measured
+cost of getting this wrong, on the 109-image human-labelled test set:
+
+| clip | RFI pixels saturated at the ceiling | clean pixels saturated | mean AUROC |
+|---|---|---|---|
+| mu+4 sigma | 38,908 (**17.77 %**) | 5,353 (0.019 %) | 0.7654 |
+| mu+20 sigma | 5,203 (**2.38 %**) | 29 (0.000 %) | 0.7654 |
+
+So 4 sigma flattens the brightness ordering of nearly a fifth of all RFI
+pixels. AUROC is unchanged to four decimals because the saturated pixels stay
+above the clean population either way — but the information is gone, and any
+model that could use *how* bright a pixel is loses it. Use 20 for LOFAR.
+
 ### 11.7 Is the RFI actually faint? Yes — and it is bimodal
 
 Raw-amplitude comparison of flagged vs unflagged pixels:
@@ -1173,7 +1197,7 @@ from disk.
     from lofar_data import load_lofar, preprocess, batches
     d = load_lofar()          # 0.007 s, 28.7 MB RAM (measured)
     img = d.train_images[1]   # ~1 MB read
-    X = preprocess(img)       # per-image clip -> log -> min-max
+    X = preprocess(img)       # per-image clip(20 sigma) -> log -> min-max
 
 Measured: 28.7 MB resident after opening all four arrays, vs ~10 GB for
 `pickle.load`. `LOFAR_npy/` is gitignored (9.3 GB); regenerate it with the
