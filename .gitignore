@@ -93,3 +93,7 @@ LOFAR_npy/
 
 # tf_unet writes prediction PNGs during training
 prediction/
+
+# LOFAR run checkpoints (218 MB); metrics.json and progress.json are kept
+lofar_runs/*/ckpt/
+lofar_runs/*/best/

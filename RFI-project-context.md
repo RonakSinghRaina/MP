@@ -1,7 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
 Updated 2026-09-04. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04.
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
@@ -1364,6 +1364,108 @@ nothing else. PART 7's timing table is sound; it was simply taken on AC.
 
 ---
 
+## PART 12 — RESULT: tf_unet on real LOFAR data (2026-09-05)
+
+Four runs, all finished. Authors' unmodified tf_unet, layers 3,
+features_root 32, Adam @1e-3, batch 4, **fixed-range normalisation, NO class
+weights** — PART 1 run #4's method, held identical. Matched budget
+175 x 60 = 10,500 gradient steps. Trained on the 6621 clean images, tested on
+the **109 human-expert-labelled** baselines. Threshold selected on validation,
+applied to test. Raw metrics in `lofar_runs/*/eval_test/metrics.json`.
+
+| run | pooled F1 | prec | recall | max F1 | ROC | PR-AUC | thresh | best ep |
+|---|---|---|---|---|---|---|---|---|
+| matched seed 0 | 0.4363 | 0.3565 | 0.5619 | 0.4463 | 0.9348 | 0.4527 | 0.205 | 50 |
+| matched seed 1 | 0.4882 | 0.4311 | 0.5628 | 0.5438 | 0.9381 | 0.5215 | 0.501 | 58 |
+| matched seed 2 | 0.4443 | 0.3489 | 0.6118 | 0.4803 | 0.9438 | 0.4810 | 0.078 | 58 |
+| **matched mean** | **0.4563 ± 0.0279** | | | 0.4901 ± 0.0495 | 0.9389 ± 0.0045 | 0.4851 ± 0.0346 | | |
+| convergence ctrl (seed 0, 3.15x steps) | 0.4295 | 0.3512 | 0.5527 | 0.4697 | 0.9378 | 0.4773 | 0.377 | 18 |
+
+### 12.1 Where it lands
+
+| method | pooled F1 |
+|---|---|
+| sigma-clip baseline | 0.4103 |
+| **tf_unet (this work)** | **0.4563 ± 0.0279** |
+| AOFlagger (wrote the training labels) | 0.5698 |
+| U-Net (paper's) | 0.5876 |
+| RFI-Net (published best) | 0.5979 |
+
+It **did not collapse** — the real risk at 1:129 imbalance with no class
+weighting — and it beats the trivial baseline. But see 12.2.
+
+### 12.2 It does NOT significantly beat a three-line sigma-clip
+
+Gap over the sigma-clip baseline is **+0.046**, against a seed spread of
+**0.028**. Formally: t = 2.85 on 2 dof, which needs t > 4.30 for p < 0.05.
+**Not significant at N=3.** A 512x512x3-level U-Net with 500k parameters,
+trained for 10,500 steps, is not measurably better on this data than
+`pixel > mean + 2.5 sigma`.
+
+This is the honest headline and it must go in the paper as such. Running one
+seed and reporting 0.4882 (seed 1) would have overstated the result by 0.078 —
+nearly three times the gap being claimed.
+
+### 12.3 The training budget is NOT the limitation
+
+The convergence control gave seed 0 **3.15x more training** (33,100 steps vs
+10,500, full passes over all 6621 images). Result: pooled F1 **0.4363 ->
+0.4295** (-0.0068), max F1 0.4463 -> 0.4697 (+0.0234). Both changes are inside
+the seed standard deviation, and its best epoch was 18 of 20 — it had
+converged. So the matched-budget number is *not* an undertraining artefact.
+That referee question is closed with evidence.
+
+### 12.4 The real finding: ranking is excellent, the operating point is not
+
+**ROC AUC 0.9389 ± 0.0045** — remarkably stable across seeds (sd 0.0045, six
+times tighter than F1's 0.0279) — while F1 sits at 0.456. The model **ranks**
+RFI pixels very well and then cannot convert that into a good decision.
+
+The cause is prevalence: the test set is **0.77 % positive, 1 : 129**. At that
+imbalance, excellent ranking still yields poor precision at every threshold.
+PR-AUC 0.4851 is the honest summary, and it tracks F1, not ROC.
+
+Corroborating evidence — the validation-selected thresholds were **0.205,
+0.501, 0.078, 0.377**: wildly unstable across seeds, yet pooled F1 moved only
+0.05. The F1 surface is flat near its optimum, so the threshold is barely
+identifiable. Precision (0.349–0.431) is what limits the score; recall is
+consistently higher (0.553–0.612).
+
+**This is where a novel contribution would live** — not in another
+architecture tweak, but in fixing the decision rule: calibration, per-frequency
+or per-image adaptive thresholds, or a loss that optimises the operating point
+directly rather than cross-entropy.
+
+### 12.5 The synthetic-to-real gap, quantified
+
+Identical method, identical budget, only the dataset changes:
+
+| dataset | max F1 |
+|---|---|
+| synthetic 276x600 (PART 1 run #4) | **0.9317** |
+| real LOFAR | **0.4901 ± 0.0495** |
+| **drop** | **−0.4416** |
+
+The same code, the same hyperparameters, the same number of gradient steps,
+loses **0.44 F1** moving from our synthetic benchmark to real telescope data.
+That single number is the strongest result this project has, and it is a
+better paper than an architecture claim. It is explained by PART 11: labels
+that are ~44 % wrong (AOFlagger vs human), ~25 % of RFI carrying no per-pixel
+amplitude evidence, and 1:129 imbalance — none of which the synthetic
+generator reproduces.
+
+### 12.6 Consequences for outstanding items
+
+- **Item 5 (N=1) is vindicated, hard.** Seed spread on real data is 0.052 —
+  larger than most architectural effects this project has ever claimed
+  (strip conv +0.023, residual +0.002, ECA −0.005, all N=1 on synthetic).
+  Nothing should be claimed from a single run again.
+- **Item 6 (no real-data result) is now CLOSED.** This is that result.
+- **Item 4 (the benchmark is easy) is confirmed from the other side.** The
+  synthetic benchmark yields 0.93 where real data yields 0.46.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
@@ -1404,13 +1506,10 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
    blocking item for the efficiency finding** — base 16 vs base 32 (−0.0024) and
    base 8 vs base 32 (−0.0063) are both inside the one-seed noise floor, so the
    headline claim is unproven until seeds 0 and 1 are run.
-6. **No result on real telescope data with human labels yet** (PARTS 5, 10, 11).
-   LOFAR is now fully audited (PART 11). Ladder: beat F1 0.4127 (sigma-clip),
-   then 0.5698 (AOFlagger), then 0.5979 (RFI-Net, published best). Three
-   traps that will silently corrupt the result: the 109 test images are
-   duplicated inside the training set and must be dropped; the metric must be
-   a pooled pixel-wise F1, not a mean of per-image F1s (0.103 difference);
-   and normalisation must be per-image here, unlike the synthetic data.
+6. ~~**No result on real telescope data with human labels yet**~~ **CLOSED
+   2026-09-05 — see PART 12.** tf_unet scores 0.4563 ± 0.0279 pooled F1 on the
+   109 expert-labelled LOFAR baselines, below AOFlagger (0.5698) and not
+   significantly above the sigma-clip baseline (0.4103, t=2.85 on 2 dof).
 7. **The v4 bandpass formula is ours, not published** (PART 9). Two fixes
    needed: express the standing-wave period in MHz and quote the implied path
    length; and justify the analytic Tukey envelope against `hera_sim`'s measured
