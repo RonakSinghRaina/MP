@@ -21,7 +21,9 @@ WHY THE CLEAN SUBSET IS NOT OPTIONAL
 All 109 test images are byte-identical to 109 training images (PART 11.5).
 Training on the full 7500 means testing on images the model has already seen.
 This script therefore trains only on clean_train_idx, which excludes those 109
-plus 35 fully-flagged dead baselines.
+plus 35 fully-flagged dead baselines -- AND verifies it at startup. Before any
+training happens, every train and val image is fingerprinted against all 109
+test images and the run ABORTS if a single one matches. Costs ~2 s.
 
 NORMALISATION -- READ THIS BEFORE INTERPRETING THE RESULT
 ---------------------------------------------------------
@@ -136,6 +138,44 @@ class LofarProvider(image_util.BaseDataProvider):
         if self.norm == "fixed_log":
             d = np.log(np.maximum(d, 1e-6))
         return np.clip((d - self.lo) / (self.hi - self.lo), 0.0, 1.0).astype(np.float32)
+
+
+def assert_no_leakage(train_images, test_images, indices, label):
+    """Hard guard: no image the model trains on may equal a test image.
+
+    All 109 test spectrograms are byte-identical to 109 training spectrograms
+    (PART 11.5), so a wrong index file, a regenerated clean_train_idx, or an
+    edited split would silently contaminate the result. Relying on the index
+    file being correct is an assumption; this is a check.
+
+    Fast: a float64 sum is a near-unique fingerprint (1995 distinct values
+    among 2000 images), so it prefilters, and only collisions are compared
+    element-wise. ~2 s for the full training set.
+    """
+    t0 = time.time()
+    test_fp = {}
+    for t in range(test_images.shape[0]):
+        test_fp.setdefault(float(test_images[t, :, :, 0].sum(dtype=np.float64)), []).append(t)
+
+    leaked = []
+    for i in np.asarray(indices):
+        i = int(i)
+        f = float(train_images[i, :, :, 0].sum(dtype=np.float64))
+        for t in test_fp.get(f, ()):
+            if np.array_equal(train_images[i], test_images[t]):
+                leaked.append((i, t))
+                break
+
+    if leaked:
+        raise SystemExit(
+            "\nABORTED -- TEST SET LEAKAGE in the {} split.\n"
+            "{} image(s) are byte-identical to test images, e.g. {}\n"
+            "(train index -> test index). Training on these makes the reported\n"
+            "score meaningless. Use lofar_analysis/lofar_clean_train_idx.npy,\n"
+            "or regenerate it with lofar_analysis/deep_audit_stage4_labels.py.\n"
+            .format(label, len(leaked), leaked[:5]))
+    print("  leakage check     : {} clean, 0 of {} match any test image  ({:.1f}s)".format(
+        label, len(indices), time.time() - t0), flush=True)
 
 
 def calibrate(images, indices, norm, n=200, seed=0):
@@ -315,6 +355,9 @@ def main():
     print("  steps/epoch       : {}   x {} epochs = {:,} gradient steps".format(
         _it, a.epochs, _it * a.epochs))
     print("                      (PART 1 synthetic baseline got 175 x 60 = 10,500)")
+
+    assert_no_leakage(d.train_images, d.test_images, tr_idx, "train")
+    assert_no_leakage(d.train_images, d.test_images, val_idx, "val")
 
     lo = hi = None
     if a.norm in ("fixed", "fixed_log"):

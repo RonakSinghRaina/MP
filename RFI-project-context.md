@@ -1280,6 +1280,20 @@ bottleneck; the GPU sat at 100 % utilisation and 4.3 GB throughout.
 timing.** On AC at PART 7's 174 ms/step, the matched 10,500-step run is
 ~30 min. On battery it is ~8 h.
 
+### 11.11b The leakage guard is enforced at runtime, not assumed
+
+`lofar_tfunet_baseline.py` fingerprints every train and val image against all
+109 test images **before any training starts**, and aborts if one matches.
+Relying on `lofar_clean_train_idx.npy` being correct is an assumption; a
+regenerated or hand-edited index file would silently contaminate the result
+and nothing would look wrong.
+
+A float64 array sum is a near-unique fingerprint (1995 distinct values among
+2000 images), so it prefilters and only collisions are compared element-wise:
+**1.5 s for all 7356 images**. Verified both ways — a normal run reports
+`0 of 7209 match any test image`, and feeding it 50 clean images plus 3 known
+leaked ones aborts with the offending train->test index pairs listed.
+
 ### 11.12 RECOMMENDED PROTOCOL for the LOFAR tf_unet run (2026-09-05)
 
 Decided rather than deferred. `./run_lofar_baseline.sh` runs all of it.
