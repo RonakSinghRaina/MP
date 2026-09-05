@@ -1141,14 +1141,39 @@ A single fixed global scale would map the median image into a sliver at the
 bottom of the range — the global max is 6×10⁴ times the median image's own
 clip ceiling, and the global min is exactly 0 so a global log is undefined.
 
-**This inverts our PART 1 finding.** On the synthetic dataset, *fixed-range*
-normalisation was correct and per-image normalisation was one of the causes
-of the tf_unet baseline's failure. On LOFAR the opposite holds: the
-per-image dynamic range and per-image offsets vary so much that per-image
-clip+log+min-max is the only workable choice. Do not carry the synthetic
-conclusion over to this dataset without re-testing — and if the plan is to
-run the authors' U-Net "with fixed normalisation," expect that arm to fail
-badly here, and treat that failure as a *result* rather than a bug.
+> **CORRECTION (2026-09-05).** The paragraph that stood here claimed a single
+> global scale "would crush most images" and that per-image normalisation was
+> "the only workable choice" on LOFAR. **That was wrong, and it was reasoned
+> rather than measured.** The error: the argument ran from the global *max*
+> (1.4e11) and global *min* (0), but the fixed-range recipe calibrates from the
+> **0.5 / 99.5 percentiles**, which ignore outliers entirely, and then clips.
+> Measured over 200 clean training images, the calibrated range is
+> `[283922, 4.776e6]`, and the resulting images are healthy: per-image means
+> spread 0.096–0.607, standard deviations ~0.13, at most 13 % of pixels at the
+> floor and under 2 % at the ceiling. Nothing is crushed.
+>
+> Worse for the original claim, fixed range **separates RFI better** than the
+> per-image recipe. Median RFI-minus-clean separation in clean-sigma units over
+> 60 training images:
+>
+> | normalisation | separation |
+> |---|---|
+> | fixed range (global percentile clip + scale) | **1.322 sigma** |
+> | per-image (clip 20 sigma, log, min-max) | 0.718 sigma |
+>
+> The reason is that per-image min-max lets one bright RFI pixel stretch that
+> image's range and squash everything else, while a fixed physical scale keeps
+> every image comparable — which is exactly the PART 1 argument, and it appears
+> to hold on real data too.
+
+What *is* still true and still matters: the per-image clip bounds vary by 490x,
+the global minimum is exactly 0 so a global log is undefined without clipping
+first, and 4+ images are entirely zero. Those are facts about the data. The
+conclusion drawn from them was not.
+
+**So PART 1 is not inverted, and the fixed-norm arm is not expected to fail.**
+Run both arms and let the measurement decide -- `experiments/lofar_tfunet_baseline.py`
+takes `--norm fixed | fixed_log | per_image`.
 
 Guard needed: 4+ images are entirely zero, so `log` produces `-inf` and the
 min-max denominator is 0. Clamp the lower clip bound to a small positive
@@ -1157,7 +1182,8 @@ value and skip/zero-fill degenerate images.
 ### 11.9 Baselines on the 109-image human-labelled test set
 
 All numbers are global pixel-wise F1, so they are directly comparable to the
-paper's Table 2.
+paper's Table 2. Recomputed 2026-09-05 with the corrected 20-sigma clip
+(PART 11.6b); the earlier 4-sigma figures differed by at most 0.06.
 
 | method | F1 | precision | recall |
 |---|---|---|---|
@@ -1165,13 +1191,13 @@ paper's Table 2.
 | predict nothing is RFI | 0.0 | — | 0.0 (99.23 % accuracy) |
 | best global threshold, per-image normalised (**oracle**) | 0.3061 | 0.4212 | 0.2404 |
 | per-column MAD clip @2.0σ | 0.2017 | 0.1832 | 0.2243 |
-| per-image σ-clip @2.0σ | 0.2872 | 0.2477 | 0.3416 |
-| **per-image σ-clip @2.5σ (best simple baseline)** | **0.4127** | 0.6774 | 0.2968 |
-| per-image σ-clip @3.0σ | 0.3393 | 0.9017 | 0.2090 |
+| per-image σ-clip @2.0σ | 0.2918 | 0.2581 | 0.3357 |
+| **per-image σ-clip @2.5σ (best simple baseline)** | **0.4103** | 0.7016 | 0.2899 |
+| per-image σ-clip @3.0σ | 0.3953 | 0.9220 | 0.2516 |
 | AOFlagger (the training labeller) | 0.5698 | 0.5598 | 0.5802 |
 | *paper's best — RFI-Net* | *0.5979* | — | — |
 
-So the ladder to climb is: **beat 0.41** (a three-line σ-clip) to show the
+So the ladder to climb is: **beat 0.4103** (a three-line σ-clip) to show the
 model does anything; **beat 0.5698** to beat the classical flagger that
 produced its own training labels; **beat 0.5979** to beat the published
 state of the art.

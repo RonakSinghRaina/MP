@@ -90,3 +90,6 @@ pred/
 
 # LOFAR memory-mapped arrays (9.3 GB, regenerate with lofar_analysis/convert_pickle_to_memmap.py)
 LOFAR_npy/
+
+# tf_unet writes prediction PNGs during training
+prediction/
