@@ -11,10 +11,24 @@ directly comparable, and comparable to Mesarcik et al. Table 2:
   guard      : every train/val image is fingerprinted against all 109 test
                images before training starts; the run aborts if one matches
 
-ARCHITECTURE -- the synthetic-best configuration (PART 6)
----------------------------------------------------------
-  base 32, depth 4, dropout 0.2  ->  9,304,186 params, F1 0.9812 on synthetic
-  base 16 is the efficiency pick ->  2,342,474 params, F1 0.9788  (--base 16)
+ARCHITECTURE -- base 8, the project's own efficiency conclusion (PART 6)
+------------------------------------------------------------------------
+The width sweep on synthetic data:
+
+  base  4    152,582 params   F1 0.9547   -0.0265  <- genuinely breaks
+  base  8    593,842 params   F1 0.9749   -0.0063  <- DEFAULT here
+  base 16  2,342,474 params   F1 0.9788   -0.0024
+  base 32  9,304,186 params   F1 0.9812      --
+
+PART 6's conclusion is that roughly 8.7M of base 32's 9.3M parameters buy
+about half a percent of F1, and that the paper should be reframed around
+that. So base 8 is the default: 15.7x fewer parameters for -0.0063 F1, a gap
+inside the single-seed noise floor. base 4 is NOT viable -- the capacity floor
+sits between 152k and 594k parameters.
+
+Whether that efficiency finding *transfers to real data* is untested and is
+worth a table row on its own: run --base 8 and --base 32 and compare. Real
+LOFAR is a much harder task and may well have a different capacity floor.
 
 BUDGET -- matched to the hybrid's own synthetic run
 ---------------------------------------------------
@@ -44,16 +58,16 @@ CLASS WEIGHTS
 Unlike tf_unet (where weighting was lethal via the ReLU trap, PART 1), the
 hybrid is *designed* around weighted CE + Dice. Weights default to inverse
 frequency measured on the actual training split. On LOFAR that is roughly
-1:78, far more extreme than synthetic's ~1:6, so --class_weight_cap is
+1:65, far more extreme than synthetic's ~1:6, so --class_weight_cap is
 provided and --no_class_weight disables it entirely.
 
 USAGE
 -----
     ~/torch-env/bin/python experiments/lofar_hybrid.py
 
-    # efficiency variant
-    ~/torch-env/bin/python experiments/lofar_hybrid.py --base 16 \
-        --output_dir runs/lofar/hybrid_base16_seed0
+    # the published width, for the efficiency comparison
+    ~/torch-env/bin/python experiments/lofar_hybrid.py --base 32 \
+        --output_dir runs/lofar/hybrid_b32_fixed_seed0
 
 RESUMING
     Re-run the identical command; it reads progress.json and continues.
@@ -196,12 +210,17 @@ def best_threshold(yt2d, yp2d):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--base", type=int, default=32, help="32 = synthetic best; 16 = efficiency pick")
+    ap.add_argument("--base", type=int, default=8,
+                    help="8 = PART 6's efficiency pick (593,842 params) and the default. "
+                         "32 = the published width (9,304,186). 4 genuinely breaks -- "
+                         "PART 6 measured -0.0265 F1 there.")
     ap.add_argument("--depth", type=int, default=4)
     ap.add_argument("--dropout", type=float, default=0.2)
     ap.add_argument("--norm", choices=["fixed", "fixed_log", "per_image"], default="fixed")
     ap.add_argument("--learning_rate", type=float, default=1e-3)
-    ap.add_argument("--batch_size", type=int, default=1, help="1 = the synthetic run; 2 fits in 3.0 GB")
+    ap.add_argument("--batch_size", type=int, default=1,
+                    help="1 matches the synthetic run. Measured on the 6 GB card: "
+                         "base 8 fits batch 8 (2.9 GB); base 32 fits batch 2 (3.0 GB).")
     ap.add_argument("--total_epochs", type=int, default=40)
     ap.add_argument("--iters_per_epoch", type=int, default=700,
                     help="700x40 = 28,000 steps, identical to the synthetic run")
