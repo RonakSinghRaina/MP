@@ -56,7 +56,8 @@ stands — check the superseded list below first.
 | "9 hours to regenerate the dataset" | PART 7 history | **wrong**, corrected in PART 7 |
 | "per-image normalisation is mandatory on LOFAR" | 11.8 | **retracted 2026-09-05** — fixed range is fine and separates better |
 | clip at μ+4σ for LOFAR | 11.1–11.9 as first written | **wrong** — LOFAR is μ+20σ, 11.6b |
-| "tf_unet does not beat a σ-clip baseline" | 12.2 | **superseded 2026-09-06** — true at lr 1e-3 only, 12.8 |
+| "tf_unet does not beat a σ-clip baseline" | 12.2 | **superseded** — true at lr 1e-3 only, 12.8/12.10 |
+| "lr 1e-4 gains +0.094 F1" | 12.8 | **halved** — seed 0 only; 3-seed mean is +0.046 and not significant, 12.10 |
 | dataset mean RFI fraction 12.4% | PAPER_DIMENSIONS.md | **wrong** — 14.67% |
 | `unet_run_gpu/eval_test/metrics.json` | — | **mislabelled**, holds faircompare numbers |
 
@@ -75,7 +76,8 @@ are comparable to Mesarcik et al. Table 2.
 | constant threshold | synthetic | 0.7421 | item 4 |
 | σ-clip @2.5σ | **real** | 0.4103 | 11.9 |
 | tf_unet, lr 1e-3, matched budget, 3 seeds | **real** | 0.4901 ± 0.0495 | PART 12 |
-| **tf_unet, lr 1e-4, 150 ep (N=1 so far)** | **real** | **0.5640** | **12.8** |
+| **tf_unet, lr 1e-4, 150 ep, 3 seeds** | **real** | **0.5482 ± 0.0139** | **12.10** |
+| tf_unet, lr 1e-4, per-image norm | **real** | 0.3039 | 12.11 |
 | AOFlagger (wrote the training labels) | **real** | 0.5698 | 11.6 |
 | Mesarcik et al.'s U-Net, same architecture | **real** | 0.5876 ± 0.0031 | 12.7 |
 | RFI-Net, published best | **real** | 0.5979 | 12.7 |
@@ -1619,7 +1621,7 @@ This is a **different paper from Akeret et al. 2017**, which contributed the
 tf_unet architecture; the 2022 paper uses that architecture as one of its
 baselines, which is why its 0.5876 row is directly our model.
 
-### 12.8 The learning rate was the problem — CONFIRMED (2026-09-06)
+### 12.8 The learning rate was the problem (SEED 0 ONLY — see 12.10, effect halves at N=3)
 
 Prediction in 12.7 was that our 1e-3 learning rate, inherited from PART 1's
 *synthetic* recipe rather than from this paper, was producing a well-ranked
@@ -1670,12 +1672,77 @@ sigma-clip" was true *at lr 1e-3*. At lr 1e-4, pooled F1 0.5303 vs 0.4103 is a
 and it must be re-stated once seeds 1 and 2 are in. **12.2 must not be quoted
 without this correction.**
 
-**Still N=1.** Seeds 1 and 2 at lr 1e-4 are required before any of this goes
-in the paper. ~1.3 h each on AC:
+**Still N=1 — AND THIS SECTION IS SUPERSEDED BY 12.10.** Seeds 1 and 2 have
+since run and the three-seed mean gain is **+0.046, not +0.094**; seed 0 was
+the lucky draw and the effect is not significant at N=3. Never quote 12.8's
+numbers without 12.10. Original next-step note follows:
 
     ~/tf-env/bin/python experiments/lofar_tfunet_baseline.py \
         --lr 1e-4 --epochs 150 --seed 1 --output_dir lofar_runs/lr1e-4_seed1
 
+
+### 12.10 lr 1e-4 at three seeds — the effect is real but NOT significant (2026-09-06)
+
+Seeds 1 and 2 completed. **12.8 was written from seed 0 alone and overstated
+the effect by roughly a factor of two.**
+
+| metric | lr 1e-3 (3 seeds) | lr 1e-4 (3 seeds) | mean diff |
+|---|---|---|---|
+| pooled F1 | 0.4563 ± 0.0279 | **0.5021 ± 0.0259** | +0.0458 |
+| max F1 | 0.4901 ± 0.0495 | **0.5482 ± 0.0139** | +0.0581 |
+| ROC AUC | 0.9389 ± 0.0045 | 0.9470 ± 0.0074 | +0.0081 |
+| PR-AUC | 0.4851 ± 0.0346 | 0.5562 ± 0.0152 | +0.0711 |
+
+Paired by seed (same initialisation, same shuffle):
+
+| seed | lr 1e-3 pooled | lr 1e-4 pooled | diff |
+|---|---|---|---|
+| 0 | 0.4363 | 0.5303 | **+0.0940** |
+| 1 | 0.4882 | 0.4794 | **−0.0088** |
+| 2 | 0.4443 | 0.4966 | +0.0523 |
+
+**Seed 1 got slightly WORSE.** Paired t = 1.54 on 2 dof for pooled F1 (needs
+4.30), t = 1.62 for max F1. **Not significant at N=3.**
+
+So the honest statement is: *lr 1e-4 raises the mean by ~0.046 F1 and more than
+halves the seed spread on max F1 (0.0495 → 0.0139), but with three seeds we
+cannot rule out chance.* It should be presented as the better default with that
+caveat, not as a demonstrated improvement.
+
+**This is the second time in two days that a single seed misled us**, and the
+first time it misled *me* after I had already written the N=1 warning. 12.8
+reported +0.094 from seed 0; the three-seed mean is +0.046. Seed 0 was the
+lucky draw. **12.8 must always be read together with this section.**
+
+One thing that *is* clean: lr 1e-4 cut the max-F1 seed spread from 0.0495 to
+0.0139, a 3.6x reduction. More reproducible, even where not more accurate.
+
+### 12.11 Per-image normalisation is catastrophically worse HERE (2026-09-06)
+
+Tested the last remaining difference against Mesarcik et al.: their per-image
+clip→log→min-max, at lr 1e-4, seed 0.
+
+| normalisation | pooled F1 | max F1 | ROC |
+|---|---|---|---|
+| **fixed range** (3 seeds) | **0.5021 ± 0.0259** | 0.5482 | 0.9470 |
+| per-image (1 seed) | **0.2456** | 0.3039 | 0.8527 |
+| difference | **−0.2565** | −0.244 | −0.094 |
+
+−0.2565 is **9.9 seed standard deviations**. Not noise at any N.
+
+This settles PART 11.8 in the opposite direction to the claim originally made
+there: on full 512×512 LOFAR images, fixed-range normalisation is not merely
+acceptable, it is **decisively better**, and per-image normalisation destroys
+the model.
+
+**Why it works for them and not for us — hypothesis, untested.** They normalise
+**32×32 patches**, we normalise **512×512 images**. Per-image min-max is set by
+that image's extremes, so on a full image one bright RFI streak compresses
+everything else into a sliver, while across a 32×32 patch the statistics are
+locally uniform and the same operation behaves like a sensible local contrast
+normalisation. If so, their normalisation choice is inseparable from their patch
+choice and cannot be transplanted alone — which is exactly what we just
+demonstrated by trying. **Testing 32×32 patches is the way to check this.**
 
 ### 12.9 Consequences for outstanding items
 
