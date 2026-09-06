@@ -1,10 +1,52 @@
 # Project Context: RFI Detection — Baseline vs. Hybrid U-Net
 
 This file is read automatically by Claude Code at the start of every session
-in this folder. It exists so a fresh session does not repeat mistakes that
-already cost real debugging time. Read `RFI_Project_Model_Comparison.md` in
-this same folder for full model results and file locations — this file is
-about *environment, hardware, and precautions*, not results.
+in this folder.
+
+---
+
+## 0. RULES — these come before everything else
+
+**0.1 — Read `RFI-project-context.md` before answering anything about this
+project.** It is the authoritative record: 13 parts, every dataset audit,
+every model result, and an explicit list of superseded claims. It is kept
+current and committed. This file (`CLAUDE.md`) covers environment and
+hardware only. Do not answer a question about results, datasets, parameters
+or next steps without reading it first — several claims in the older parts
+have been retracted, and answering from memory reproduces retracted claims.
+
+**0.2 — Every number must come from a measurement made in this session or
+recorded in `RFI-project-context.md`. Never estimate, never round from
+memory, never invent.** If a number is not to hand, compute it — read the
+`metrics.json`, run the script, measure the timing — and say where it came
+from. If it genuinely cannot be computed, say so plainly rather than
+producing a plausible figure.
+
+This rule exists because it has already gone wrong three times here:
+a preprocessing clip bound quoted from the wrong section of a paper
+(PART 11.6b), a normalisation claim reasoned from global min/max instead of
+measured (PART 11.8), and a learning-rate gain reported from a single seed
+that halved when two more were run (PART 12.10). Each was caught only by
+measuring. Guessing costs more time than checking.
+
+**Corollary:** when reporting a result, give the spread as well as the mean.
+The real-data seed spread here is 0.052, larger than most architectural
+effects this project has ever claimed. A single run is not a result.
+
+---
+
+## ⚠ STALENESS WARNING (2026-09-06)
+
+**Sections 1–2 below describe Windows 11 + WSL2. That is out of date.** The
+project migrated to **Fedora 44** on 2026-08-29 — see PART 7 of
+`RFI-project-context.md` for the current environment: the `~/torch-env` and
+`~/tf-env` virtualenvs, the `LD_LIBRARY_PATH` incantation TensorFlow needs,
+the kernel that must be booted, and the GPU state. The hardware facts (RTX
+3060, 6 GB) still hold, but treat the OS-specific instructions below as
+history until this file is rewritten.
+
+Also note the repository was reorganised on 2026-09-06; paths named in this
+file may have moved. `RFI-project-context.md` has the current tree.
 
 ---
 
