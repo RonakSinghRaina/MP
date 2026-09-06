@@ -11,7 +11,7 @@ show() {
 
   # --- running processes -----------------------------------------------
   local procs
-  procs=$(pgrep -af "tf-env/bin/python .*lofar_tfunet_baseline" 2>/dev/null | grep -v " grep " || true)
+  procs=$(pgrep -af "bin/python .*(lofar_tfunet_baseline|lofar_hybrid)" 2>/dev/null | grep -v "bash -c" || true)
   if [ -z "$procs" ]; then
     echo "  no training process running"
   else
@@ -20,6 +20,8 @@ show() {
       et=$(ps -o etime= -p "$pid" | tr -d ' ')
       cpu=$(ps -o %cpu= -p "$pid" | tr -d ' ')
       out=$(echo "$rest" | grep -o '[-][-]output_dir [^ ]*' | awk '{print $2}')
+      [ -n "$out" ] && [ -f "$out/progress.json" ] && \
+        out="$out  ($(python3 -c "import json;d=json.load(open('$out/progress.json'));print(f\"epoch {d['epochs_completed']}, best {d['best_f1']:.4f}\")" 2>/dev/null))" 
       echo "  RUNNING pid $pid   elapsed $et   cpu ${cpu}%"
       echo "          $out"
     done
