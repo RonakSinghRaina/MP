@@ -1,7 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
 Updated 2026-09-06. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; repository reorganised 2026-09-06.
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; PART 13 added 2026-09-06; repository reorganised 2026-09-06.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
@@ -137,6 +137,7 @@ are comparable to Mesarcik et al. Table 2.
 | σ-clip @2.5σ | **real** | 0.4103 | 11.9 |
 | tf_unet, lr 1e-3, matched budget, 3 seeds | **real** | 0.4901 ± 0.0495 | PART 12 |
 | **tf_unet, lr 1e-4, 150 ep, 3 seeds** | **real** | **0.5482 ± 0.0139** | **12.10** |
+| **hybrid base 8 (593,842 params), N=1** | **real** | **0.6439** | **PART 13** |
 | tf_unet, lr 1e-4, per-image norm | **real** | 0.3039 | 12.11 |
 | AOFlagger (wrote the training labels) | **real** | 0.5698 | 11.6 |
 | Mesarcik et al.'s U-Net, same architecture | **real** | 0.5876 ± 0.0031 | 12.7 |
@@ -1859,6 +1860,95 @@ output pixels**; matching that at 64x64/batch 32 needs **1,269,115 steps**
 - **Item 6 (no real-data result) is now CLOSED.** This is that result.
 - **Item 4 (the benchmark is easy) is confirmed from the other side.** The
   synthetic benchmark yields 0.93 where real data yields 0.46.
+
+---
+
+## PART 13 — HybridRFINet on real LOFAR: beats the published best (N=1, 2026-09-06)
+
+`experiments/lofar_hybrid.py`, seed 0, base 8 (**593,842 parameters**), fixed
+normalisation, CE+Dice with measured class weights, Adam 1e-3, batch 1,
+700 x 40 = 28,000 gradient steps — the hybrid's own synthetic budget. Trained
+on the 6621 clean images, tested on the 109 expert-labelled ones, threshold
+selected on validation. Raw metrics in
+`runs/lofar/hybrid_b08_fixed_seed0/eval_test/metrics.json`.
+
+### 13.1 The numbers
+
+| metric | value |
+|---|---|
+| **max F1 (oracle — the paper's protocol)** | **0.6439** |
+| pooled F1, 472 crop (like-for-like vs tf_unet) | **0.6377** |
+| pooled F1, full 512x512 | 0.6237 |
+| precision / recall | 0.5686 / 0.6907 |
+| **ROC AUC** | **0.9827** |
+| PR-AUC | 0.6667 |
+| best epoch | 30 of 40 |
+| threshold chosen on validation | 0.9455 |
+
+### 13.2 Where that puts it
+
+| method | max F1 | params |
+|---|---|---|
+| sigma-clip baseline | 0.4103 | — |
+| tf_unet @ lr 1e-4 (3 seeds) | 0.5482 ± 0.0139 | ~500k |
+| AOFlagger | 0.5698 | — |
+| paper's U-Net | 0.5876 ± 0.0031 | — |
+| RFI-Net (published best) | 0.5979 | millions |
+| **hybrid base 8 (N=1)** | **0.6439** | **593,842** |
+
+- **+0.046 over RFI-Net**, the best number in Mesarcik et al. Table 2.
+- **+0.096 over our own tf_unet** — 6.9 tf_unet seed standard deviations.
+- On pooled F1 (the honest, validation-thresholded number): **0.6377 vs
+  0.5021 ± 0.0259 = +0.136, or 5.2 seed sd.**
+
+### 13.3 The striking part is the ranking
+
+| | ROC AUC |
+|---|---|
+| paper's U-Net | 0.8017 ± 0.0058 |
+| NLN (the paper's own best AUROC) | 0.8622 ± 0.0006 |
+| our tf_unet | 0.9470 ± 0.0074 |
+| **our hybrid base 8** | **0.9827** |
+
+**+0.181 over the published U-Net and +0.121 over NLN.** The model separates
+RFI from clean almost perfectly.
+
+But note the asymmetry: ROC gained **+0.181** over the published U-Net while
+F1 gained only **+0.056**. PART 12.4's finding survives — ranking is excellent,
+the operating point is not. Even at the *oracle* threshold, F1 caps at 0.644
+against a ROC of 0.983. At 1:129 prevalence with ~44% wrong training labels,
+that ceiling is set by the task, not the model. **The remaining headroom is in
+the decision rule, not in ranking.**
+
+### 13.4 It beat its own teacher
+
+Every training label came from AOFlagger, which scores **0.5698** against the
+human expert. The model trained on those labels scores **0.6439** against the
+same human expert — **+0.074 better than the labels it learned from.** It did
+not merely reproduce AOFlagger; it generalised past its teacher's errors.
+
+### 13.5 THREE CAVEATS — do not quote 13.1 without them
+
+1. **N = 1.** This project's own real-data seed spread is 0.052 (PART 12.10),
+   and the margin over RFI-Net is +0.046 — *smaller than that spread*. Seeds 1
+   and 2 are mandatory before this appears anywhere. A single run is not a
+   result; that lesson has already been learned twice here (12.8 → 12.10).
+2. **This is not a clean architecture comparison.** The hybrid ran with
+   CE + Dice and a 56.9x class weight; tf_unet ran with plain cross-entropy and
+   no class weighting (because PART 1 measured weighting as lethal there). So
+   the +0.096 confounds **architecture + loss + class weighting**. Isolating
+   the architecture needs either the hybrid without class weights or tf_unet
+   with CE+Dice.
+3. **The model is badly calibrated.** The validation-selected threshold is
+   **0.9455**, not near 0.5 — a direct consequence of the 56.9x weight pushing
+   outputs up. Ranking is unaffected (ROC 0.9827), but any claim about
+   probabilities would be wrong, and it is why pooled F1 (0.6377) sits below
+   oracle max F1 (0.6439).
+
+### 13.6 Next
+
+`./scripts/run_lofar_hybrid.sh` runs seeds 1 and 2, then base 32, then the
+per-image arm. ~2 h. Seed 0 is already done and will be skipped.
 
 ---
 
