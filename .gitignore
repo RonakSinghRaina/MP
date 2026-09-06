@@ -1,56 +1,46 @@
-# ---------------------------------------------------------------------------
-# Datasets (large, and fully regenerable from the seeded generator)
-#   python3 hybrid_rfi_package/dataset_generator_v3_strength.py \
-#       --n_images 1000 --n_freq 276 --n_time 600 --seed 42 \
-#       --output_dir "Synthetic Dataset 276x600"
-# ---------------------------------------------------------------------------
-Synthetic Dataset/
-Synthetic Dataset 276x600/
-hera_transfer_test/HERA_npy/
-*.pkl
+# =============================================================================
+# .gitignore — rewritten 2026-09-06 for the reorganised layout.
+#
+# LESSON ENCODED HERE: the previous file used unanchored directory rules like
+# `unet_run_fixednorm/`, which match at ANY depth. After the reorganisation
+# those silently swallowed the tracked metrics.json / training_log.csv files
+# that had moved to runs/unet/unet_run_fixednorm/. Rules that mean "at the
+# repo root" are now anchored with a leading slash. Also note git cannot
+# re-include a file whose parent directory is excluded, so directories that
+# contain anything worth tracking are never excluded wholesale — the heavy
+# file TYPES are excluded instead.
+# =============================================================================
 
-# ---------------------------------------------------------------------------
-# Training run outputs & Checkpoints (>100MB rejected by GitHub)
-# ---------------------------------------------------------------------------
+# --- datasets and derived arrays: never in git -------------------------------
+data/
+
+# --- model weights and framework checkpoints, at any depth -------------------
+*.pkl
 *.pt
 *.pth
 *.h5
 *.ckpt
+model.ckpt.*
+events.out.tfevents.*
+**/checkpoint
 
-unet_run/
-unet_run_gpu/
-unet_run_faircompare/
-unet_run_paperdim/
-hybrid_run/
-hybrid_run_paperdim/
-unet_run_control_per_image/
-unet_run_control_per_image_cw/
-unet_run_fixednorm/
-hera_transfer_test/runs/
+# --- heavy run artefacts (the small metrics/logs beside them stay tracked) ---
+runs/**/checkpoints/
+runs/**/predictions/
+runs/lofar/*/ckpt/
+runs/lofar/*/best/
+runs/prediction/
+/prediction/
+pred/
 
-# ...but keep the small, human-readable evidence files from any run directory.
-# NOTE: these ! lines DO NOT WORK on their own. Git cannot re-include a file
-# whose parent directory is excluded above, so the evidence files inside the
-# ignored run dirs had to be force-added (`git add -f`). Once tracked they stay
-# tracked. Any NEW ignored run dir needs the same treatment.
-!*/training_log.csv
-!*/progress.json
-!*/run_config.json
-!*/eval_*/metrics.json
-!*/eval_*/per_image_metrics.csv
-!hera_transfer_test/results/
-
-# Results written by experiments/
-!results/
+# --- large generated image sets ----------------------------------------------
+docs/preview/
 results/*.npy
 
-# Preview images & temporary transcripts
-preview/
-video_transcript_*.txt
+# --- analysis working data ---------------------------------------------------
+analysis/hera_transfer_test/HERA_npy/
 
-# ---------------------------------------------------------------------------
-# Python
-# ---------------------------------------------------------------------------
+# --- python / editor / os ----------------------------------------------------
 __pycache__/
 *.pyc
 *.pyo
@@ -58,42 +48,13 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
-
-# ---------------------------------------------------------------------------
-# Editor / OS -- machine-local settings do not belong in a shared repository
-# ---------------------------------------------------------------------------
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# ---------------------------------------------------------------------------
-# Copyrighted PDFs
-# ---------------------------------------------------------------------------
+# --- copyrighted PDFs --------------------------------------------------------
 RFI_Using_UNET.pdf
 
-# ---------------------------------------------------------------------------
-# Dataset v4, 1024x265 with instrument bandpass (1.9 GB, regenerable):
-#   python3 dataset_v4_bandpass/generate_dataset_v4.py   (seed 42)
-# ---------------------------------------------------------------------------
-Synthetic Dataset 1024x265/
-
-# TF checkpoints and TensorBoard event files from ANY run directory.
-# The small human-readable evidence (metrics.json / progress.json /
-# run_config.json / training_log.csv) is committed; these are not.
-model.ckpt.*
-events.out.tfevents.*
-**/checkpoint
-
-# tf_unet writes prediction preview JPEGs for the first few epochs only (~5 MB).
-pred/
-
-# LOFAR memory-mapped arrays (9.3 GB, regenerate with lofar_analysis/convert_pickle_to_memmap.py)
-LOFAR_npy/
-
-# tf_unet writes prediction PNGs during training
-prediction/
-
-# LOFAR run checkpoints (218 MB); metrics.json and progress.json are kept
-lofar_runs/*/ckpt/
-lofar_runs/*/best/
+# --- misc --------------------------------------------------------------------
+video_transcript_*.txt

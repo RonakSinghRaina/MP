@@ -26,7 +26,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                 "..", "hybrid_rfi_package")))
+                                                 "..", "src", "hybrid_rfi_package")))
 from hybrid_model import HybridRFINet, ResBlock, MultiScaleStrip, ECA, count_parameters  # noqa: E402
 
 

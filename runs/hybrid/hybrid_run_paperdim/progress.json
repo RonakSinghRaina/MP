@@ -1,0 +1,6 @@
+{
+  "epochs_completed": 22,
+  "best_f1": 0.9801654231235143,
+  "best_epoch": 22,
+  "best_threshold": 0.6112715601921082
+}

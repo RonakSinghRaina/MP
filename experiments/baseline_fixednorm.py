@@ -42,7 +42,7 @@ tf1.disable_v2_behavior()
 sys.modules["tensorflow"] = tf1
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", "unet_rfi_package copy", "tf_unet"))
+sys.path.insert(0, os.path.join(_HERE, "..", "src", "unet_rfi_package copy", "tf_unet"))
 from tf_unet import unet, util, image_util          # authors' unmodified code
 from sklearn.metrics import roc_curve, auc, precision_recall_curve
 
@@ -176,8 +176,8 @@ def save_progress(d, prog):
 # ---------------------------------------------------------------------------
 def main():
     p = argparse.ArgumentParser(description="tf_unet baseline with fixed-range normalisation (resumable)")
-    p.add_argument("--dataset_dir", default=os.path.join(_HERE, "..", "Synthetic Dataset 276x600"))
-    p.add_argument("--output_dir",  default=os.path.join(_HERE, "..", "unet_run_fixednorm"))
+    p.add_argument("--dataset_dir", default=os.path.join(_HERE, "..", "data", "synthetic", "Synthetic Dataset 276x600"))
+    p.add_argument("--output_dir",  default=os.path.join(_HERE, "..", "runs", "unet", "unet_run_fixednorm"))
     p.add_argument("--features_root", type=int, default=32, help="32 = what the project used; 64 = the paper's")
     p.add_argument("--layers", type=int, default=3)
     p.add_argument("--batch_size", type=int, default=4, help="raise if VRAM allows")

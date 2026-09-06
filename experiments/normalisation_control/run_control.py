@@ -60,7 +60,7 @@ sys.modules["tensorflow"] = tf1
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.normpath(os.path.join(_HERE, "..", ".."))
-sys.path.insert(0, os.path.join(_ROOT, "unet_rfi_package copy", "tf_unet"))
+sys.path.insert(0, os.path.join(_ROOT, "src", "unet_rfi_package copy", "tf_unet"))
 from tf_unet import unet, util, image_util          # authors' unmodified code
 from sklearn.metrics import roc_curve, auc, precision_recall_curve
 
@@ -178,7 +178,7 @@ def main():
     p = argparse.ArgumentParser(description="Control experiment: isolate the effect of normalisation")
     p.add_argument("--norm", choices=["fixed", "per_image"], required=True,
                    help="THE VARIABLE UNDER TEST. Everything else is held constant.")
-    p.add_argument("--dataset_dir", default=os.path.join(_ROOT, "Synthetic Dataset 276x600"))
+    p.add_argument("--dataset_dir", default=os.path.join(_ROOT, "data", "synthetic", "Synthetic Dataset 276x600"))
     p.add_argument("--output_dir", default=None, help="default: <root>/unet_run_control_<norm>")
     p.add_argument("--features_root", type=int, default=32)
     p.add_argument("--layers", type=int, default=3)
@@ -193,7 +193,7 @@ def main():
     p.add_argument("--fresh", action="store_true")
     a = p.parse_args()
     if a.output_dir is None:
-        a.output_dir = os.path.join(_ROOT, "unet_run_control_" + a.norm +
+        a.output_dir = os.path.join(_ROOT, "runs", "unet", "unet_run_control_" + a.norm +
                                     ("_cw" if a.class_weights == "on" else ""))
 
     tr_i = os.path.join(a.dataset_dir, "train", "images")

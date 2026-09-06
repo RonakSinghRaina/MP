@@ -137,7 +137,7 @@ def run(name, fn, ds, n_val):
 def main():
     p = argparse.ArgumentParser(description="No-learning RFI-flagging baselines")
     _here = os.path.dirname(os.path.abspath(__file__))
-    p.add_argument("--dataset_dir", default=os.path.normpath(os.path.join(_here, "..", "Synthetic Dataset 276x600")))
+    p.add_argument("--dataset_dir", default=os.path.normpath(os.path.join(_here, "..", "data", "synthetic", "Synthetic Dataset 276x600")))
     p.add_argument("--n_val", type=int, default=60, help="val images used to pick the threshold")
     p.add_argument("--methods", nargs="*", default=list(METHODS), choices=list(METHODS))
     p.add_argument("--out", default=None)

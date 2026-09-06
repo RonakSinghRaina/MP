@@ -47,7 +47,7 @@ from sklearn.metrics import (roc_curve, auc, precision_recall_curve,
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
-sys.path.insert(0, os.path.normpath(os.path.join(_HERE, "..", "hybrid_rfi_package")))
+sys.path.insert(0, os.path.normpath(os.path.join(_HERE, "..", "src", "hybrid_rfi_package")))
 
 from train_hybrid import RFIPatchDataset, CEDiceLoss          # noqa: E402  the project's own code
 from hybrid_model import count_parameters                      # noqa: E402
@@ -182,7 +182,7 @@ def train_one(name, a, loaders, cw, seed, device, strength=None):
 
 def main():
     p = argparse.ArgumentParser(description="Matched-budget architecture ablation")
-    p.add_argument("--dataset_dir", default=os.path.normpath(os.path.join(_HERE, "..", "Synthetic Dataset 276x600")))
+    p.add_argument("--dataset_dir", default=os.path.normpath(os.path.join(_HERE, "..", "data", "synthetic", "Synthetic Dataset 276x600")))
     p.add_argument("--out", default=os.path.join(_HERE, "..", "results", "ablation.json"))
     p.add_argument("--variants", nargs="*", default=ALL_NAMES, choices=ALL_NAMES)
     p.add_argument("--seeds", type=int, nargs="*", default=[42],

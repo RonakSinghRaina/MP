@@ -34,7 +34,7 @@ BUCKETS = [(0.0, 0.5), (0.5, 1.0), (1.0, 2.0), (2.0, 4.0), (4.0, 8.0), (8.0, np.
 def main():
     p = argparse.ArgumentParser(description="Measure intrinsic difficulty of the synthetic benchmark")
     _here = os.path.dirname(os.path.abspath(__file__))
-    p.add_argument("--dataset_dir", default=os.path.normpath(os.path.join(_here, "..", "Synthetic Dataset 276x600")))
+    p.add_argument("--dataset_dir", default=os.path.normpath(os.path.join(_here, "..", "data", "synthetic", "Synthetic Dataset 276x600")))
     p.add_argument("--split", default="test")
     p.add_argument("--out", default=None, help="optional JSON output path")
     args = p.parse_args()

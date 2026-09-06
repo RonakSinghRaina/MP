@@ -1,6 +1,6 @@
 """Low-RAM access to the LOFAR dataset.
 
-The 9.3 GB pickle is converted once by lofar_analysis/convert_pickle_to_memmap.py
+The 9.3 GB pickle is converted once by analysis/lofar_analysis/convert_pickle_to_memmap.py
 into LOFAR_npy/*.npy. This module memory-maps those files: indexing works exactly
 like a normal numpy array, but only the slice you touch is read from disk, so RAM
 stays at a few MB instead of 10 GB.
@@ -22,8 +22,8 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parent
-NPY = ROOT / "LOFAR_npy"
-IDX = ROOT / "lofar_analysis"
+NPY = ROOT / "data" / "lofar" / "LOFAR_npy"
+IDX = ROOT / "analysis" / "lofar_analysis"
 
 
 @dataclass
@@ -54,7 +54,7 @@ def load_lofar(mmap: bool = True) -> Lofar:
     """Open the dataset. With mmap=True (default) almost no RAM is used."""
     if not NPY.exists():
         raise FileNotFoundError(
-            f"{NPY} not found. Run lofar_analysis/convert_pickle_to_memmap.py once first."
+            f"{NPY} not found. Run analysis/lofar_analysis/convert_pickle_to_memmap.py once first."
         )
     mode = "r" if mmap else None
     return Lofar(

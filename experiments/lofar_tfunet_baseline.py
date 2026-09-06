@@ -100,7 +100,7 @@ sys.modules["tensorflow"] = tf1
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.abspath(os.path.join(_HERE, ".."))
-sys.path.insert(0, os.path.join(_ROOT, "unet_rfi_package copy", "tf_unet"))
+sys.path.insert(0, os.path.join(_ROOT, "src", "unet_rfi_package copy", "tf_unet"))
 sys.path.insert(0, _ROOT)
 
 from tf_unet import unet, util, image_util        # authors' unmodified code
@@ -183,8 +183,8 @@ def assert_no_leakage(train_images, test_images, indices, label):
             "\nABORTED -- TEST SET LEAKAGE in the {} split.\n"
             "{} image(s) are byte-identical to test images, e.g. {}\n"
             "(train index -> test index). Training on these makes the reported\n"
-            "score meaningless. Use lofar_analysis/lofar_clean_train_idx.npy,\n"
-            "or regenerate it with lofar_analysis/deep_audit_stage4_labels.py.\n"
+            "score meaningless. Use analysis/analysis/lofar_analysis/lofar_clean_train_idx.npy,\n"
+            "or regenerate it with analysis/analysis/lofar_analysis/deep_audit_stage4_labels.py.\n"
             .format(label, len(leaked), leaked[:5]))
     print("  leakage check     : {} clean, 0 of {} match any test image  ({:.1f}s)".format(
         label, len(indices), time.time() - t0), flush=True)
@@ -350,7 +350,7 @@ def main():
     ap.add_argument("--output_dir", default=None)
     a = ap.parse_args()
 
-    out = a.output_dir or os.path.join(_ROOT, "lofar_runs", "tfunet_{}_ncw".format(a.norm))
+    out = a.output_dir or os.path.join(_ROOT, "runs", "lofar", "tfunet_{}_ncw".format(a.norm))
     os.makedirs(out, exist_ok=True)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 

@@ -101,7 +101,7 @@ from sklearn.metrics import (roc_curve, auc, precision_recall_curve,
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.normpath(os.path.join(_HERE, "..", ".."))
-sys.path.insert(0, os.path.join(_ROOT, "hybrid_rfi_package"))
+sys.path.insert(0, os.path.join(_ROOT, "src", "hybrid_rfi_package"))
 
 from hybrid_model import HybridRFINet, count_parameters          # noqa: E402
 from train_hybrid import RFIPatchDataset, CEDiceLoss             # noqa: E402  project's own code
@@ -323,8 +323,8 @@ def train_one_width(base, a, cw, device):
 
 def main():
     p = argparse.ArgumentParser(description="Accuracy vs parameter-count sweep for HybridRFINet")
-    p.add_argument("--dataset_dir", default=os.path.join(_ROOT, "Synthetic Dataset 276x600"))
-    p.add_argument("--out_root", default=os.path.join(_ROOT, "hybrid_run_width_sweep"))
+    p.add_argument("--dataset_dir", default=os.path.join(_ROOT, "data", "synthetic", "Synthetic Dataset 276x600"))
+    p.add_argument("--out_root", default=os.path.join(_ROOT, "runs", "hybrid", "hybrid_run_width_sweep"))
     p.add_argument("--base", type=int, nargs="+", default=[8, 16, 32],
                    help="widths to try. 32 is the published model and acts as the control.")
     p.add_argument("--depth", type=int, default=4)
@@ -353,7 +353,7 @@ def main():
     # seed written into the same --out_root would find the first seed's
     # metrics.json, skip the width, and silently report the OLD seed's numbers
     # as if they were the new seed's. Refuse that outright.
-    _default_root = os.path.join(_ROOT, "hybrid_run_width_sweep")
+    _default_root = os.path.join(_ROOT, "runs", "hybrid", "hybrid_run_width_sweep")
     if a.seed != 42 and os.path.abspath(a.out_root) == os.path.abspath(_default_root):
         raise SystemExit(
             "ERROR: seed {} would be written into the seed-42 folder.\n"
