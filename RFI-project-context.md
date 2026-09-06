@@ -1,7 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
 Updated 2026-09-04. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05.
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
@@ -1124,10 +1124,10 @@ amplitude signal and ~44 % of the labels are themselves wrong. That is the
 concrete, quantified statement of why real data is harder — better than
 hand-waving about "complexity."
 
-### 11.8 Normalisation: per-image is effectively mandatory here
+### 11.8 Normalisation: fixed range works here (an earlier claim RETRACTED)
 
-The paper's pipeline is: clip to `[|μ−σ|, μ+4σ]` → natural log → min-max to
-[0,1], **computed per image**.
+The paper's pipeline is: clip to `[|μ−σ|, μ+20σ]` (20, not 4 — see 11.6b)
+→ natural log → min-max to [0,1], **computed per image**.
 
 | quantity | value |
 |---|---|
@@ -1344,7 +1344,32 @@ features_root 32 — identical to the PART 7 figure, GPU at 1672 MHz / 94 W /
 nothing else. PART 7's timing table is sound; it was simply taken on AC.
 `run_lofar_baseline.sh` refuses to start on battery for this reason.
 
-### 11.11 What to actually do before the first training run
+
+### 11.13b Two runs cannot share this GPU (2026-09-05)
+
+A second `lofar_tfunet_baseline.py` launched while the first was still going
+died instantly with
+
+    RESOURCE_EXHAUSTED: OOM when allocating tensor with shape[4,476,476,64]
+
+One run holds **4.28 GB of the 6 GB card**, leaving 1.5 GB — not enough for a
+second graph. The first run was unaffected and continued to completion; only
+the second process died, so the traceback is misleading if you assume it came
+from the run you care about.
+
+The giveaway in the log is `Restoring parameters from .../ckpt/model.ckpt`
+near the top: the second process found the first one's checkpoint and tried to
+resume into a full GPU.
+
+**Check before launching anything:**
+
+    nvidia-smi --query-compute-apps=pid,used_memory,process_name --format=csv
+
+Empty output means the card is free. `./status.sh` shows this too, plus a
+battery warning. Both `run_lofar_baseline.sh` and `run_lofar_lr1e-4.sh` now
+refuse to start when the GPU is occupied, so this cannot recur by accident.
+
+### 11.14 What to actually do before the first training run
 
 1. Load via `lofar_data.load_lofar()`; index the clean subset via
    `d.clean_train_idx` (7356 images).
@@ -1582,7 +1607,11 @@ in the paper. ~1.3 h each on AC:
     ~/tf-env/bin/python experiments/lofar_tfunet_baseline.py \
         --lr 1e-4 --epochs 150 --seed 1 --output_dir lofar_runs/lr1e-4_seed1
 
-### 12.6 Consequences for outstanding items
+
+### 12.9 Consequences for outstanding items
+
+*(Written 2026-09-05 at lr 1e-3; items 5 and 6 stand, but see 12.8 — the
+"does not beat the baseline" reading no longer holds at lr 1e-4.)*
 
 - **Item 5 (N=1) is vindicated, hard.** Seed spread on real data is 0.052 —
   larger than most architectural effects this project has ever claimed
@@ -1741,4 +1770,7 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 `experiments/normalisation_control/run_control.py` (the tf_unet arms in PART 8) ·
 `notes/Mesarcik2022_Learning_to_detect_RFI_without_seeing_it.pdf` (LOFAR dataset paper — see PART 10) ·
 `lofar_analysis/deep_audit_stage1..5_*.py` + `audit_lofar_report*.json` + `fig_lofar_*.png` (the PART 11 audit) ·
-`lofar_data.py` (low-RAM memory-mapped LOFAR loader — see PART 11.10)
+`lofar_data.py` (low-RAM memory-mapped LOFAR loader — see PART 11.10) ·
+`experiments/lofar_tfunet_baseline.py` (the PART 12 tf_unet run) ·
+`run_lofar_baseline.sh` / `run_lofar_lr1e-4.sh` (the PART 11.12 and 12.8 protocols) ·
+`status.sh` (live status of every LOFAR run)
