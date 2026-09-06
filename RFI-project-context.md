@@ -1,6 +1,6 @@
 # RFI Project — shared context for any Claude chat in this project
 
-Updated 2026-09-04. Body through PART 7 is the fourth revision (2026-08-27);
+Updated 2026-09-06. Body through PART 7 is the fourth revision (2026-08-27);
 PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
