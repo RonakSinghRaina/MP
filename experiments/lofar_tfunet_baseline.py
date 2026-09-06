@@ -115,12 +115,14 @@ from lofar_data import load_lofar, preprocess
 class LofarProvider(image_util.BaseDataProvider):
     channels, n_class = 1, 2
 
-    def __init__(self, images, masks, indices, norm, lo=None, hi=None, shuffle=True):
+    def __init__(self, images, masks, indices, norm, lo=None, hi=None, shuffle=True,
+                 patch_size=0):
         super(LofarProvider, self).__init__(None, None)
         self.images, self.masks = images, masks
         self.indices = np.asarray(indices)
         self.norm, self.lo, self.hi = norm, lo, hi
         self.shuffle, self.pos = shuffle, -1
+        self.patch_size = int(patch_size)
 
     def _next_data(self):
         if self.shuffle:
@@ -128,8 +130,18 @@ class LofarProvider(image_util.BaseDataProvider):
         else:
             self.pos = (self.pos + 1) % len(self.indices)
             i = int(self.indices[self.pos])
-        return (self.images[i, :, :, 0].astype(np.float32),
-                self.masks[i, :, :, 0].astype(bool))
+        img = self.images[i, :, :, 0].astype(np.float32)
+        msk = self.masks[i, :, :, 0].astype(bool)
+        if self.patch_size:
+            # random crop. Normalisation happens in _process_data AFTER this,
+            # so with --norm per_image the statistics are the PATCH's, which is
+            # what Mesarcik et al. do (see PART 12.11).
+            n = self.patch_size
+            r = np.random.randint(0, img.shape[0] - n + 1)
+            cc = np.random.randint(0, img.shape[1] - n + 1)
+            img = img[r:r + n, cc:cc + n]
+            msk = msk[r:r + n, cc:cc + n]
+        return img, msk
 
     def _process_data(self, data):
         if self.norm == "per_image":
@@ -327,6 +339,13 @@ def main():
     ap.add_argument("--val_frac", type=float, default=0.1)
     ap.add_argument("--limit_train", type=int, default=None,
                     help="use only this many training images (smoke tests)")
+    ap.add_argument("--patch_size", type=int, default=0,
+                    help="train on random NxN crops instead of full 512x512 images. "
+                         "0 = full images (default). NOTE: tf_unet with layers=3 and "
+                         "valid padding REJECTS 32 (the paper's value) -- the smallest "
+                         "that builds is 48, and 64 is the smallest sensible one. "
+                         "Validation and test always use full images, so the metric "
+                         "stays comparable to every other run.")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--output_dir", default=None)
     a = ap.parse_args()
@@ -365,7 +384,19 @@ def main():
         print("  fixed range       : [{:.6g}, {:.6g}]".format(lo, hi))
     print("=" * 74, flush=True)
 
-    train_p = LofarProvider(d.train_images, d.train_masks, tr_idx, a.norm, lo, hi, shuffle=True)
+    if a.patch_size and a.patch_size < 48:
+        raise SystemExit(
+            "\n--patch_size {} is too small. tf_unet with layers={} and valid padding\n"
+            "shrinks the image by 40 px, so anything under 48 produces no output.\n"
+            "The paper's 32x32 is NOT reproducible with this architecture -- they\n"
+            "reimplemented the U-Net with 'same' padding. Use 64 as the nearest\n"
+            "workable equivalent, and say so in the paper.\n".format(a.patch_size, a.layers))
+    if a.patch_size:
+        print("  patch size        : {}x{} random crops (val/test still full 512x512)".format(
+            a.patch_size, a.patch_size))
+
+    train_p = LofarProvider(d.train_images, d.train_masks, tr_idx, a.norm, lo, hi,
+                            shuffle=True, patch_size=a.patch_size)
     val_p = LofarProvider(d.train_images, d.train_masks, val_idx, a.norm, lo, hi, shuffle=False)
     test_p = LofarProvider(d.test_images, d.test_masks, np.arange(109), a.norm, lo, hi, shuffle=False)
 
@@ -438,7 +469,7 @@ def main():
     m = score(net, os.path.join(best_dir, "model.ckpt"), test_p, 109,
               quiet=False, threshold=th)
     m.pop("_yt", None); m.pop("_yp", None)
-    m.update(val_selected_threshold=th, val_f1_at_threshold=vf1,
+    m.update(val_selected_threshold=th, val_f1_at_threshold=vf1, patch_size=a.patch_size,
              norm=a.norm, fixed_range=[lo, hi], class_weights=False,
              layers=a.layers, features_root=a.features_root,
              batch_size=a.batch_size, epochs=prog["epochs_completed"],
