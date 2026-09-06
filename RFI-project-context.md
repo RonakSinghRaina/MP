@@ -1,7 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
 Updated 2026-09-06. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06.
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; repository reorganised 2026-09-06.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
@@ -23,6 +23,66 @@ session starts with the same picture instead of re-deriving it.
 > 6. The paper should be reframed around the failure diagnoses (PART 1), the
 >    efficiency finding (PART 6) and the synthetic-vs-real gap (PART 12) — not
 >    around the architecture.
+
+---
+
+## Where everything lives (reorganised 2026-09-06)
+
+The root had grown to 60 entries and is now 23. **Every path below changed on
+2026-09-06** — an older chat or an old command line will reference the previous
+locations.
+
+```
+Minor Project/
+├── data/                    ALL datasets. Gitignored in full.
+│   ├── synthetic/           Synthetic Dataset, ...276x600, ...1024x265
+│   ├── lofar/               LOFAR_Full_RFI_dataset.pkl, L629174_...pkl, LOFAR_npy/
+│   └── hera/                HERA_04-03-2022_all.pkl
+├── src/                     model code
+│   ├── unet_rfi_package/            original tf_unet package
+│   ├── unet_rfi_package copy/       the one the experiments import (tf_unet/)
+│   └── hybrid_rfi_package/          the PyTorch hybrid
+├── analysis/                one-off investigations
+│   ├── lofar_analysis/      PART 11 audit scripts, index files, figures
+│   ├── hera_transfer_test/  PARTS 2-3
+│   └── dataset_v4_bandpass/ PART 9 generator + verification
+├── experiments/             the reusable experiment runners
+│   ├── lofar_tfunet_baseline.py     PART 12
+│   ├── baseline_fixednorm.py        PART 1 run #4
+│   ├── normalisation_control/, width_sweep/, run_ablation.py, ...
+├── runs/                    every training output
+│   ├── unet/                unet_run*, 8 directories
+│   ├── hybrid/              hybrid_run*, 3 directories
+│   ├── lofar/               the 8 PART 12 runs
+│   └── logs/                *.log
+├── docs/                    AUDIT_REPORT.md, NOTES.md, MODEL_COMPARISON_*.md,
+│                            RFI_Project_Model_Comparison.md, preview/, image/
+├── scripts/                 run_lofar_*.sh, status.sh   (run as ./scripts/status.sh)
+├── notebooks/               pkl_viewer.ipynb, lofar_testing.ipynb
+├── notes/                   papers (Mesarcik 2022, ML/U-Net notes)
+├── results/                 small JSON results
+├── lofar_data.py            the memory-mapped LOFAR loader (import from root)
+└── RFI-project-context.md   this file
+```
+
+**Nothing was deleted.** File count identical before and after (12,485); git
+recorded 1,145 renames and 0 deletions.
+
+**What changed in code.** 38 path references across 25 files: `sys.path`
+inserts, dataset and output defaults, the absolute paths in the LOFAR audit
+scripts, and the shell scripts' `cd`. Packages that moved a level deeper had
+their `".."` root resolution corrected to `"..", ".."`. Verified by resolving
+every path default on disk, parsing all 60 Python files, loading `lofar_data`
+end to end, and completing a real training run from the new layout.
+
+**A .gitignore trap worth remembering.** The old file used unanchored rules
+like `unet_run_fixednorm/`, which match at *any* depth. Once those directories
+moved under `runs/`, the rules silently swallowed the tracked `metrics.json`
+and `training_log.csv` inside them — 52 result files would have quietly left
+version control. Root-only rules are now anchored with a leading `/`, and no
+directory containing anything worth tracking is excluded wholesale, because
+**git cannot re-include a file whose parent directory is excluded**. The
+reasoning is written into `.gitignore` itself.
 
 ---
 
@@ -333,7 +393,7 @@ observation data (not simulated). The larger `LOFAR_Full_RFI_dataset.pkl`
 human ground-truth masks on real telescope data, which is what a reviewer will
 want to see the model tested on.
 
-`lofar_analysis/analyse_lofar.py` is **written but not yet run**. It needs
+`analysis/lofar_analysis/analyse_lofar.py` is **written but not yet run**. It needs
 ~8–10 GB RAM, so it must run in WSL (`~/torch-env`), not in a Cowork device
 session (that VM has only 3.9 GB).
 
@@ -782,7 +842,7 @@ improvised.
 
 ### The model as implemented
 
-`dataset_v4_bandpass/generate_dataset_v4.py`, Section 2. One multiplicative gain
+`analysis/dataset_v4_bandpass/generate_dataset_v4.py`, Section 2. One multiplicative gain
 per frequency channel, redrawn for every image:
 
 ```
@@ -1022,7 +1082,7 @@ setup. Relevant as related work, not something we've implemented.
 ## PART 11 — LOFAR deep audit: every number, measured (2026-09-04)
 
 Full empirical audit of `LOFAR_Full_RFI_dataset.pkl`, run in five stages.
-Scripts, JSON reports and figures are in `lofar_analysis/`
+Scripts, JSON reports and figures are in `analysis/lofar_analysis/`
 (`deep_audit_stage1..5_*.py`, `audit_lofar_report*.json`,
 `fig_lofar_overview.png`, `fig_lofar_profiles.png`). Everything below is
 measured from the file, not quoted from the paper, unless marked otherwise.
@@ -1105,10 +1165,10 @@ the model has already seen every test image — only the *label* differs
 This is by construction (the same baselines were labelled twice), but it
 means a naive train/test split is contaminated. **Drop those 109 training
 indices before training.** They are saved as
-`lofar_analysis/lofar_leak_train_idx.npy`.
+`analysis/lofar_analysis/lofar_leak_train_idx.npy`.
 
 Recommended training subset: **7356 of 7500** — drop 109 leaked + 35
-fully-flagged. Saved as `lofar_analysis/lofar_clean_train_idx.npy`.
+fully-flagged. Saved as `analysis/lofar_analysis/lofar_clean_train_idx.npy`.
 
 ### 11.6 The training labels are ~44 % wrong (and this validates our reading)
 
@@ -1286,8 +1346,8 @@ Any per-frequency normalisation scheme has to be robust to that.
 ### 11.10 Never open the pickle again — use the memory-mapped arrays
 
 Loading the 9.3 GB pickle exhausts RAM on this machine (19 GB total, and the
-IDE crashes). `lofar_analysis/convert_pickle_to_memmap.py` has been run once
-and split it into `LOFAR_npy/{train,test}_{images,masks}.npy`. `lofar_data.py`
+IDE crashes). `analysis/lofar_analysis/convert_pickle_to_memmap.py` has been run once
+and split it into `data/lofar/LOFAR_npy/{train,test}_{images,masks}.npy`. `lofar_data.py`
 memory-maps those: indexing is identical, but only the slice you touch is read
 from disk.
 
@@ -1367,7 +1427,7 @@ leaked ones aborts with the offending train->test index pairs listed.
 
 ### 11.12 RECOMMENDED PROTOCOL for the LOFAR tf_unet run (2026-09-05)
 
-Decided rather than deferred. `./run_lofar_baseline.sh` runs all of it.
+Decided rather than deferred. `./scripts/run_lofar_baseline.sh` runs all of it.
 
 **Hold the METHOD identical to PART 1 run #4** — these are the comparison, and
 none of them changes:
@@ -1436,7 +1496,7 @@ resume into a full GPU.
 
     nvidia-smi --query-compute-apps=pid,used_memory,process_name --format=csv
 
-Empty output means the card is free. `./status.sh` shows this too, plus a
+Empty output means the card is free. `./scripts/status.sh` shows this too, plus a
 battery warning. Both `run_lofar_baseline.sh` and `run_lofar_lr1e-4.sh` now
 refuse to start when the GPU is occupied, so this cannot recur by accident.
 
@@ -1467,7 +1527,7 @@ features_root 32, Adam @1e-3, batch 4, **fixed-range normalisation, NO class
 weights** — PART 1 run #4's method, held identical. Matched budget
 175 x 60 = 10,500 gradient steps. Trained on the 6621 clean images, tested on
 the **109 human-expert-labelled** baselines. Threshold selected on validation,
-applied to test. Raw metrics in `lofar_runs/*/eval_test/metrics.json`.
+applied to test. Raw metrics in `runs/lofar/*/eval_test/metrics.json`.
 
 | run | pooled F1 | prec | recall | max F1 | ROC | PR-AUC | thresh | best ep |
 |---|---|---|---|---|---|---|---|---|
@@ -1944,12 +2004,12 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 `AUDIT_REPORT.md` · `BASELINE_FAILURE_DECOMPOSITION.md` ·
 `MODEL_COMPARISON_EXPLAINED.md` · `experiments/` ·
 `experiments/width_sweep/run_width_sweep.py` · `hera_transfer_test/` ·
-`lofar_analysis/` · `results/` ·
-`dataset_v4_bandpass/generate_dataset_v4.py` (the v4 bandpass generator — see PART 9) ·
+`analysis/lofar_analysis/` · `results/` ·
+`analysis/dataset_v4_bandpass/generate_dataset_v4.py` (the v4 bandpass generator — see PART 9) ·
 `experiments/normalisation_control/run_control.py` (the tf_unet arms in PART 8) ·
 `notes/Mesarcik2022_Learning_to_detect_RFI_without_seeing_it.pdf` (LOFAR dataset paper — see PART 10) ·
-`lofar_analysis/deep_audit_stage1..5_*.py` + `audit_lofar_report*.json` + `fig_lofar_*.png` (the PART 11 audit) ·
+`analysis/lofar_analysis/deep_audit_stage1..5_*.py` + `audit_lofar_report*.json` + `fig_lofar_*.png` (the PART 11 audit) ·
 `lofar_data.py` (low-RAM memory-mapped LOFAR loader — see PART 11.10) ·
 `experiments/lofar_tfunet_baseline.py` (the PART 12 tf_unet run) ·
-`run_lofar_baseline.sh` / `run_lofar_lr1e-4.sh` / `run_lofar_patches.sh` (the PART 11.12, 12.8 and 12.12 protocols) ·
-`status.sh` (live status of every LOFAR run)
+`scripts/run_lofar_*.sh` (the PART 11.12, 12.8 and 12.12 protocols) ·
+`scripts/status.sh` (live status of every LOFAR run)
