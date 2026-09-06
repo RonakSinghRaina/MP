@@ -1394,7 +1394,7 @@ applied to test. Raw metrics in `lofar_runs/*/eval_test/metrics.json`.
 It **did not collapse** — the real risk at 1:129 imbalance with no class
 weighting — and it beats the trivial baseline. But see 12.2.
 
-### 12.2 It does NOT significantly beat a three-line sigma-clip
+### 12.2 It does NOT significantly beat a three-line sigma-clip (AT lr 1e-3 — SUPERSEDED, see 12.8)
 
 Gap over the sigma-clip baseline is **+0.046**, against a seed spread of
 **0.028**. Formally: t = 2.85 on 2 dof, which needs t > 4.30 for p < 0.05.
@@ -1524,6 +1524,63 @@ Dataset: https://zenodo.org/record/6724065 (doi:10.5281/zenodo.6724065).
 This is a **different paper from Akeret et al. 2017**, which contributed the
 tf_unet architecture; the 2022 paper uses that architecture as one of its
 baselines, which is why its 0.5876 row is directly our model.
+
+### 12.8 The learning rate was the problem — CONFIRMED (2026-09-06)
+
+Prediction in 12.7 was that our 1e-3 learning rate, inherited from PART 1's
+*synthetic* recipe rather than from this paper, was producing a well-ranked
+but poorly-calibrated model. Tested at Adam **1e-4** for 150 epochs, seed 0,
+everything else identical (fixed-range norm, no class weights, 175
+steps/epoch, same clean split).
+
+| metric | lr 1e-3 / 60 ep | **lr 1e-4 / 150 ep** | change |
+|---|---|---|---|
+| pooled F1 | 0.4363 | **0.5303** | **+0.0940** |
+| max F1 | 0.4463 | **0.5640** | **+0.1177** |
+| ROC AUC | 0.9348 | **0.9511** | +0.0163 |
+| PR-AUC | 0.4527 | **0.5720** | +0.1193 |
+| precision | 0.3565 | 0.4596 | +0.1030 |
+| recall | 0.5619 | 0.6267 | +0.0648 |
+
+Same seed, so this is not seed noise: **+0.094 pooled F1 = 3.4x the seed
+standard deviation** (0.0279) measured over the three lr 1e-3 runs.
+
+**It improved everything at once** — ROC went UP as well, so this was not a
+ranking-vs-calibration trade. The model is simply better trained. Precision
+gained more than recall (+0.103 vs +0.065), which is consistent with the
+calibration story: the outputs became sharper, not just shifted.
+
+Best epoch was **114 of 150** (lr 1e-3 peaked at 50 of 60), exactly the
+late-converging behaviour a 10x smaller step size should show. The 150-epoch
+budget was necessary; 60 would have truncated it.
+
+**Where this puts us** (max F1, the paper's oracle protocol):
+
+| method | max F1 |
+|---|---|
+| sigma-clip baseline | 0.4103 |
+| our tf_unet @ lr 1e-3 | 0.4901 ± 0.0495 |
+| **our tf_unet @ lr 1e-4** | **0.5640** |
+| AOFlagger | 0.5698 |
+| paper's U-Net (same architecture) | 0.5876 ± 0.0031 |
+| RFI-Net | 0.5979 |
+
+**Gap to the published U-Net closed from −0.098 to −0.024.** We now
+essentially reproduce the published result with the same architecture; the
+residual 0.024 is plausibly the two remaining differences (they train on
+32x32 patches; they use per-image normalisation).
+
+**This supersedes 12.2's headline.** The claim "does not significantly beat a
+sigma-clip" was true *at lr 1e-3*. At lr 1e-4, pooled F1 0.5303 vs 0.4103 is a
++0.120 gap against a 0.028 seed spread — comfortably significant even at N=1,
+and it must be re-stated once seeds 1 and 2 are in. **12.2 must not be quoted
+without this correction.**
+
+**Still N=1.** Seeds 1 and 2 at lr 1e-4 are required before any of this goes
+in the paper. ~1.3 h each on AC:
+
+    ~/tf-env/bin/python experiments/lofar_tfunet_baseline.py \
+        --lr 1e-4 --epochs 150 --seed 1 --output_dir lofar_runs/lr1e-4_seed1
 
 ### 12.6 Consequences for outstanding items
 
