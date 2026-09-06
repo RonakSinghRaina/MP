@@ -7,20 +7,86 @@ from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
 
 > **If you read nothing else:**
-> 1. The strip-convolution architecture is **no longer novel** — see PART 4
->    (MARS, arXiv:2608.05546, does the same thing at 34× fewer parameters).
-> 2. The model is **oversized** — see PART 6. base 16 (2.3M params) scores
->    0.9788 against base 32's (9.3M) 0.9812. Roughly 8.7M parameters buy about
->    half a percent of F1.
-> 3. The paper should be reframed around the failure diagnoses in PART 1 and the
->    efficiency finding in PART 6, not around the architecture.
+> 1. The strip-convolution architecture is **no longer novel** — PART 4
+>    (MARS, arXiv:2608.05546, same idea at 34× fewer parameters).
+> 2. The model is **oversized** — PART 6. base 16 (2.3M params) scores 0.9788
+>    against base 32's (9.3M) 0.9812.
+> 3. **We now have a real-data result** — PART 12. tf_unet on the 109
+>    expert-labelled LOFAR baselines. The **synthetic-to-real gap is −0.44 F1**
+>    for identical code and budget (0.9317 synthetic → 0.4901 real). That single
+>    number is the strongest result this project has.
+> 4. **Learning rate mattered more than architecture ever did** — PART 12.8.
+>    Adam 1e-3 → 1e-4 gained **+0.094 F1**, which is 3.4× the seed spread and
+>    far larger than any architectural effect measured here.
+> 5. **N=1 is not safe.** Real-data seed spread is **0.052**, larger than most
+>    architecture effects previously claimed (strip conv +0.023, ECA −0.005).
+> 6. The paper should be reframed around the failure diagnoses (PART 1), the
+>    efficiency finding (PART 6) and the synthetic-vs-real gap (PART 12) — not
+>    around the architecture.
+
+---
+
+## How to navigate this document
+
+It grew chronologically, so **it is a lab notebook, not a report**: later parts
+correct earlier ones. Do not read a claim in an early PART and assume it still
+stands — check the superseded list below first.
+
+| you want | go to |
+|---|---|
+| what the project is | "The project in one paragraph" |
+| why the baseline first failed | PART 1 |
+| HERA transfer results | PARTS 2, 3 |
+| why the architecture isn't novel | PART 4 |
+| parameter-efficiency sweep | PART 6 |
+| machine / GPU / environment gotchas | PART 7, 11.10c, 11.13, 11.13b |
+| the v4 bandpass model and its provenance | PART 9 |
+| **LOFAR dataset — what it is, how to load it** | **PARTS 10, 11.1–11.10** |
+| **LOFAR — traps that silently corrupt results** | **11.5 (leakage), 11.6 (metric), 11.6b (clip)** |
+| **the real-data result** | **PART 12** |
+| what to run next | 11.14, 12.8 |
+| what still blocks publication | "Still outstanding" |
+
+### Every superseded claim, in one place
+
+| claim | where | status |
+|---|---|---|
+| "normalisation was the main cause of baseline failure" | revision 2 | **wrong** — class weights were, PART 1 |
+| "the ReLU trap freeze is permanent" | PART 1 | **superseded** — it escapes after 15 epochs, PART 8 |
+| "9 hours to regenerate the dataset" | PART 7 history | **wrong**, corrected in PART 7 |
+| "per-image normalisation is mandatory on LOFAR" | 11.8 | **retracted 2026-09-05** — fixed range is fine and separates better |
+| clip at μ+4σ for LOFAR | 11.1–11.9 as first written | **wrong** — LOFAR is μ+20σ, 11.6b |
+| "tf_unet does not beat a σ-clip baseline" | 12.2 | **superseded 2026-09-06** — true at lr 1e-3 only, 12.8 |
+| dataset mean RFI fraction 12.4% | PAPER_DIMENSIONS.md | **wrong** — 14.67% |
+| `unet_run_gpu/eval_test/metrics.json` | — | **mislabelled**, holds faircompare numbers |
+
+### Headline results in one table
+
+Synthetic = `Synthetic Dataset 276x600`, max-F1. Real = 109 expert-labelled
+LOFAR baselines. Real numbers use the paper's oracle-threshold protocol so they
+are comparable to Mesarcik et al. Table 2.
+
+| model / setting | dataset | F1 | where |
+|---|---|---|---|
+| tf_unet, per-image norm, class weights ON | synthetic | 0.3879 | PART 1 |
+| tf_unet, fixed norm, no class weights | synthetic | **0.9317** | PART 1 |
+| hybrid, base 32 (9.3M params) | synthetic | 0.9812 | PART 6 |
+| hybrid, base 16 (2.3M params) | synthetic | 0.9788 | PART 6 |
+| constant threshold | synthetic | 0.7421 | item 4 |
+| σ-clip @2.5σ | **real** | 0.4103 | 11.9 |
+| tf_unet, lr 1e-3, matched budget, 3 seeds | **real** | 0.4901 ± 0.0495 | PART 12 |
+| **tf_unet, lr 1e-4, 150 ep (N=1 so far)** | **real** | **0.5640** | **12.8** |
+| AOFlagger (wrote the training labels) | **real** | 0.5698 | 11.6 |
+| Mesarcik et al.'s U-Net, same architecture | **real** | 0.5876 ± 0.0031 | 12.7 |
+| RFI-Net, published best | **real** | 0.5979 | 12.7 |
 
 ---
 
 ## The project in one paragraph
 
-Detecting radio frequency interference (RFI) in synthetic radio-telescope
-spectrograms as pixel-wise segmentation. Two models: a reproduction of the U-Net
+Detecting radio frequency interference (RFI) in radio-telescope spectrograms as
+pixel-wise segmentation. Originally synthetic-only; since 2026-09-04 it also
+runs on **real LOFAR data with human expert labels** (PARTS 10–12). Two models: a reproduction of the U-Net
 from Akeret et al. 2017 (`tf_unet`, TensorFlow) as the baseline, and a custom
 PyTorch "hybrid" (residual blocks + multiscale anisotropic strip convolutions +
 efficient channel attention, GroupNorm, 9,304,186 parameters). Dataset generated
@@ -254,7 +320,10 @@ Reframe the paper around diagnosis and reproducibility, not architecture.
 
 ---
 
-## PART 5 — real telescope data with human ground truth (LOFAR)
+## PART 5 — real telescope data with human ground truth (LOFAR) — LARGELY SUPERSEDED
+
+> Kept for history. PARTS 10, 11 and 12 replace almost all of this: the dataset
+> is downloaded, fully audited and a result exists. Read those instead.
 
 `L629174_RFI_dataset.pkl` is in the project root and is genuinely real LOFAR
 observation data (not simulated). The larger `LOFAR_Full_RFI_dataset.pkl`
