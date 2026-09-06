@@ -1744,6 +1744,49 @@ normalisation. If so, their normalisation choice is inseparable from their patch
 choice and cannot be transplanted alone — which is exactly what we just
 demonstrated by trying. **Testing 32×32 patches is the way to check this.**
 
+### 12.12 Patch training — and why the paper's 32x32 is NOT reproducible here
+
+**tf_unet with layers=3 and valid padding rejects 32x32 outright.** Measured:
+
+| patch | output | result |
+|---|---|---|
+| 32 | — | **FAILS to build** |
+| 48 | 8x8 | ok |
+| 64 | 24x24 | ok |
+| 128 | 88x88 | ok |
+| 512 | 472x472 | ok (what we have been running) |
+
+Each of the 3 levels strips 4 px per conv pair on the way down and again on the
+way up: the network loses **40 px** in total, so any input below 48 has nothing
+left. **Mesarcik et al. cannot have used Akeret's tf_unet at 32x32** — their
+implementation (github.com/mesarcik/RFI-NLN) is a Keras rewrite with `same`
+padding. Any patch experiment here is therefore a *nearest equivalent*, not a
+reproduction, and the paper must say so.
+
+`--patch_size N` now takes random NxN crops for training; **validation and test
+still use full 512x512 images**, so the metric stays comparable to every other
+run in PART 12. Sizes below 48 are refused with an explanation.
+
+**Budget must be matched by OUTPUT PIXELS, not steps.**
+
+| config | output px per step |
+|---|---|
+| full 512x512, batch 4 | 891,136 |
+| 64x64 patch, batch 32 | **18,432** (48x less) |
+
+Matching step counts would undertrain the patch model 48-fold and prove
+nothing. The full-image reference run is 26,250 steps x 891,136 = **2.34e10
+output pixels**; matching that at 64x64/batch 32 needs **1,269,115 steps**
+(8,460 iters/epoch x 150 epochs, ~4.2 h). `run_lofar_patches.sh` does this.
+
+**What it tests.** Two arms:
+1. `--norm fixed` — isolates patch size alone.
+2. `--norm per_image` — the actual 12.11 hypothesis. Per-image normalisation
+   collapsed on full images (0.2456 vs 0.5021). If it recovers on 64x64
+   patches, then their normalisation only works *because* the "image" is a
+   small patch, and the two choices are inseparable. **This is the arm that
+   matters**; the fixed arm is the control.
+
 ### 12.9 Consequences for outstanding items
 
 *(Written 2026-09-05 at lr 1e-3; items 5 and 6 stand, but see 12.8 — the
@@ -1908,5 +1951,5 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 `lofar_analysis/deep_audit_stage1..5_*.py` + `audit_lofar_report*.json` + `fig_lofar_*.png` (the PART 11 audit) ·
 `lofar_data.py` (low-RAM memory-mapped LOFAR loader — see PART 11.10) ·
 `experiments/lofar_tfunet_baseline.py` (the PART 12 tf_unet run) ·
-`run_lofar_baseline.sh` / `run_lofar_lr1e-4.sh` (the PART 11.12 and 12.8 protocols) ·
+`run_lofar_baseline.sh` / `run_lofar_lr1e-4.sh` / `run_lofar_patches.sh` (the PART 11.12, 12.8 and 12.12 protocols) ·
 `status.sh` (live status of every LOFAR run)
