@@ -1,7 +1,11 @@
 # Project Context: RFI Detection — Baseline vs. Hybrid U-Net
 
 This file is read automatically by Claude Code at the start of every session
-in this folder.
+in this folder. It covers **environment, hardware and precautions**. All
+results, datasets and model numbers live in `RFI-project-context.md`.
+
+Rewritten 2026-09-06 for Fedora 44 and the reorganised repository. Every
+number below was measured on this machine, not taken from a spec sheet.
 
 ---
 
@@ -35,251 +39,226 @@ effects this project has ever claimed. A single run is not a result.
 
 ---
 
-## ⚠ STALENESS WARNING (2026-09-06)
+## 1. Hardware — measured, not spec-sheet
 
-**Sections 1–2 below describe Windows 11 + WSL2. That is out of date.** The
-project migrated to **Fedora 44** on 2026-08-29 — see PART 7 of
-`RFI-project-context.md` for the current environment: the `~/torch-env` and
-`~/tf-env` virtualenvs, the `LD_LIBRARY_PATH` incantation TensorFlow needs,
-the kernel that must be booted, and the GPU state. The hardware facts (RTX
-3060, 6 GB) still hold, but treat the OS-specific instructions below as
-history until this file is rewritten.
+- **GPU:** NVIDIA RTX 3060 Laptop, **6144 MiB**, driver **610.57.04**.
+- **Usable VRAM is close to the full 6 GB on Fedora.** *(An earlier version of
+  this file said "~3.5 GB usable because the Windows compositor shares the
+  card." That was a Windows fact and no longer applies.)* Measured at
+  512×512:
 
-Also note the repository was reorganised on 2026-09-06; paths named in this
-file may have moved. `RFI-project-context.md` has the current tree.
+  | model | batch | VRAM | ms/step |
+  |---|---|---|---|
+  | tf_unet layers=3 features_root=32 | 4 | 4.29 GB | 174 |
+  | hybrid base 32 | 1 | 1.56 GB | 128 |
+  | hybrid base 32 | 2 | 3.01 GB | 240 |
+  | hybrid base 32 | 4 | OOM | — |
+  | hybrid base 8 | 1 | 0.37 GB | 37 |
+  | hybrid base 8 | 8 | 2.92 GB | 216 |
 
----
+- **PLUG THE LAPTOP IN.** This is the single biggest performance factor here.
+  On battery the SM clock is pinned at **210 MHz of 2100 MHz** with
+  `SW Power Cap: Active`, making training **15.3× slower** — tf_unet measured
+  2684 ms/step on battery against 174 ms/step on AC. Check before quoting any
+  timing:
 
-## 1. Hardware — hard constraints, not guidelines
-
-- **GPU:** NVIDIA RTX 3060 Laptop, **6 GB VRAM**, 130W TGP.
-- **Effective usable VRAM is ~3.5 GB, not 6 GB.** Windows' own display
-  compositor shares the same physical GPU. TensorFlow sessions have
-  repeatedly shown a hard allocator limit around 3.5 GiB in practice.
-  Always assume ~3.5 GB when reasoning about whether a batch size/image
-  size/model width will fit — do not use the 6 GB spec sheet number.
-- GPU has been observed running at **82°C under sustained load**. Not
-  immediately dangerous (laptop GPUs throttle themselves near 87-90°C), but
-  worth mentioning if a long run seems slower than expected — may be
-  thermal throttling. Recommend a hard flat surface with airflow for
-  multi-hour runs.
-- **Do not let Windows sleep during long training runs.** Locking the
-  screen (Win+L) is safe and does not interrupt anything. Sleep does.
-  Check Settings > System > Power & battery > Sleep is set to Never while
-  plugged in before starting any run expected to take over ~30 minutes.
-
-## 2. OS / environment — why it's built this way
-
-- Windows 11, with **WSL2 (Ubuntu)** as the actual working environment for
-  all GPU training.
-- **Why WSL at all:** TensorFlow dropped native Windows GPU support after
-  v2.10. Native Windows TensorFlow silently falls back to CPU regardless of
-  drivers. `tensorflow-directml-plugin` (the old workaround) is discontinued
-  and only supports Python ≤3.10 — not a viable option. WSL2 + a current
-  NVIDIA driver is the only remaining path to real TensorFlow GPU
-  acceleration on this machine.
-- PyTorch, by contrast, DOES support native Windows GPU — but for
-  consistency (and because the TensorFlow baseline has no choice), the
-  PyTorch/hybrid work also runs inside WSL, in the same environment style.
-- Project files live on the **Windows filesystem**, accessed from WSL via
-  `/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/...` — this is
-  fine for reading/running scripts. It is NOT fine for creating Python
-  virtual environments (see below).
-
-## 3. Two separate Python virtual environments — do not merge them
-
-| Env | Purpose | Location | Key package |
-|---|---|---|---|
-| `tf-env` | TensorFlow / the authors' `tf_unet` baseline | `~/tf-env` | `nvidia-cudnn-cu12` **9.24.x** |
-| `torch-env` | PyTorch / the hybrid model | `~/torch-env` | `nvidia-cudnn-cu12` **9.1.x** |
-
-**These two environments were originally the same one, and it broke.**
-`pip install torch` silently downgraded the cuDNN version TensorFlow needed,
-producing a `CuDNN version mismatch` crash mid-project. TensorFlow and
-PyTorch on this exact setup **require different, incompatible cuDNN
-versions** and cannot coexist reliably in one environment. Always confirm
-which env is active (`which python3`, or check the venv name in the
-prompt) before installing anything, and never `pip install` a
-framework-specific package into the wrong env.
-
-**Virtual environments must be created inside the Linux filesystem
-(`~/`), never on `/mnt/c/...`.** `python -m venv` relies on symlinks;
-Windows drives mounted into WSL (`drvfs`) do not support them reliably,
-causing a silent broken venv (activation script exists but package
-installs fail with confusing "externally-managed-environment" errors).
-
-Reading/running project files from `/mnt/c/...` is fine — only *venv
-creation* must happen on native Linux filesystem.
-
-## 4. GPU detection gotchas
-
-- `pip install tensorflow` alone does **not** bundle CUDA/cuDNN. Use
-  `pip install "tensorflow[and-cuda]"`.
-- Even with that, TensorFlow may still fail to find the libraries at
-  runtime with `Cannot dlopen some GPU libraries`. Fix: set
-  `LD_LIBRARY_PATH` to include every `site-packages/nvidia/*/lib` folder.
-  This needs to be permanent (added to `~/.bashrc`), not just exported
-  once per session.
-- Always set `TF_FORCE_GPU_ALLOW_GROWTH=true` before TensorFlow imports.
-  Without it, TF grabs ~all GPU memory at session start, competing with
-  Windows' own display use of the same card.
-- `nvidia-smi` run from **Windows PowerShell** often shows
-  `No running processes found` even while a WSL process is actively using
-  the GPU at 100%. This is a known WSL/Windows reporting gap, not evidence
-  of a hang. Trust the `GPU-Util %` and `Memory-Usage` numbers over the
-  process list when checking from Windows.
-- If WSL's GPU passthrough seems broken after any driver update, run (from
-  Windows PowerShell, not WSL): `wsl --update` then `wsl --shutdown`,
-  then reopen WSL.
-
-## 5. VRAM preflight checks — a mistake pattern that recurred twice
-
-A "does this fit in memory" preflight check was added to both the
-TensorFlow and PyTorch training scripts, and **both had the same bug
-independently**: they tested a *square* guessed image size instead of the
-*real* dataset image shape (e.g. tested `276x276` when the real images are
-`276x600`, 2.17x smaller than reality — the check passed, then training
-still OOM'd for real). When writing or reviewing any memory preflight
-check: **always probe using the actual image shape read from a real file
-in the dataset, never an assumed/square size**, and pass the *true* batch
-size, not 1.
-
-## 6. Batch size / architecture width — what actually fits
-
-At `276x600` (the paper-matched dataset), on this GPU's real ~3.5 GB:
-
-- TensorFlow `tf_unet` baseline: `layers=3, features_root=64, batch_size=8`
-  does **not** fit. `batch_size=4, features_root=32` does.
-- PyTorch hybrid model: `batch_size=8` at full model width fits
-  comfortably (uses GroupNorm + more efficient ops, different memory
-  profile than tf_unet's valid-padding conv stack).
-
-If asked to increase either further, treat it as untested and recommend
-running the VRAM preflight check first, not assuming it will fit.
-
-## 7. Do not use the paper's original learning rate at low batch size
-
-The authors' paper (Akeret et al. 2017) specifies momentum optimizer,
-`lr=0.2`, trained at batch size 32. **This setting reliably kills the
-network when batch size is forced down** (as it is here, due to VRAM
-limits) — `tf_unet`'s output layer applies ReLU directly to the logits;
-once both logits go negative, ReLU zeroes them, softmax outputs exactly
-`[0.5, 0.5]`, and gradient becomes exactly zero — an unrecoverable dead
-state. Measured directly: this happened at iteration 4 with the paper's
-lr=0.2 at batch_size=1. Both training scripts in this project now default
-to `optimizer=adam, lr=0.001` for this reason, with automatic collapse
-detection (checks for `loss ≈ ln(2) = 0.6931` and `ROC AUC ≈ 0.5000`, which
-is the exact signature of this dead state).
-
-## 8. tf_unet's "epoch" is not a full pass over the data
-
-`tf_unet.Trainer.train(..., epochs=N, training_iters=M)` runs exactly
-`M` gradient steps per "epoch", not one pass over the training set. For
-any fair comparison against the PyTorch hybrid (where one epoch genuinely
-is one full pass), `training_iters` must be explicitly set to
-`(number of training images) / batch_size`. This was missed once already
-and would have unfairly under-trained the baseline by ~26%. See
-`run_fair_comparison.py`, which computes this automatically — prefer using
-it over calling `train_unet_rfi_gpu.py` directly for any baseline-vs-hybrid
-comparison work.
-
-## 9. Evaluation must be batched one image at a time
-
-Running `net.predict()` / a forward pass on many evaluation images at once
-(e.g. 10-20 in a single batch) can OOM even when training itself fit fine,
-because evaluation batches don't get the same memory-saving treatment
-training steps do. All evaluation code in this project processes one image
-at a time and concatenates results before computing metrics. Preserve this
-pattern in any new evaluation code.
-
-## 10. Checkpoints — which one is "the model," and a real leakage bug already found and fixed
-
-- Always use `best_checkpoint/` (TensorFlow) or `best.pt` (PyTorch), never
-  the plain `checkpoints/`/`last.pt` — those are just the most recent
-  epoch, not the best one.
-- **A checkpoint's architecture (layers, features_root / base, depth) must
-  match exactly to restore it.** Attempting to restore a `features_root=32`
-  checkpoint into a `features_root=64` graph fails with a shape-mismatch
-  error. If unsure what a checkpoint was trained with, inspect it directly
-  rather than assuming:
-  ```python
-  import tensorflow.compat.v1 as tf1
-  tf1.disable_v2_behavior()
-  for name, shape in tf1.train.list_variables('path/to/model.ckpt'):
-      print(name, shape)
+  ```bash
+  cat /sys/class/power_supply/A*/online     # 1 = plugged in
   ```
-- **Model selection (picking the "best" checkpoint) must use the
-  VALIDATION set, never the test set, and must use enough validation
-  images to be reliable.** An early run selected checkpoints using only 10
-  random validation patches; because per-image RFI content varies wildly
-  (0-60% of pixels), taking the *max* F1 across ~20 such noisy checks
-  produced a fake "best" score (0.81) that collapsed to the real value
-  (0.34) when evaluated properly on the full test set — a classic
-  winner's-curse artifact. All current scripts use the full validation
-  set (150 images) for this reason. Do not reduce this to save time
-  without flagging the risk.
-- **The test set is touched exactly once**, after training is fully done,
-  to report a final number. It is never used to pick a checkpoint or tune
-  a threshold. If a dataset is missing a separate `val/` split, create one
-  from `train/` (see `make_val_split.py`) rather than letting training
-  silently fall back to using `test/` for validation — this happened once
-  already and was a real (if ultimately non-catastrophic) leakage risk.
 
-## 11. Two datasets exist — know which is which
+  `./scripts/status.sh` warns about this, and the run scripts refuse to start
+  on battery. Full detail in PART 11.10c / 11.13 of the context doc.
 
-- `Synthetic Dataset/` — original, 1024×1024. Model 1 (baseline) was
-  trained on this.
-- `Synthetic Dataset 276x600/` — matches the paper's own image dimensions.
-  RFI morphology parameters (blob size, line width, band width, etc.) were
-  deliberately rescaled proportionally when this was generated — using the
-  1024px-tuned parameters unscaled at this resolution would produce
-  physically wrong RFI (oversized or literally unable to fit in the
-  smaller frequency axis). Models 2 and 3 both use this dataset and are
-  the ones that are fairly comparable to each other. Model 1 (different
-  dataset) is a "before" reference point only, not a controlled
-  comparison.
+- **Only one training run fits on this card.** One run holds ~4.3 GB, so a
+  second dies immediately with `RESOURCE_EXHAUSTED` while the first continues
+  unaffected — which makes the traceback misleading. Check first:
 
-## 12. Full command reference
+  ```bash
+  nvidia-smi --query-compute-apps=pid,used_memory,process_name --format=csv
+  ```
+
+## 2. OS and environment
+
+- **Fedora 44**, kernel **6.19.10-300.fc44.x86_64**. Migrated from
+  Windows 11 + WSL2 on 2026-08-29; see PART 7 of the context doc for the
+  migration, including the GPU/Secure-Boot saga and the CRLF cleanup.
+- **Boot kernel 6.19.10.** Kernel 7.1.10 renders the GNOME desktop on the
+  RTX 3060 and makes the UI crawl. 6.19.10 is pinned as default.
+- The old Windows partition can be mounted read-only if an old file is needed:
+  `sudo mount -o ro /dev/nvme0n1p3 /mnt/win`.
+
+## 3. Two Python virtual environments — do not merge them
+
+| Env | Purpose | Python | Framework |
+|---|---|---|---|
+| `~/tf-env` | TensorFlow / the authors' `tf_unet` | **3.12.14** | TF **2.21.0** |
+| `~/torch-env` | PyTorch / the hybrid, and all analysis scripts | **3.14.3** | torch **2.13.0+cu130** |
+
+- **They were one environment once, and it broke.** `pip install torch`
+  silently downgraded the cuDNN TensorFlow needed. The two require
+  incompatible cuDNN versions and cannot share an environment.
+- **tf-env must be Python 3.12.** Fedora 44's default Python 3.14 has no
+  TensorFlow wheels — build it with `python3.12 -m venv ~/tf-env`.
+- Scripts are invoked as `~/tf-env/bin/python ...` or
+  `~/torch-env/bin/python ...` rather than through an activated shell, so
+  anything that must be in the environment has to be in the command itself
+  (see §4).
+
+## 4. TensorFlow needs LD_LIBRARY_PATH set explicitly
+
+TF 2.21 does not add its own pip CUDA libraries to the loader path on Fedora.
+Without this it prints `Cannot dlopen some GPU libraries ... Skipping
+registering GPU devices` — it never names the missing library — and silently
+runs on CPU:
 
 ```bash
-# TensorFlow baseline work
-source ~/tf-env/bin/activate
-cd "/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/unet_rfi_package copy"
-# --features_root MUST be passed here too. run_fair_comparison.py defaults to 64
-# (the paper's width), but the run reported in RFI_Project_Model_Comparison.md
-# used 32. Omitting it trains a 64-wide model that evaluate_test_set.py --features_root 32
-# then cannot restore (shape mismatch -- see section 10).
-python3 run_fair_comparison.py --batch_size 4 --features_root 32
-python3 evaluate_test_set.py --checkpoint_dir "../unet_run_faircompare/best_checkpoint" \
-    --dataset_dir "../Synthetic Dataset 276x600" --patch_size 0 --features_root 32
-
-# PyTorch hybrid work
-source ~/torch-env/bin/activate
-cd "/mnt/c/Users/RONAK SINGH/Documents/Coding/Minor Project/hybrid_rfi_package"
-python3 train_hybrid.py --dataset_dir "../Synthetic Dataset 276x600" \
-    --output_dir "../hybrid_run_paperdim" --patch_size 0 --batch_size 8 \
-    --n_val_images 150 --deterministic --early_stop_patience 3
-# --patch_size 0 is REQUIRED here. It used to be omitted, and the old default of
-# 512 centre-crops every 276x600 image to 276x512 -- silently dropping 88 of 600
-# time bins and producing numbers that do not match the published ones.
-python3 evaluate_hybrid_test.py --dataset_dir "../Synthetic Dataset 276x600" \
-    --output_dir "../hybrid_run_paperdim" --patch_size 0 \
-    --per_image_csv --strength_report
+export LD_LIBRARY_PATH="$(ls -d ~/tf-env/lib/python3.12/site-packages/nvidia/*/lib | tr '\n' ':')$LD_LIBRARY_PATH"
 ```
 
-Both training scripts are resumable — rerunning the exact same command
-after an interruption (laptop restart, Ctrl+C) continues from the last
-completed chunk via `progress.json`. Do not change batch_size / features /
-architecture flags between a stopped run and its resume — this will not
-error cleanly and produces the kind of checkpoint-mismatch confusion
-described in §10.
+Because scripts are run as `~/tf-env/bin/python` and not through `activate`,
+this must go in the command line itself. **PyTorch does not need it.**
 
-## 13. Current status (update this section as work continues)
+Also set `TF_FORCE_GPU_ALLOW_GROWTH=true` before TensorFlow imports (the
+training scripts do this themselves).
 
-See `RFI_Project_Model_Comparison.md` for full numbers. As of the last
-session: all three models (baseline-old, baseline-fair-comparison, hybrid)
-have completed training and final test-set evaluation. The hybrid
-(F1=0.98) substantially outperforms the baseline under matched conditions
-(F1=0.39), and this gap has been attributed to architecture rather than
-training setup after controlling for dataset, batch composition, optimizer,
-and epoch count.
+## 5. VRAM preflight checks — a bug that recurred twice
+
+A "does this fit" preflight was added to both the TensorFlow and PyTorch
+scripts and **both had the same bug independently**: they probed a *square*
+guessed size instead of the real image shape (e.g. `276×276` when the images
+are `276×600`). The check passed and training then OOM'd. When writing any
+memory preflight: **probe with the actual shape read from a real file, and
+the true batch size, never 1.**
+
+## 6. Do not use the paper's original learning rate at low batch size
+
+Akeret et al. 2017 specify momentum, `lr=0.2`, batch 32. **This kills the
+network at small batch size.** `tf_unet` applies ReLU directly to the logits;
+once both go negative ReLU zeroes them, softmax outputs exactly `[0.5, 0.5]`,
+and the gradient is exactly zero. Measured: dead at iteration 4 with lr=0.2,
+batch 1. Both training scripts default to `adam, lr=1e-3`, with collapse
+detection (loss ≈ ln 2 = 0.6931 and ROC ≈ 0.5000 is the signature).
+
+**Nuance added later:** on the 1024×265 dataset the network *escaped* this
+state after 15 epochs (PART 8), so the freeze is long, not always permanent.
+
+**And on LOFAR the learning rate mattered more than any architecture change
+measured in this project:** tf_unet at Adam 1e-4 for 150 epochs beat 1e-3 for
+60 epochs by +0.046 pooled F1 on the 3-seed mean. That gain was NOT
+statistically significant at N=3 (paired t=1.54, 2 dof) — see PART 12.10 —
+but it did more than halve the seed spread. Do not assume a learning rate
+carried over from the synthetic dataset is right for LOFAR.
+
+## 7. tf_unet's "epoch" is not a full pass over the data
+
+`tf_unet.Trainer.train(..., epochs=N, training_iters=M)` runs exactly `M`
+gradient steps per "epoch", not one pass over the training set. Any fair
+comparison must set `training_iters` deliberately.
+
+**This matters more than it looks.** On LOFAR, matching the *epoch count* to
+the synthetic baseline would have given the model 9.5× more training, because
+LOFAR has 9.5× more images. The comparable quantity is **gradient steps**
+(PART 11.10b). For patch training it is smaller still — a 64×64 patch at
+batch 32 yields 18,432 output pixels per step against 891,136 for a full
+512×512 image at batch 4, so there the budget must be matched by **output
+pixels** (PART 12.12).
+
+## 8. Evaluation must be batched carefully
+
+Forward passes over many evaluation images at once can OOM even when training
+fit, because evaluation does not get the same memory-saving treatment.
+Evaluation code here processes 1–2 images at a time and concatenates before
+computing metrics. Preserve that.
+
+`tf_unet`'s `net.predict()` also reloads the checkpoint from disk on **every
+call** (~2.5 s each). All evaluation code here restores once and calls
+`net.predicter` directly — roughly 50× faster.
+
+## 9. Checkpoints, model selection, and leakage
+
+- Use `best_checkpoint/` (TF) or `best.pt` (PyTorch), never `checkpoints/` or
+  `last.pt` — those are merely the latest epoch.
+- **Architecture must match exactly to restore a checkpoint.** To inspect one:
+  ```python
+  import tensorflow.compat.v1 as tf1; tf1.disable_v2_behavior()
+  for name, shape in tf1.train.list_variables('path/to/model.ckpt'): print(name, shape)
+  ```
+- **Select checkpoints on VALIDATION, never test, and with enough images.**
+  An early run selected on 10 random patches; per-image RFI content varies
+  0–60%, so taking the max across noisy checks produced a fake 0.81 that
+  collapsed to 0.34 on the real test set — winner's curse. Scripts use 150
+  validation images.
+- **Choose the operating threshold on validation too.** Reporting an oracle
+  max-F1 chosen on the test set is optimistic; on LOFAR the two differ by
+  about 0.05. Both are reported by the LOFAR scripts, with `pooled_f1`
+  (validation-selected) as the headline and `max_f1` labelled optimistic.
+  Mesarcik et al. quote oracle max-F1, so cross-paper comparisons must use
+  `max_f1` (PART 12.7).
+
+## 10. Datasets — four of them now
+
+| Path | What | Notes |
+|---|---|---|
+| `data/synthetic/Synthetic Dataset` | original, 1024×1024 | Model 1 only; a "before" reference, not a controlled comparison |
+| `data/synthetic/Synthetic Dataset 276x600` | paper-matched dims | PARTS 1, 4, 6. RFI morphology was rescaled proportionally when generated |
+| `data/synthetic/Synthetic Dataset 1024x265` | v4, with instrument bandpass | PARTS 8, 9 |
+| `data/lofar/` | **real LOFAR**, 9.3 GB pickle + memmap arrays | PARTS 10–12. Human expert labels on 109 baselines |
+| `data/hera/HERA_04-03-2022_all.pkl` | HERA transfer test | PARTS 2, 3 |
+
+**Three LOFAR traps that silently corrupt results** (all guarded in code, but
+know them):
+
+1. **All 109 test images are byte-identical to 109 training images.** Train on
+   the full 7500 and you test on images the model has seen. Use
+   `d.clean_train_idx` (7356). Both LOFAR scripts verify this at startup and
+   abort if violated.
+2. **The metric must be a pooled pixel-wise F1**, not a mean of per-image F1s
+   — they differ by 0.103.
+3. **Never open the 9.3 GB pickle.** It exhausts RAM and crashes the IDE. Use
+   `from lofar_data import load_lofar` — memory-mapped, 28.7 MB resident,
+   0.007 s.
+
+## 11. Command reference
+
+```bash
+# ---- LOFAR: tf_unet baseline (PART 12) --------------------------------------
+export LD_LIBRARY_PATH="$(ls -d ~/tf-env/lib/python3.12/site-packages/nvidia/*/lib | tr '\n' ':')$LD_LIBRARY_PATH"
+~/tf-env/bin/python experiments/lofar_tfunet_baseline.py          # 175x60 steps, fixed norm, no class weights
+./scripts/run_lofar_baseline.sh                                   # 3 seeds + convergence control
+./scripts/run_lofar_lr1e-4.sh                                     # the lr 1e-4 arms
+
+# ---- LOFAR: the hybrid ------------------------------------------------------
+~/torch-env/bin/python experiments/lofar_hybrid.py                # base 8 default
+./scripts/run_lofar_hybrid.sh                                     # 3 seeds + base32 + per-image arms
+
+# ---- status of any running work ---------------------------------------------
+./scripts/status.sh          # or -w to refresh every 30 s
+
+# ---- synthetic work ---------------------------------------------------------
+~/tf-env/bin/python experiments/baseline_fixednorm.py --features_root 32 --epochs 60
+~/torch-env/bin/python experiments/width_sweep/run_width_sweep.py --base 8 32 --seed 0 \
+    --out_root runs/hybrid/hybrid_run_width_sweep_seed0
+```
+
+All training scripts are **resumable** — rerun the identical command and they
+continue from `progress.json`. Do not change architecture flags between a
+stopped run and its resume; that fails confusingly rather than cleanly.
+
+## 12. Current status (2026-09-06)
+
+**Read `RFI-project-context.md` for numbers. Summary only:**
+
+- **The "architecture explains the gap" claim is dead.** An earlier version of
+  this file said the hybrid's F1 0.98 vs baseline 0.39 was "attributed to
+  architecture." PART 1 refuted that: class weighting accounted for 66% of the
+  gap and normalisation 34%. Under matched conditions the gap fell from 0.59
+  to about 0.05. **Do not repeat the old claim.**
+- The strip-convolution idea is **not novel** (PART 4, MARS arXiv:2608.05546).
+- The model is **oversized** (PART 6): base 8 at 593,842 params scores 0.9749
+  against base 32's 9,304,186 params at 0.9812. base 4 genuinely breaks.
+- **Real-data results now exist** (PART 12). tf_unet on the 109 expert-labelled
+  LOFAR baselines: pooled F1 0.4563 ± 0.0279 at lr 1e-3, 0.5021 ± 0.0259 at
+  lr 1e-4. The synthetic-to-real gap is **−0.44 F1** for identical code and
+  budget — the strongest single result this project has.
+- **N=1 is not safe.** The real-data seed spread is 0.052, larger than most
+  architectural effects claimed here. Always run ≥3 seeds and report spread.
