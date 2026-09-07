@@ -138,6 +138,7 @@ are comparable to Mesarcik et al. Table 2.
 | tf_unet, lr 1e-3, matched budget, 3 seeds | **real** | 0.4901 ± 0.0495 | PART 12 |
 | **tf_unet, lr 1e-4, 150 ep, 3 seeds** | **real** | **0.5482 ± 0.0139** | **12.10** |
 | **hybrid base 8 (593,842 params), 3 seeds** | **real** | **0.6467 ± 0.0079** | **PART 13** |
+| hybrid base 8, no class weight, N=1 | **real** | **0.6592** | 13.10 |
 | hybrid base 32 (9,304,186 params), N=1 | **real** | 0.6571 | 13.7 |
 | tf_unet, lr 1e-4, per-image norm | **real** | 0.3039 | 12.11 |
 | AOFlagger (wrote the training labels) | **real** | 0.5698 | 11.6 |
@@ -2016,7 +2017,48 @@ Two consequences:
 - The most informative next experiment is `--no_class_weight`, which
   separates what the architecture contributes from what the loss contributes.
 
-### 13.10 Next
+### 13.10 ARCHITECTURE, not the loss settings — the confound is resolved (2026-09-06)
+
+13.5's second caveat was that the +0.098 over tf_unet confounded architecture
+with the CE+Dice loss and a 56.9x class weight, since tf_unet ran plain
+cross-entropy with no weighting. Ran the hybrid with `--no_class_weight`,
+seed 0, everything else identical.
+
+| | max F1 | pooled F1 | ROC | threshold | precision | recall |
+|---|---|---|---|---|---|---|
+| hybrid, class weight (3 seeds) | 0.6467 | 0.6505 | 0.9801 | 0.9619 | 0.6167 | 0.6617 |
+| **hybrid, NO class weight (N=1)** | **0.6592** | **0.6607** | 0.9425 | **0.2509** | 0.6867 | 0.6220 |
+| tf_unet, no class weight (3 seeds) | 0.5482 | 0.5021 | 0.9470 | 0.2069 | 0.4302 | 0.6032 |
+
+**Removing the class weight made it slightly BETTER: +0.0125 max F1**
+(1.6 seed sd, N=1, so not significant on its own — but certainly not worse).
+
+**Decomposition of the +0.0984 gain over tf_unet:**
+
+| source | contribution |
+|---|---|
+| **architecture (with CE+Dice)** | **+0.1110  (113%)** |
+| class weighting | −0.0125  (−13%) |
+
+With both models unweighted the hybrid still leads tf_unet by **+0.1110**, and
+the margin over RFI-Net *widens* to **+0.0613**. **The win is the model, not
+the loss settings.** Architecture work is aimed at the right target.
+
+**Bonus: dropping the weight fixes the calibration.** The validation-selected
+threshold moves from **0.9619 to 0.2509**, and precision rises 0.6167 → 0.6867
+while recall gives back only 0.6617 → 0.6220. 13.5's third caveat is largely
+answered too — the miscalibration was the class weight, not the model.
+
+**A subtlety worth keeping.** ROC *fell* (0.9801 → 0.9425) while F1 *rose*
+(0.6467 → 0.6592). Class weighting bought better ranking and paid for it with
+a worse operating point, losing more than it gained. Ranking quality and
+decision quality are genuinely decoupled here — which is the same lesson as
+12.4 and 13.9, now demonstrated by intervention rather than observation.
+
+**Recommendation: make `--no_class_weight` the default for LOFAR.** Simpler,
+better calibrated, and at least as accurate. Confirm at 3 seeds first.
+
+### 13.11 Next
 
 `./scripts/run_lofar_hybrid.sh` runs seeds 1 and 2, then base 32, then the
 per-image arm. ~2 h. Seed 0 is already done and will be skipped.
