@@ -1,0 +1,43 @@
+{
+  "pooled_f1": 0.6526115949595387,
+  "pooled_precision": 0.6790926466448373,
+  "pooled_recall": 0.6281182763771579,
+  "TP": 137502,
+  "FP": 64977,
+  "FN": 81409,
+  "TN": 28289808,
+  "max_f1": 0.660364476336803,
+  "roc_auc": 0.9448341324305838,
+  "pr_auc": 0.6706489101464765,
+  "threshold": 0.18713490664958954,
+  "positive_fraction": 0.007661277001057196,
+  "pooled_f1_crop472": 0.6611228846529289,
+  "max_f1_crop472": 0.6660940286987742,
+  "roc_auc_crop472": 0.9439665251971865,
+  "model": "HybridRFINet",
+  "base": 8,
+  "depth": 4,
+  "dropout": 0.2,
+  "parameters": 593853,
+  "norm": "fixed",
+  "fixed_range": [
+    280722.84751103516,
+    4353109.209634389
+  ],
+  "class_weights": [
+    1.0,
+    1.0
+  ],
+  "dice_weight": 1.0,
+  "learning_rate": 0.001,
+  "batch_size": 1,
+  "epochs": 40,
+  "gradient_steps": 28000,
+  "seed": 0,
+  "n_train": 6621,
+  "n_val": 735,
+  "val_selected_threshold": 0.18713490664958954,
+  "best_val_max_f1": 0.682685949380355,
+  "best_epoch": 2,
+  "test_set": "109 expert-labelled LOFAR baselines (data[3])"
+}
