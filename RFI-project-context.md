@@ -1,7 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
 Updated 2026-09-06. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; PART 13 added 2026-09-06; repository reorganised 2026-09-06.
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; PART 13 added 2026-09-06, PART 14 (integrity audit) added 2026-09-07; repository reorganised 2026-09-06.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
@@ -2130,6 +2130,133 @@ worth citing alongside.
 
 `./scripts/run_lofar_hybrid.sh` runs seeds 1 and 2, then base 32, then the
 per-image arm. ~2 h. Seed 0 is already done and will be skipped.
+
+---
+
+## PART 14 — INTEGRITY AUDIT of the PART 13 result (2026-09-07)
+
+Adversarial self-check requested before the result is used. Script:
+`analysis/audit_hybrid_result.py`. It deliberately imports nothing from
+`experiments/lofar_hybrid.py` except the model class, so a bug in the training
+script's own metric code cannot hide inside the audit.
+
+### 14.1 Metrics recomputed from the checkpoint by independent code
+
+| metric | reported | recomputed | diff |
+|---|---|---|---|
+| pooled F1 | 0.652759 | 0.652727 | 3.2e-05 |
+| max F1 | 0.659204 | 0.659199 | 5.0e-06 |
+| ROC AUC | 0.942547 | 0.942549 | 1.7e-06 |
+| TP/FP/FN | 136157/62106/82754 | 136152/62116/82759 | ~10 px of 136k |
+
+Differences are GPU non-determinism. **No hardcoded or injected numbers** —
+every literal in the script is a docstring or a benchmark label in a print.
+
+### 14.2 Leakage: clean
+
+```
+train n val overlap        : 0
+TRAIN images also in test  : 0
+VAL   images also in test  : 0
+unique test images         : 109 of 109
+```
+
+Also checked the subtle path: the fixed-range normalisation is calibrated on
+training images only. Recomputed from `tr_idx` alone it gives
+**280723, 4.35311e+06**, identical to the run. No test statistics entered
+through normalisation.
+
+### 14.3 Thresholding penalises us, as it should
+
+| | threshold | F1 |
+|---|---|---|
+| used (chosen on validation) | 0.2509 | **0.6527** |
+| best possible on test (cheating) | 0.7800 | 0.6591 |
+
+Honest thresholding costs **−0.0064** and we report the lower number. The
+threshold used matches the validation optimum to 6e-05.
+
+### 14.4 Overfitting: mild
+
+| split | max F1 | ROC |
+|---|---|---|
+| train (109 sampled) | 0.7112 | 0.9673 |
+| val (150) | 0.6820 | 0.9769 |
+| test (109) | 0.6592 | 0.9425 |
+
+Train−val gap **0.029**, modest for 28,000 steps, and ROC is *higher* on
+validation than training — the opposite of memorisation. Best epoch 34 of 40.
+
+### 14.5 It is not copying AOFlagger
+
+| | F1 |
+|---|---|
+| AOFlagger vs human | 0.5698 |
+| our model vs human | 0.6527 |
+| **our model vs AOFlagger** | **0.7430** |
+
+Agreement with the teacher is 0.74, not ~1.0. True RFI found by us but not
+AOFlagger: **16,485**; found by AOFlagger but not us: **7,345**;
+**net +9,140**. It disagrees with its teacher, and correctly.
+
+### 14.6 It is not a trivial frequency rule
+
+| rule | F1 |
+|---|---|
+| flag the 8 worst columns everywhere | 0.0638 |
+| flag the 16 worst | 0.0645 |
+| flag the 32 worst | 0.0563 |
+| **our model** | **0.6527** |
+
+It has learned the frequency structure (correlation 0.91 between its
+per-column flag rate and the true rate), but that structure alone buys 0.065.
+
+Prediction sanity: predicts 0.694% RFI against 0.766% true; no degenerate
+all-zero images; per-image F1 median 0.6345, range 0.035–0.839.
+
+### 14.7 Bootstrap over the 109 test images — the result survives
+
+Seed variance was already known (±0.0040). This is **test-set** variance,
+2000 resamples of the 109 images:
+
+| | F1 | 95% CI |
+|---|---|---|
+| seed 0 | 0.6527 | [0.6083, 0.6912] |
+| seed 1 | 0.6610 | [0.6198, 0.6962] |
+| seed 2 | 0.6546 | [0.6122, 0.6921] |
+| **3-seed mean** | **0.6561** | **[0.6154, 0.6923]** |
+
+**RFI-Net's 0.5979 falls OUTSIDE the interval**, and **99.5% of bootstrap
+samples beat it**. The margin survives test-set resampling as well as seed
+resampling.
+
+Note the CI is ±0.04 wide — that is the cost of a 109-image test set, and it
+is the dominant uncertainty in this result, larger than the seed spread.
+
+### 14.8 The real limitations — state these in the paper
+
+1. **The baselines are QUOTED, not reproduced.** RFI-Net 0.5979 and the U-Net
+   0.5876 come from Mesarcik et al. Table 2; we never ran them. The
+   comparison is unusually well-grounded — our AOFlagger measurement
+   reproduces their published 0.5698 to four decimals, confirming identical
+   test data, labels and metric — but the paper must write *"as reported in
+   Mesarcik et al. (2022)"*, never imply we measured it.
+2. **Test set is 109 images.** ±0.04 at 95%. This is the dominant uncertainty.
+3. **Training budgets are not matched to theirs.** They used 32×32 patches for
+   100 epochs; we used full 512×512 images for 28,000 steps. Each method was
+   given its own sensible budget, not a common one.
+4. **Train−val gap of 0.029** exists, though it is small and best epoch was
+   34/40.
+
+### 14.9 Ethics: nothing to flag
+
+Public Zenodo dataset (doi:10.5281/zenodo.6724065), cited. tf_unet is the
+authors' unmodified code, credited. We report the conservative
+validation-thresholded number as the headline rather than the oracle, all
+three seeds rather than the best of them, and every caveat sits beside the
+result in this document.
+
+**Verdict: the PART 13 result is sound.**
 
 ---
 
