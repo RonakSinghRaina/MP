@@ -1,7 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
 Updated 2026-09-06. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; PART 13 added 2026-09-06, PART 14 (integrity audit) and PART 15 (where the remaining F1 is) added 2026-09-07; repository reorganised 2026-09-06.
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; PART 13 added 2026-09-06, PART 14 (integrity audit) and PART 15 (where the remaining F1 is) and PART 16 (the Chen 2023 CRF model) added 2026-09-07; repository reorganised 2026-09-06.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
@@ -2325,6 +2325,118 @@ against the human, **beating its own teacher by +0.09** (PART 14.5 confirms it
 does this by genuinely disagreeing, not by copying). How far past a noisy
 teacher a model can be pushed is not known, but the whole published field sits
 between 0.51 and 0.60 on this test set, and we are at 0.66.
+
+---
+
+## PART 16 — HybridCRFNet: the Chen et al. 2023 CRF idea (built, 2026-09-07)
+
+Paper: Chen, Han, Su, Yang & Zhou (2023), RAA 23 104004, *"Cleaning Radio
+Frequency Interference in Pulsar-Folded Data Based on the Conditional Random
+Fields with an Adaptive Prior"* — the **2sigmaCRF** method.
+doi:10.1088/1674-4527/acd52b. Copy: `notes/Chen2023_2sigmaCRF_pulsar_RFI.pdf`.
+
+Model: `src/hybrid_rfi_package/hybrid_crf_model.py` (`HybridCRFNet`).
+Trainer: `experiments/lofar_hybrid_crf.py`.
+**`hybrid_model.py` is untouched** — the new model imports and wraps it.
+
+### 16.1 What their method is
+
+Two stages, no neural network anywhere:
+
+1. **Adaptive 2sigma prior** (their §3.1): histogram the per-pixel rms values,
+   fit a Gaussian, label within ±2sigma of the peak "normal" and beyond 3sigma
+   "RFI". Adaptive to the data rather than a fixed cut.
+2. **Dense CRF refinement** (§3.2): minimise the Gibbs energy
+   `U(w) = Σ V1(w_i) + Σ V2(w_i,w_i')`, unary from the Gaussian fit, pairwise
+   `V2 = mu(w_i,w_i')·(λ_a·k_a + λ_s·k_s)` with a Potts penalty
+   `mu = 1[w_i ≠ w_i']`, an appearance kernel over position *and* intensity,
+   and a smoothness kernel over position. Fully-connected CRF
+   (Krähenbühl & Koltun 2011, SimpleCRF), 5 iterations,
+   λ_a=3, λ_s=20, ξ1=1, ξ2=10, ξ3=1.
+
+The relevance is their own abstract: it recovers *"weak RFIs that are
+unrecognizable in some pixels but picked out based on their neighborhoods"* —
+exactly the PART 15 failure mode (20% of RFI is dimmer than a typical clean
+pixel, recall 0.254, worth +0.098).
+
+### 16.2 What we built
+
+| | Chen et al. | ours |
+|---|---|---|
+| unary | Gaussian fit to an rms histogram | the trained CNN's logits |
+| inference | denseCRF, fixed post-process | mean-field unrolled as **differentiable layers**, trainable end-to-end (CRF-as-RNN, Zheng et al. 2015) |
+| connectivity | fully connected (permutohedral lattice) | k×k window, message passing as a convolution (ConvCRF, Teichmann & Cipolla 2018) |
+| spatial kernel | one isotropic ξ | **separate bandwidths for time and frequency — ours**, motivated by PART 11.2 |
+| ξ2 (intensity) | 10, on raw rms | 0.1, since our inputs are [0,1] |
+| 2sigma prior | the core of the method | kept, optional, as an extra unary bias |
+
+**Cost: 11 parameters** — λ_a, λ_s, four bandwidths, the 2×2 compatibility
+matrix, and the prior weight. That is **0.0019%** of the base-8 backbone's
+593,842, which was a hard requirement: PART 6/13.7 already established that
+capacity is not the bottleneck, so a heavy refinement head would undercut the
+project's own argument.
+
+An exact optimisation for the binary case: since Q sums to 1 over 2 classes,
+only one channel needs the expensive spatially-varying message pass and the
+other follows as `Ksum − msg`. Halves compute and memory, no approximation.
+
+### 16.3 MEASURED BEFORE TRAINING — the post-hoc CRF does not help
+
+Frozen trained base-8 backbone, 109 test images, no CRF training:
+
+| configuration | max F1 |
+|---|---|
+| backbone alone | **0.6592** |
+| + CRF at Chen et al.'s λ = (3, 20) | **0.4884** |
+| + CRF, λ = (3, 5) | 0.6162 |
+| + CRF, λ = (1, 0.1) | 0.6594 |
+| + CRF, λ = (1, 0.1), anisotropic ξ_t=0.5, ξ_f=5 | **0.6604** |
+
+**Chen et al.'s published parameters are destructive here: −0.171 F1.**
+Precision rises to 0.742 while recall collapses to 0.347 — the CRF erases
+isolated detections whose neighbours are labelled clean. Their RFI arrives in
+large contiguous blocks; ours is sparse and thin at 0.77% prevalence. The
+paper anticipates this ("new parameters may need to be tested and selected for
+data obtained from other telescopes").
+
+**Even at the best settings found, the gain is +0.0012 — inside the 0.0040
+seed spread. Effectively nothing.** Two reasons, both worth stating rather
+than hiding:
+
+1. **Our backbone already reasons about neighbourhoods**, via strip
+   convolutions and the U-Net receptive field. Chen et al. applied their CRF
+   to a bare histogram threshold with no spatial modelling at all, so it had
+   far more to fix. The idea is sound; it is largely *already in* our model.
+2. **A CRF can only redistribute evidence that is in the unary.** PART 15's
+   problem is that faint RFI has almost no evidence to redistribute.
+
+The anisotropy sweep also **refuted our own prediction**: propagating along
+*frequency* (ξ_f=5) edged out propagating along *time*, opposite to what
+PART 11.2's column concentration suggested. Consistent with PART 11 morphology,
+where mean run lengths are near-equal on both axes (4.25 vs 3.90) — the
+column concentration is a population effect, not elongated individual events.
+
+### 16.4 What is still untested
+
+**End-to-end training**, which bolting the CRF on cannot evaluate: with the
+CRF differentiable, the backbone can learn to emit unaries *shaped to be
+refined* rather than unaries that are already final. Three modes provided:
+
+    # cleanest isolation -- 11 trainable parameters, backbone frozen
+    ~/torch-env/bin/python experiments/lofar_hybrid_crf.py --crf_mode frozen \
+        --init_from runs/lofar/hybrid_b08_nocw_seed0/best.pt --no_class_weight
+
+    --crf_mode finetune   warm-start, train everything at lower LR
+    --crf_mode scratch    full 28,000-step budget, matched to PART 13
+
+Cost: 379 ms/step at k=7 against the plain model's 37 ms, so `scratch` is
+~2.9 h per seed. `frozen` is far cheaper — only 11 parameters to fit.
+
+**Set expectations low.** The mechanism the CRF supplies is one the backbone
+already has. If it fails, that is a publishable negative result: *a method
+that works on unmodelled histogram thresholds adds nothing on top of a network
+that already models spatial context* — and it comes with the measurement
+showing exactly why.
 
 ---
 
