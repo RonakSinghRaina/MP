@@ -78,6 +78,34 @@ WHAT WE DO DIFFERENTLY, AND WHY
    distribution, costs no parameters beyond a single learnable weight, and is
    the part of Chen et al. that is genuinely theirs rather than generic CRF.
 
+MEASURED BEFORE ANY TRAINING (frozen trained base-8 backbone, 109 test images)
+------------------------------------------------------------------------------
+| configuration                          | max F1 |
+|----------------------------------------|--------|
+| backbone alone                         | 0.6592 |
+| + CRF at Chen et al.'s lambda (3, 20)  | 0.4884 |
+| + CRF, lambda (3, 5)                   | 0.6162 |
+| + CRF, lambda (1, 0.1)  [the default]  | 0.6594 |
+| + CRF, lambda (1, 0.1), anisotropic    | 0.6604 |
+
+So as a **post-hoc refinement on a frozen backbone the CRF buys essentially
+nothing** -- at best +0.0012, well inside the 0.0040 seed spread. Two reasons,
+both worth stating in the paper rather than hiding:
+
+1. Our backbone already reasons about neighbourhoods, through its strip
+   convolutions and U-Net receptive field. Chen et al. applied their CRF to a
+   bare histogram threshold with no spatial modelling at all, so it had far
+   more to fix.
+2. A CRF can only *redistribute* evidence that is already in the unary. The
+   PART 15 problem is that faint RFI has almost no evidence in the unary to
+   redistribute.
+
+The untested case, and the reason this model exists, is **end-to-end
+training**: with the CRF differentiable, the backbone can learn to emit
+unaries shaped to be refined, rather than unaries that are already final.
+That is the CRF-as-RNN argument (Zheng et al. 2015) and it cannot be
+evaluated by bolting the CRF on afterwards. Expectations should be modest.
+
 PARAMETER COST
 --------------
 The CRF head adds a handful of scalars — kernel weights, bandwidths, the
@@ -110,9 +138,25 @@ class MeanFieldCRF(nn.Module):
     """
 
     def __init__(self, n_classes=2, kernel_size=7, n_iters=5,
-                 lambda_a=3.0, lambda_s=20.0,
-                 xi_time=1.0, xi_freq=1.0, xi_intensity=0.1, xi_smooth=1.0,
+                 lambda_a=1.0, lambda_s=0.1,
+                 xi_time=0.5, xi_freq=5.0, xi_intensity=0.1, xi_smooth=1.0,
                  learn_kernels=True):
+        """NOTE ON DEFAULTS -- these are NOT Chen et al.'s values, deliberately.
+
+        Chen et al. use lambda_a=3, lambda_s=20 on FAST pulsar-folded data.
+        Applied unchanged to our LOFAR model those values are **destructive**:
+        measured on the frozen trained base-8 backbone, max F1 falls from
+        0.6592 to 0.4884, because precision rises to 0.742 while recall
+        collapses to 0.347. The CRF erases isolated detections whose
+        neighbours are labelled clean. Their RFI arrives in large contiguous
+        blocks; ours is sparse and thin at 0.77% prevalence, so strong
+        smoothing is exactly wrong. The paper anticipates this -- "new
+        parameters may need to be tested and selected for data obtained from
+        other telescopes".
+
+        The defaults here are the best point found in a sweep on the frozen
+        backbone. Pass chen_init=True to the wrapper for the paper's values.
+        """
         super().__init__()
         if kernel_size % 2 == 0:
             raise ValueError("kernel_size must be odd")
@@ -246,12 +290,14 @@ class HybridCRFNet(nn.Module):
 
     def __init__(self, in_channels=1, n_classes=2, base=8, depth=4, dropout=0.2,
                  crf_kernel=7, crf_iters=5, use_sigma_prior=True,
-                 n_sigma=2.0, learn_kernels=True):
+                 n_sigma=2.0, learn_kernels=True, chen_init=False):
         super().__init__()
         self.backbone = HybridRFINet(in_channels, n_classes, base=base,
                                      depth=depth, dropout=dropout)
+        kw = dict(lambda_a=3.0, lambda_s=20.0, xi_time=1.0, xi_freq=1.0,
+                  xi_intensity=0.1, xi_smooth=1.0) if chen_init else {}
         self.crf = MeanFieldCRF(n_classes=n_classes, kernel_size=crf_kernel,
-                                n_iters=crf_iters, learn_kernels=learn_kernels)
+                                n_iters=crf_iters, learn_kernels=learn_kernels, **kw)
         self.sigma_prior = SigmaPrior(n_sigma=n_sigma) if use_sigma_prior else None
 
     def forward(self, x, return_unary=False):
