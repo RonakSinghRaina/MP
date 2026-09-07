@@ -1,7 +1,7 @@
 # RFI Project — shared context for any Claude chat in this project
 
 Updated 2026-09-06. Body through PART 7 is the fourth revision (2026-08-27);
-PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; PART 13 added 2026-09-06, PART 14 (integrity audit) added 2026-09-07; repository reorganised 2026-09-06.
+PART 8 added 2026-08-30, PART 9 added 2026-08-31, PARTS 10-11 added 2026-09-04, PART 12 added 2026-09-05 and extended 2026-09-06; PART 13 added 2026-09-06, PART 14 (integrity audit) and PART 15 (where the remaining F1 is) added 2026-09-07; repository reorganised 2026-09-06.
 **Read this first.** It carries the findings
 from a deep audit so any new chat, Cowork session, or Claude Code terminal
 session starts with the same picture instead of re-deriving it.
@@ -2257,6 +2257,74 @@ three seeds rather than the best of them, and every caveat sits beside the
 result in this document.
 
 **Verdict: the PART 13 result is sound.**
+
+---
+
+## PART 15 — WHERE THE REMAINING F1 IS (diagnostic, 2026-09-07)
+
+Measured on the best model (base 8, no class weight, seed 0) by splitting every
+true-RFI pixel by how bright it is relative to that image's own clean pixels.
+
+### 15.1 The model has already solved bright RFI, and only bright RFI
+
+| tier | RFI pixels | share | **recall** |
+|---|---|---|---|
+| bright (above clean p99) | 108,947 | 49.8% | **0.937** |
+| moderate (clean p75–p99) | 41,985 | 19.2% | 0.391 |
+| faint (clean median–p75) | 24,113 | 11.0% | 0.268 |
+| **invisible (below clean median)** | **43,866** | **20.0%** | **0.254** |
+
+**Half the RFI is bright, and the model catches 94% of it. The other half it
+catches about a quarter to a third of.** Every remaining point is in the
+dim half.
+
+### 15.2 What each fix would be worth
+
+| intervention | resulting F1 | gain |
+|---|---|---|
+| current | 0.6527 | — |
+| **remove all false positives** | **0.7669** | **+0.1142** |
+| + perfectly catch the invisible tier | 0.7507 | +0.0979 |
+| + perfectly catch the moderate tier | 0.7305 | +0.0778 |
+| + perfectly catch the faint tier | 0.7074 | +0.0547 |
+| + perfectly catch the bright tier | 0.6744 | +0.0217 |
+
+### 15.3 What this rules IN and OUT for the next round of work
+
+**RULED OUT — more capacity.** PART 6/13.7 measured 15.7x more parameters as
+worth +0.0104, inside seed noise, on both synthetic and real data.
+
+**RULED OUT — better thresholding.** PART 14.3 measured the honest
+validation-chosen threshold as costing only **0.0064** against the
+best-possible-on-test threshold. Calibration was a real problem *with* class
+weighting and is essentially solved without it. The earlier claim in 12.4 and
+13.9 that "the headroom is in the decision rule" was true of the weighted
+model and is **no longer true** — do not carry it forward.
+
+**RULED IN — precision.** The single largest available gain, **+0.114**. The
+model currently emits 62,106 false positives against 136,157 true positives.
+
+**RULED IN — faint-RFI recall, and specifically via CONTEXT.** The invisible
+tier is 20% of all RFI at recall 0.254, worth **+0.098**. These pixels are
+*by definition* dimmer than the median clean pixel, so **no amount of local
+intensity modelling can find them** — the only available signal is their
+neighbours in time and frequency. The human expert labelled them from context
+too. This is the one place where an architectural change has a clear,
+measured target: **longer-range context along the time and frequency axes.**
+
+Note this is also the honest justification for the strip-convolution idea that
+PART 4 found was not novel — the idea is right for this data even if the
+credit belongs elsewhere. Prior art must still be cited (MARS,
+arXiv:2608.05546).
+
+### 15.4 The ceiling
+
+PART 11.6: the training labels are AOFlagger's, which agree with the human
+expert at only 0.5698 F1 — roughly 44% wrong. The model already scores 0.6603
+against the human, **beating its own teacher by +0.09** (PART 14.5 confirms it
+does this by genuinely disagreeing, not by copying). How far past a noisy
+teacher a model can be pushed is not known, but the whole published field sits
+between 0.51 and 0.60 on this test set, and we are at 0.66.
 
 ---
 
