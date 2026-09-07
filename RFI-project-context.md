@@ -11,16 +11,20 @@ session starts with the same picture instead of re-deriving it.
 >    (MARS, arXiv:2608.05546, same idea at 34× fewer parameters).
 > 2. The model is **oversized** — PART 6. base 16 (2.3M params) scores 0.9788
 >    against base 32's (9.3M) 0.9812.
-> 3. **We now have a real-data result** — PART 12. tf_unet on the 109
+> 3. **The hybrid beats the published state of the art on real LOFAR data.**
+>    base 8, no class weight, 3 seeds: **max F1 0.6603 ± 0.0040** against
+>    RFI-Net's 0.5979, with **593,842 parameters** (PART 13). Significant at
+>    t = 27.2. This is the headline result.
+> 4. **We now have a real-data result** — PART 12. tf_unet on the 109
 >    expert-labelled LOFAR baselines. The **synthetic-to-real gap is −0.44 F1**
 >    for identical code and budget (0.9317 synthetic → 0.4901 real). That single
 >    number is the strongest result this project has.
-> 4. **Learning rate mattered more than architecture ever did** — PART 12.8.
+> 5. **Learning rate mattered more than architecture ever did** — PART 12.8.
 >    Adam 1e-3 → 1e-4 gained **+0.094 F1**, which is 3.4× the seed spread and
 >    far larger than any architectural effect measured here.
-> 5. **N=1 is not safe.** Real-data seed spread is **0.052**, larger than most
+> 6. **N=1 is not safe.** Real-data seed spread is **0.052**, larger than most
 >    architecture effects previously claimed (strip conv +0.023, ECA −0.005).
-> 6. The paper should be reframed around the failure diagnoses (PART 1), the
+> 7. The paper should be reframed around the failure diagnoses (PART 1), the
 >    efficiency finding (PART 6) and the synthetic-vs-real gap (PART 12) — not
 >    around the architecture.
 
@@ -138,7 +142,7 @@ are comparable to Mesarcik et al. Table 2.
 | tf_unet, lr 1e-3, matched budget, 3 seeds | **real** | 0.4901 ± 0.0495 | PART 12 |
 | **tf_unet, lr 1e-4, 150 ep, 3 seeds** | **real** | **0.5482 ± 0.0139** | **12.10** |
 | **hybrid base 8 (593,842 params), 3 seeds** | **real** | **0.6467 ± 0.0079** | **PART 13** |
-| hybrid base 8, no class weight, N=1 | **real** | **0.6592** | 13.10 |
+| **hybrid base 8, NO class weight, 3 seeds — BEST** | **real** | **0.6603 ± 0.0040** | **13.11** |
 | hybrid base 32 (9,304,186 params), N=1 | **real** | 0.6571 | 13.7 |
 | tf_unet, lr 1e-4, per-image norm | **real** | 0.3039 | 12.11 |
 | AOFlagger (wrote the training labels) | **real** | 0.5698 | 11.6 |
@@ -2058,7 +2062,71 @@ decision quality are genuinely decoupled here — which is the same lesson as
 **Recommendation: make `--no_class_weight` the default for LOFAR.** Simpler,
 better calibrated, and at least as accurate. Confirm at 3 seeds first.
 
-### 13.11 Next
+### 13.11 CONFIRMED at 3 seeds: no class weight is the better default (2026-09-06)
+
+| metric | hybrid base 8, NO class weight, 3 seeds |
+|---|---|
+| **max F1 (oracle)** | **0.6603 ± 0.0040**  [0.6570, 0.6647] |
+| pooled F1, 472 crop | 0.6641 ± 0.0037 |
+| pooled F1, full 512 | 0.6561 ± 0.0044 |
+| precision / recall | 0.6936 ± 0.0061 / 0.6225 ± 0.0047 |
+| ROC AUC | 0.9378 ± 0.0111 |
+| threshold | **0.2573 ± 0.0149** |
+
+**Paired by seed, removing the class weight helps every time:**
+
+| seed | with weight | without | diff |
+|---|---|---|---|
+| 0 | 0.6439 | 0.6592 | +0.0153 |
+| 1 | 0.6555 | 0.6647 | +0.0091 |
+| 2 | 0.6405 | 0.6570 | +0.0164 |
+
+mean **+0.0136**, sd 0.0039, **t = 6.03 on 2 dof (needs 4.30) — SIGNIFICANT.**
+All three seeds move the same way. 13.10's N=1 finding holds.
+
+### 13.12 FINAL LADDER on real LOFAR (oracle max-F1, the paper's protocol)
+
+| method | max F1 | params |
+|---|---|---|
+| sigma-clip baseline | 0.4103 | — |
+| our tf_unet @ lr 1e-4 | 0.5482 ± 0.0139 | ~500k |
+| AOFlagger (wrote the training labels) | 0.5698 | — |
+| Mesarcik et al.'s U-Net | 0.5876 ± 0.0031 | — |
+| **RFI-Net — published best** | **0.5979** | millions |
+| hybrid base 8, class weighted | 0.6467 ± 0.0079 | 593,842 |
+| **hybrid base 8, NO class weight** | **0.6603 ± 0.0040** | **593,842** |
+
+- **+0.0624 over RFI-Net.** One-sample t = 27.22 on 2 dof (needs 4.30).
+- **+0.1121 over our own tf_unet.** t = 13.42 on 4 dof (needs 2.78).
+- Both **SIGNIFICANT**, at 593,842 parameters.
+
+**Stability improves at every step:** seed sd 0.0139 (tf_unet) → 0.0079
+(hybrid, weighted) → **0.0040** (hybrid, unweighted). The final configuration
+is the most reproducible thing in this project.
+
+**And the calibration problem is gone.** Threshold 0.2573 ± 0.0149, against
+0.9619 with weighting. Precision rose to 0.6936 from 0.6167.
+
+**All three of 13.5's caveats are now discharged**: N=1 (13.6, 13.11), the
+architecture/loss confound (13.10), and the miscalibration (13.11).
+
+**This configuration is the headline result of the project.**
+
+### 13.13 The one number that has NOT improved
+
+ROC AUC fell from 0.9801 (weighted) to **0.9378** (unweighted), while F1 rose.
+Ranking got *worse* and the final score got *better*, consistently across all
+three seeds. Class weighting buys ranking quality and pays for it with a worse
+operating point, losing more than it gains.
+
+For the paper this is the cleanest available demonstration that **ROC AUC is
+the wrong metric to optimise on this task.** It moved in the opposite
+direction to the metric anyone actually cares about, under a controlled
+intervention, at N=3. Mesarcik et al. report AUROC as a headline (their NLN
+wins on AUROC, 0.8622, while losing on F1, 0.5114) — the same pattern, and
+worth citing alongside.
+
+### 13.14 Next
 
 `./scripts/run_lofar_hybrid.sh` runs seeds 1 and 2, then base 32, then the
 per-image arm. ~2 h. Seed 0 is already done and will be skipped.
