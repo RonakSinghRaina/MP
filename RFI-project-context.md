@@ -144,6 +144,7 @@ are comparable to Mesarcik et al. Table 2.
 | **hybrid base 8 (593,842 params), 3 seeds** | **real** | **0.6467 ± 0.0079** | **PART 13** |
 | **hybrid base 8, NO class weight, 3 seeds — BEST** | **real** | **0.6603 ± 0.0040** | **13.11** |
 | hybrid base 32 (9,304,186 params), N=1 | **real** | 0.6571 | 13.7 |
+| hybrid base 8 + Chen 2023 CRF head, N=1 | **real** | 0.6604 (+0.0012, inside noise) | 16.4 |
 | tf_unet, lr 1e-4, per-image norm | **real** | 0.3039 | 12.11 |
 | AOFlagger (wrote the training labels) | **real** | 0.5698 | 11.6 |
 | Mesarcik et al.'s U-Net, same architecture | **real** | 0.5876 ± 0.0031 | 12.7 |
@@ -2416,7 +2417,82 @@ PART 11.2's column concentration suggested. Consistent with PART 11 morphology,
 where mean run lengths are near-equal on both axes (4.25 vs 3.90) — the
 column concentration is a population effect, not elongated individual events.
 
-### 16.4 What is still untested
+### 16.4 RESULT: trained CRF gives +0.0012 — the idea does not transfer (2026-09-08)
+
+`--crf_mode frozen`, warm-started from `hybrid_b08_nocw_seed0/best.pt`, the
+backbone locked, **only the 11 CRF parameters trained**, 28,000 steps. So any
+change is 100% attributable to the CRF.
+
+| metric | backbone | + CRF | change |
+|---|---|---|---|
+| **max F1** | 0.6592 | **0.6604** | **+0.0012** |
+| pooled F1 | 0.6528 | 0.6526 | −0.0001 |
+| pooled F1 (472 crop) | 0.6607 | 0.6611 | +0.0004 |
+| ROC AUC | 0.9425 | 0.9448 | +0.0023 |
+| PR-AUC | 0.6522 | 0.6706 | +0.0185 |
+| precision | 0.6867 | 0.6791 | −0.0077 |
+| recall | 0.6220 | 0.6281 | +0.0061 |
+
+**+0.0012 max F1 = 0.29 seed standard deviations. Inside noise.** It lands on
+0.6604 against the 3-seed backbone mean of 0.6603 ± 0.0040 — indistinguishable.
+
+**Exactly what the untrained sweep predicted** (16.3 found +0.0012 at the best
+hand-set parameters). Training the CRF end-to-end recovered the same number
+rather than beating it.
+
+**The learned parameters say why, and they are the interesting part.** Given
+freedom to set its own strength, the CRF *turned itself down*:
+
+| parameter | init | learned |
+|---|---|---|
+| lambda_a (appearance) | 1.0 | **0.747** |
+| lambda_s (smoothness) | 0.1 | **0.083** |
+| xi_time | 0.5 | 0.387 |
+| xi_freq | 5.0 | **3.613** |
+| xi_intensity | 0.1 | 0.076 |
+| compatibility | Potts [[0,1],[1,0]] | [[0.283, 0.920], [0.717, 0.080]] |
+
+Both kernel weights **shrank toward zero**, which is the identity solution — a
+CRF with lambda = 0 reproduces the backbone exactly. The optimiser, free to use
+the mechanism as much as it liked, chose to use less of it. That is the model
+stating that the neighbourhood evidence is already present in the unary.
+
+Corroborating: **best epoch 2 of 40.** With only 11 parameters it converged
+almost immediately and then failed to improve for 38 further epochs.
+
+The one substantive movement is xi_freq staying large (3.6 against xi_time's
+0.39) — the anisotropy is retained, propagating along frequency. And PR-AUC
+did rise +0.0185, the largest single change, without translating into F1.
+
+### 16.5 Conclusion, and what it is worth
+
+**The Chen et al. CRF does not improve our model.** Measured three ways —
+untrained at the paper's parameters (−0.171), untrained at swept parameters
+(+0.0012), and trained end-to-end (+0.0012) — the answer is the same.
+
+This is a **publishable negative result**, and a specific one:
+
+> A conditional-random-field refinement that materially improves a histogram
+> threshold adds nothing measurable on top of a network that already models
+> spatial context. Given the freedom to weight itself, the CRF reduces its own
+> kernel weights toward zero.
+
+That is more informative than a marginal positive would have been, and it is
+backed by the PART 15 diagnostic explaining the mechanism: a CRF redistributes
+evidence, and faint RFI has little evidence in the unary to redistribute.
+
+**Still untested:** `--crf_mode finetune` and `--crf_mode scratch`, where the
+backbone can adapt rather than being frozen. The frozen result makes a large
+gain unlikely, but it is the honest remaining gap, and `scratch` at ~2.9 h per
+seed is the only version that tests the CRF-as-RNN claim properly.
+
+**Bug found and fixed while reading the result:** the trainer's `m.update`
+never recorded the CRF metadata (`crf_mode`, `crf_learned`, and the model name
+read `HybridRFINet`). The run itself was correct — 593,853 parameters and CRF
+keys present in the checkpoint confirm it — but the JSON was under-specified.
+Fixed; future runs record it.
+
+### 16.6 What is still untested
 
 **End-to-end training**, which bolting the CRF on cannot evaluate: with the
 CRF differentiable, the backbone can learn to emit unaries *shaped to be

@@ -412,7 +412,13 @@ def main():
     m["pooled_f1_crop472"] = m_crop["pooled_f1"]
     m["max_f1_crop472"] = m_crop["max_f1"]
     m["roc_auc_crop472"] = m_crop["roc_auc"]
-    m.update(model="HybridRFINet", base=a.base, depth=a.depth, dropout=a.dropout,
+    m.update(model="HybridCRFNet",
+             crf_kernel=a.crf_kernel, crf_iters=a.crf_iters, crf_mode=a.crf_mode,
+             crf_parameters=model.crf_parameter_count(), init_from=a.init_from,
+             sigma_prior=not a.no_sigma_prior, chen_init=a.chen_init,
+             crf_learned={n: (float(p_.detach().exp()) if "log" in n else p_.detach().tolist())
+                          for n, p_ in model.crf.named_parameters()},
+             base=a.base, depth=a.depth, dropout=a.dropout,
              parameters=n_par, norm=a.norm, fixed_range=[lo, hi], class_weights=cw,
              dice_weight=a.dice_weight, learning_rate=a.learning_rate,
              batch_size=a.batch_size, epochs=prog["epochs_completed"],
