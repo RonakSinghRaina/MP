@@ -137,7 +137,8 @@ are comparable to Mesarcik et al. Table 2.
 | σ-clip @2.5σ | **real** | 0.4103 | 11.9 |
 | tf_unet, lr 1e-3, matched budget, 3 seeds | **real** | 0.4901 ± 0.0495 | PART 12 |
 | **tf_unet, lr 1e-4, 150 ep, 3 seeds** | **real** | **0.5482 ± 0.0139** | **12.10** |
-| **hybrid base 8 (593,842 params), N=1** | **real** | **0.6439** | **PART 13** |
+| **hybrid base 8 (593,842 params), 3 seeds** | **real** | **0.6467 ± 0.0079** | **PART 13** |
+| hybrid base 32 (9,304,186 params), N=1 | **real** | 0.6571 | 13.7 |
 | tf_unet, lr 1e-4, per-image norm | **real** | 0.3039 | 12.11 |
 | AOFlagger (wrote the training labels) | **real** | 0.5698 | 11.6 |
 | Mesarcik et al.'s U-Net, same architecture | **real** | 0.5876 ± 0.0031 | 12.7 |
@@ -1945,7 +1946,77 @@ not merely reproduce AOFlagger; it generalised past its teacher's errors.
    probabilities would be wrong, and it is why pooled F1 (0.6377) sits below
    oracle max F1 (0.6439).
 
-### 13.6 Next
+### 13.6 CONFIRMED at 3 seeds (2026-09-06) — and it is significant
+
+| metric | hybrid base 8, 3 seeds |
+|---|---|
+| **max F1 (oracle)** | **0.6467 ± 0.0079**  [0.6405, 0.6555] |
+| pooled F1, 472 crop | 0.6505 ± 0.0145 |
+| pooled F1, full 512 | 0.6368 ± 0.0157 |
+| ROC AUC | 0.9801 ± 0.0025 |
+| PR-AUC | 0.6836 ± 0.0159 |
+
+**vs RFI-Net (0.5979, the published best): +0.0488, t = 10.74 on 2 dof
+(needs 4.30). SIGNIFICANT.**
+
+**vs our own tf_unet (0.5482 ± 0.0139): +0.0984, t = 10.67 on 4 dof
+(needs 2.78). SIGNIFICANT.** On pooled F1: +0.1484, t = 8.67.
+
+The N=1 caveat in 13.5 is now discharged. 13.5's other two caveats stand:
+the tf_unet comparison still confounds architecture with loss and class
+weighting, and the model is still badly calibrated.
+
+Note the seed spread is **0.0079**, nearly half tf_unet's 0.0139 on the same
+metric. The hybrid is both better and more reproducible here.
+
+### 13.7 PART 6's efficiency finding TRANSFERS to real data
+
+| base | parameters | max F1 |
+|---|---|---|
+| **8** | **593,842** | **0.6467 ± 0.0079** (3 seeds) |
+| 32 | 9,304,186 | 0.6571 (N=1) |
+
+**15.7x more parameters buys +0.0104 — 1.3 seed standard deviations, not
+significant.** PART 6 measured −0.0063 for the same comparison on synthetic
+data; on real LOFAR it is −0.0104. The same conclusion holds on a harder,
+real dataset: the published width is oversized.
+
+This is a stronger version of PART 6, because a referee can no longer say
+"that only holds on your own easy synthetic benchmark."
+
+### 13.8 The GroupNorm claim from PART 1 is confirmed
+
+PART 1 argued that per-image normalisation hurt tf_unet but not the hybrid,
+because the hybrid has GroupNorm and tf_unet has no normalisation layers.
+Measured on identical LOFAR data:
+
+| model | fixed range | per-image | drop |
+|---|---|---|---|
+| tf_unet | 0.5482 | **0.3039** | **−0.244** |
+| hybrid base 8 | 0.6467 | **0.5700** | **−0.077** |
+
+Per-image normalisation costs tf_unet **3.2x more** than it costs the hybrid.
+The hybrid's per-image arm (0.5700) still essentially matches AOFlagger
+(0.5698) and is within 0.018 of the paper's U-Net. tf_unet's per-image arm
+(0.3039) is below even the sigma-clip baseline.
+
+The architectural claim in PART 1 was made from reasoning; this measures it.
+
+### 13.9 Where the remaining headroom is
+
+ROC AUC is **0.9801 ± 0.0025** while max F1 is **0.6467**. Ranking is nearly
+perfect; the decision is not. Even at the *oracle* threshold F1 caps at 0.647.
+At 1:129 prevalence with ~44% wrong training labels (PART 11.6), that ceiling
+is set by the task and the label noise, not by the model's capacity.
+
+Two consequences:
+- Further architecture work has little room on the ranking side. The gains
+  left are in **calibration and thresholding** — the validation-selected
+  threshold is 0.9455, far from 0.5, because of the 56.9x class weight.
+- The most informative next experiment is `--no_class_weight`, which
+  separates what the architecture contributes from what the loss contributes.
+
+### 13.10 Next
 
 `./scripts/run_lofar_hybrid.sh` runs seeds 1 and 2, then base 32, then the
 per-image arm. ~2 h. Seed 0 is already done and will be skipped.
