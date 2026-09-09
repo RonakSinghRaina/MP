@@ -234,6 +234,13 @@ def main():
     ap.add_argument("--limit_train", type=int, default=None)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--output_dir", default=None)
+    ap.add_argument("--variant", default="hybrid",
+                    help="'hybrid' (default) is the published HybridRFINet. Any "
+                         "other name builds the component-switchable model from "
+                         "models_ablation.py -- hybrid_full, no_strip, no_eca, "
+                         "no_res, plain_unet, no_groupnorm. Everything else "
+                         "(data, splits, loss, eval, thresholding) is unchanged, "
+                         "so the comparison is controlled. See PART 17.")
     a = ap.parse_args()
 
     out = a.output_dir or os.path.join(_ROOT, "runs", "lofar",
@@ -252,11 +259,17 @@ def main():
     n_val = max(1, int(len(idx) * a.val_frac))
     val_idx, tr_idx = idx[:n_val], idx[n_val:]
 
-    model = HybridRFINet(1, 2, base=a.base, depth=a.depth, dropout=a.dropout).to(device)
+    if a.variant == "hybrid":
+        model = HybridRFINet(1, 2, base=a.base, depth=a.depth, dropout=a.dropout).to(device)
+        model_name = "HybridRFINet"
+    else:
+        from models_ablation import build          # noqa: PLC0415
+        model = build(a.variant, base=a.base, depth=a.depth, dropout=a.dropout).to(device)
+        model_name = "ConfigurableUNet[{}]".format(a.variant)
     n_par = sum(p.numel() for p in model.parameters())
 
     print("=" * 74)
-    print("  HybridRFINet on REAL LOFAR  |  base {}  |  norm = {}".format(a.base, a.norm))
+    print("  {} on REAL LOFAR  |  base {}  |  norm = {}".format(model_name, a.base, a.norm))
     print("=" * 74)
     print("  parameters        : {:,}".format(n_par))
     print("  device            : {}".format(device))
@@ -351,7 +364,8 @@ def main():
     m["pooled_f1_crop472"] = m_crop["pooled_f1"]
     m["max_f1_crop472"] = m_crop["max_f1"]
     m["roc_auc_crop472"] = m_crop["roc_auc"]
-    m.update(model="HybridRFINet", base=a.base, depth=a.depth, dropout=a.dropout,
+    m.update(model=model_name, variant=a.variant,
+             base=a.base, depth=a.depth, dropout=a.dropout,
              parameters=n_par, norm=a.norm, fixed_range=[lo, hi], class_weights=cw,
              dice_weight=a.dice_weight, learning_rate=a.learning_rate,
              batch_size=a.batch_size, epochs=prog["epochs_completed"],
@@ -362,7 +376,7 @@ def main():
              test_set="109 expert-labelled LOFAR baselines (data[3])")
 
     print("\n" + "=" * 74)
-    print("  RESULT — HybridRFINet on real LOFAR, human ground truth")
+    print("  RESULT — {} on real LOFAR, human ground truth".format(model_name))
     print("=" * 74)
     print("  pooled F1 (512x512)      : {:.4f}   precision {:.4f}  recall {:.4f}".format(
         m["pooled_f1"], m["pooled_precision"], m["pooled_recall"]))

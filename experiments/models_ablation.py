@@ -31,20 +31,38 @@ from hybrid_model import HybridRFINet, ResBlock, MultiScaleStrip, ECA, count_par
 
 
 class PlainBlock(nn.Module):
-    """conv-norm-relu x2, with NO residual shortcut. Everything else identical."""
+    """conv-norm-relu x2, with NO residual shortcut. Everything else identical.
 
-    def __init__(self, in_ch, out_ch, dropout=0.0):
+    use_norm=False drops the GroupNorm layers, leaving conv-relu x2 -- the same
+    block structure tf_unet uses, which has no normalisation anywhere. A bias is
+    added back on the convolutions in that case, since without a following norm
+    layer a bias-free conv cannot shift its output.
+    """
+
+    def __init__(self, in_ch, out_ch, dropout=0.0, use_norm=True):
         super().__init__()
+        b = not use_norm
+
+        def norm(c):
+            return nn.GroupNorm(min(8, c), c) if use_norm else nn.Identity()
+
         self.b = nn.Sequential(
-            nn.Conv2d(in_ch, out_ch, 3, padding=1, bias=False),
-            nn.GroupNorm(min(8, out_ch), out_ch), nn.ReLU(inplace=True),
+            nn.Conv2d(in_ch, out_ch, 3, padding=1, bias=b),
+            norm(out_ch), nn.ReLU(inplace=True),
             nn.Dropout2d(dropout) if dropout > 0 else nn.Identity(),
-            nn.Conv2d(out_ch, out_ch, 3, padding=1, bias=False),
-            nn.GroupNorm(min(8, out_ch), out_ch), nn.ReLU(inplace=True),
+            nn.Conv2d(out_ch, out_ch, 3, padding=1, bias=b),
+            norm(out_ch), nn.ReLU(inplace=True),
         )
 
     def forward(self, x):
         return self.b(x)
+
+
+class PlainBlockNoNorm(PlainBlock):
+    """PlainBlock with GroupNorm removed, as a two-argument Block factory."""
+
+    def __init__(self, in_ch, out_ch, dropout=0.0):
+        super().__init__(in_ch, out_ch, dropout=dropout, use_norm=False)
 
 
 class ConfigurableUNet(nn.Module):
@@ -54,18 +72,38 @@ class ConfigurableUNet(nn.Module):
     use_res   : residual shortcuts in the conv blocks   (claim 1 in hybrid_model.py)
     use_strip : multiscale anisotropic strip convolutions (claim 2)
     use_eca   : efficient channel attention             (claim 3)
+    use_norm  : GroupNorm layers                        (NOT a claim -- a
+                confound. tf_unet has no normalisation at all, so without this
+                switch `plain_unet` still differs from the baseline by
+                normalisation and the gap stays unattributed. PART 13.8 measured
+                GroupNorm as doing heavy lifting: per-image normalisation costs
+                tf_unet -0.244 but the hybrid only -0.077.)
 
-    All three off == a plain GroupNorm U-Net of the same depth and width,
+    All three claims off == a plain GroupNorm U-Net of the same depth and width,
     trained with the same loss. That is the control the paper needs: it isolates
     the architecture from the framework/loss/normalisation changes that were
-    made at the same time.
+    made at the same time. Turning use_norm off as well moves one step closer
+    still to tf_unet, leaving only padding, output activation and framework.
     """
 
     def __init__(self, in_channels=1, n_classes=2, base=32, depth=4, dropout=0.2,
-                 use_res=True, use_strip=True, use_eca=True):
+                 use_res=True, use_strip=True, use_eca=True, use_norm=True):
         super().__init__()
         self.depth = depth
-        Block = ResBlock if use_res else PlainBlock
+        if use_res and not use_norm:
+            raise ValueError(
+                "use_res=True with use_norm=False is not supported: ResBlock is "
+                "imported unmodified from hybrid_model.py and has GroupNorm baked "
+                "in. Removing normalisation is only defined for the plain block."
+            )
+        if use_strip and not use_norm:
+            raise ValueError(
+                "use_strip=True with use_norm=False is not supported: "
+                "MultiScaleStrip is imported unmodified from hybrid_model.py and "
+                "carries its own GroupNorm, so normalisation would not actually "
+                "be removed."
+            )
+        Block = ResBlock if use_res else (PlainBlock if use_norm else PlainBlockNoNorm)
         self.enc, self.enc_ms, self.enc_eca = nn.ModuleList(), nn.ModuleList(), nn.ModuleList()
         ch, feats = in_channels, []
         for d in range(depth):
@@ -138,11 +176,15 @@ class LogisticPixel(nn.Module):
 
 
 VARIANTS = {
-    "hybrid_full": dict(use_res=True,  use_strip=True,  use_eca=True),
-    "no_strip":    dict(use_res=True,  use_strip=False, use_eca=True),
-    "no_eca":      dict(use_res=True,  use_strip=True,  use_eca=False),
-    "no_res":      dict(use_res=False, use_strip=True,  use_eca=True),
-    "plain_unet":  dict(use_res=False, use_strip=False, use_eca=False),
+    "hybrid_full":  dict(use_res=True,  use_strip=True,  use_eca=True,  use_norm=True),
+    "no_strip":     dict(use_res=True,  use_strip=False, use_eca=True,  use_norm=True),
+    "no_eca":       dict(use_res=True,  use_strip=True,  use_eca=False, use_norm=True),
+    "no_res":       dict(use_res=False, use_strip=True,  use_eca=True,  use_norm=True),
+    "plain_unet":   dict(use_res=False, use_strip=False, use_eca=False, use_norm=True),
+    # One step closer to tf_unet than plain_unet: no normalisation anywhere.
+    # What still differs from tf_unet after this is padding (same vs valid),
+    # output activation (raw logits vs ReLU) and framework.
+    "no_groupnorm": dict(use_res=False, use_strip=False, use_eca=False, use_norm=False),
 }
 
 ALL_NAMES = list(VARIANTS) + ["tiny_cnn", "logistic_pixel"]
