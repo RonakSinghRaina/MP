@@ -2516,6 +2516,90 @@ showing exactly why.
 
 ---
 
+## PART 17 — THE UNATTRIBUTED +0.1110, and the next experiment (2026-09-09)
+
+Analysis pass, no new runs. All PART 12/13/16 numbers were re-verified against
+`runs/lofar/*/eval_test/metrics.json` and reproduce exactly (nocw 0.6603 +/-
+0.0040, weighted 0.6467 +/- 0.0079, lr1e-4 0.5482 +/- 0.0139, matched pooled
+0.4563 +/- 0.0279).
+
+### 17.1 The open gap
+
+PART 13.10 attributes **+0.1110 over tf_unet to "architecture"**. That bucket
+is coarser than the label suggests. `experiments/models_ablation.py` states the
+problem in its own docstring: the hybrid differs from tf_unet in **at least six
+ways at once** — architecture, framework, loss, normalisation (GroupNorm vs
+none), padding (same vs valid) and output activation (raw logits vs ReLU).
+
+13.10 genuinely ruled out **class weighting** (-0.0125, 3 seeds, 13.11). It did
+NOT isolate GroupNorm, padding, output activation or framework. PART 13.8
+already shows GroupNorm does heavy lifting: per-image normalisation costs
+tf_unet -0.244 but the hybrid only -0.077.
+
+So the project's strongest claim rests on an unmeasured decomposition. This is
+the same class of error as PART 1 (which retracted "architecture explains the
+gap" once class weighting and normalisation were measured) — do not repeat it.
+
+### 17.2 What the synthetic ablation says (and why it is not reassuring)
+
+`results/ablation_reduced_budget.json`, base 16, N=1, its own note warns
+differences below ~0.03 are not established:
+
+| variant | F1 | vs full |
+|---|---|---|
+| hybrid_full | 0.8928 | — |
+| no_strip | 0.8785 | -0.0143 |
+| no_eca | 0.9117 | **+0.0189** |
+| no_res | 0.9033 | +0.0105 |
+| plain_unet | 0.8814 | -0.0114 |
+
+The three named components do **nothing** on synthetic data — removing ECA is
+better. Yet on real LOFAR the architecture bucket is worth +0.1110. Something
+in there matters a great deal and it is not established which part.
+
+### 17.3 NEXT EXPERIMENT — run the ablation on LOFAR
+
+The switches already exist (`use_res` / `use_strip` / `use_eca` in
+`models_ablation.py`); they have never been run on real data. **Add a
+`no_groupnorm` variant** — without it `plain_unet` still carries GroupNorm and
+the tf_unet gap stays partly unattributed.
+
+**Predictions registered in advance, so neither result can be rationalised
+after the fact:**
+
+- **plain_unet lands near 0.65** -> the win is GroupNorm and same-padding, not
+  strip/ECA/residual. Kills the architecture story; gives a strong honest
+  finding — *synthetic benchmarks credit components that do nothing on real
+  data* — consistent with PARTS 1, 4 and 16.
+- **plain_unet lands near 0.55 and no_strip drops sharply** -> strip
+  convolutions genuinely matter on real data despite being worthless on
+  synthetic. Rehabilitates the architecture argument with evidence rather than
+  novelty, which matters because PART 4 killed the novelty claim.
+
+Both outcomes are publishable, which is why this is the right next experiment.
+It also addresses outstanding item 1 directly: the paper stops claiming a new
+architecture and starts claiming a measured result about which mechanisms
+survive contact with real data.
+
+Cost: ~25 min/run (measured from the seed timestamps 10:05 / 10:30 / 10:55).
+6 variants x 1 seed ~ 2.5 h to find the movers; then 3 seeds on those only.
+
+### 17.4 Cheap gap worth closing at the same time
+
+`runs/lofar/hybrid_b32_nocw_seed1/` is an **empty directory** — a base-32 run
+started 2026-09-08 00:56 and abandoned. PART 13.7's efficiency claim was only
+tested in the *weighted* configuration (base 32 weighted 0.6571, N=1) and never
+in the final unweighted one. One run closes it.
+
+### 17.5 What is now closed
+
+PART 16 closed the "longer-range context" line from PART 15.3: the CRF
+supplies a mechanism the backbone already has, and given freedom to weight
+itself it shrank its own kernels toward zero. Of PART 15.3's two RULED IN
+items, **context is now spent**; **precision (+0.114 available) is untouched.**
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
@@ -2541,7 +2625,12 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
-   failure diagnoses. This is the biggest single issue.
+   failure diagnoses. This is the biggest single issue. **PART 17.3 is the
+   experiment that addresses it** — the LOFAR ablation, whose two possible
+   outcomes are both publishable.
+1b. **The +0.1110 "architecture" gain is not decomposed** (PART 17.1). Six
+   differences from tf_unet are confounded; only class weighting has been ruled
+   out. Blocking for any claim about *why* the hybrid wins.
 2. **The baseline comparison is not matched.** Baseline got 60 epochs, hybrid 22.
    Baseline reports **oracle max-F1**; hybrid reports F1 at a **fixed
    validation-selected threshold**. `tf_unet`'s valid padding scores it on
