@@ -2733,6 +2733,93 @@ three independent negative results, each with the diagnostic that explains it.
 
 ---
 
+## PART 19 — THE PLAN: two runs, then stop experimenting and write (2026-09-10)
+
+Recorded so the decision survives the session. No new measurements here.
+
+### 19.1 Where the project actually is
+
+The research is in good shape and the *writing* is the bottleneck. There is no
+report draft anywhere in the repo — everything lives in this document. What
+exists and is defensible:
+
+1. Beats the published state of the art on real telescope data:
+   **0.6603 +/- 0.0040** vs RFI-Net's 0.5979 (3 seeds, bootstrap CI excludes
+   it, independently audited in PART 14).
+2. At **593,842 parameters** against their millions (PART 13.7).
+3. **Beats its own teacher**: labels came from AOFlagger (0.5698); PART 14.5
+   showed it does so by genuinely disagreeing, not copying.
+4. **Found test-set leakage in a published dataset** — all 109 test images
+   duplicated in the training set (PART 11.5). A finding about someone else's
+   benchmark.
+5. **Three clean negative results**, each with the diagnostic explaining why:
+   components do nothing (18), CRF adds nothing (16), strip idea not novel (4).
+6. **A -0.44 F1 synthetic-to-real gap** for identical code and budget (12).
+
+### 19.2 Do exactly two more runs
+
+1. **Seed confirmation, ~1.7 h.** `plain_unet` and `no_groupnorm` at seeds 1
+   and 2. Converts "the differences are small" into a defensible claim. The
+   reference is already at 3 seeds (0.6592 / 0.6647 / 0.6570), so
+   `hybrid_full` does not need repeating.
+   *(Started 2026-09-10: `abl_plain_unet_seed1` is running.)*
+
+2. **Isolate the loss, ~25 min.** 71% of the headline gain is still
+   unattributed (PART 18.4), and the largest untested part of it is the
+   CE+Dice loss vs tf_unet's plain CE:
+
+       ~/torch-env/bin/python experiments/lofar_hybrid.py \
+           --variant plain_unet --base 8 --norm fixed --no_class_weight \
+           --dice_weight 0 --seed 0 \
+           --output_dir runs/lofar/abl_plain_unet_nodice_seed0
+
+   Without this, "why does it beat theirs?" can be answered for 29% of the
+   gain. This is 25 minutes to close the biggest hole in the story.
+
+### 19.3 Then STOP. Do not start the precision line.
+
+PART 15 measured **+0.114** as theoretically available from precision, and it
+is the only large gain left. It is also **open-ended research with no
+guaranteed payoff**. There is a finished, significant, audited result now;
+trading that for an uncertain better one against a deadline is a bad trade.
+If time remains after the report is drafted, this is where to go — not before.
+
+### 19.4 Write the MEASUREMENT paper, not the architecture paper
+
+PART 4 killed the novelty claim; PART 18 killed the mechanism claim. Do not
+write around an architecture contribution. The honest framing is stronger:
+
+> A small U-Net beats the published state of the art on real LOFAR RFI
+> detection — and the architectural features it is named for contribute none
+> of the advantage.
+
+Structure:
+
+1. The problem, and why real data is hard — PART 11 numbers: 1:129 imbalance,
+   ~25% of RFI dimmer than a typical clean pixel, ~44% wrong training labels.
+2. The dataset, audited, including the leakage. **This section is ours; nobody
+   else has it.**
+3. Result — 0.6603 +/- 0.0040 against the published ladder, with the bootstrap CI.
+4. Why — the honest decomposition (components 1.7%, normalisation 28%,
+   unattributed 71%), plus the finding that normalisation specifically rescues
+   near-noise RFI (18.6).
+5. What did not work — the CRF, with the mechanism explaining it (16.5).
+6. Synthetic vs real — the -0.44 gap, and that synthetic benchmarks reward
+   components that do nothing on real data (18.3 vs the synthetic ablation).
+7. Limits — PART 14.8 already wrote this section.
+
+Sections 4, 5 and 6 are what make it worth reading.
+
+### 19.5 The conversation to have early
+
+The project began as an architecture contribution and the measurements have
+disproved that, twice, on two datasets. Raise this with the supervisor **before
+submission, not at it**, framed as what it is: the claim was tested rigorously
+enough to be refuted. That is better work than a claim that survived because
+nobody checked.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
