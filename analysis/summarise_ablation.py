@@ -54,8 +54,8 @@ def main():
         f = np.array([m["max_f1"] for m in runs[v]])
         sd = f.std(ddof=1) if f.size > 1 else float("nan")
         par = runs[v][0].get("parameters", 0)
-        pr = np.mean([m.get("precision", np.nan) for m in runs[v]])
-        rc = np.mean([m.get("recall", np.nan) for m in runs[v]])
+        pr = np.mean([m.get("pooled_precision", np.nan) for m in runs[v]])
+        rc = np.mean([m.get("pooled_recall", np.nan) for m in runs[v]])
         delta = f.mean() - ref if np.isfinite(ref) else np.nan
         sd_s = f"{sd:>8.4f}" if f.size > 1 else f"{'-':>8}"
         print(f"{v:<15}{f.size:>3}{f.mean():>10.4f}{sd_s}"

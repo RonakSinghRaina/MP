@@ -2600,6 +2600,139 @@ items, **context is now spent**; **precision (+0.114 available) is untouched.**
 
 ---
 
+## PART 18 — RESULT: the ablation on real LOFAR. The components do nothing. (2026-09-10)
+
+`./scripts/run_lofar_ablation.sh`, 6 variants, seed 0, base 8, fixed norm,
+no class weight, 28,000 steps each. Everything except the model held fixed.
+Raw metrics in `runs/lofar/abl_*/eval_test/metrics.json`. Summarise with
+`analysis/summarise_ablation.py`.
+
+### 18.1 Control passed
+
+`hybrid_full` scored **0.6624** against the published HybridRFINet reference of
+**0.6603 +/- 0.0040** (PART 13.11) — a 0.5 seed-sd difference. The
+component-switchable skeleton faithfully reproduces the real model, so the rest
+of the table can be trusted.
+
+### 18.2 The table
+
+| variant | params | max F1 | vs full | precision |
+|---|---|---|---|---|
+| hybrid_full | 593,842 | 0.6624 | — | 0.6887 |
+| no_strip | 508,210 | **0.6637** | **+0.0013** | 0.7132 |
+| no_eca | 593,818 | 0.6557 | −0.0067 | 0.6799 |
+| no_res | 572,074 | 0.6569 | −0.0055 | 0.6736 |
+| **plain_unet** (all three off) | 486,418 | **0.6605** | **−0.0019** | 0.6890 |
+| **no_groupnorm** (+ no normalisation) | 485,682 | **0.6289** | **−0.0335** | 0.5418 |
+| *tf_unet @ lr 1e-4 (3 seeds)* | *~500,000* | *0.5482 +/- 0.0139* | *−0.1142* | — |
+
+Seed sd of the reference configuration is 0.0040, so **anything under ~0.008 is
+noise**. Every claimed component is under it.
+
+### 18.3 Decomposition of the +0.1142 gain over tf_unet
+
+| step | gain | share | verdict |
+|---|---|---|---|
+| tf_unet -> no_groupnorm | **+0.0807** | **71%** | **still unattributed** |
+| no_groupnorm -> plain_unet (GroupNorm) | **+0.0315** | **28%** | 7.9 seed sd — REAL |
+| plain_unet -> hybrid_full (all three claimed components) | **+0.0019** | **1.7%** | 0.5 seed sd — NOTHING |
+
+**The three components the architecture is named for account for 1.7% of the
+gain, and that 1.7% is inside the noise floor.** Removing the strip
+convolutions actually scored *higher* (+0.0013). This is the same conclusion
+the synthetic ablation reached (`results/ablation_reduced_budget.json`: strip
++0.0143, ECA −0.0189, both inside that run's own +/-0.03 noise floor), now
+confirmed on real data with a proper control.
+
+**PART 17.3's predicted outcome A is what happened.**
+
+### 18.4 What the +0.0807 residual still contains — do not overclaim
+
+`no_groupnorm` differs from tf_unet in **four** ways, not one: padding (same vs
+valid), output activation (raw logits vs ReLU), framework (PyTorch vs
+TensorFlow), **and the loss (CE+Dice here vs plain CE in tf_unet)**. The
+ablation runs all use `--dice_weight 1.0`. So the largest single piece of the
+gain is still not isolated, and the paper must not describe it as "padding and
+framework". Isolating it needs a `--dice_weight 0` arm at minimum.
+
+### 18.5 The strip-convolution claim, tested where it should show — it fails
+
+`hybrid_model.py` justifies the strip convolutions by claiming they make "a
+1.5-sigma line detectable" by integrating along coherent structure. Pooled F1
+cannot test that, because the dim tiers are a small share of pixels
+(`run_ablation.py` says so in its own comments). `analysis/ablation_faint_recall.py`
+tests it directly, using PART 15's brightness tiers.
+
+**First attempt was confounded and the confound mattered.** Scoring each
+variant at its own validation-selected threshold appeared to show strips
+helping the dim tiers by about +0.02 — but `hybrid_full`'s threshold is 0.2957
+against `no_strip`'s 0.4335, and a lower threshold raises recall in every tier
+for free. Re-scored at **matched budget** (every variant thresholded to emit
+the same 199,951 positives):
+
+| tier | share of RFI | hybrid_full | no_strip | diff |
+|---|---|---|---|---|
+| bright (>clean p99) | 50.1% | 0.940 | 0.945 | −0.0053 |
+| moderate (p75–p99) | 18.9% | 0.405 | 0.402 | +0.0029 |
+| faint (p50–p75) | 11.0% | 0.273 | 0.274 | −0.0008 |
+| invisible (<clean p50) | 20.0% | 0.258 | 0.257 | +0.0008 |
+
+**Nothing, in any tier, including the ones the mechanism was designed for.**
+The apparent effect was entirely a threshold artifact. The strip-convolution
+justification in `hybrid_model.py` is not supported on real data.
+
+### 18.6 What GroupNorm actually buys — and it is the dim tiers
+
+Same matched-budget comparison, `no_groupnorm` against `plain_unet` (identical
+apart from the normalisation layers):
+
+| tier | no_groupnorm | plain_unet | diff |
+|---|---|---|---|
+| bright | 0.928 | 0.948 | +0.020 |
+| moderate | 0.316 | 0.384 | **+0.068** |
+| faint | 0.210 | 0.264 | **+0.054** |
+| invisible | 0.181 | 0.256 | **+0.075** |
+
+Bright RFI barely cares; the dim tiers gain 3–4x more. **Normalisation is what
+lets the network see RFI that is close to the noise** — which is also why
+PART 13.8 found per-image normalisation catastrophic for tf_unet (−0.244), a
+model with no normalisation layers at all to absorb it.
+
+That is a real mechanistic finding and it is *not* the one the architecture was
+sold on.
+
+### 18.7 What this means for the paper
+
+The headline result is untouched: 0.6603 +/- 0.0040 still beats RFI-Net's
+published 0.5979, and PART 14's audit still stands. **What changes is the
+explanation.** The paper cannot claim strip convolutions, ECA or residual
+blocks as the reason. It can claim, with measurements on both a synthetic and
+a real dataset:
+
+> The architectural components this model is named for contribute 1.7% of its
+> advantage, inside the seed noise floor. Normalisation contributes 28%, and it
+> acts specifically on near-noise RFI. The remaining 71% is attributable to
+> training and implementation choices — loss, padding, output activation — not
+> to architecture.
+
+Combined with PART 4 (the strip idea was not novel anyway) and PART 16 (the CRF
+adds nothing), this project's contribution is now clearly a **measurement
+paper**, not an architecture paper. That is a defensible and unusual position:
+three independent negative results, each with the diagnostic that explains it.
+
+### 18.8 Caveats
+
+1. **N = 1 per cell.** The GroupNorm effect is 8.4 seed sd and is safe. Every
+   other difference is inside noise and must not be interpreted, in either
+   direction — including "removing strips helps".
+2. **Confirm the two that matter at 3 seeds**: `plain_unet` (the claim that the
+   components do nothing) and `no_groupnorm`. `./scripts/run_lofar_ablation.sh 0 1 2`.
+3. The 18.3 decomposition is sequential, so it assumes the components do not
+   interact. With every step except GroupNorm inside noise, that assumption is
+   not doing much work here.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
@@ -2628,9 +2761,12 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
    failure diagnoses. This is the biggest single issue. **PART 17.3 is the
    experiment that addresses it** — the LOFAR ablation, whose two possible
    outcomes are both publishable.
-1b. **The +0.1110 "architecture" gain is not decomposed** (PART 17.1). Six
-   differences from tf_unet are confounded; only class weighting has been ruled
-   out. Blocking for any claim about *why* the hybrid wins.
+1b. ~~**The +0.1110 "architecture" gain is not decomposed**~~ **PARTIALLY
+   CLOSED 2026-09-10 — see PART 18.** The three claimed components contribute
+   +0.0019 (1.7%, inside noise); GroupNorm contributes +0.0315 (28%, real).
+   **+0.0807 (71%) remains unattributed** and still confounds loss (CE+Dice vs
+   CE), padding, output activation and framework. A `--dice_weight 0` arm is
+   the next step for that piece.
 2. **The baseline comparison is not matched.** Baseline got 60 epochs, hybrid 22.
    Baseline reports **oracle max-F1**; hybrid reports F1 at a **fixed
    validation-selected threshold**. `tf_unet`'s valid padding scores it on
