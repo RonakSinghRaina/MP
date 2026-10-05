@@ -2,52 +2,138 @@
 \label{ch:tfunet}
 
 \section{Initial result}
-% - First runs of the authors' unmodified code on the 276x600 synthetic
-%   dataset scored max F1 0.3879. Our own model scored ~0.98 on the same
-%   data. [PART 1]
-% - The tempting conclusion was "the authors' architecture is worse".
-%   Say that you tested this instead of assuming it.
-% - Training setup common to all runs: layers 3, features_root 32, Adam
-%   lr 1e-3, batch 4. Why not the paper's momentum at lr 0.2: it kills the
-%   network at small batch (dead at iteration 4) [CLAUDE.md section 6].
+The first step was to reproduce the authors' method. I used their \tfunet{}
+code without modifying the network itself, with 3 layers and 32 features in
+the first layer (465{,}986 trainable parameters), and trained it on the
+276$\times$600 synthetic dataset. Two settings had to differ from the paper.
+Akeret et al.\ used a batch of 32 images and momentum gradient descent with a
+learning rate of 0.2~\cite{akeret2017}. A batch of 32 does not fit on the
+6\,GB GPU used here, so I used a batch of 4. At such a small batch the paper's
+learning rate destroyed the network within a few iterations (with a batch of
+one it stopped learning at iteration 4), so I used the Adam optimiser with a
+learning rate of $10^{-3}$ instead.
+
+The result was poor: a maximum \Fone{} of only 0.3879 on the test set, while my
+own model (\cref{ch:hybrid}) scored about 0.98 on the same data. The obvious
+conclusion would have been that the authors' architecture is simply weaker.
+My first suspicion was the normalisation of the input images. Rather than
+assume either explanation, I ran a set of controlled experiments.
 
 \section{Four controlled runs}
-% Table [PART 1] -- only normalisation and class weights change:
-%  # | normalisation | class weights | epochs | ROC    | max F1 | behaviour
-%  1 | per-image     | on            | 22     | 0.6681 | 0.3879 | froze at 81.1% error for 15 epochs
-%  2 | per-image     | on            | died 5 | 0.5677 | 0.3064 | collapsed, constant 0.537 everywhere
-%  3 | per-image     | off           | 60     | 0.8747 | 0.7191 | trained normally
-%  4 | fixed range   | off           | 60     | 0.9908 | 0.9317 | trained well
-% Figure: the bar chart from the Week-5 deck (chart_synth).
-% Decomposition: class weights +0.413 (66%), normalisation +0.213 (34%),
-% more epochs ~0.
+In four runs everything was kept the same---dataset, network, optimiser and
+batch size---except two settings: how the input images were normalised, and
+whether class weighting was used (\cref{tab:tfunet_runs},
+\cref{fig:tfunet_runs}). Class weighting gives the rare RFI pixels a larger
+weight in the loss, and had been added by us to deal with the imbalance
+between RFI and clean pixels; it is not part of the authors' setup.
+
+\begin{table}[H]
+  \centering
+  \caption{\tfunet{} on the 276$\times$600 synthetic dataset. Only the
+    normalisation and the class weighting change between runs.}
+  \label{tab:tfunet_runs}
+  \begin{tabular}{clcrrrl}
+    \toprule
+    Run & Normalisation & Class weights & Epochs & ROC AUC & max \Fone{} & Behaviour \\
+    \midrule
+    1 & per-image   & on  & 22 & 0.6681 & 0.3879 & frozen for 15 epochs \\
+    2 & per-image   & on  & 5  & 0.5677 & 0.3064 & collapsed, stopped \\
+    3 & per-image   & off & 60 & 0.8747 & 0.7191 & trained normally \\
+    4 & fixed range & off & 60 & 0.9908 & 0.9317 & trained well \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{tfunet_controlled_runs}
+  \caption{Test \Fone{} of the four controlled \tfunet{} runs of
+    \cref{tab:tfunet_runs}. The network is identical in all four.}
+  \label{fig:tfunet_runs}
+\end{figure}
+
+Removing the class weights and switching to a fixed normalisation range raised
+the score from 0.3879 to 0.9317 without any change to the network. Runs 3 and
+4 differ only in normalisation and were trained for the same number of epochs,
+so the gain from normalisation alone, $+0.213$, is a fair comparison. The
+effect of class weighting is less cleanly separated: run~2 was stopped at
+epoch~5 by an automatic check that detects a collapsed network, and run~1
+after 22 epochs, while runs 3 and 4 trained for 60. As
+\cref{sec:tfunet_v4} shows, a frozen network can eventually recover if
+trained for longer, so part of the difference between runs 1--2 and run~3 is
+due to training length. What the runs establish clearly is that the poor
+initial score came from these two settings, not from the architecture.
 
 \section{Cause 1: class weighting and the ReLU output}
-% Explain the mechanism in your own words -- you presented this in Week 5:
-% - tf_unet applies ReLU to its two output scores (unet.py line 145).
-% - Class weighting pushes the "clean" score negative; ReLU clamps it to 0;
-%   ReLU's gradient at negative input is 0, so it cannot recover.
-% - Evidence: run 2 output exactly 0.537 for all 24,840,000 test pixels.
-%   softmax(0, c) = 0.537  ->  c = 0.148. The network became a constant.
-% - Neither part alone is the problem; the combination is.
-% - Nuance: on the v4 dataset the network ESCAPED this state after 15
-%   epochs [PART 8] -- so write "very long freeze", not "permanent".
+\label{sec:relu_trap}
+For every pixel, \tfunet{} produces two scores, one for ``clean'' and one for
+``RFI'', and passes both through a ReLU before turning them into
+probabilities. A ReLU replaces any negative value with zero. Class weighting
+pushes the network strongly towards predicting RFI, which drives the
+``clean'' score negative. The ReLU then sets it to exactly zero, and because
+the slope of a ReLU is zero for negative inputs, no gradient flows back: the
+network has no signal telling it how to change that score. It stops learning.
+
+This is exactly what run~2 shows. It gave the same output, 0.537, for every
+one of the 24{,}840{,}000 test pixels. Working backwards through the softmax,
+$\mathrm{softmax}(0, c)_2 = 0.537$ gives $c = 0.148$: the ``clean'' score was
+stuck at zero and the ``RFI'' score at 0.148 everywhere. The network had become
+a constant.
+
+Neither part is a problem on its own. The authors trained successfully with
+the ReLU, and class weighting is a standard remedy for imbalanced data. It is
+the combination that causes the network to freeze. The freeze is long rather
+than permanent: on the second synthetic dataset the same network stayed frozen
+for 15 epochs and then began to recover (\cref{sec:tfunet_v4}).
 
 \section{Cause 2: per-image normalisation}
-% - Each image scaled by its own min/max; per-image maximum ranges 27 to
-%   222 (8.2x) on this dataset.
-% - Worked example table [PART 1]: noise (10) and faint RFI (20) in a quiet
-%   and a loud image -- noise in the quiet image (0.370) reads brighter than
-%   RFI in the loud image (0.090).
-% - The authors avoided this themselves: their launcher uses a_min=30,
-%   a_max=210. It was lost when the code was adapted.
-% - tf_unet has no normalisation layers, so it cannot compensate.
-% - Fix: clip to a fixed range measured from the 0.5th/99.5th percentiles of
-%   training images only.
+\label{sec:pernorm}
+The data loader we had written scaled each image by its own minimum and
+maximum. In this dataset the maximum value of an image ranges from 27 to 222,
+a factor of 8.2. The same physical brightness therefore ends up at different
+values in different images. \Cref{tab:pernorm} shows what this does to a noise
+pixel (raw value 10) and a faint RFI pixel (raw value 20).
 
-\section{Bandpass dataset (v4)}
-% Short. [PART 8] Corrected baseline (fixed norm, no weights): 0.9483.
-% With per-image + weights: 0.6815. Same lesson holds on the harder data.
+\begin{table}[H]
+  \centering
+  \caption{Normalised values of the same two pixels under per-image and
+    fixed-range normalisation.}
+  \label{tab:pernorm}
+  \begin{tabular}{lccc}
+    \toprule
+    Pixel (raw value) & Per-image, quiet image & Per-image, bright image & Fixed range \\
+     & (max 27) & (max 222) & \\
+    \midrule
+    Noise (10)     & 0.370 & 0.045 & 0.345 \\
+    Faint RFI (20) & 0.741 & 0.090 & 0.520 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+With per-image scaling, noise in the quiet image (0.370) appears brighter than
+real RFI in the bright image (0.090), so no single threshold separates RFI from
+noise across all images. A fixed range keeps the ordering. The authors had
+avoided this problem: their own launch script clips every image to the same
+fixed range (from 30 to 210), but this was lost when their code was adapted to
+our data. \tfunet{} has no normalisation layers inside the network, so it
+cannot correct for it.
+
+The fix was to scale all images with one fixed range, taken as the 0.5th and
+99.5th percentiles of the pixel values, averaged over 40 training images
+(giving $-9.69$ and $47.40$). Percentiles are used rather than the minimum and
+maximum because a single extreme pixel can move the minimum or maximum a long
+way. Only training images are used, so no information from the test set
+enters the normalisation.
+
+\section{The bandpass dataset}
+\label{sec:tfunet_v4}
+I repeated the two extreme settings on the 1024$\times$265 dataset with the
+instrument bandpass. With per-image normalisation and class weights, the
+network stayed frozen at a validation \Fone{} of about 0.37 for the first 15
+epochs, then escaped and kept improving until the last epoch, finishing at a
+test \Fone{} of 0.6815. With a fixed range and no class weights it reached
+0.9483 and had converged by epoch 30. The same two settings decide the result
+on the harder dataset too.
 
 \section{\tfunet{} on real LOFAR data}
 % Setup [PART 12]: unmodified code, fixed-range normalisation, no class

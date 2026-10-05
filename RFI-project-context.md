@@ -186,6 +186,13 @@ variables changed.
 | **Fixed-range normalisation** | **+0.213** | **34%** |
 | More epochs (22 → 60) | ≈0 | ≈0% |
 
+> **⚠ QUALIFIED 2026-10-05 (while writing the report).** Run 2 was halted at
+> epoch 5 by the collapse detector and run 1 at 22, while runs 3-4 had 60, and
+> PART 8 showed the frozen state can be escaped with more epochs. So the 66/34
+> split is confounded with training length. CLEAN statements: both fixes
+> together 0.3879 -> 0.9317; normalisation alone +0.213 (runs 3 vs 4, both
+> 60 epochs, no weights). Do not quote the 66% figure without this caveat.
+
 **Class weighting was the primary cause. Normalisation was secondary but real.
 Epoch count was irrelevant** — run 2 collapsed at epoch 5, so the extra epochs
 never mattered.
