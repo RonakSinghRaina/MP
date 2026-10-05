@@ -87,10 +87,14 @@ rescaled as well: a blob 40 channels wide covers 3.9\% of a 1024-channel band
 but 14.5\% of a 276-channel band. Seven size-dependent parameters of the
 generator were therefore scaled in proportion to the image dimensions.
 
-% TODO (ask Ronak): why 1024x265 for the second version? Reason not
-% recorded in the repo. Add one or two sentences here.
-The second version, 1024$\times$265, adds a model of the receiver's frequency
-response, described in the next section.
+The second version, 1024$\times$265, was made on my supervisor's advice for
+two reasons. First, RFI is often very faint and occupies only a few frequency
+channels, so a detector benefits from finer frequency resolution. The new
+version has 1024 frequency channels instead of 276, which is 3.7 times finer
+in frequency; in exchange it has 265 time samples instead of 600. Second, real
+receivers do not respond equally to all frequencies, and this instrument
+bandpass was missing from the first version. The second version adds it, as
+described next.
 
 \begin{table}[H]
   \centering
@@ -109,16 +113,49 @@ response, described in the next section.
 
 \subsection{The instrument bandpass (v4)}
 \label{sec:bandpass}
-% - Real receivers do not amplify all frequencies equally. Formula
-%     B(f) = max( W(f) * [1 + R(f) + S(f)], B_floor )
-%   W = Tukey edge taper, R = slow ripple, S = standing wave.
-%   [PART 9; code dataset_v4_bandpass/generate_dataset_v4.py]
-% - spectrogram = B(f) * (sky + RFI) + receiver noise. Noise is added AFTER
-%   the gain, as in a real receiver chain.
-% - HONESTY: each ingredient is standard and citable, but the combined
-%   formula is ours. Say so. Cite Harris 1978 (Tukey window), Popping & Braun
-%   2008 (standing waves), Hamaker et al. 1996 (measurement equation).
-%   [PART 9 PROVENANCE]
+A radio receiver does not amplify every frequency by the same amount. Its gain
+falls away at the edges of the observing band, and across the band it has
+small ripples caused by the filters and by reflections between parts of the
+telescope (standing waves). This frequency-dependent gain is called the
+bandpass. Real spectrograms always carry it, so I added it to the second
+version of the dataset.
+
+The gain applied to frequency channel $f$ is
+\begin{equation}
+  B(f) = \max\Big( W(f)\,\big[\,1 + R(f) + S(f)\,\big],\; B_{\text{floor}} \Big),
+  \label{eq:bandpass}
+\end{equation}
+where $W(f)$ is a Tukey (raised-cosine) taper that rolls the gain off over the
+outer 8\% of the band at each edge, $R(f)$ is a slow ripple made of two to four
+sine waves with periods between 0.4 and 1.5 times the band width and a total
+amplitude of 15\%, and $S(f)$ is a standing wave with a period of 128 channels
+and an amplitude of 5\%. $B_{\text{floor}} = 10^{-3}$ stops the gain from reaching
+zero. Every parameter is randomly varied by up to $\pm25\%$ for each image and
+all phases are random, so no two images share the same bandpass; otherwise a
+model could simply memorise one curve.
+
+An important detail is where the noise enters. In a real receiver chain the
+sky signal and any RFI are amplified by the bandpass, but the electronic noise
+of the amplifiers and digitiser is added afterwards and does not scale with
+the gain. The spectrogram is therefore built as
+\begin{equation}
+  \text{spectrogram} = B(f)\,\big(\text{sky} + \text{RFI}\big) + n_{\text{rx}},
+\end{equation}
+where the receiver noise $n_{\text{rx}}$ has a standard deviation of 0.1 times
+the median sky noise. If the noise were multiplied by the gain as well, it
+would cancel out of the signal-to-noise ratio and the bandpass would make no
+difference to how detectable the RFI is. With the noise added after the gain,
+RFI near the band edges, where $B(f)$ is small, genuinely sinks into the noise.
+The labelling rule of \cref{sec:synthetic_label} is applied after this step,
+so such RFI is labelled clean. This removed 54{,}403 of the 37{,}073{,}066
+injected RFI pixels (0.147\%), all near the band edges.
+
+Each part of \cref{eq:bandpass} is standard: the Tukey window is a common
+taper in signal processing~\cite{harris1978}, standing waves in radio
+telescopes are well documented~\cite{popping2008}, and treating the instrument
+as a gain applied to the incoming signal follows the radio-astronomy
+measurement equation~\cite{hamaker1996}. The particular combination used here,
+however, is my own construction and is not taken from a published simulator.
 
 \section{HERA dataset}
 \label{sec:hera}
