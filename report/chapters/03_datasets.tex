@@ -10,23 +10,105 @@
 % section of the context doc, Synthetic Dataset*/dataset_statistics.txt.
 
 \subsection{Generation}
-% - Simulated sky noise + injected RFI of several types (narrowband,
-%   broadband, bursts, blobs) at varied strengths.
-% - The LABEL: a pixel is RFI if injected RFI > 0.5 sigma of local noise.
-%   This makes the labels noise-free and unambiguous -- remember this,
-%   it is the key difference from real data (Chapter 6).
-% - 90.9% of RFI pixels sit at >= 1 sigma [Still outstanding, item 4].
-% - Seed 42, regenerates bit-exactly. 700 train / 150 val / 150 test.
-%   Zero shared SHA-256 hashes between splits -- no leakage.
+Real radio data with reliable pixel-level RFI labels is scarce, so the first
+part of this work used a synthetic dataset that I generated myself. The
+generator is written in Python and uses NumPy's random number generator with a
+fixed seed (42), so the whole dataset can be regenerated bit for bit.
 
-\subsection{Two versions}
-% Table: version | size | bandpass | test RFI fraction
-%  v3  276x600   no bandpass   15.08% (3,746,075 of 24,840,000 test pixels)
-%  v4  1024x265  instrument bandpass
-% [source: Verified facts section; PART 8]
-% - Why 276x600: matched to the dimensions in the authors' paper.
+Each image is a spectrogram: one axis is frequency and the other is time, and
+each pixel holds the power received in that frequency channel at that moment.
+The background is not plain random noise. It is built from a sky pedestal that
+varies across frequency, a smooth astronomical signal, a slow drift in time,
+and Gaussian noise on top. RFI is then injected into this background. Six
+types of RFI are modelled, chosen to cover the shapes commonly seen in real
+observations (\cref{tab:rfi_types}). Each image receives a random selection of
+types at random strengths, and images are spread over four density levels:
+clean (8.2\%), light (30.0\%), moderate (36.2\%) and heavy (25.6\%).
+
+\begin{table}[H]
+  \centering
+  \caption{The six RFI types in the synthetic dataset, with the number of the
+    1000 images (1024$\times$265 version) that contain each type.}
+  \label{tab:rfi_types}
+  \begin{tabular}{llr}
+    \toprule
+    Type & Appearance in the spectrogram & Images \\
+    \midrule
+    Narrowband      & thin line at one frequency, lasting for some time  & 889 \\
+    Scattered       & small isolated hits scattered over the image        & 899 \\
+    Blob            & patchy, cloud-like region                           & 673 \\
+    Persistent band & group of channels affected for the whole observation & 588 \\
+    Broadband block & rectangle covering many channels for a while        & 488 \\
+    Wideband burst  & short flash across many channels at once            & 310 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The dataset contains 1000 images, split into 700 for training, 150 for
+validation and 150 for testing. I checked that no image appears in more than
+one split by comparing SHA-256 hashes of the raw pixels; there are no shared
+hashes.
+
+\subsection{Deciding which pixels are RFI}
+\label{sec:synthetic_label}
+Because the RFI is injected by the generator, its exact strength at every
+pixel is known. A pixel is labelled as RFI when the injected RFI power there
+is greater than 0.5 times the standard deviation of the local noise. Pixels
+where RFI was added but is weaker than this are labelled clean, because at
+that level there is effectively nothing left in the data for a detector to
+find.
+
+This rule gives labels that are noise-free and unambiguous: every labelled
+pixel is, by construction, measurably above the noise. In the 276$\times$600
+version, 90.9\% of the RFI pixels lie at or above one noise standard
+deviation. This makes the task considerably easier than labelling real data,
+a point that becomes important in \cref{ch:drivers}.
+
+The rule was refined between the two versions of the dataset. In the
+276$\times$600 version a pixel was labelled RFI if it lay inside the geometric
+outline of an injected RFI shape \emph{or} exceeded the 0.5$\sigma$ threshold.
+Because this was a union, it could mark pixels that carried almost no RFI
+power (0.06\% of labelled pixels in the training split, and up to 4.49\% in
+the worst single image). In the 1024$\times$265 version only the threshold is
+used, and it is applied \emph{after} the instrument response
+(\cref{sec:bandpass}) and against the total local noise of each channel, so
+RFI that the instrument has genuinely buried below the noise is not
+labelled.
+
+\subsection{Two versions of the dataset}
+\label{sec:synthetic_versions}
+Two versions of the dataset were used (\cref{tab:synth_versions}). My first
+images were 1024$\times$1024 pixels. At that size only one image fitted in a
+training batch on the 6\,GB GPU, which made training unstable. Akeret et
+al.~\cite{akeret2017} trained \tfunet{} on images of 276$\times$600 pixels, so
+I regenerated the dataset at exactly that size to reproduce their setup as
+closely as possible. When the image size changes, the RFI shapes have to be
+rescaled as well: a blob 40 channels wide covers 3.9\% of a 1024-channel band
+but 14.5\% of a 276-channel band. Seven size-dependent parameters of the
+generator were therefore scaled in proportion to the image dimensions.
+
+% TODO (ask Ronak): why 1024x265 for the second version? Reason not
+% recorded in the repo. Add one or two sentences here.
+The second version, 1024$\times$265, adds a model of the receiver's frequency
+response, described in the next section.
+
+\begin{table}[H]
+  \centering
+  \caption{The two versions of the synthetic dataset. Both use seed 42 and a
+    700/150/150 split.}
+  \label{tab:synth_versions}
+  \begin{tabular}{lccc}
+    \toprule
+    Version & Size (freq $\times$ time) & Instrument bandpass & RFI pixels \\
+    \midrule
+    v3 & 276$\times$600  & no  & 14.67\% mean (test split 15.08\%) \\
+    v4 & 1024$\times$265 & yes & 14.19\% mean \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{The instrument bandpass (v4)}
+\label{sec:bandpass}
 % - Real receivers do not amplify all frequencies equally. Formula
 %     B(f) = max( W(f) * [1 + R(f) + S(f)], B_floor )
 %   W = Tukey edge taper, R = slow ripple, S = standing wave.
