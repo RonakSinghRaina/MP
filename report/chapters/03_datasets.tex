@@ -207,43 +207,125 @@ LOFAR data, which is described next. \tfunet{} was not run on HERA.
 
 \section{LOFAR dataset}
 \label{sec:lofar}
-% Sources: PART 10, PART 11. Figures: analysis/lofar_analysis/fig_lofar_overview.png
-% and fig_lofar_profiles.png already exist.
+The third dataset is the most important one in this report, because it is the
+only one made of real observations with labels checked by a person. It comes
+from the Low-Frequency Array (LOFAR), a radio telescope network centred in the
+Netherlands, and was released by Mesarcik et al.~\cite{mesarcik2022} on the same
+Zenodo record as the HERA data~\cite{mesarcik2022data}.
 
 \subsection{Origin and structure}
-% - Real LOFAR observations, Mesarcik et al. 2022, Zenodo 6724065. 9.3 GB.
-% - Stored as a Python list of 4 arrays:
-%     train images (7500,512,512,1) float32 | train masks (AOFlagger) bool
-%     test images  (109,512,512,1)  float32 | test masks (human expert) bool
-% - 512x512 is a random crop from 599x616.
-% - Rows = time, columns = frequency. You measured this three ways
-%   [PART 11.2]: 65-74% of RFI pixels sit in 16 of 512 columns.
-%   (Opposite orientation to our synthetic data.)
-% - Values are RAW powers, 0 to 1.4e11 -- max is ~39,000x the 99th
-%   percentile. That is why plt.matshow shows a flat square. [PART 11.1]
+The data is a single 9.3\,GB Python pickle file. Loading it does not give
+images but a list of four arrays:
+\begin{itemize}
+  \item training spectrograms, shape $(7500, 512, 512, 1)$;
+  \item training masks for those spectrograms, same shape, true/false;
+  \item test spectrograms, shape $(109, 512, 512, 1)$;
+  \item test masks, same shape.
+\end{itemize}
+In each shape the first number is the number of spectrograms, the next two
+are the rows and columns of one spectrogram, and the last is a single channel
+(one value per pixel). According to the original paper, each spectrogram is a
+512$\times$512 crop of a larger 599$\times$616 array.
 
-\subsection{Audit}
-% Table of what you found [PART 11.3-11.6]:
-%  - Imbalance: train 1.27% RFI (1:78), test 0.766% (1:129).
-%  - 35 training images are 100% flagged (dead baselines).
-%  - All 109 test images are byte-identical to 109 training images.
-%    Verified by MD5 and element-wise equality, largest pixel difference 0.
-%    Only the labels differ. [PART 11.5; analysis/lofar_analysis/prove_test_set_leakage.py]
-%  - Clean training set: 7500 - 109 - 35 = 7356; minus 735 for validation
-%    = 6621 used for training.
-%  - Training labels vs human labels on the same pixels: F1 0.5698403,
-%    matching the paper's published 0.5698 to four decimals. This confirms
-%    the data, labels and metric are the same as theirs. [PART 11.6]
+The two sets of masks were made in different ways, and this matters for the
+rest of the report. The training masks were produced automatically by
+\aoflagger{}~\cite{offringa2012}, the standard flagging software for LOFAR.
+The 109 test masks were labelled by hand by a human expert. The test set is
+therefore the only real ground truth available.
 
-\subsection{Why it is harder than the synthetic data}
-% - Training labels are ~44% wrong against the human expert.
-% - RFI brightness tiers, using each image's own clean pixels as the ruler
-%   [PART 15; analysis/ablation_faint_recall.py lines 82-100]:
-%     bright 50.1% | moderate 18.9% | faint 11.0% | invisible 20.0%
-%   "Invisible" = dimmer than the median clean pixel. No brightness
-%   evidence at all -- only context can find it.
-% - Explain the bucketing method briefly (you understood it from the
-%   step-by-step explanation).
-% - Practical note: the pickle does not fit in RAM alongside other work;
-%   converted once to memory-mapped arrays (28.7 MB resident). Mention in a
-%   sentence, details in the appendix.
+\subsection{Problems found when opening the data}
+\label{sec:lofar_audit}
+Several properties of the file had to be found and handled before any model
+could be trained on it.
+
+\paragraph{Raw values.} The spectrograms are not normalised. Pixel values
+range from 0 to $1.4\times10^{11}$, while the median is about $1.2\times10^{6}$;
+the maximum is roughly 39{,}000 times the 99th percentile. When I first plotted
+an image it appeared as a flat, single-coloured square, because a handful of
+extremely bright pixels set the colour scale. Clipping and log-scaling the
+values reveals the structure (\cref{fig:lofar_overview}).
+
+\paragraph{Orientation.} In these arrays the rows are time and the columns are
+frequency---the opposite of my synthetic data. I confirmed this from the masks:
+persistent RFI stays at fixed frequencies, and 65\% of the flagged training
+pixels (74\% in the test set) fall in just 16 of the 512 columns, against
+about 25\% in the top 16 rows.
+
+\paragraph{Test images inside the training set.} All 109 test spectrograms are
+byte-for-byte identical to 109 of the training spectrograms. I verified this
+by hashing every image and by direct element-wise comparison: the largest
+pixel difference between each matched pair is exactly zero, while unrelated
+images differ by about $10^{10}$. Only the masks differ---\aoflagger{} in the
+training copy, the human expert in the test copy---and none of the 109 pairs
+has identical masks. This is how the dataset was built, but it means that
+training on all 7500 images would test the model on pictures it has already
+seen. I removed these 109 images from the training set.
+
+\paragraph{Dead images.} 35 training images are flagged as 100\% RFI; several
+of these contain only zeros. They teach a model nothing useful and were also
+removed. This leaves 7356 usable training images, of which 735 were held back
+for validation and 6621 used for training.
+
+\paragraph{Size.} The full file does not fit in memory alongside other work on
+the 19\,GB machine used here, and loading it repeatedly crashed the
+development environment. I converted it once into separate memory-mapped
+arrays, which can be opened in 0.007\,s while using about 29\,MB of memory;
+only the images actually needed are read from disk.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{fig_lofar_overview}
+  \caption{Example LOFAR spectrograms (after clipping and log scaling for
+    display) and their masks. Top two rows: training images with their
+    \aoflagger{} masks; bottom two rows: test images with the human expert's
+    masks. Vertical lines are RFI at fixed frequencies.}
+  \label{fig:lofar_overview}
+\end{figure}
+
+\subsection{Why LOFAR is harder than the synthetic data}
+\label{sec:lofar_harder}
+LOFAR is harder than the synthetic data for three measurable reasons.
+
+\paragraph{RFI is much rarer.} RFI covers 0.766\% of the pixels in the test
+set (1.27\% in the training set), compared with about 15\% in the synthetic
+data---roughly one RFI pixel for every 129 clean ones, against one in six. A
+model that predicts ``no RFI'' everywhere would be 99.23\% accurate on the test
+set while finding nothing, which is why accuracy is not used as a measure
+in this report.
+
+\paragraph{Much of the RFI is faint.} In the synthetic data every labelled
+pixel is, by construction, above the noise (\cref{sec:synthetic_label}). In
+LOFAR that is not true. To measure this I compared each RFI pixel with the
+clean pixels of the same image: for each test image I found the 50th, 75th and
+99th percentiles of its clean pixels, and placed each RFI pixel into a tier
+according to where its brightness falls (\cref{tab:lofar_tiers}). Half of the
+RFI is brighter than 99\% of the clean pixels and easy to see, but a fifth of
+it is dimmer than a typical clean pixel. Those pixels carry no brightness
+evidence at all; they can only be recognised from their surroundings.
+
+\begin{table}[H]
+  \centering
+  \caption{Brightness of the human-labelled RFI pixels in the 109 LOFAR test
+    images, measured against the clean pixels of the same image.}
+  \label{tab:lofar_tiers}
+  \begin{tabular}{llrr}
+    \toprule
+    Tier & Brightness relative to the image's clean pixels & RFI pixels & Share \\
+    \midrule
+    Bright    & above the 99th percentile          & 109{,}669 & 50.1\% \\
+    Moderate  & between the 75th and 99th          &  41{,}263 & 18.9\% \\
+    Faint     & between the 50th and 75th          &  24{,}113 & 11.0\% \\
+    Invisible & below the median                   &  43{,}866 & 20.0\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{The training labels are often wrong.} Because every test image also
+appears in the training set, the \aoflagger{} mask and the human mask can be
+compared on exactly the same pixels. Taking the human as correct, \aoflagger{}
+has a precision of 0.560 and a recall of 0.580, an \Fone{} of 0.5698. Roughly
+44\% of what any model learns from the training labels therefore disagrees
+with the expert. As a check on my processing, Mesarcik et al.\ report the same
+\aoflagger{} \Fone{} of 0.5698 in their paper~\cite{mesarcik2022}; my value,
+0.5698403, agrees to four decimal places, which confirms that I am using the
+same test data, labels and metric.
