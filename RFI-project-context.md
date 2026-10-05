@@ -2820,6 +2820,44 @@ nobody checked.
 
 ---
 
+## PART 20 — 3-seed ablation: NEITHER the components NOR GroupNorm are established (2026-10-05)
+
+`plain_unet` and `no_groupnorm` re-run at seeds 1 and 2 (PART 19.2). Reference
+is HybridRFINet base 8, no class weight (PART 13.11). max F1, 109 test images.
+
+| model | seed 0 | seed 1 | seed 2 | mean +/- sd | pooled F1 |
+|---|---|---|---|---|---|
+| HybridRFINet (full) | 0.6592 | 0.6647 | 0.6570 | **0.6603 +/- 0.0040** | 0.6561 +/- 0.0044 |
+| plain_unet (strip/ECA/res off) | 0.6605 | 0.6618 | 0.6531 | **0.6585 +/- 0.0047** | 0.6522 +/- 0.0100 |
+| no_groupnorm (+ no normalisation) | 0.6289 | 0.6600 | 0.6595 | **0.6495 +/- 0.0178** | 0.6274 +/- 0.0429 |
+
+Welch t-tests: full vs plain_unet **t = 0.51, p = 0.64**; plain_unet vs
+no_groupnorm **t = 0.85, p = 0.48**. Neither significant.
+
+### 20.1 What changes
+
+1. **Confirmed:** the three named components (strip convolutions, ECA,
+   residual blocks) contribute nothing measurable — 0.0018, p = 0.64.
+2. **RETRACTED — PART 18.3/18.6's GroupNorm claim.** PART 18 called GroupNorm
+   "7.9 seed sd — REAL" from seed 0 alone. Seed 0 of `no_groupnorm` (0.6289)
+   was an outlier; seeds 1 and 2 match plain_unet. At N=3 the effect is
+   0.009, p = 0.48. This is the THIRD time a single-seed effect in this
+   project has shrunk or vanished at N=3 (12.8 -> 12.10, 18 -> 20). Do not
+   quote 18.3's 28% or 18.6's dim-tier table as established.
+3. The note on no_groupnorm: its seed spread (0.0178) is 4x the others —
+   without normalisation training is *less stable*, even if not worse on
+   average. That is a defensible, weaker statement.
+
+### 20.2 Where the +0.111 over tf_unet now sits
+
+Essentially all of it is in the bucket PART 18.4 called unattributed:
+loss (CE+Dice vs CE), output activation (raw logits vs ReLU), padding (same
+vs valid), depth/width (4 levels base 8 vs 3 levels root 32), batch size
+(1 vs 4), learning rate (1e-3 vs 1e-4) and framework. **None isolated.**
+The `--dice_weight 0` arm (PART 19.2) is still the cheapest first probe.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:

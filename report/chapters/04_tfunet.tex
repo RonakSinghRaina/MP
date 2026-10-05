@@ -1,0 +1,70 @@
+\chapter{Reproducing and diagnosing \tfunet}
+\label{ch:tfunet}
+
+\section{Initial result}
+% - First runs of the authors' unmodified code on the 276x600 synthetic
+%   dataset scored max F1 0.3879. Our own model scored ~0.98 on the same
+%   data. [PART 1]
+% - The tempting conclusion was "the authors' architecture is worse".
+%   Say that you tested this instead of assuming it.
+% - Training setup common to all runs: layers 3, features_root 32, Adam
+%   lr 1e-3, batch 4. Why not the paper's momentum at lr 0.2: it kills the
+%   network at small batch (dead at iteration 4) [CLAUDE.md section 6].
+
+\section{Four controlled runs}
+% Table [PART 1] -- only normalisation and class weights change:
+%  # | normalisation | class weights | epochs | ROC    | max F1 | behaviour
+%  1 | per-image     | on            | 22     | 0.6681 | 0.3879 | froze at 81.1% error for 15 epochs
+%  2 | per-image     | on            | died 5 | 0.5677 | 0.3064 | collapsed, constant 0.537 everywhere
+%  3 | per-image     | off           | 60     | 0.8747 | 0.7191 | trained normally
+%  4 | fixed range   | off           | 60     | 0.9908 | 0.9317 | trained well
+% Figure: the bar chart from the Week-5 deck (chart_synth).
+% Decomposition: class weights +0.413 (66%), normalisation +0.213 (34%),
+% more epochs ~0.
+
+\section{Cause 1: class weighting and the ReLU output}
+% Explain the mechanism in your own words -- you presented this in Week 5:
+% - tf_unet applies ReLU to its two output scores (unet.py line 145).
+% - Class weighting pushes the "clean" score negative; ReLU clamps it to 0;
+%   ReLU's gradient at negative input is 0, so it cannot recover.
+% - Evidence: run 2 output exactly 0.537 for all 24,840,000 test pixels.
+%   softmax(0, c) = 0.537  ->  c = 0.148. The network became a constant.
+% - Neither part alone is the problem; the combination is.
+% - Nuance: on the v4 dataset the network ESCAPED this state after 15
+%   epochs [PART 8] -- so write "very long freeze", not "permanent".
+
+\section{Cause 2: per-image normalisation}
+% - Each image scaled by its own min/max; per-image maximum ranges 27 to
+%   222 (8.2x) on this dataset.
+% - Worked example table [PART 1]: noise (10) and faint RFI (20) in a quiet
+%   and a loud image -- noise in the quiet image (0.370) reads brighter than
+%   RFI in the loud image (0.090).
+% - The authors avoided this themselves: their launcher uses a_min=30,
+%   a_max=210. It was lost when the code was adapted.
+% - tf_unet has no normalisation layers, so it cannot compensate.
+% - Fix: clip to a fixed range measured from the 0.5th/99.5th percentiles of
+%   training images only.
+
+\section{Bandpass dataset (v4)}
+% Short. [PART 8] Corrected baseline (fixed norm, no weights): 0.9483.
+% With per-image + weights: 0.6815. Same lesson holds on the harder data.
+
+\section{\tfunet{} on real LOFAR data}
+% Setup [PART 12]: unmodified code, fixed-range normalisation, no class
+% weights, trained on 6621 images, tested on the 109 human-labelled ones,
+% threshold from validation, 3 seeds.
+% Table (3 seeds each):
+%   lr 1e-3, 60 epochs : pooled 0.4563 +/- 0.0279 | max 0.4901 +/- 0.0495
+%   lr 1e-4, 150 epochs: pooled 0.5021 +/- 0.0259 | max 0.5482 +/- 0.0139 | ROC 0.9470 +/- 0.0074
+% - It did not collapse despite 1:129 imbalance.
+% - The lr change helped (+0.058 max F1) but is NOT significant at 3 seeds
+%   (paired t = 1.54, 2 dof). Seed 0 alone had suggested +0.118. [PART 12.10]
+%   -> Good place to make the point that one run is not a result.
+% - Per-image normalisation on LOFAR: 0.3039, below sigma-clip. [PART 13.8]
+% - Comparison: their U-Net 0.5876. We nearly reproduce it; remaining
+%   differences are 32x32 patches and their normalisation.
+% - Figure: chart_lofar from the Week-5 deck.
+
+\section{The synthetic-to-real gap}
+% Same code, same settings: 0.9317 (synthetic) -> 0.5482 (LOFAR).
+% -0.383. Figure: chart_gap. This is one of your strongest single results.

@@ -1,0 +1,20 @@
+\chapter{Reproducibility}
+\label{app:repro}
+% This appendix can be mostly tables -- I can fill it for you.
+
+\section{Computing environment}
+% - Moved from Windows 11 + WSL2 to a Fedora 44 dual boot (WSL2 limited RAM
+%   to about half of 19 GB; LOFAR is 9.3 GB). Be honest that a .wslconfig
+%   change could also have fixed it. [PART 7]
+% - Table: Fedora 44, kernel 6.19.10, driver 610.57.04, CUDA 13.3,
+%   RTX 3060 Laptop 6144 MiB, TF 2.21.0 (Python 3.12), torch 2.13.0
+%   (Python 3.14). Two separate environments because TF and torch need
+%   incompatible cuDNN versions. [CLAUDE.md]
+% - Measured VRAM/time: tf_unet batch 4 = 4.29 GB, 174 ms/step on AC,
+%   2684 ms/step on battery (15.3x slower). [CLAUDE.md section 1]
+
+\section{Code and data}
+% - Repository: github.com/RonakSinghRaina/MP
+% - Datasets: Zenodo 6724065 (HERA and LOFAR); synthetic regenerates from
+%   seed 42.
+% - Commands for the main runs (from CLAUDE.md section 11).

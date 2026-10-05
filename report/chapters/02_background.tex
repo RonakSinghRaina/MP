@@ -1,0 +1,71 @@
+\chapter{Background}
+\label{ch:background}
+
+\section{Spectrograms and how RFI appears in them}
+% - What one spectrogram is: rows/columns = time/frequency, value = power.
+% - Shapes of RFI in this picture (reuse Week-2 slide 3 and its figure):
+%   narrowband persistent -> a line along time at one frequency;
+%   broadband transient -> a line across frequency at one time; blobs.
+% - Instrument effects that are NOT RFI but look similar: the bandpass
+%   (gain varies with frequency), standing waves, slow drifts. These matter
+%   later because a model can confuse them with RFI.
+
+\section{Classical flagging methods}
+\subsection{Thresholding}
+% - Flag anything above mean + k*sigma. Simple, no training.
+% - Fails on faint RFI and on data whose noise level changes.
+% - Measured on LOFAR: best sigma-clip F1 0.4103 [PART 11.9 / 13.12].
+
+\subsection{AOFlagger}
+% - Offringa et al. 2012. The standard flagger for LOFAR. Combines
+%   thresholding with morphological operations (SumThreshold + scale-invariant
+%   rank operator).
+% - Important for this report: AOFlagger produced the TRAINING labels of the
+%   LOFAR dataset. Against human labels it scores F1 0.5698 [PART 11.6].
+
+\subsection{The 2-sigma CRF method}
+% - Chen et al. 2023 (your Week-2 slides 5-6): fit a Gaussian to the noise,
+%   label within 2 sigma clean and beyond 3 sigma RFI, then refine with a
+%   dense conditional random field that uses neighbouring pixels.
+% - Keep it short -- you return to it in Chapter 6 where you test the idea.
+
+\section{Convolutional networks for segmentation}
+\subsection{U-Net}
+% - Ronneberger et al. 2015. Encoder shrinks the image and learns WHAT is
+%   there; decoder grows it back and learns WHERE; skip connections pass
+%   fine detail across. Include a simple U-shaped diagram.
+% - Output: one probability per pixel.
+
+\subsection{tf\_unet}
+% - Akeret et al. 2017, the first U-Net applied to RFI. TensorFlow.
+% - Settings used here: layers 3, features_root 32, 465,986 parameters
+%   [PART 6, context doc line ~793].
+% - Two design details that matter later: a ReLU on the output layer, and
+%   no normalisation layers. Mention them here, explain the consequence in
+%   Chapter 4.
+
+\subsection{Recent deep-learning RFI methods}
+% - Mesarcik et al. 2022 (the LOFAR dataset paper): Nearest-Latent-Neighbours
+%   (NLN), an anomaly-detection approach trained only on clean data. Best
+%   AUROC (0.8622) but low F1 (0.5114) on LOFAR.
+% - RFI-Net: the best F1 in their Table 2, 0.5979.
+% - Their U-Net: 0.5876 +/- 0.0031.
+%   [source for all three: Mesarcik et al. 2022, Table 2]
+
+\section{Evaluation metrics}
+% - Precision, recall, F1. Write the formulas.
+% - Why accuracy is useless here: on LOFAR, predicting "no RFI" everywhere
+%   gives 99.23% accuracy and F1 = 0 [PART 11.3].
+% - ROC AUC and PR AUC: measure ranking, not a decision.
+% - THRESHOLD. The model outputs a probability; a cutoff turns it into
+%   yes/no. Two ways to choose it:
+%     max F1    -- best cutoff chosen on the test set itself. Optimistic.
+%                  This is what Mesarcik et al. report, so it is needed
+%                  for a fair comparison with them.
+%     pooled F1 -- cutoff chosen on a separate validation set, then fixed.
+%                  The honest number.
+%   You understood this with the 10-pixel example -- a small worked example
+%   like that would be good here.
+% - "Pooled" also means: count TP/FP/FN over ALL test images together, then
+%   compute one F1. Averaging per-image F1 instead gives a different number
+%   (0.103 lower for AOFlagger on LOFAR) [PART 11.6].

@@ -1,0 +1,61 @@
+\chapter{What drives the performance}
+\label{ch:drivers}
+% This chapter is what makes the report more than "my model got a higher
+% number". You tested your own design and reported what you found.
+
+\section{Ablation on LOFAR}
+% Method [PART 17, 18]: experiments/models_ablation.py makes each component
+% a switch; experiments/lofar_hybrid.py --variant trains every variant
+% through the identical pipeline. Control: the switchable model with
+% everything on scored 0.6624 vs the real model's 0.6603 +/- 0.0040.
+% Seed 0 table [PART 18.2]:
+%   hybrid_full 0.6624 | no_strip 0.6637 | no_eca 0.6557 | no_res 0.6569 |
+%   plain_unet 0.6605 | no_groupnorm 0.6289
+% 3-seed table [PART 20]:
+%   full hybrid    0.6603 +/- 0.0040
+%   plain_unet     0.6585 +/- 0.0047   (strip, ECA, residual all removed)
+%   no_groupnorm   0.6495 +/- 0.0178   (also no normalisation)
+%   Welch t: full vs plain p = 0.64; plain vs no_groupnorm p = 0.48.
+% Conclusion: the three added components contribute nothing measurable.
+% GroupNorm's effect is not established either -- seed 0 suggested a large
+% effect that vanished at 3 seeds. Without GroupNorm, training is less
+% stable (sd 0.0178 vs ~0.004).
+
+\section{Do strip convolutions help faint RFI?}
+% - The design claim: strips integrate along lines so faint RFI becomes
+%   detectable. Overall F1 can't test this (faint RFI is a small share),
+%   so you measured recall per brightness tier.
+% - First attempt was misleading: each model at its own threshold showed
+%   ~+0.02 for strips in the dim tiers -- but hybrid_full's threshold was
+%   0.296 vs no_strip's 0.434, and a lower threshold raises recall
+%   everywhere. [PART 18.5]
+% - Re-done at matched budget (every model flags exactly 199,951 pixels):
+%   bright -0.0053 | moderate +0.0029 | faint -0.0008 | invisible +0.0008.
+%   No effect anywhere. [analysis/ablation_faint_recall.py]
+% - Worth a sentence on the lesson: compare models at the same operating
+%   point.
+
+\section{Testing a CRF refinement}
+% [PART 16] Chen et al.'s CRF idea, built as a differentiable layer on top
+% of the trained network (11 extra parameters).
+%  - Chen et al.'s own parameters: 0.6592 -> 0.4884 (destroys thin RFI).
+%  - Best hand-tuned: +0.0012. Trained end-to-end: +0.0012 (0.29 seed sd).
+%  - Given freedom, the CRF shrank its own weights toward zero.
+%  - Why: the network already uses neighbourhood context, and a CRF can only
+%    redistribute evidence that is already in the prediction.
+
+\section{Where the remaining errors are}
+% [PART 15] Recall by tier for the best model:
+%   bright 0.937 | moderate 0.391 | faint 0.268 | invisible 0.254
+% - Bright RFI is solved; the dim half is caught only a quarter to a third
+%   of the time.
+% - Largest possible gain: removing false positives (+0.114 upper bound);
+%   perfectly catching the invisible tier (+0.098).
+% - And recall the ceiling: training labels are ~44% wrong.
+
+\section{So what does explain the gain over \tfunet?}
+% [PART 20.2] Not the three components and not clearly GroupNorm. Still
+% untested and confounded: Dice loss, raw-logit output (no ReLU), same
+% padding, depth/width, batch size, learning rate, framework.
+% Be direct: this is not yet known, and say which experiment comes next
+% (start with the Dice loss).

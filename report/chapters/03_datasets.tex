@@ -1,0 +1,93 @@
+\chapter{Datasets}
+\label{ch:datasets}
+% Opening paragraph: four datasets, two synthetic (ours), two from the
+% literature. Only LOFAR has real telescope data with human labels -- say up
+% front that this is the one that matters most.
+
+\section{Synthetic dataset}
+\label{sec:synthetic}
+% Write about your generator. Sources: PART 8, PART 9, "Verified facts"
+% section of the context doc, Synthetic Dataset*/dataset_statistics.txt.
+
+\subsection{Generation}
+% - Simulated sky noise + injected RFI of several types (narrowband,
+%   broadband, bursts, blobs) at varied strengths.
+% - The LABEL: a pixel is RFI if injected RFI > 0.5 sigma of local noise.
+%   This makes the labels noise-free and unambiguous -- remember this,
+%   it is the key difference from real data (Chapter 6).
+% - 90.9% of RFI pixels sit at >= 1 sigma [Still outstanding, item 4].
+% - Seed 42, regenerates bit-exactly. 700 train / 150 val / 150 test.
+%   Zero shared SHA-256 hashes between splits -- no leakage.
+
+\subsection{Two versions}
+% Table: version | size | bandpass | test RFI fraction
+%  v3  276x600   no bandpass   15.08% (3,746,075 of 24,840,000 test pixels)
+%  v4  1024x265  instrument bandpass
+% [source: Verified facts section; PART 8]
+% - Why 276x600: matched to the dimensions in the authors' paper.
+
+\subsection{The instrument bandpass (v4)}
+% - Real receivers do not amplify all frequencies equally. Formula
+%     B(f) = max( W(f) * [1 + R(f) + S(f)], B_floor )
+%   W = Tukey edge taper, R = slow ripple, S = standing wave.
+%   [PART 9; code dataset_v4_bandpass/generate_dataset_v4.py]
+% - spectrogram = B(f) * (sky + RFI) + receiver noise. Noise is added AFTER
+%   the gain, as in a real receiver chain.
+% - HONESTY: each ingredient is standard and citable, but the combined
+%   formula is ours. Say so. Cite Harris 1978 (Tukey window), Popping & Braun
+%   2008 (standing waves), Hamaker et al. 1996 (measurement equation).
+%   [PART 9 PROVENANCE]
+
+\section{HERA dataset}
+\label{sec:hera}
+% - Simulated HERA data from Mesarcik et al., Zenodo 6724065.
+%   420 train + 140 test, 512x512, boolean masks, 2.75% RFI. [PART 2]
+% - FINDING: the published split leaks. Verified by SHA-256 over raw pixels:
+%   382/420 unique train, 135/140 unique test, 31 test images identical to
+%   training images = 22% of the test set. [PART 2]
+% - After deduplication: 351 train / 135 test / 0 overlap. [PART 3]
+% - Mention briefly that it turned out too easy to be informative (models
+%   at 0.999 F1) [PART 3] -- but only if you discuss HERA results at all.
+
+\section{LOFAR dataset}
+\label{sec:lofar}
+% Sources: PART 10, PART 11. Figures: analysis/lofar_analysis/fig_lofar_overview.png
+% and fig_lofar_profiles.png already exist.
+
+\subsection{Origin and structure}
+% - Real LOFAR observations, Mesarcik et al. 2022, Zenodo 6724065. 9.3 GB.
+% - Stored as a Python list of 4 arrays:
+%     train images (7500,512,512,1) float32 | train masks (AOFlagger) bool
+%     test images  (109,512,512,1)  float32 | test masks (human expert) bool
+% - 512x512 is a random crop from 599x616.
+% - Rows = time, columns = frequency. You measured this three ways
+%   [PART 11.2]: 65-74% of RFI pixels sit in 16 of 512 columns.
+%   (Opposite orientation to our synthetic data.)
+% - Values are RAW powers, 0 to 1.4e11 -- max is ~39,000x the 99th
+%   percentile. That is why plt.matshow shows a flat square. [PART 11.1]
+
+\subsection{Audit}
+% Table of what you found [PART 11.3-11.6]:
+%  - Imbalance: train 1.27% RFI (1:78), test 0.766% (1:129).
+%  - 35 training images are 100% flagged (dead baselines).
+%  - All 109 test images are byte-identical to 109 training images.
+%    Verified by MD5 and element-wise equality, largest pixel difference 0.
+%    Only the labels differ. [PART 11.5; analysis/lofar_analysis/prove_test_set_leakage.py]
+%  - Clean training set: 7500 - 109 - 35 = 7356; minus 735 for validation
+%    = 6621 used for training.
+%  - Training labels vs human labels on the same pixels: F1 0.5698403,
+%    matching the paper's published 0.5698 to four decimals. This confirms
+%    the data, labels and metric are the same as theirs. [PART 11.6]
+
+\subsection{Why it is harder than the synthetic data}
+% - Training labels are ~44% wrong against the human expert.
+% - RFI brightness tiers, using each image's own clean pixels as the ruler
+%   [PART 15; analysis/ablation_faint_recall.py lines 82-100]:
+%     bright 50.1% | moderate 18.9% | faint 11.0% | invisible 20.0%
+%   "Invisible" = dimmer than the median clean pixel. No brightness
+%   evidence at all -- only context can find it.
+% - Explain the bucketing method briefly (you understood it from the
+%   step-by-step explanation).
+% - Practical note: the pickle does not fit in RAM alongside other work;
+%   converted once to memory-mapped arrays (28.7 MB resident). Mention in a
+%   sentence, details in the appendix.

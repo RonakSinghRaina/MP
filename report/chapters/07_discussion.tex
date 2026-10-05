@@ -1,0 +1,37 @@
+\chapter{Discussion}
+\label{ch:discussion}
+
+\section{Synthetic benchmarks can mislead}
+% - Same code scores 0.9317 on our synthetic data and 0.5482 on LOFAR.
+% - The synthetic label is noise-free (> 0.5 sigma by construction); real
+%   labels are noisy and a fifth of real RFI has no brightness signal.
+% - Components that look reasonable on paper did nothing on real data, and
+%   the earlier synthetic ablation was too noisy to show it either.
+
+\section{Lessons about measurement}
+% Three times in this project a single run overstated an effect that
+% shrank or vanished with more seeds:
+%   lr 1e-4 gain  +0.118 (1 seed) -> +0.058, not significant (3 seeds) [PART 12.10]
+%   GroupNorm     -0.0335 (1 seed) -> -0.009, p = 0.48 (3 seeds)       [PART 20]
+%   strips on faint RFI: ~+0.02 at own thresholds -> 0 at matched budget [PART 18.5]
+% Also the tf_unet failure itself was first blamed on the architecture.
+% This section is about method; keep it short and factual.
+
+\section{Limitations}
+% [PART 14.8] -- state all of these plainly:
+%  1. Published baselines (RFI-Net, their U-Net) are QUOTED from Mesarcik
+%     et al. Table 2, not re-run. Our AOFlagger number matches theirs to
+%     four decimals, so the test data and metric are the same -- but write
+%     "as reported by Mesarcik et al. (2022)".
+%  2. 109 test images: +/-0.04 bootstrap interval. Biggest uncertainty.
+%  3. Training budgets differ from theirs (they: 32x32 patches, 100 epochs;
+%     us: full images, 28,000 steps).
+%  4. 3 seeds is the minimum; several conclusions rest on it.
+%  5. tf_unet has not been run on HERA.
+%  6. The gain over tf_unet is not yet attributed (Chapter 6).
+
+\section{Future work}
+% Depends on the novelty discussion. Measured candidates:
+%  - Isolate the Dice loss (one run, ~25 min) [PART 19.2].
+%  - Reduce false positives -- the largest measured headroom (+0.114).
+%  - Apply to GMRT pulsar data (the original motivation).

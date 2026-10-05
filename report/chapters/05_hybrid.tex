@@ -1,0 +1,74 @@
+\chapter{\hybrid}
+\label{ch:hybrid}
+% Framing depends on the novelty decision (see Chapter 1 TODO). Whatever is
+% decided, describe the model honestly: these components were ADDED and
+% motivated by RFI morphology; Chapter 6 then tests whether they helped.
+
+\section{Architecture}
+% Code: src/hybrid_rfi_package/hybrid_model.py. Diagram needed (I can draw it).
+% Same U shape as tf_unet. Differences, simply (you have the plain-language
+% list from our chat):
+%  - Residual blocks: each block learns a change on top of a shortcut.
+%  - Multi-scale strip convolutions: 1xK and Kx1 kernels, K = 7, 11, 21,
+%    look along long lines in time and frequency. Motivation: RFI is
+%    often long thin streaks.
+%  - ECA channel attention: re-weights feature channels.
+%  - GroupNorm after convolutions.
+%  - Raw logits output -- no ReLU on the output layer (avoids Ch. 4 trap).
+%  - Same padding -- full 512x512 output.
+% Size: base 8 -> 593,842 params; base 32 -> 9,304,186 [PART 6].
+% tf_unet for comparison: 465,986.
+
+\section{Training}
+% - PyTorch. Loss = cross-entropy + Dice. Adam lr 1e-3, batch 1.
+% - 700 steps x 40 epochs = 28,000 gradient steps (same budget as synthetic).
+% - Best checkpoint and threshold chosen on 735 validation images.
+% - Fixed-range normalisation from training images only.
+% [source: experiments/lofar_hybrid.py, run metrics.json]
+
+\section{Results on synthetic data}
+% Keep short; synthetic is the easy case.
+%  - 276x600: 0.9808 (base 32) [Where the trained models live table]
+%  - 1024x265 v4: 0.9878 (base 8)
+%  - Width sweep [PART 6]: base 4 0.9547 | base 8 0.9749 | base 16 0.9788 |
+%    base 32 0.9812. 15.7x fewer parameters cost only 0.0063.
+%    Base 4 genuinely breaks. (These are N=1 -- say so.)
+
+\section{Results on LOFAR}
+\subsection{Class weighting}
+% - First run used class weights (56.9x on RFI): 0.6467 +/- 0.0079, but a
+%   validation threshold of 0.9619 -- badly calibrated. [PART 13.6]
+% - Without class weights: 0.6603 +/- 0.0040, threshold 0.2573.
+%   Better in every seed, paired t = 6.03 on 2 dof. [PART 13.11]
+% - Interesting: ROC fell (0.9801 -> 0.9378) while F1 rose. Ranking and
+%   decision quality are different things. [PART 13.13]
+
+\subsection{Final comparison}
+% Table, max F1 (the paper's protocol) [PART 13.12]:
+%  sigma-clip                  0.4103
+%  tf_unet lr 1e-4 (ours)      0.5482 +/- 0.0139
+%  AOFlagger                   0.5698
+%  Mesarcik et al. U-Net       0.5876 +/- 0.0031
+%  RFI-Net (published best)    0.5979
+%  HybridRFINet base 8         0.6603 +/- 0.0040   (593,842 params)
+% Also give pooled F1: 0.6561 +/- 0.0044 [PART 20 table].
+% - +0.0624 over RFI-Net, t = 27.22 on 2 dof.
+% - Beats its own teacher: trained on AOFlagger labels (0.5698), scores
+%   0.66 against the human.
+% - Base 32 at 9.3M params: 0.6571 (N=1, with class weights) -- no gain
+%   from 15.7x more parameters [PART 13.7].
+
+\section{Checking the result}
+% PART 14 -- an adversarial self-audit. This makes the result credible.
+%  - Metrics recomputed by independent code: differences <= 3.2e-5.
+%  - Leakage: 0 train/val images in the test set. Normalisation range
+%    computed from training images only.
+%  - Honest thresholding costs 0.0064 vs choosing on test.
+%  - Train/val/test max F1 0.7112 / 0.6820 / 0.6592 -- mild overfitting.
+%  - Not copying AOFlagger: agreement with it only 0.7430; finds 16,485
+%    true-RFI pixels AOFlagger missed, misses 7,345 it found.
+%  - Not a trivial "flag the bad columns" rule: that scores 0.0645.
+%  - Bootstrap over the 109 test images (POOLED F1, 2000 resamples):
+%    3-seed mean 0.6561, 95% CI [0.6154, 0.6923]. RFI-Net's 0.5979 lies
+%    outside; 99.5% of resamples beat it. Note the CI is +/-0.04 wide --
+%    the 109-image test set is the biggest source of uncertainty.

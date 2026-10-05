@@ -1,0 +1,55 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Radio frequency interference}
+% - Radio telescopes record extremely weak signals from space. Human-made
+%   transmitters (mobile networks, satellites, aircraft, broadcast, electrical
+%   equipment) are millions of times stronger. This is RFI.
+% - RFI corrupts the data. It has to be found and removed ("flagged") before
+%   any science is done. Your Week-2 slides cover the RFI types: constant
+%   narrowband lines, constant broadband bands, instantaneous wideband bursts,
+%   patchy broadband blobs -- reuse that, with the figure.
+% - Telescopes produce far too much data to flag by hand, so flagging must be
+%   automatic.
+% - Original motivation from your Week-2 deck: GMRT pulsar timing for InPTA,
+%   where uncleaned RFI damages sub-microsecond timing precision.
+
+\section{RFI flagging as image segmentation}
+% - A spectrogram is a 2D image: one axis time, one axis frequency, each
+%   pixel a measured power.
+% - Flagging = deciding, for every pixel, "RFI or not". That is exactly the
+%   task computer-vision people call semantic segmentation.
+% - U-Net (Ronneberger et al. 2015) is the standard segmentation network.
+%   Akeret et al. 2017 were the first to apply it to RFI: tf_unet.
+% - Classical alternatives: thresholding, AOFlagger (Offringa et al. 2012),
+%   the 2-sigma CRF method (Chen et al. 2023). Details in Chapter 2.
+
+\section{Aims of this project}
+% Say what you set out to do, in the order you actually did it:
+%  1. Reproduce the authors' tf_unet on our own data.
+%  2. Understand why it performed badly (F1 0.39) and fix it.
+%  3. Build an improved model.
+%  4. Test both on REAL telescope data with human ground truth (LOFAR),
+%     not only on synthetic data.
+%  5. Find out what actually makes the improved model better.
+
+\section{Contributions}
+% TODO -- DECIDE THIS AFTER THE NOVELTY DISCUSSION WITH YOUR SUPERVISOR.
+% This section sets the argument of the whole report. Candidates, all backed
+% by measurements:
+%  - Diagnosis of tf_unet's failure: class weighting + the ReLU output layer
+%    drive it into a dead state; per-image normalisation does the rest.
+%    0.3879 -> 0.9317 without changing the model. [PART 1]
+%  - A 593,842-parameter model scoring 0.6603 +/- 0.0040 max F1 on the 109
+%    expert-labelled LOFAR baselines, above the best published result
+%    (RFI-Net, 0.5979). [PART 13.11, PART 14]
+%  - Evidence that the gain does NOT come from the added architectural
+%    components (strip convolutions, ECA, residual blocks). [PART 18, 20]
+%  - Dataset audits: train/test leakage in the published HERA split (31 of
+%    140 test images) and in the LOFAR split (all 109 test images). [PART 2, 11.5]
+%  - The synthetic-to-real gap: identical code drops 0.9317 -> 0.5482. [PART 12]
+% Do NOT claim the strip-convolution idea as novel: prior art MARS,
+% arXiv:2608.05546 [PART 4].
+
+\section{Structure of this report}
+% One line per chapter. Write last.

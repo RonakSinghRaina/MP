@@ -1,0 +1,129 @@
+% ============================================================================
+%  Minor Project Report — RFI detection in radio spectrograms
+%  Ronak Singh, IMS23319, School of Physics, IISER Thiruvananthapuram
+%
+%  Build:   latexmk -pdf main.tex        (clean: latexmk -C)
+%
+%  HOW THIS SKELETON WORKS
+%  Every chapter file in chapters/ holds the headings plus an outline written
+%  as LaTeX comments (lines starting with %). Comments never appear in the
+%  PDF. Write your own paragraphs underneath each outline block, then delete
+%  the outline once the section is done.
+%
+%  Every number in an outline is followed by [source: ...]. Those sources
+%  are files in this repo or PARTs of RFI-project-context.md. If you add a
+%  number that has no source, it should not go in the report.
+% ============================================================================
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ---- page and fonts --------------------------------------------------------
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+
+% ---- maths, tables, figures ------------------------------------------------
+\usepackage{amsmath,amssymb}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+
+% ---- code listings (for the one or two snippets worth showing) -------------
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single,
+        columns=fullflexible, keepspaces=true}
+
+% ---- references ------------------------------------------------------------
+\usepackage[numbers,sort&compress]{natbib}
+\bibliographystyle{unsrtnat}
+
+% ---- links (load last) -----------------------------------------------------
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,capitalise]{cleveref}
+
+% ---- house style -------------------------------------------------------------
+% Use these so terms are spelled the same everywhere.
+\newcommand{\tfunet}{\texttt{tf\_unet}}
+\newcommand{\hybrid}{HybridRFINet}
+\newcommand{\aoflagger}{\textsc{AOFlagger}}
+\newcommand{\Fone}{$F_1$}
+
+% ============================================================================
+\begin{document}
+
+% ---- title page --------------------------------------------------------------
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+  {\Large Indian Institute of Science Education and Research\\Thiruvananthapuram\par}
+  \vspace{2cm}
+  {\huge\bfseries Detecting Radio Frequency Interference in\\[0.3em]
+   Radio Spectrograms with Convolutional Networks\par}
+  % TODO: the title should match what your project is finally about. Decide
+  %       after the meeting on novelty -- see chapters/01_introduction.tex.
+  \vspace{1.5cm}
+  {\Large Minor Project Report\par}
+  \vspace{2cm}
+  {\large Ronak Singh\\IMS23319\\BS-MS, 4th Year\\School of Physics\par}
+  \vspace{1.5cm}
+  {\large Supervisor: \textit{TODO}\par}
+  \vfill
+  {\large TODO month 2026\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+% ---- certificate / declaration --------------------------------------------
+% TODO: IISER-TVM usually requires a supervisor certificate and a student
+%       declaration. Ask the department for the exact wording.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+% Write this LAST. ~200 words. One sentence each:
+%  - the problem (RFI corrupts radio data; flagging it is a segmentation task)
+%  - what you did (reproduced tf_unet, diagnosed its failure, built a model,
+%    tested on synthetic + real LOFAR data with human labels)
+%  - the main numbers (tf_unet 0.39 -> 0.93 synthetic; on LOFAR your model
+%    0.6603 +/- 0.0040 vs best published 0.5979) [source: PART 1, PART 13.11]
+%  - the honest finding (the gain is not from the added components) [PART 20]
+%  - why it matters (synthetic benchmarks overstate real performance by 0.38)
+
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+% Thank your supervisor and the DIL lab.
+% Keep this disclosure (or your own wording of it):
+Parts of the data analysis, figure generation and drafting support for this
+report were carried out with the assistance of Claude (Anthropic). All
+experiments, results and conclusions are the author's own.
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\clearpage
+\pagenumbering{arabic}
+
+\input{chapters/01_introduction}
+\input{chapters/02_background}
+\input{chapters/03_datasets}
+\input{chapters/04_tfunet}
+\input{chapters/05_hybrid}
+\input{chapters/06_what_drives_it}
+\input{chapters/07_discussion}
+\input{chapters/08_conclusion}
+
+\appendix
+\input{chapters/A_reproducibility}
+
+\bibliography{references}
+
+\end{document}
