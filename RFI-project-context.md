@@ -2934,9 +2934,42 @@ included) and their pipeline reproduced line by line.
 ~119 s/epoch on AC, 100 epochs: ~3.3 h per setup. Seed 0 of both started
 2026-10-05. **Results go in 21.6.**
 
-### 21.6 Results
+### 21.6 Results (seed 0 each, 2026-10-05)
 
-(pending)
+| run | max F1 | pooled F1 | ROC AUC | PR AUC |
+|---|---|---|---|---|
+| published (Table 2, 3 seeds) | 0.5876 +/- 0.0031 | — | 0.8017 | 0.5920 |
+| their U-Net, `paper_code` (as released) | **0.6207** | — | 0.8146 | 0.5266 |
+| their U-Net, `clean` (no leakage) | **0.6166** | **0.6159** | 0.8213 | 0.5283 |
+| our tf_unet, lr 1e-4 (3 seeds) | 0.5482 +/- 0.0139 | 0.5021 | 0.9470 | — |
+| our hybrid base 8 (3 seeds) | 0.6603 +/- 0.0040 | 0.6561 | 0.9378 | — |
+
+1. **Their code reproduces and slightly EXCEEDS their published number**
+   (0.6207 vs 0.5876; AUROC 0.8146 vs 0.8017, close). Our data, metric and
+   reading of their pipeline are therefore right. Why it lands higher is not
+   established (N=1; TF version; we shuffle all patches rather than a 25k
+   buffer; their published runs may have used a different setting, e.g. the
+   paper's lr 1e-4). PR AUC is LOWER (0.527 vs 0.592) -- the L1-trained
+   outputs are near-saturated with many ties, which distorts the trapezoid
+   PR area; max F1 is unaffected by that.
+2. **The leakage did not inflate their result**: removing it changes max F1 by
+   -0.004 (N=1, inside any plausible seed spread).
+3. **So the answer to "why is our U-Net lower?"**: not our data handling and
+   not their leakage. Their U-Net, trained their way, scores 0.617 on our
+   clean split; tf_unet scores 0.548. The 0.07 gap is the network + training
+   recipe (BatchNorm, patches, log-space clip that zeroes 73% of pixels, L1
+   loss, batch 1024) -- which of these matters is NOT yet isolated.
+4. **The hybrid still leads**: 0.6603 vs their U-Net's 0.6166 (clean), +0.044,
+   though the U-Net is N=1. And it is far closer than tf_unet suggested
+   (0.11). The honest U-Net baseline for the report is now 0.6166, not 0.5482.
+5. **Ranking vs decision again**: their U-Net has ROC AUC 0.82 against our
+   models' 0.94, yet better F1 than tf_unet. Its preprocessing flattens most
+   pixels to zero, so it ranks coarsely but decides well.
+
+**Caveats:** N=1 per setup -- seeds 1 and 2 needed before quoting 0.617 as a
+baseline (`./scripts/run_mesarcik_repro.sh 1 2`, ~13 h). The report's
+Chapters 2 and 4 currently describe Mesarcik et al.'s U-Net as the same
+network as tf_unet; they must be corrected.
 
 ---
 

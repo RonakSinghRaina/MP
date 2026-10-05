@@ -1,0 +1,25 @@
+{
+  "max_f1": 0.6165715456133589,
+  "max_f1_threshold": 0.008563486859202385,
+  "roc_auc": 0.8212954468006646,
+  "pr_auc": 0.5282616897376434,
+  "pooled_f1": 0.615902291260977,
+  "pooled_precision": 0.6759670710004259,
+  "pooled_recall": 0.5656408312053757,
+  "threshold": 2.613169272080995e-06,
+  "model": "Mesarcik et al. U-Net (RFI-NLN models.UNET)",
+  "setup": "clean",
+  "seed": 0,
+  "epochs": 100,
+  "batch": 1024,
+  "patch": 32,
+  "parameters": 1179121,
+  "n_train": 6621,
+  "loss": "bce(x_hat, y) -- as in their code (effectively L1)",
+  "clip_bounds": [
+    1317627.8015230452,
+    84460233.58956149
+  ],
+  "clip_stats_from": "train",
+  "published_max_f1": "0.5876 +/- 0.0031 (Mesarcik et al. 2022, Table 2)"
+}
