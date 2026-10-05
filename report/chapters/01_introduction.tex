@@ -2,54 +2,96 @@
 \label{ch:intro}
 
 \section{Radio frequency interference}
-% - Radio telescopes record extremely weak signals from space. Human-made
-%   transmitters (mobile networks, satellites, aircraft, broadcast, electrical
-%   equipment) are millions of times stronger. This is RFI.
-% - RFI corrupts the data. It has to be found and removed ("flagged") before
-%   any science is done. Your Week-2 slides cover the RFI types: constant
-%   narrowband lines, constant broadband bands, instantaneous wideband bursts,
-%   patchy broadband blobs -- reuse that, with the figure.
-% - Telescopes produce far too much data to flag by hand, so flagging must be
-%   automatic.
-% - Original motivation from your Week-2 deck: GMRT pulsar timing for InPTA,
-%   where uncleaned RFI damages sub-microsecond timing precision.
+Radio telescopes detect extremely faint signals from space. The same frequency
+bands are also used by human technology: mobile phone towers, satellites,
+aircraft and weather radar, television and radio broadcasts, and electrical
+equipment such as power lines and car spark plugs. Signals from these sources
+leak into the telescope and are usually many orders of magnitude stronger than
+the astronomical signal. This is radio frequency interference (RFI).
+
+RFI is different in character from the ordinary noise in a radio observation.
+The thermal noise of the receiver and the sky is random and close to Gaussian,
+and its statistics are well understood. RFI is not: it is strong, it has
+structure in time and frequency, and it changes during an observation. It is
+non-Gaussian and non-stationary. Before any scientific analysis, the parts of
+the data affected by RFI have to be found and removed, a step called RFI
+flagging. Modern telescopes produce far too much data for this to be done by
+hand, so it must be automatic.
+
+\section{Motivation: pulsar timing}
+This project started from pulsar observations with the upgraded Giant
+Metrewave Radio Telescope (uGMRT) in India. Pulsars are rotating neutron stars
+that emit very regular pulses; millisecond pulsars are regular enough to be
+used as precise clocks. The Indian Pulsar Timing Array (InPTA) times such
+pulsars to search for low-frequency gravitational waves, which requires the
+arrival times of the pulses to be measured to better than a microsecond. RFI
+that is not removed distorts the measured pulse profiles and therefore the
+arrival times. The 300--500\,MHz band used by uGMRT is heavily affected by
+terrestrial RFI.
+
+The tools commonly used to clean folded pulsar data, such as \texttt{paz}
+from PSRCHIVE~\cite{vanstraten2012psrchive} and \texttt{clfd}~\cite{clfd}, rely
+on simple statistics such as median filters. Because RFI is non-Gaussian, these
+can miss weak broadband RFI or, if made more aggressive, remove parts of the
+real pulsar signal.
 
 \section{RFI flagging as image segmentation}
-% - A spectrogram is a 2D image: one axis time, one axis frequency, each
-%   pixel a measured power.
-% - Flagging = deciding, for every pixel, "RFI or not". That is exactly the
-%   task computer-vision people call semantic segmentation.
-% - U-Net (Ronneberger et al. 2015) is the standard segmentation network.
-%   Akeret et al. 2017 were the first to apply it to RFI: tf_unet.
-% - Classical alternatives: thresholding, AOFlagger (Offringa et al. 2012),
-%   the 2-sigma CRF method (Chen et al. 2023). Details in Chapter 2.
+Radio data can be arranged as a two-dimensional image with frequency along one
+axis and time along the other, a spectrogram. For folded pulsar data, a
+similar image is formed from a statistic of the pulse profile (such as its root
+mean square) in each frequency channel and time sub-integration. In this
+picture RFI appears as lines, bands and patches, and flagging means deciding,
+for every pixel, whether it is affected by RFI. This is the problem that
+computer vision calls semantic segmentation.
 
-\section{Aims of this project}
-% Say what you set out to do, in the order you actually did it:
-%  1. Reproduce the authors' tf_unet on our own data.
-%  2. Understand why it performed badly (F1 0.39) and fix it.
-%  3. Build an improved model.
-%  4. Test both on REAL telescope data with human ground truth (LOFAR),
-%     not only on synthetic data.
-%  5. Find out what actually makes the improved model better.
+The U-Net~\cite{ronneberger2015} is a standard neural network for segmentation,
+and Akeret et al.~\cite{akeret2017} were the first to apply it to RFI, in a
+code called \tfunet{}. A different approach is the 2$\sigma$CRF method of Chen
+et al.~\cite{chen2023}, which labels pixels with a statistical threshold and
+then refines the labels with a conditional random field (CRF) that takes each
+pixel's neighbours into account.
 
-\section{Contributions}
-% TODO -- DECIDE THIS AFTER THE NOVELTY DISCUSSION WITH YOUR SUPERVISOR.
-% This section sets the argument of the whole report. Candidates, all backed
-% by measurements:
-%  - Diagnosis of tf_unet's failure: class weighting + the ReLU output layer
-%    drive it into a dead state; per-image normalisation does the rest.
-%    0.3879 -> 0.9317 without changing the model. [PART 1]
-%  - A 593,842-parameter model scoring 0.6603 +/- 0.0040 max F1 on the 109
-%    expert-labelled LOFAR baselines, above the best published result
-%    (RFI-Net, 0.5979). [PART 13.11, PART 14]
-%  - Evidence that the gain does NOT come from the added architectural
-%    components (strip convolutions, ECA, residual blocks). [PART 18, 20]
-%  - Dataset audits: train/test leakage in the published HERA split (31 of
-%    140 test images) and in the LOFAR split (all 109 test images). [PART 2, 11.5]
-%  - The synthetic-to-real gap: identical code drops 0.9317 -> 0.5482. [PART 12]
-% Do NOT claim the strip-convolution idea as novel: prior art MARS,
-% arXiv:2608.05546 [PART 4].
+\section{Aims}
+The original plan was to combine the two ideas: a U-Net for segmentation,
+followed by a CRF to refine its output. Labelled RFI data from uGMRT was not
+available, so the work was carried out on a synthetic dataset I generated, and
+then on public datasets from HERA and LOFAR. The aims were:
+\begin{enumerate}
+  \item to reproduce the U-Net method of Akeret et al.\ on our own data;
+  \item to understand why it initially performed poorly, and correct it;
+  \item to design an improved network for RFI;
+  \item to test both on real telescope data with labels checked by a human
+    expert, not only on synthetic data;
+  \item to find out what actually makes the improved network better, including
+    whether the CRF step helps.
+\end{enumerate}
+
+\section{Summary of results}
+\begin{itemize}
+  \item \tfunet{} initially scored an \Fone{} of 0.39 on synthetic data. The
+    cause was two training settings---class weighting combined with the
+    network's output layer, and per-image normalisation---not its
+    architecture. Correcting them raised the score to 0.93 without changing the
+    network (\cref{ch:tfunet}).
+  \item On real LOFAR data with human labels, my network, \hybrid{}, reaches
+    a maximum \Fone{} of $0.6603 \pm 0.0040$ with 593{,}842 parameters, above the
+    best published result on this data, 0.5979~\cite{mesarcik2022}
+    (\cref{ch:hybrid}).
+  \item The components the network was designed around contribute nothing
+    measurable to this result, and a CRF refinement does not improve it
+    (\cref{ch:drivers}).
+  \item Checking the public datasets revealed that test images also appear in
+    the training set: 31 of 140 in HERA and all 109 in LOFAR
+    (\cref{ch:datasets}).
+  \item The same network that scores 0.93 on synthetic data scores 0.49 on real
+    data under identical settings, showing how much synthetic benchmarks can
+    overstate real performance (\cref{sec:gap}).
+\end{itemize}
 
 \section{Structure of this report}
-% One line per chapter. Write last.
+\Cref{ch:background} introduces RFI in spectrograms, existing flagging methods
+and the evaluation measures used. \Cref{ch:datasets} describes the four
+datasets. \Cref{ch:tfunet} reproduces and diagnoses \tfunet{}, and
+\cref{ch:hybrid} presents \hybrid{}. \Cref{ch:drivers} tests what drives its
+performance, \cref{ch:discussion} discusses the results and their limitations,
+and \cref{ch:conclusion} concludes.

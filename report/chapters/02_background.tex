@@ -1,71 +1,134 @@
 \chapter{Background}
 \label{ch:background}
 
-\section{Spectrograms and how RFI appears in them}
-% - What one spectrogram is: rows/columns = time/frequency, value = power.
-% - Shapes of RFI in this picture (reuse Week-2 slide 3 and its figure):
-%   narrowband persistent -> a line along time at one frequency;
-%   broadband transient -> a line across frequency at one time; blobs.
-% - Instrument effects that are NOT RFI but look similar: the bandpass
-%   (gain varies with frequency), standing waves, slow drifts. These matter
-%   later because a model can confuse them with RFI.
+\section{RFI in spectrograms}
+\label{sec:rfi_types}
+In a spectrogram, different kinds of RFI leave different shapes, depending on
+how long they last and how many frequencies they cover.
+\begin{itemize}
+  \item \textbf{Constant narrowband RFI} affects a single frequency channel for
+    the whole observation and appears as a thin line along the time axis.
+    Typical sources are fixed terrestrial transmitters, such as a particular
+    radio or television station.
+  \item \textbf{Constant broadband RFI} covers a wide range of frequencies for the
+    whole observation and appears as a thick band. Continuously broadcasting
+    satellites are a common cause.
+  \item \textbf{Instantaneous wideband RFI} lasts only a moment but covers almost
+    all frequencies, appearing as a thin line along the frequency axis.
+    Lightning, arcing on power lines and radar sweeps produce this kind.
+  \item \textbf{Patchy broadband RFI} covers several channels for a few minutes
+    and then fades, appearing as irregular, cloud-like patches.
+\end{itemize}
+Not every structure in a spectrogram is RFI. The receiver's sensitivity
+varies with frequency (the bandpass, \cref{sec:bandpass}), and slow drifts and
+standing waves add smooth patterns. A flagging method has to distinguish these
+from real interference.
 
 \section{Classical flagging methods}
-\subsection{Thresholding}
-% - Flag anything above mean + k*sigma. Simple, no training.
-% - Fails on faint RFI and on data whose noise level changes.
-% - Measured on LOFAR: best sigma-clip F1 0.4103 [PART 11.9 / 13.12].
+
+\subsection{Statistical thresholds}
+The simplest approach flags any pixel more than $k$ standard deviations above
+the mean. Tools used for folded pulsar data, such as \texttt{paz} and
+\texttt{clfd}, are based on robust statistics of this kind, such as medians.
+They need no training, but they assume the clean data is close to Gaussian, so
+they miss faint RFI and struggle when the noise level changes across the data.
+On the LOFAR test data, the best simple threshold of this kind reaches an
+\Fone{} of 0.41 (\cref{sec:tfunet_lofar}).
 
 \subsection{AOFlagger}
-% - Offringa et al. 2012. The standard flagger for LOFAR. Combines
-%   thresholding with morphological operations (SumThreshold + scale-invariant
-%   rank operator).
-% - Important for this report: AOFlagger produced the TRAINING labels of the
-%   LOFAR dataset. Against human labels it scores F1 0.5698 [PART 11.6].
+\aoflagger{}~\cite{offringa2012} is the standard RFI flagger for LOFAR. It
+combines thresholding at several scales with a morphological step that
+extends flags along time and frequency, so that the edges of RFI features are
+also caught. It is important for this report because it produced the
+training labels of the LOFAR dataset (\cref{sec:lofar}).
 
-\subsection{The 2-sigma CRF method}
-% - Chen et al. 2023 (your Week-2 slides 5-6): fit a Gaussian to the noise,
-%   label within 2 sigma clean and beyond 3 sigma RFI, then refine with a
-%   dense conditional random field that uses neighbouring pixels.
-% - Keep it short -- you return to it in Chapter 6 where you test the idea.
+\subsection{The 2\texorpdfstring{$\sigma$}{-sigma}CRF method}
+Chen et al.~\cite{chen2023} clean RFI in folded pulsar data in two steps.
+First, they compute the root-mean-square of the folded profile in each
+frequency channel and time sub-integration, giving a 2D image, remove its
+baseline, and fit a Gaussian to the histogram of its values. Pixels within
+$2\sigma$ of the Gaussian peak are labelled clean, pixels beyond $3\sigma$ are
+labelled RFI, and those in between are left ambiguous. Second, they refine
+these labels with a fully connected conditional random field
+(CRF)~\cite{krahenbuhl2011}. A CRF treats every pixel as connected to the
+others and finds the labelling that minimises an energy made of two parts: a
+unary term, how likely each pixel is to be RFI on its own, and a pairwise
+term, which encourages pixels that are close together and similar in value to
+share a label. This lets weak RFI that is unrecognisable in a single pixel be
+picked out from its neighbourhood. They report 93--95\% accuracy on data from
+the FAST telescope. The method still rests on a Gaussian model of the clean
+data, which is where a learned approach might do better.
 
-\section{Convolutional networks for segmentation}
+\section{Neural networks for RFI segmentation}
+
 \subsection{U-Net}
-% - Ronneberger et al. 2015. Encoder shrinks the image and learns WHAT is
-%   there; decoder grows it back and learns WHERE; skip connections pass
-%   fine detail across. Include a simple U-shaped diagram.
-% - Output: one probability per pixel.
+The U-Net~\cite{ronneberger2015} is a convolutional network for image
+segmentation. Its encoder repeatedly applies convolutions and halves the image
+size, building up a description of \emph{what} is in the image; its decoder
+reverses this, restoring the full size to locate \emph{where} it is. Skip
+connections pass fine detail directly from each encoder level to the matching
+decoder level. The output has one probability per pixel---here, the
+probability that the pixel is affected by RFI.
 
-\subsection{tf\_unet}
-% - Akeret et al. 2017, the first U-Net applied to RFI. TensorFlow.
-% - Settings used here: layers 3, features_root 32, 465,986 parameters
-%   [PART 6, context doc line ~793].
-% - Two design details that matter later: a ReLU on the output layer, and
-%   no normalisation layers. Mention them here, explain the consequence in
-%   Chapter 4.
+\subsection{\tfunet{}}
+Akeret et al.~\cite{akeret2017} applied a U-Net to RFI in their \tfunet{}
+code, written in TensorFlow. The configuration used in this report has 3
+levels and 32 filters in the first layer, giving 465{,}986 trainable
+parameters. Two design details become important later: \tfunet{} applies a ReLU
+to its output scores, and it has no normalisation layers
+(\cref{ch:tfunet}).
 
-\subsection{Recent deep-learning RFI methods}
-% - Mesarcik et al. 2022 (the LOFAR dataset paper): Nearest-Latent-Neighbours
-%   (NLN), an anomaly-detection approach trained only on clean data. Best
-%   AUROC (0.8622) but low F1 (0.5114) on LOFAR.
-% - RFI-Net: the best F1 in their Table 2, 0.5979.
-% - Their U-Net: 0.5876 +/- 0.0031.
-%   [source for all three: Mesarcik et al. 2022, Table 2]
+\subsection{Recent methods}
+Mesarcik et al.~\cite{mesarcik2022}, who released the LOFAR dataset used here,
+proposed an approach called Nearest-Latent-Neighbours, which learns only from
+RFI-free data and flags whatever looks unusual. They compared it with several
+supervised networks on the same LOFAR test set. The best \Fone{} in their
+comparison came from RFI-Net~\cite{yang2020rfinet}, a residual U-Net, with
+0.5979; their own U-Net reached $0.5876 \pm 0.0031$. Their method had the best
+area under the ROC curve but a lower \Fone{} of 0.5114. These published values
+are the benchmarks used in \cref{ch:hybrid}.
 
-\section{Evaluation metrics}
-% - Precision, recall, F1. Write the formulas.
-% - Why accuracy is useless here: on LOFAR, predicting "no RFI" everywhere
-%   gives 99.23% accuracy and F1 = 0 [PART 11.3].
-% - ROC AUC and PR AUC: measure ranking, not a decision.
-% - THRESHOLD. The model outputs a probability; a cutoff turns it into
-%   yes/no. Two ways to choose it:
-%     max F1    -- best cutoff chosen on the test set itself. Optimistic.
-%                  This is what Mesarcik et al. report, so it is needed
-%                  for a fair comparison with them.
-%     pooled F1 -- cutoff chosen on a separate validation set, then fixed.
-%                  The honest number.
-%   You understood this with the 10-pixel example -- a small worked example
-%   like that would be good here.
-% - "Pooled" also means: count TP/FP/FN over ALL test images together, then
-%   compute one F1. Averaging per-image F1 instead gives a different number
-%   (0.103 lower for AOFlagger on LOFAR) [PART 11.6].
+\section{Measuring performance}
+\label{sec:metrics}
+For each pixel, a flagging method either flags it as RFI or not, and it either
+is or is not RFI in the reference labels. Counting the true positives (TP),
+false positives (FP) and false negatives (FN) over all test pixels gives
+\begin{equation}
+  \text{precision} = \frac{TP}{TP + FP}, \qquad
+  \text{recall} = \frac{TP}{TP + FN}, \qquad
+  F_1 = \frac{2\,\text{precision}\cdot\text{recall}}{\text{precision} + \text{recall}}.
+\end{equation}
+Precision is the fraction of flagged pixels that really are RFI; recall is the
+fraction of RFI that was found. \Fone{} is high only if both are.
+
+Accuracy, the fraction of pixels classified correctly, is not useful here.
+RFI covers less than 1\% of the LOFAR test pixels, so a method that flags
+nothing at all is 99.23\% accurate while finding no RFI.
+
+The area under the ROC curve measures something different: how well a model
+\emph{ranks} RFI pixels above clean ones, regardless of where the final cut is
+made. A model can rank well and still make poor final decisions
+(\cref{sec:hybrid_lofar}).
+
+\paragraph{Choosing the threshold.} A network outputs a probability for each
+pixel, and a threshold turns it into a yes/no decision. The choice of threshold
+changes the \Fone{}, and there are two ways to make it.
+\begin{itemize}
+  \item \textbf{Maximum \Fone{}:} try every threshold on the test set and report
+    the best. This is optimistic, because it uses the test labels to pick the
+    threshold. It is, however, what Mesarcik et al.\ report, so it is needed
+    for a fair comparison with their results.
+  \item \textbf{Pooled \Fone{}:} choose the threshold on a separate validation
+    set, fix it, and then apply it to the test set. This is the honest
+    measure of how a model would perform on new data.
+\end{itemize}
+For example, if a model scores ten pixels and the best threshold on those ten
+gives $F_1 = 0.89$, but the threshold chosen beforehand on validation data
+gives $0.86$ on the same pixels, the maximum \Fone{} is 0.89 and the pooled
+\Fone{} 0.86. The maximum is never lower than the pooled value. In this report
+both are given; the pooled value is the one I rely on.
+
+``Pooled'' also means that TP, FP and FN are added up over all test images
+before computing a single \Fone{}. Averaging a separate \Fone{} for each image
+gives a different number: for \aoflagger{} on LOFAR, the per-image average is
+0.103 lower than the pooled value.
