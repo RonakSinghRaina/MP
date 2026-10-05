@@ -1,61 +1,166 @@
 \chapter{What drives the performance}
 \label{ch:drivers}
-% This chapter is what makes the report more than "my model got a higher
-% number". You tested your own design and reported what you found.
+\Cref{ch:hybrid} showed that \hybrid{} scores 0.11 above \tfunet{} on LOFAR and
+above the best published result. The natural explanation is that the
+components added for RFI---the strip convolutions, channel attention and
+residual blocks---are responsible. This chapter tests that explanation
+directly. It turns out to be wrong.
 
-\section{Ablation on LOFAR}
-% Method [PART 17, 18]: experiments/models_ablation.py makes each component
-% a switch; experiments/lofar_hybrid.py --variant trains every variant
-% through the identical pipeline. Control: the switchable model with
-% everything on scored 0.6624 vs the real model's 0.6603 +/- 0.0040.
-% Seed 0 table [PART 18.2]:
-%   hybrid_full 0.6624 | no_strip 0.6637 | no_eca 0.6557 | no_res 0.6569 |
-%   plain_unet 0.6605 | no_groupnorm 0.6289
-% 3-seed table [PART 20]:
-%   full hybrid    0.6603 +/- 0.0040
-%   plain_unet     0.6585 +/- 0.0047   (strip, ECA, residual all removed)
-%   no_groupnorm   0.6495 +/- 0.0178   (also no normalisation)
-%   Welch t: full vs plain p = 0.64; plain vs no_groupnorm p = 0.48.
-% Conclusion: the three added components contribute nothing measurable.
-% GroupNorm's effect is not established either -- seed 0 suggested a large
-% effect that vanished at 3 seeds. Without GroupNorm, training is less
-% stable (sd 0.0178 vs ~0.004).
+\section{Removing the components one at a time}
+\label{sec:ablation}
+To find out what each component contributes, I wrote a version of the network
+in which each component can be switched off, and trained every variant
+through exactly the same pipeline as the full model: same data, splits,
+normalisation, loss, optimiser, number of steps and threshold selection. Only
+the network changes. As a check, the switchable network with everything
+switched on scored 0.6624, in line with the real model's $0.6603 \pm 0.0040$, so
+it faithfully reproduces \hybrid{}.
 
-\section{Do strip convolutions help faint RFI?}
-% - The design claim: strips integrate along lines so faint RFI becomes
-%   detectable. Overall F1 can't test this (faint RFI is a small share),
-%   so you measured recall per brightness tier.
-% - First attempt was misleading: each model at its own threshold showed
-%   ~+0.02 for strips in the dim tiers -- but hybrid_full's threshold was
-%   0.296 vs no_strip's 0.434, and a lower threshold raises recall
-%   everywhere. [PART 18.5]
-% - Re-done at matched budget (every model flags exactly 199,951 pixels):
-%   bright -0.0053 | moderate +0.0029 | faint -0.0008 | invisible +0.0008.
-%   No effect anywhere. [analysis/ablation_faint_recall.py]
-% - Worth a sentence on the lesson: compare models at the same operating
-%   point.
+\Cref{tab:ablation} shows the results. Removing the strip convolutions,
+the attention or the residual blocks one at a time changes the score by less
+than 0.007, and removing the strip convolutions even raised it slightly.
+Removing all three at once (``plain U-Net'') gives 0.6605, essentially the same
+as the full model.
 
-\section{Testing a CRF refinement}
-% [PART 16] Chen et al.'s CRF idea, built as a differentiable layer on top
-% of the trained network (11 extra parameters).
-%  - Chen et al.'s own parameters: 0.6592 -> 0.4884 (destroys thin RFI).
-%  - Best hand-tuned: +0.0012. Trained end-to-end: +0.0012 (0.29 seed sd).
-%  - Given freedom, the CRF shrank its own weights toward zero.
-%  - Why: the network already uses neighbourhood context, and a CRF can only
-%    redistribute evidence that is already in the prediction.
+\begin{table}[H]
+  \centering
+  \caption{Ablation on the 109 LOFAR test images (maximum \Fone{}, one seed).
+    The seed-to-seed standard deviation of the full model is 0.0040, so
+    differences below about 0.008 are within noise.}
+  \label{tab:ablation}
+  \begin{tabular}{lrrr}
+    \toprule
+    Variant & Parameters & max \Fone{} & Change \\
+    \midrule
+    Full model                                   & 593{,}842 & 0.6624 & --- \\
+    without strip convolutions                   & 508{,}210 & 0.6637 & $+0.0013$ \\
+    without channel attention                    & 593{,}818 & 0.6557 & $-0.0067$ \\
+    without residual blocks                      & 572{,}074 & 0.6569 & $-0.0055$ \\
+    without all three (plain U-Net)              & 486{,}418 & 0.6605 & $-0.0019$ \\
+    plain U-Net without GroupNorm                & 485{,}682 & 0.6289 & $-0.0335$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-\section{Where the remaining errors are}
-% [PART 15] Recall by tier for the best model:
-%   bright 0.937 | moderate 0.391 | faint 0.268 | invisible 0.254
-% - Bright RFI is solved; the dim half is caught only a quarter to a third
-%   of the time.
-% - Largest possible gain: removing false positives (+0.114 upper bound);
-%   perfectly catching the invisible tier (+0.098).
-% - And recall the ceiling: training labels are ~44% wrong.
+With one run per variant, only the last row looked like a real effect:
+removing GroupNorm cost 0.034, more than eight times the seed spread. Because a
+single run can mislead (\cref{sec:tfunet_lofar}), I repeated the two most
+important variants with two more seeds (\cref{tab:ablation3}).
 
-\section{So what does explain the gain over \tfunet?}
-% [PART 20.2] Not the three components and not clearly GroupNorm. Still
-% untested and confounded: Dice loss, raw-logit output (no ReLU), same
-% padding, depth/width, batch size, learning rate, framework.
-% Be direct: this is not yet known, and say which experiment comes next
-% (start with the Dice loss).
+\begin{table}[H]
+  \centering
+  \caption{The key ablation variants over three seeds (maximum \Fone{}).}
+  \label{tab:ablation3}
+  \begin{tabular}{lcccc}
+    \toprule
+    Model & Seed 0 & Seed 1 & Seed 2 & Mean $\pm$ s.d. \\
+    \midrule
+    Full \hybrid{}                 & 0.6592 & 0.6647 & 0.6570 & $0.6603 \pm 0.0040$ \\
+    Plain U-Net (three components removed) & 0.6605 & 0.6618 & 0.6531 & $0.6585 \pm 0.0047$ \\
+    Plain U-Net without GroupNorm  & 0.6289 & 0.6600 & 0.6595 & $0.6495 \pm 0.0178$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The full model and the plain U-Net are not significantly different (Welch
+$t$-test, $p = 0.64$): the three components contribute nothing measurable. The
+apparent effect of GroupNorm also largely disappeared. The first run without it
+was an outlier; the other two scored the same as the plain U-Net, and with
+three seeds the difference is not significant ($p = 0.48$). The one clear sign
+is that without GroupNorm the results vary about four times more from seed to
+seed, so normalisation seems to make training more stable even if it does not
+make the final model better on average.
+
+\section{Do the strip convolutions help with faint RFI?}
+\label{sec:faint}
+The main reason for adding strip convolutions was faint RFI
+(\cref{sec:hybrid_design}). Faint RFI is a small share of all RFI pixels, so a
+benefit there could be hidden in the overall score. To test this I measured how
+much of the RFI in each brightness tier of \cref{tab:lofar_tiers} the model
+finds, with and without the strip convolutions.
+
+The first comparison seemed to show a small benefit of about 0.02 in the
+fainter tiers. However, each model had been scored at its own threshold, and
+these differed (0.30 with strip convolutions, 0.43 without). A lower threshold
+flags more pixels and so finds more RFI in every tier, regardless of the
+architecture. To remove this effect I set each model's threshold so that both
+flag exactly the same number of pixels (199{,}951), and compared again
+(\cref{tab:faint}). The difference vanished in every tier, including the
+faint and invisible ones the strip convolutions were designed for.
+
+\begin{table}[H]
+  \centering
+  \caption{Fraction of RFI found in each brightness tier, with both models
+    flagging the same number of pixels.}
+  \label{tab:faint}
+  \begin{tabular}{lrrr}
+    \toprule
+    Tier & With strip conv. & Without & Difference \\
+    \midrule
+    Bright    & 0.940 & 0.945 & $-0.005$ \\
+    Moderate  & 0.405 & 0.402 & $+0.003$ \\
+    Faint     & 0.273 & 0.274 & $-0.001$ \\
+    Invisible & 0.258 & 0.257 & $+0.001$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The table also shows where the model's errors are. Bright RFI is almost
+entirely found (94\%), but only about a quarter of the faint and invisible RFI
+is, so most of the RFI the model misses is dim.
+
+\section{Adding a CRF refinement}
+\label{sec:crf}
+Chen et al.~\cite{chen2023} clean RFI in pulsar data by first labelling pixels
+with a simple statistical threshold and then refining the labels with a
+conditional random field (CRF), which adjusts each pixel's label according to
+its neighbours. They report that this recovers weak RFI that is unrecognisable
+in individual pixels but visible from its surroundings---exactly the faint RFI
+my model misses. I therefore added a CRF on top of the trained network. I
+implemented it as differentiable layers~\cite{zheng2015crfrnn,teichmann2018convcrf},
+so that its settings can also be learned, and gave it separate ranges along
+time and frequency. It adds only 11 parameters.
+
+\begin{table}[H]
+  \centering
+  \caption{Adding a CRF to the trained network (maximum \Fone{}, 109 LOFAR test
+    images).}
+  \label{tab:crf}
+  \begin{tabular}{lr}
+    \toprule
+    Configuration & max \Fone{} \\
+    \midrule
+    Network alone                                  & 0.6592 \\
+    + CRF with Chen et al.'s settings              & 0.4884 \\
+    + CRF with the best hand-chosen settings       & 0.6604 \\
+    + CRF with settings learned in training        & 0.6604 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+With Chen et al.'s published settings the CRF was harmful
+(\cref{tab:crf}): it removed isolated detections whose neighbours were labelled
+clean, raising precision to 0.74 but cutting recall to 0.35. Their RFI arrives
+in large connected blocks, while LOFAR RFI is sparse and thin. With better
+settings, whether chosen by hand or learned, the gain was 0.0012, well inside
+the seed spread. When the CRF was free to learn how strongly to act, it reduced
+its own weights towards zero (the setting at which it changes nothing) and
+stopped improving after the second of 40 epochs.
+
+There are two reasons it does not help here. The network already uses the
+neighbourhood of each pixel through its convolutions, so the CRF has little to
+add; Chen et al.\ applied theirs to a simple threshold that uses no
+neighbourhood information at all. And a CRF can only rearrange evidence that is
+already in the network's prediction; for faint RFI there is very little such
+evidence to rearrange.
+
+\section{What explains the gain over \tfunet{}?}
+\label{sec:unexplained}
+Taken together, these results show that the gain of \hybrid{} over \tfunet{}
+does not come from the components it was designed around. A plain U-Net with
+the same training setup scores almost as well. What remains are the other
+differences listed in \cref{tab:hybrid_vs_tfunet}: the Dice loss, the output
+layer without a ReLU, same padding, the different depth and width, batch size,
+learning rate and framework. I have not yet tested these one by one, so I
+cannot say which of them is responsible. The natural first test is to train
+the plain U-Net without the Dice loss.
