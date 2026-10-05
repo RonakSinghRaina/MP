@@ -1,37 +1,100 @@
 \chapter{Discussion}
 \label{ch:discussion}
 
-\section{Synthetic benchmarks can mislead}
-% - Same code scores 0.9317 on our synthetic data and 0.5482 on LOFAR.
-% - The synthetic label is noise-free (> 0.5 sigma by construction); real
-%   labels are noisy and a fifth of real RFI has no brightness signal.
-% - Components that look reasonable on paper did nothing on real data, and
-%   the earlier synthetic ablation was too noisy to show it either.
+\section{What worked, and what did not}
+The clearest result of this project is negative, and it repeated itself. Several
+choices that looked as though they should help turned out not to, and in each
+case this became visible only through a controlled test.
 
-\section{Lessons about measurement}
-% Three times in this project a single run overstated an effect that
-% shrank or vanished with more seeds:
-%   lr 1e-4 gain  +0.118 (1 seed) -> +0.058, not significant (3 seeds) [PART 12.10]
-%   GroupNorm     -0.0335 (1 seed) -> -0.009, p = 0.48 (3 seeds)       [PART 20]
-%   strips on faint RFI: ~+0.02 at own thresholds -> 0 at matched budget [PART 18.5]
-% Also the tf_unet failure itself was first blamed on the architecture.
-% This section is about method; keep it short and factual.
+\begin{itemize}
+  \item \tfunet{}'s poor first score looked like a weakness of its architecture.
+    It came instead from two training settings, class weighting and per-image
+    normalisation; correcting them took it from 0.39 to 0.93 without changing
+    the network (\cref{ch:tfunet}).
+  \item The components \hybrid{} was designed around---strip convolutions,
+    channel attention and residual blocks---contribute nothing measurable on
+    real data, not even for the faint RFI they were meant to target
+    (\cref{ch:drivers}).
+  \item A CRF refinement that works well on top of a simple threshold added
+    nothing on top of a network that already uses neighbourhood information,
+    and with its published settings it was harmful (\cref{sec:crf}).
+\end{itemize}
+
+The model still beats the best published result on LOFAR, but the reason is
+not the one it was designed around. Without the ablation, I would have
+credited the wrong parts of the model.
+
+\section{Synthetic benchmarks can mislead}
+The same network, trained the same way, scored 0.93 on my synthetic data and
+0.49 on LOFAR. The synthetic labels are noise-free and every labelled pixel is
+above the noise by construction, while on real data a fifth of the RFI is
+fainter than a typical clean pixel and the training labels disagree with a
+human expert about 44\% of the time. The synthetic data was useful for finding
+and fixing \tfunet{}'s training problems quickly, but it was a poor guide to
+how methods compare on real observations: on synthetic data every variant of
+my model scored above 0.95, so it could not show which parts mattered.
+
+\section{Single runs can mislead}
+Three times in this project, an effect measured with one training run shrank
+or disappeared when the run was repeated with different random seeds:
+\begin{itemize}
+  \item lowering \tfunet{}'s learning rate first appeared to add 0.118 to
+    \Fone{}; over three seeds the mean gain was 0.058 and not significant
+    (\cref{sec:tfunet_lofar});
+  \item removing GroupNorm first appeared to cost 0.034; over three seeds the
+    difference was 0.009 and not significant (\cref{sec:ablation});
+  \item strip convolutions first appeared to help faint RFI by about 0.02; the
+    effect came from comparing models at different thresholds and vanished
+    when they were compared fairly (\cref{sec:faint}).
+\end{itemize}
+On LOFAR, results vary between seeds by up to about 0.05 in \Fone{}, which is as
+large as many of the effects one might want to measure. Repeating runs and
+comparing models under identical conditions was the only reliable way to tell
+real effects from noise.
 
 \section{Limitations}
-% [PART 14.8] -- state all of these plainly:
-%  1. Published baselines (RFI-Net, their U-Net) are QUOTED from Mesarcik
-%     et al. Table 2, not re-run. Our AOFlagger number matches theirs to
-%     four decimals, so the test data and metric are the same -- but write
-%     "as reported by Mesarcik et al. (2022)".
-%  2. 109 test images: +/-0.04 bootstrap interval. Biggest uncertainty.
-%  3. Training budgets differ from theirs (they: 32x32 patches, 100 epochs;
-%     us: full images, 28,000 steps).
-%  4. 3 seeds is the minimum; several conclusions rest on it.
-%  5. tf_unet has not been run on HERA.
-%  6. The gain over tf_unet is not yet attributed (Chapter 6).
+\begin{enumerate}
+  \item \textbf{Published baselines were not re-run.} The results for
+    Mesarcik et al.'s U-Net and RFI-Net are taken from their
+    paper~\cite{mesarcik2022}. Because my measurement of \aoflagger{} matches
+    theirs to four decimal places, the test data, labels and metric are the
+    same, but the training of those models was not reproduced here.
+  \item \textbf{Small test set.} There are only 109 human-labelled test images.
+    The resulting uncertainty, about $\pm0.04$ in \Fone{} at 95\% confidence, is
+    larger than the variation between seeds.
+  \item \textbf{Different training budgets.} Mesarcik et al.\ trained on
+    32$\times$32 patches for 100 epochs; I trained on full images for a fixed
+    number of steps. Each method was trained in a sensible way for it, but not
+    under one common budget.
+  \item \textbf{Three seeds.} This is the minimum for any statistical
+    statement, and several conclusions rest on it.
+  \item \textbf{One real dataset.} All real-data results come from LOFAR. The
+    method has not been tested on data from another telescope, including the
+    GMRT data that originally motivated this project.
+  \item \textbf{The gain over \tfunet{} is not yet explained}
+    (\cref{sec:unexplained}).
+  \item \textbf{\tfunet{} was not run on HERA}, so it is compared with my model
+    only on the synthetic data and on LOFAR.
+\end{enumerate}
 
 \section{Future work}
-% Depends on the novelty discussion. Measured candidates:
-%  - Isolate the Dice loss (one run, ~25 min) [PART 19.2].
-%  - Reduce false positives -- the largest measured headroom (+0.114).
-%  - Apply to GMRT pulsar data (the original motivation).
+The results suggest that further additions to the model should target a
+specific, measured weakness, and each should be tested by removing it again.
+\begin{itemize}
+  \item \textbf{Find the source of the current gain.} Train the plain U-Net
+    without the Dice loss, then test the other remaining differences from
+    \tfunet{} one at a time. This is cheap and would explain the main result.
+  \item \textbf{Reduce false alarms.} False positives are the largest single
+    source of error: if all were removed, \Fone{} would rise from about 0.65 to
+    0.77. Losses or post-processing aimed specifically at precision are a
+    natural next step.
+  \item \textbf{Learn from noisy labels.} Every training label comes from
+    \aoflagger{}, which disagrees with the human expert on about 44\% of RFI.
+    Methods designed for training with noisy labels could help more than
+    further changes to the architecture.
+  \item \textbf{Faint RFI.} Only about a quarter of the faint and invisible RFI
+    is found. Since these pixels carry no brightness signal of their own, any
+    improvement has to come from wider context.
+  \item \textbf{Apply the method to GMRT pulsar data}, the original motivation
+    for this project.
+\end{itemize}
