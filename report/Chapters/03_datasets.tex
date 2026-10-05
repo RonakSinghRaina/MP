@@ -80,7 +80,7 @@ labelled.
 Two versions of the dataset were used (\cref{tab:synth_versions}). My first
 images were 1024$\times$1024 pixels. At that size only one image fitted in a
 training batch on the 6\,GB GPU, which made training unstable. Akeret et
-al.~\cite{akeret2017} trained \tfunet{} on images of 276$\times$600 pixels, so
+al.\footcite{akeret2017} trained \tfunet{} on images of 276$\times$600 pixels, so
 I regenerated the dataset at exactly that size to reproduce their setup as
 closely as possible. When the image size changes, the RFI shapes have to be
 rescaled as well: a blob 40 channels wide covers 3.9\% of a 1024-channel band
@@ -101,6 +101,7 @@ described next.
   \caption{The two versions of the synthetic dataset. Both use seed 42 and a
     700/150/150 split.}
   \label{tab:synth_versions}
+  \small
   \begin{tabular}{lccc}
     \toprule
     Version & Size (freq $\times$ time) & Instrument bandpass & RFI pixels \\
@@ -151,18 +152,18 @@ so such RFI is labelled clean. This removed 54{,}403 of the 37{,}073{,}066
 injected RFI pixels (0.147\%), all near the band edges.
 
 Each part of \cref{eq:bandpass} is standard: the Tukey window is a common
-taper in signal processing~\cite{harris1978}, standing waves in radio
-telescopes are well documented~\cite{popping2008}, and treating the instrument
+taper in signal processing\footcite{harris1978}, standing waves in radio
+telescopes are well documented\footcite{popping2008}, and treating the instrument
 as a gain applied to the incoming signal follows the radio-astronomy
-measurement equation~\cite{hamaker1996}. The particular combination used here,
+measurement equation\footcite{hamaker1996}. The particular combination used here,
 however, is my own construction and is not taken from a published simulator.
 
 \section{HERA dataset}
 \label{sec:hera}
 The second dataset is simulated data for the Hydrogen Epoch of Reionization
 Array (HERA), a radio interferometer in South Africa. It was produced by
-Mesarcik et al.~\cite{mesarcik2022} and is publicly available on
-Zenodo~\cite{mesarcik2022data}. The file contains 420 training and 140 test
+Mesarcik et al.\footcite{mesarcik2022} and is publicly available on
+Zenodo\footcite{mesarcik2022data}. The file contains 420 training and 140 test
 spectrograms of 512$\times$512 pixels, each with a boolean RFI mask. Because
 the data is simulated, the masks are exact. RFI covers 2.75\% of the pixels,
 much less than the roughly 15\% in my synthetic dataset.
@@ -210,8 +211,8 @@ LOFAR data, which is described next. \tfunet{} was not run on HERA.
 The third dataset is the most important one in this report, because it is the
 only one made of real observations with labels checked by a person. It comes
 from the Low-Frequency Array (LOFAR), a radio telescope network centred in the
-Netherlands, and was released by Mesarcik et al.~\cite{mesarcik2022} on the same
-Zenodo record as the HERA data~\cite{mesarcik2022data}.
+Netherlands, and was released by Mesarcik et al.\footcite{mesarcik2022} on the same
+Zenodo record as the HERA data\footcite{mesarcik2022data}.
 
 \subsection{Origin and structure}
 The data is a single 9.3\,GB Python pickle file. Loading it does not give
@@ -229,7 +230,7 @@ are the rows and columns of one spectrogram, and the last is a single channel
 
 The two sets of masks were made in different ways, and this matters for the
 rest of the report. The training masks were produced automatically by
-\aoflagger{}~\cite{offringa2012}, the standard flagging software for LOFAR.
+\aoflagger{}\footcite{offringa2012}, the standard flagging software for LOFAR.
 The 109 test masks were labelled by hand by a human expert. The test set is
 therefore the only real ground truth available.
 
@@ -326,6 +327,6 @@ compared on exactly the same pixels. Taking the human as correct, \aoflagger{}
 has a precision of 0.560 and a recall of 0.580, an \Fone{} of 0.5698. Roughly
 44\% of what any model learns from the training labels therefore disagrees
 with the expert. As a check on my processing, Mesarcik et al.\ report the same
-\aoflagger{} \Fone{} of 0.5698 in their paper~\cite{mesarcik2022}; my value,
+\aoflagger{} \Fone{} of 0.5698 in their paper\footcite{mesarcik2022}; my value,
 0.5698403, agrees to four decimal places, which confirms that I am using the
 same test data, labels and metric.

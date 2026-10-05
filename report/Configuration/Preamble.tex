@@ -1,0 +1,242 @@
+%=========================================================================================
+% PACKAGES — ORGANIZED BY CATEGORY
+%=========================================================================================
+
+%-----------------------------------------------------------------------------------------
+% MATH & SYMBOLS
+%-----------------------------------------------------------------------------------------
+
+\usepackage{amsmath}       % Core AMS math features
+\usepackage{amsfonts}      % Math fonts
+\usepackage{amssymb}       % Extended math symbols
+\usepackage{amsthm}        % Theorem and proof environments
+\usepackage{mathrsfs}      % Script-style math fonts
+\usepackage{yhmath}        % Wide accents
+\usepackage{empheq}        % Highlight/emphasise equations
+\usepackage{bm}            % Bold math symbols
+\usepackage{mathtools}     % Enhancements to amsmath
+\usepackage{nccmath}       % Compact math environments 
+
+%-----------------------------------------------------------------------------------------
+% DOCUMENT LAYOUT
+%-----------------------------------------------------------------------------------------
+
+\usepackage{setspace}      % Line spacing control
+\usepackage{geometry}      % Page size and margin settings
+\geometry{
+    a4paper,               % Paper size
+    centering,
+    left=1.25in,           % Margins
+    right=1in,
+    top=0in+1in,
+    bottom=1in
+}
+
+%-----------------------------------------------------------------------------------------
+% REFERENCES & LINKS
+%-----------------------------------------------------------------------------------------
+
+\usepackage{hyperref}      % Clickable links and cross-references
+
+\hypersetup{
+    colorlinks,
+    linkcolor={blue!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black},
+    pdfpagelayout=TwoPageRight         
+}
+\usepackage[backend=biber,style=verbose]{biblatex} % Bibliography
+% (See https://tug.ctan.org/info/biblatex-cheatsheet/biblatex-cheatsheet.pdf)
+\usepackage[nottoc]{tocbibind}   % Add LoF/LoT to TOC
+\usepackage{appendix}      % Appendix formatting
+\addbibresource{ref.bib}
+
+%-----------------------------------------------------------------------------------------
+% TABLES & FIGURES
+%-----------------------------------------------------------------------------------------
+
+\usepackage{caption}       % Custom captions
+\usepackage{booktabs}      % Professional tables
+\usepackage{graphicx}      % Include graphics
+\graphicspath{{./Images/}} % Figures directory
+\usepackage{multicol}      % Multiple columns
+\usepackage{longtable}     % Multi-page tables
+
+%-----------------------------------------------------------------------------------------
+% HEADERS / FOOTERS
+%-----------------------------------------------------------------------------------------
+
+\usepackage{fancyhdr}      % Custom headers and footers
+% \pagestyle{fancy}        % Enable for standard header and footer
+
+%-----------------------------------------------------------------------------------------
+% DATE FORMATTING
+%-----------------------------------------------------------------------------------------
+
+\usepackage[UKenglish,cleanlook]{isodate}
+
+%-----------------------------------------------------------------------------------------
+% COLORS
+%-----------------------------------------------------------------------------------------
+
+\usepackage{xcolor}        % Colors
+
+%-----------------------------------------------------------------------------------------
+% DRAWING & GRAPHICS
+%-----------------------------------------------------------------------------------------
+
+\usepackage{tikz}          % Drawing diagrams
+\newcommand\fillin[1][3cm]{\makebox[#1]{\dotfill}} % Dotted Line
+
+%-----------------------------------------------------------------------------------------
+% CHEMICAL NOTATION
+%-----------------------------------------------------------------------------------------
+
+% \usepackage[version=4]{mhchem} % Chemical formulae and equations
+% \usepackage{chemfig}     % Molecule structural formulae
+% \usepackage{chemformula} % Chemical notations with more customisation
+
+%-----------------------------------------------------------------------------------------
+% OPTIONAL PACKAGES (UNCOMMENT TO ENABLE)
+%-----------------------------------------------------------------------------------------
+
+% \usepackage{xwatermark}  % Watermark
+% \usepackage{tikz-cd}     % Commutative diagrams
+% \usepackage{pgfplots}    % 2D/3D plots
+% \usepackage{footmisc}    % Advanced footnotes
+% \usepackage{nomencl}     % List of symbols
+% \usepackage{makeidx}     % Index
+% \usepackage{enumitem}    % Custom lists
+% \usepackage{aliascnt}    % Multiple theorem counters
+% \usepackage{mdframed}    % Colored/shaded boxes
+% \usepackage{psfrag}      % Replace text in EPS
+% \usepackage{fontawesome}       % Icon pack (X, FB, ORCID, etc.)
+% \usepackage{siunitx}     % Typeset units
+% \usepackage{units}       % Typeset units (Legacy)
+% \usepackage[english]{babel}    % Language settings
+% \usepackage{verbatim}    % Display long code blocks
+% \usepackage[l3]{csvsimple}     % CSV table import
+
+%=========================================================================================
+% CUSTOM SETTINGS & ENVIRONMENTS
+%=========================================================================================
+
+% Chapter and Section Headings in Headers
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+% Spacing
+\setlength{\parskip}{1em plus 0.25em minus 0.25em}
+\renewcommand{\baselinestretch}{1.2}
+
+% Theorem Environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{notation}[theorem]{Notation}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Autoref Naming
+\providecommand*{\definitionautorefname}{Definition}
+\providecommand*{\propositionautorefname}{Proposition}
+\providecommand*{\theoremautorefname}{Theorem}
+\providecommand*{\corollaryautorefname}{Corollary}
+\providecommand*{\lemmaautorefname}{Lemma}
+
+%-----------------------------------------------------------------------------------------
+% OTHER DOCUMENT METADATA
+%-----------------------------------------------------------------------------------------
+
+\newcommand{\RegNumber}{[Registration Number]}
+\newcommand{\Degree}{}
+\newcommand{\Department}{[Department Name]}
+\newcommand{\ProjectSupervisor}{[Project Supervisor]}
+\newcommand{\ThesisCommitteeMemberA}{[TC Member 1]}
+\newcommand{\TCMAFacultyPosition}{[Faculty Position]}
+\newcommand{\ThesisCommitteeMemberB}{[TC Member 2]}
+\newcommand{\TCMBFacultyPosition}{[Faculty Position]}
+\newcommand{\ThesisCommitteeMemberC}{[TC Member 3]}
+\newcommand{\TCMCFacultyPosition}{[Faculty Position]}
+
+% Hyperref PDF metadata
+\newcommand{\ThesisAuthor}{John Doe}
+\newcommand{\ThesisTitle}{My Thesis Title}
+\newcommand{\ThesisSubject}{\Degree\ Thesis, IISER Thiruvananthapuram}
+\newcommand{\ThesisKeywords}{IISER Thiruvananthapuram}
+
+%----------------- Input Commands -----------------%
+
+\newcommand{\SetThesisTitle}[1]{\renewcommand{\ThesisTitle}{#1}}
+\newcommand{\SetThesisAuthor}[1]{\renewcommand{\ThesisAuthor}{#1}}
+\newcommand{\SetThesisSubject}[1]{\renewcommand{\ThesisSubject}{#1}}
+\newcommand{\SetRegNumber}[1]{\renewcommand{\RegNumber}{#1}}
+\def\msc{MSc}
+\def\phd{PhD}
+\def\minor{Minor}
+\newcommand{\SetDegree}[1]{%
+    \let\Degree=#1%
+    \def\DegreeDisplay{}%
+    \edef\tempDegree{#1}%
+    \ifx\tempDegree\msc
+        \def\DegreeDisplay{Master of Science}%
+    \else
+        \ifx\tempDegree\phd
+            \def\DegreeDisplay{Doctor of Philosophy}%
+        \else
+            \ifx\tempDegree\minor
+                \def\DegreeDisplay{Minor Degree}%
+            \else
+                \def\DegreeDisplay{#1}%
+            \fi
+        \fi
+    \fi
+}
+\newcommand{\SetDepartment}[1]{\renewcommand{\Department}{#1}}
+\newcommand{\SetProjectSupervisor}[1]{\renewcommand{\ProjectSupervisor}{#1}}
+\newcommand{\SetThesisCommitteeMemberA}[1]{\renewcommand{\ThesisCommitteeMemberA}{#1}}
+\newcommand{\SetTCMAFacultyPosition}[1]{\renewcommand{\TCMAFacultyPosition}{#1}}
+\newcommand{\SetThesisCommitteeMemberB}[1]{\renewcommand{\ThesisCommitteeMemberB}{#1}}
+\newcommand{\SetTCMBFacultyPosition}[1]{\renewcommand{\TCMBFacultyPosition}{#1}}
+\newcommand{\SetThesisCommitteeMemberC}[1]{\renewcommand{\ThesisCommitteeMemberC}{#1}}
+\newcommand{\SetTCMCFacultyPosition}[1]{\renewcommand{\TCMCFacultyPosition}{#1}}
+\newcommand{\SetThesisKeywords}[1]{\renewcommand{\ThesisKeywords}{#1}}
+
+%=========================================================================================
+% ABBREVIATIONS, CONSTANTS, SYMBOLS LISTS FOR GLOSSARY
+%=========================================================================================
+
+% Abbreviations
+\newcommand\listsymbolname{Abbreviations}
+\newcommand\listofsymbols[2]{
+  \section*{\listsymbolname}
+  \addcontentsline{toc}{section}{\listsymbolname}
+  \begin{longtable}[c]{#1}
+    #2
+  \end{longtable}\par
+}
+
+% Constants
+\newcommand\listconstants{Physical Constants}
+\newcommand\listofconstants[2]{
+  \section*{\listconstants}
+  \addcontentsline{toc}{section}{\listconstants}
+  \begin{longtable}[c]{#1}
+    #2
+  \end{longtable}\par
+}
+
+% Symbols (Nomenclature)
+\newcommand\listnomenclature{Symbols}
+\newcommand\listofnomenclature[2]{
+  \section*{\listnomenclature}
+  \addcontentsline{toc}{section}{\listnomenclature}
+  \begin{longtable}[c]{#1}
+    #2
+  \end{longtable}\par
+}

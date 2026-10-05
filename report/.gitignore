@@ -1,12 +1,14 @@
 *.aux
 *.bbl
+*.bcf
 *.blg
 *.log
 *.out
 *.toc
 *.lof
 *.lot
+*.run.xml
 *.fdb_latexmk
 *.fls
 *.synctex.gz
-main.pdf
+Main_Report.pdf

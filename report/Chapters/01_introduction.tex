@@ -30,7 +30,7 @@ arrival times. The 300--500\,MHz band used by uGMRT is heavily affected by
 terrestrial RFI.
 
 The tools commonly used to clean folded pulsar data, such as \texttt{paz}
-from PSRCHIVE~\cite{vanstraten2012psrchive} and \texttt{clfd}~\cite{clfd}, rely
+from PSRCHIVE\footcite{vanstraten2012psrchive} and \texttt{clfd}\footcite{clfd}, rely
 on simple statistics such as median filters. Because RFI is non-Gaussian, these
 can miss weak broadband RFI or, if made more aggressive, remove parts of the
 real pulsar signal.
@@ -44,18 +44,18 @@ picture RFI appears as lines, bands and patches, and flagging means deciding,
 for every pixel, whether it is affected by RFI. This is the problem that
 computer vision calls semantic segmentation.
 
-The U-Net~\cite{ronneberger2015} is a standard neural network for segmentation,
-and Akeret et al.~\cite{akeret2017} were the first to apply it to RFI, in a
+The U-Net\footcite{ronneberger2015} is a standard neural network for segmentation,
+and Akeret et al.\footcite{akeret2017} were the first to apply it to RFI, in a
 code called \tfunet{}. A different approach is the 2$\sigma$CRF method of Chen
-et al.~\cite{chen2023}, which labels pixels with a statistical threshold and
+et al.\footcite{chen2023}, which labels pixels with a statistical threshold and
 then refines the labels with a conditional random field (CRF) that takes each
 pixel's neighbours into account.
 
 \section{Aims}
 The original plan was to combine the two ideas: a U-Net for segmentation,
-followed by a CRF to refine its output. Labelled RFI data from uGMRT was not
-available, so the work was carried out on a synthetic dataset I generated, and
-then on public datasets from HERA and LOFAR. The aims were:
+followed by a CRF to refine its output. The work was carried out on a
+synthetic dataset I generated, and then on public datasets from HERA and
+LOFAR. The aims were:
 \begin{enumerate}
   \item to reproduce the U-Net method of Akeret et al.\ on our own data;
   \item to understand why it initially performed poorly, and correct it;
@@ -75,7 +75,7 @@ then on public datasets from HERA and LOFAR. The aims were:
     network (\cref{ch:tfunet}).
   \item On real LOFAR data with human labels, my network, \hybrid{}, reaches
     a maximum \Fone{} of $0.6603 \pm 0.0040$ with 593{,}842 parameters, above the
-    best published result on this data, 0.5979~\cite{mesarcik2022}
+    best published result on this data, 0.5979\footcite{mesarcik2022}
     (\cref{ch:hybrid}).
   \item The components the network was designed around contribute nothing
     measurable to this result, and a CRF refinement does not improve it

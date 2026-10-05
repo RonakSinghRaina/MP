@@ -7,7 +7,7 @@ code without modifying the network itself, with 3 layers and 32 features in
 the first layer (465{,}986 trainable parameters), and trained it on the
 276$\times$600 synthetic dataset. Two settings had to differ from the paper.
 Akeret et al.\ used a batch of 32 images and momentum gradient descent with a
-learning rate of 0.2~\cite{akeret2017}. A batch of 32 does not fit on the
+learning rate of 0.2\footcite{akeret2017}. A batch of 32 does not fit on the
 6\,GB GPU used here, so I used a batch of 4. At such a small batch the paper's
 learning rate destroyed the network within a few iterations (with a batch of
 one it stopped learning at iteration 4), so I used the Adam optimiser with a
@@ -32,6 +32,7 @@ between RFI and clean pixels; it is not part of the authors' setup.
   \caption{\tfunet{} on the 276$\times$600 synthetic dataset. Only the
     normalisation and the class weighting change between runs.}
   \label{tab:tfunet_runs}
+  \setlength{\tabcolsep}{4pt}
   \small
   \begin{tabular}{clcrrrl}
     \toprule
@@ -100,6 +101,7 @@ pixel (raw value 10) and a faint RFI pixel (raw value 20).
   \caption{Normalised values of the same two pixels under per-image and
     fixed-range normalisation.}
   \label{tab:pernorm}
+  \small
   \begin{tabular}{lccc}
     \toprule
     Pixel (raw value) & Per-image, quiet image & Per-image, bright image & Fixed range \\
@@ -183,7 +185,7 @@ even a simple threshold, which confirms on real data the conclusion of
 
 \Cref{fig:tfunet_lofar} places the result among published methods. The values
 for Mesarcik et al.'s U-Net and for RFI-Net are taken from their
-paper~\cite{mesarcik2022}; I did not re-run those methods. Their results are
+paper\footcite{mesarcik2022}; I did not re-run those methods. Their results are
 reported as maximum \Fone{}, which is why that measure is used here.
 \tfunet{} clearly beats a simple $\sigma$-clipping threshold (0.4103) but stays
 below \aoflagger{} (0.5698), and is 0.039 below Mesarcik et al.'s U-Net (0.5876).
@@ -198,7 +200,7 @@ matters.
   \caption{Maximum \Fone{} on the 109 LOFAR test images. Dark bars are my
     \tfunet{} runs (error bars: standard deviation over three seeds); grey bars
     are a $\sigma$-clipping threshold, \aoflagger{}, and the values reported by
-    Mesarcik et al.~\cite{mesarcik2022}.}
+    Mesarcik et al.}
   \label{fig:tfunet_lofar}
 \end{figure}
 

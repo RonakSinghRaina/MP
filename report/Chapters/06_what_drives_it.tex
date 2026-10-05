@@ -51,6 +51,7 @@ important variants with two more seeds (\cref{tab:ablation3}).
   \centering
   \caption{The key ablation variants over three seeds (maximum \Fone{}).}
   \label{tab:ablation3}
+  \small
   \begin{tabular}{lcccc}
     \toprule
     Model & Seed 0 & Seed 1 & Seed 2 & Mean $\pm$ s.d. \\
@@ -111,13 +112,13 @@ is, so most of the RFI the model misses is dim.
 
 \section{Adding a CRF refinement}
 \label{sec:crf}
-Chen et al.~\cite{chen2023} clean RFI in pulsar data by first labelling pixels
+Chen et al.\footcite{chen2023} clean RFI in pulsar data by first labelling pixels
 with a simple statistical threshold and then refining the labels with a
 conditional random field (CRF), which adjusts each pixel's label according to
 its neighbours. They report that this recovers weak RFI that is unrecognisable
 in individual pixels but visible from its surroundings---exactly the faint RFI
 my model misses. I therefore added a CRF on top of the trained network. I
-implemented it as differentiable layers~\cite{zheng2015crfrnn,teichmann2018convcrf},
+implemented it as differentiable layers\footcite{zheng2015crfrnn,teichmann2018convcrf},
 so that its settings can also be learned, and gave it separate ranges along
 time and frequency. It adds only 11 parameters.
 

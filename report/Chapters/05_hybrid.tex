@@ -40,11 +40,11 @@ the design choices were aimed at using this kind of spatial context.
 \end{table}
 
 \paragraph{Residual blocks.} Each block adds its input back to its output
-through a shortcut~\cite{he2016}, so a feature only has to learn a correction
+through a shortcut\footcite{he2016}, so a feature only has to learn a correction
 rather than be rebuilt at every layer. The aim was to stop weak, low-contrast
 features being washed out as they pass through many layers. RFI-Net, the best
 method in Mesarcik et al.'s comparison, is also built from residual
-blocks~\cite{yang2020rfinet}.
+blocks\footcite{yang2020rfinet}.
 
 \paragraph{Multi-scale strip convolutions.} Ordinary filters are small
 squares, but much RFI is line-shaped: narrowband RFI is a thin line along the
@@ -54,12 +54,12 @@ Averaging $K$ pixels of a coherent line improves its signal-to-noise ratio by
 about $\sqrt{K}$, while noise averages down, which is how a 1.5$\sigma$ line
 could become detectable. Filters of three lengths ($K = 7, 11, 21$) run in
 parallel to cover RFI of different durations and bandwidths. Multi-scale
-convolutions of this kind have been used for RFI before~\cite{gu2024emsca}, and
+convolutions of this kind have been used for RFI before\footcite{gu2024emsca}, and
 a closely related strip-convolution design has since been
-published~\cite{mars2026}, so this component is not new.
+published\footcite{mars2026}, so this component is not new.
 
 \paragraph{Efficient channel attention.} After the strip filters, some feature
-channels carry evidence of faint RFI and others of bright RFI. ECA~\cite{wang2020eca}
+channels carry evidence of faint RFI and others of bright RFI. ECA\footcite{wang2020eca}
 learns a weight for each channel at very little cost (a single small
 one-dimensional convolution), so that the faint-structure channels are not
 drowned out by the bright ones.
@@ -68,7 +68,7 @@ drowned out by the bright ones.
 network so that they stay in a stable range. A common choice, batch
 normalisation, estimates its statistics across the images in a batch, which is
 unreliable when, as here, the GPU memory allows only one 512$\times$512 image
-per batch. GroupNorm~\cite{wu2018groupnorm} computes its statistics within a
+per batch. GroupNorm\footcite{wu2018groupnorm} computes its statistics within a
 single image and so works at any batch size. \tfunet{} has no normalisation
 layers at all.
 
@@ -84,7 +84,7 @@ padding, a border around each image is lost.
 \section{Training}
 \label{sec:hybrid_training}
 The model is trained with the sum of two losses. Cross-entropy scores each
-pixel separately. The Dice loss~\cite{milletari2016} measures how well the
+pixel separately. The Dice loss\footcite{milletari2016} measures how well the
 predicted RFI region overlaps the true one as a whole, which helps when the
 positive class is rare, as RFI is in LOFAR. I used the Adam optimiser with a
 learning rate of $10^{-3}$ and one image per batch, for 40 epochs of 700 steps
@@ -162,7 +162,7 @@ labels do.
   \centering
   \caption{Results on the 109 human-labelled LOFAR test images. Values for
     Mesarcik et al.'s U-Net and RFI-Net are as reported in their
-    paper~\cite{mesarcik2022}.}
+    paper.}
   \label{tab:final}
   \begin{tabular}{lcr}
     \toprule

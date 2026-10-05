@@ -1,0 +1,46 @@
+%=========================================================================================
+% ADDITIONS FOR THIS REPORT
+% Everything here is on top of the official template; nothing in Preamble.tex is
+% changed. Loaded from Main_Report.tex after the template's own configuration.
+%=========================================================================================
+
+%-----------------------------------------------------------------------------------------
+% Degree: BS-MS minor project
+% The template offers \msc, \phd and \minor, but \minor prints "Minor Degree" (IISER's
+% minor-degree programme), which is not what this is. \bsms falls through to the
+% template's own "else" branch, so it displays exactly the text below. The title page's
+% "A ... Submitted" line has a matching branch in Intro_Pages/01_TitlePage.tex.
+%-----------------------------------------------------------------------------------------
+\newcommand{\bsms}{BS-MS (Dual Degree)}
+
+%-----------------------------------------------------------------------------------------
+% Submission date
+% The template prints \today (the day the PDF is compiled). The report states a fixed
+% submission month instead, so the front pages do not change every time it is rebuilt.
+%-----------------------------------------------------------------------------------------
+\newcommand{\SubmissionDate}{November 2026}
+
+%-----------------------------------------------------------------------------------------
+% Packages the chapters use that the template does not load
+%-----------------------------------------------------------------------------------------
+\usepackage{float}                         % [H] placement for tables and figures
+\usepackage[nameinlink,capitalise]{cleveref} % \cref / \Cref (must come after hyperref)
+\usepackage{listings}                      % the commands in the appendix
+\lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single,
+        columns=fullflexible, keepspaces=true}
+\graphicspath{{./Images/}{./Images/Figures/}}
+
+%-----------------------------------------------------------------------------------------
+% House style: spell these the same way everywhere
+%-----------------------------------------------------------------------------------------
+\newcommand{\tfunet}{\texttt{tf\_unet}}
+\newcommand{\hybrid}{HybridRFINet}
+\newcommand{\aoflagger}{\textsc{AOFlagger}}
+\newcommand{\Fone}{$F_1$}
+
+%-----------------------------------------------------------------------------------------
+% Line breaking in the template's narrower text column
+%-----------------------------------------------------------------------------------------
+\hyphenation{Hybrid-RFI-Net PSR-CHIVE AO-Flagger}
+\setlength{\emergencystretch}{1.5em}      % lets awkward lines break without overflowing
+\appto{\bibsetup}{\emergencystretch=1em}   % same for long bibliography entries

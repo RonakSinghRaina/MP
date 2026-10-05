@@ -1,0 +1,122 @@
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Official IISER Thiruvananthapuram Thesis/Dissertation Format
+% LaTeX Template for Overleaf
+%
+% Copyright (c) 2022 by Nikhil Alex
+%
+% Licensed under Creative Commons Attribution–NonCommercial–ShareAlike 4.0
+% (CC BY-NC-SA 4.0). More info: https://creativecommons.org/licenses/by-nc-sa/4.0/
+%
+% Suggestions/Feedback: nikhil.alexv17@alumni.iisertvm.ac.in
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+% Comments like this begin with a % character. 
+% Ctrl+b for \textbf{bold} and Ctrl+i for \textit{italics} 
+% Ctrl+/ to comment out lines
+
+%=========================================================================================
+% PREAMBLE (PACKAGES AND DOCUMENT CONFIGURATION)
+%=========================================================================================
+
+% Rewrite the input fields marked with [] brackets.
+% Read all uncommented lines carefully.
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+\documentclass[12pt,twoside,a4paper]{report} % Font size (pt)
+% Add in draft parameter to hide non-essential elements for faster compile times
+
+% Load configuration files
+\input{Configuration/Preamble.tex}      % Packages, layout, spacing, theorem styles
+\input{Configuration/Colours.tex}       % Colour definitions
+\input{Configuration/MathLetters.tex}   % Math symbols and alphabet macros
+\input{Configuration/ReportExtras.tex}  % Additions for this report (see file)
+
+% Document Metadata
+\SetThesisTitle{Detecting Radio Frequency Interference in Radio Spectrograms with Convolutional Networks}
+\SetThesisAuthor{Ronak Singh}
+\SetRegNumber{IMS23319}
+\SetDegree{\bsms}                        % Choose from: \msc, \phd, and \minor
+                                         % (\bsms is defined in ReportExtras.tex: the
+                                         %  template's \minor prints "Minor Degree",
+                                         %  which is a different programme)
+\SetDepartment{Physics}
+\SetProjectSupervisor{Alwin Poulose}
+\SetThesisCommitteeMemberA{[TC Member 1]}
+\SetTCMAFacultyPosition{[Faculty Position]}
+\SetThesisCommitteeMemberB{[TC Member 2]}
+\SetTCMBFacultyPosition{[Faculty Position]}
+\SetThesisCommitteeMemberC{[TC Member 3]}
+\SetTCMCFacultyPosition{[Faculty Position]}
+\SetThesisKeywords{Radio frequency interference, RFI flagging, U-Net, image segmentation, deep learning, LOFAR}
+
+\hypersetup{
+    pdfauthor={\ThesisAuthor},
+    pdftitle={\ThesisTitle},
+    pdfsubject={\ThesisSubject},
+    pdfkeywords={IISER Thiruvananthapuram, \ThesisKeywords}
+}
+
+%=========================================================================================
+% DOCUMENT STARTS HERE
+%=========================================================================================
+
+\begin{document}
+
+%=========================================================================================
+% INTRODUCTORY PAGES
+%=========================================================================================
+
+\newgeometry{
+  inner=45pt,
+  outer=48pt,
+  top=1.5in
+}
+
+\input{Intro_Pages/01_TitlePage}
+\pagenumbering{roman}
+\setcounter{page}{3}
+\input{Intro_Pages/02_Certificate}
+\input{Intro_Pages/03_Declaration}
+\input{Intro_Pages/04_Acknowledgements}
+\input{Intro_Pages/05_Abstract}
+\input{Intro_Pages/06_ToC,LoF,LoT}
+%\input{Intro_Pages/07_Glossary}         % Uncomment to enable glossary page   
+\restoregeometry
+% Set main page numbering
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+%=========================================================================================
+% MAIN CHAPTERS
+%=========================================================================================
+
+\input{Chapters/01_introduction}
+\input{Chapters/02_background}
+\input{Chapters/03_datasets}
+\input{Chapters/04_tfunet}
+\input{Chapters/05_hybrid}
+\input{Chapters/06_what_drives_it}
+\input{Chapters/07_discussion}
+\input{Chapters/08_conclusion}
+
+% Note:
+% Use sections/subsections to structure content within each chapter.
+
+%=========================================================================================
+% APPENDICES
+%=========================================================================================
+
+\appendix
+\appendixpage
+\addappheadtotoc
+\input{Appendices/A_reproducibility.tex}
+
+%=========================================================================================
+% BIBLIOGRAPHY
+%=========================================================================================
+
+\nocite{*}                               % Include all entries from ref.bib
+\printbibliography[heading=bibintoc]     % Bibliography in ToC
+
+\end{document}

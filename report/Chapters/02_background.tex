@@ -36,21 +36,21 @@ On the LOFAR test data, the best simple threshold of this kind reaches an
 \Fone{} of 0.41 (\cref{sec:tfunet_lofar}).
 
 \subsection{AOFlagger}
-\aoflagger{}~\cite{offringa2012} is the standard RFI flagger for LOFAR. It
+\aoflagger{}\footcite{offringa2012} is the standard RFI flagger for LOFAR. It
 combines thresholding at several scales with a morphological step that
 extends flags along time and frequency, so that the edges of RFI features are
 also caught. It is important for this report because it produced the
 training labels of the LOFAR dataset (\cref{sec:lofar}).
 
 \subsection{The 2\texorpdfstring{$\sigma$}{-sigma}CRF method}
-Chen et al.~\cite{chen2023} clean RFI in folded pulsar data in two steps.
+Chen et al.\footcite{chen2023} clean RFI in folded pulsar data in two steps.
 First, they compute the root-mean-square of the folded profile in each
 frequency channel and time sub-integration, giving a 2D image, remove its
 baseline, and fit a Gaussian to the histogram of its values. Pixels within
 $2\sigma$ of the Gaussian peak are labelled clean, pixels beyond $3\sigma$ are
 labelled RFI, and those in between are left ambiguous. Second, they refine
 these labels with a fully connected conditional random field
-(CRF)~\cite{krahenbuhl2011}. A CRF treats every pixel as connected to the
+(CRF)\footcite{krahenbuhl2011}. A CRF treats every pixel as connected to the
 others and finds the labelling that minimises an energy made of two parts: a
 unary term, how likely each pixel is to be RFI on its own, and a pairwise
 term, which encourages pixels that are close together and similar in value to
@@ -62,7 +62,7 @@ data, which is where a learned approach might do better.
 \section{Neural networks for RFI segmentation}
 
 \subsection{U-Net}
-The U-Net~\cite{ronneberger2015} is a convolutional network for image
+The U-Net\footcite{ronneberger2015} is a convolutional network for image
 segmentation. Its encoder repeatedly applies convolutions and halves the image
 size, building up a description of \emph{what} is in the image; its decoder
 reverses this, restoring the full size to locate \emph{where} it is. Skip
@@ -71,7 +71,7 @@ decoder level. The output has one probability per pixel---here, the
 probability that the pixel is affected by RFI.
 
 \subsection{\tfunet{}}
-Akeret et al.~\cite{akeret2017} applied a U-Net to RFI in their \tfunet{}
+Akeret et al.\footcite{akeret2017} applied a U-Net to RFI in their \tfunet{}
 code, written in TensorFlow. The configuration used in this report has 3
 levels and 32 filters in the first layer, giving 465{,}986 trainable
 parameters. Two design details become important later: \tfunet{} applies a ReLU
@@ -79,11 +79,11 @@ to its output scores, and it has no normalisation layers
 (\cref{ch:tfunet}).
 
 \subsection{Recent methods}
-Mesarcik et al.~\cite{mesarcik2022}, who released the LOFAR dataset used here,
+Mesarcik et al.\footcite{mesarcik2022}, who released the LOFAR dataset used here,
 proposed an approach called Nearest-Latent-Neighbours, which learns only from
 RFI-free data and flags whatever looks unusual. They compared it with several
 supervised networks on the same LOFAR test set. The best \Fone{} in their
-comparison came from RFI-Net~\cite{yang2020rfinet}, a residual U-Net, with
+comparison came from RFI-Net\footcite{yang2020rfinet}, a residual U-Net, with
 0.5979; their own U-Net reached $0.5876 \pm 0.0031$. Their method had the best
 area under the ROC curve but a lower \Fone{} of 0.5114. These published values
 are the benchmarks used in \cref{ch:hybrid}.
