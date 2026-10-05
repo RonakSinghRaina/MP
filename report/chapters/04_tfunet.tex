@@ -136,21 +136,78 @@ test \Fone{} of 0.6815. With a fixed range and no class weights it reached
 on the harder dataset too.
 
 \section{\tfunet{} on real LOFAR data}
-% Setup [PART 12]: unmodified code, fixed-range normalisation, no class
-% weights, trained on 6621 images, tested on the 109 human-labelled ones,
-% threshold from validation, 3 seeds.
-% Table (3 seeds each):
-%   lr 1e-3, 60 epochs : pooled 0.4563 +/- 0.0279 | max 0.4901 +/- 0.0495
-%   lr 1e-4, 150 epochs: pooled 0.5021 +/- 0.0259 | max 0.5482 +/- 0.0139 | ROC 0.9470 +/- 0.0074
-% - It did not collapse despite 1:129 imbalance.
-% - The lr change helped (+0.058 max F1) but is NOT significant at 3 seeds
-%   (paired t = 1.54, 2 dof). Seed 0 alone had suggested +0.118. [PART 12.10]
-%   -> Good place to make the point that one run is not a result.
-% - Per-image normalisation on LOFAR: 0.3039, below sigma-clip. [PART 13.8]
-% - Comparison: their U-Net 0.5876. We nearly reproduce it; remaining
-%   differences are 32x32 patches and their normalisation.
-% - Figure: chart_lofar from the Week-5 deck.
+\label{sec:tfunet_lofar}
+Having found the settings that make \tfunet{} work on synthetic data, I trained
+it on the real LOFAR data with exactly those settings: the unmodified network,
+fixed-range normalisation and no class weighting. The model was trained on the
+6621 clean training images, the threshold was chosen on the 735 validation
+images, and the result was measured on the 109 images labelled by the human
+expert. Each setting was run with three random seeds.
 
-\section{The synthetic-to-real gap}
-% Same code, same settings: 0.9317 (synthetic) -> 0.5482 (LOFAR).
-% -0.383. Figure: chart_gap. This is one of your strongest single results.
+Despite the extreme imbalance---one RFI pixel for every 129 clean ones---the
+network did not collapse into predicting ``no RFI'' everywhere. With the same
+training length as on the synthetic data (60 epochs at a learning rate of
+$10^{-3}$) it reached a maximum \Fone{} of $0.4901 \pm 0.0495$. Lowering the
+learning rate to $10^{-4}$ and training for 150 epochs raised this to
+$0.5482 \pm 0.0139$ (\cref{tab:tfunet_lofar}).
+
+\begin{table}[H]
+  \centering
+  \caption{\tfunet{} on the 109 human-labelled LOFAR test images. Mean and
+    standard deviation over three seeds.}
+  \label{tab:tfunet_lofar}
+  \begin{tabular}{lccc}
+    \toprule
+    Training & max \Fone{} & pooled \Fone{} & ROC AUC \\
+    \midrule
+    lr $10^{-3}$, 60 epochs  & $0.4901 \pm 0.0495$ & $0.4563 \pm 0.0279$ & $0.9389 \pm 0.0045$ \\
+    lr $10^{-4}$, 150 epochs & $0.5482 \pm 0.0139$ & $0.5021 \pm 0.0259$ & $0.9470 \pm 0.0074$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The lower learning rate also made the result much more consistent between
+seeds: the standard deviation of the maximum \Fone{} fell from 0.0495 to
+0.0139. However, the improvement itself is not statistically significant with
+three seeds. Comparing the runs seed by seed, one of the three seeds actually
+became slightly worse, and a paired $t$-test gives $t = 1.54$ with 2 degrees of
+freedom, well below the 4.30 needed for significance at the 5\% level. My
+first single run had suggested a gain of 0.118; the two further seeds roughly
+halved it. I therefore use the lower learning rate as the better default, but
+do not claim it as a proven improvement.
+
+Using per-image normalisation instead, the maximum \Fone{} fell to 0.3039, below
+even a simple threshold, which confirms on real data the conclusion of
+\cref{sec:pernorm}.
+
+\Cref{fig:tfunet_lofar} places the result among published methods. The values
+for Mesarcik et al.'s U-Net and for RFI-Net are taken from their
+paper~\cite{mesarcik2022}; I did not re-run those methods. Their results are
+reported as maximum \Fone{}, which is why that measure is used here.
+\tfunet{} clearly beats a simple $\sigma$-clipping threshold (0.4103) but stays
+below \aoflagger{} (0.5698), and is 0.039 below Mesarcik et al.'s U-Net (0.5876).
+Two known differences in how that U-Net was trained could account for at least
+part of the gap: it was trained on small 32$\times$32 patches rather than full
+images, and with a different normalisation. I have not tested which of these
+matters.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{tfunet_lofar_ladder}
+  \caption{Maximum \Fone{} on the 109 LOFAR test images. Dark bars are my
+    \tfunet{} runs (error bars: standard deviation over three seeds); grey bars
+    are a $\sigma$-clipping threshold, \aoflagger{}, and the values reported by
+    Mesarcik et al.~\cite{mesarcik2022}.}
+  \label{fig:tfunet_lofar}
+\end{figure}
+
+\section{From synthetic to real data}
+\label{sec:gap}
+The same network, trained with the same settings and the same number of
+gradient steps (10{,}500), scores 0.9317 on the synthetic data and 0.4901 on
+LOFAR: a drop of 0.44 in \Fone{}. Even the best LOFAR result, after tuning the
+learning rate, is 0.38 below the synthetic score. The reasons were set out in
+\cref{sec:lofar_harder}: real RFI is far rarer, much of it is fainter than the
+noise, and the training labels themselves are often wrong. A method that
+performs well on a synthetic benchmark can therefore perform much worse on
+real observations, and synthetic results alone should be read with care.
