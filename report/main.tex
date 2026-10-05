@@ -78,7 +78,7 @@
   \vspace{1.5cm}
   {\large Supervisor: \textit{TODO}\par}
   \vfill
-  {\large TODO month 2026\par}
+  {\large November 2026\par}  % TODO: confirm submission month
 \end{titlepage}
 
 \pagenumbering{roman}
@@ -89,14 +89,24 @@
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
-% Write this LAST. ~200 words. One sentence each:
-%  - the problem (RFI corrupts radio data; flagging it is a segmentation task)
-%  - what you did (reproduced tf_unet, diagnosed its failure, built a model,
-%    tested on synthetic + real LOFAR data with human labels)
-%  - the main numbers (tf_unet 0.39 -> 0.93 synthetic; on LOFAR your model
-%    0.6603 +/- 0.0040 vs best published 0.5979) [source: PART 1, PART 13.11]
-%  - the honest finding (the gain is not from the added components) [PART 20]
-%  - why it matters (synthetic benchmarks overstate real performance by 0.38)
+Radio frequency interference (RFI) from human technology corrupts radio
+astronomy data and must be flagged before analysis. Treating RFI flagging as
+image segmentation, this project reproduces the U-Net method of Akeret et al.\
+(\tfunet{}), designs an improved network, and tests both on a synthetic
+dataset and on real LOFAR observations labelled by a human expert. On synthetic
+data \tfunet{} first scored an \Fone{} of 0.39; controlled experiments traced this
+to class weighting combined with its ReLU output layer and to per-image
+normalisation, and correcting both raised it to 0.93 without changing the
+network. On real LOFAR data, the improved network, \hybrid{}, reaches a maximum
+\Fone{} of $0.6603 \pm 0.0040$ with 593{,}842 parameters, above the best published
+result of 0.5979. However, removing the components it was designed around---strip
+convolutions, channel attention and residual blocks---leaves its score
+unchanged, and a conditional random field refinement adds nothing. Checking the
+public datasets revealed test images duplicated in the training sets of both
+HERA and LOFAR, and the same network scores 0.44 lower on real data than on
+synthetic data. The results show that synthetic benchmarks and single training
+runs can both mislead, and that claims about why a model works need to be
+tested directly.
 
 \chapter*{Acknowledgements}
 \addcontentsline{toc}{chapter}{Acknowledgements}

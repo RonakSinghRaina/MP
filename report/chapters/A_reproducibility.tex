@@ -1,20 +1,50 @@
 \chapter{Reproducibility}
 \label{app:repro}
-% This appendix can be mostly tables -- I can fill it for you.
 
 \section{Computing environment}
-% - Moved from Windows 11 + WSL2 to a Fedora 44 dual boot (WSL2 limited RAM
-%   to about half of 19 GB; LOFAR is 9.3 GB). Be honest that a .wslconfig
-%   change could also have fixed it. [PART 7]
-% - Table: Fedora 44, kernel 6.19.10, driver 610.57.04, CUDA 13.3,
-%   RTX 3060 Laptop 6144 MiB, TF 2.21.0 (Python 3.12), torch 2.13.0
-%   (Python 3.14). Two separate environments because TF and torch need
-%   incompatible cuDNN versions. [CLAUDE.md]
-% - Measured VRAM/time: tf_unet batch 4 = 4.29 GB, 174 ms/step on AC,
-%   2684 ms/step on battery (15.3x slower). [CLAUDE.md section 1]
+The work began on Windows 11 using the Windows Subsystem for Linux (WSL2). WSL2
+by default makes only about half of the system memory available to Linux,
+roughly 9\,GB of the 19\,GB here, which is less than the 9.3\,GB LOFAR file. On
+my supervisor's advice the project was moved to a native Linux installation.
+(Raising WSL2's memory limit in its configuration file would also have solved
+this particular problem.) \Cref{tab:env} lists the final environment.
+
+\begin{table}[H]
+  \centering
+  \caption{Computing environment.}
+  \label{tab:env}
+  \begin{tabular}{ll}
+    \toprule
+    Component & Version \\
+    \midrule
+    Operating system & Fedora 44, kernel 6.19.10 \\
+    GPU & NVIDIA RTX 3060 Laptop, 6\,GB \\
+    Driver / CUDA & 610.57.04 / 13.3 \\
+    \tfunet{} environment & Python 3.12, TensorFlow 2.21.0 \\
+    \hybrid{} environment & Python 3.14, PyTorch 2.13.0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+TensorFlow and PyTorch need incompatible versions of NVIDIA's cuDNN library, so
+they are kept in two separate Python environments. Training speed depends
+strongly on power: on battery the GPU is throttled to 210\,MHz of its 2100\,MHz,
+and one \tfunet{} training step took 2684\,ms instead of 174\,ms---15 times
+slower.
 
 \section{Code and data}
-% - Repository: github.com/RonakSinghRaina/MP
-% - Datasets: Zenodo 6724065 (HERA and LOFAR); synthetic regenerates from
-%   seed 42.
-% - Commands for the main runs (from CLAUDE.md section 11).
+All code, analysis scripts and per-run metrics are in the project repository,
+\url{https://github.com/RonakSinghRaina/MP}. The HERA and LOFAR datasets are
+available from Zenodo~\cite{mesarcik2022data}; the synthetic datasets are
+regenerated from the generator with seed 42. The main experiments are run with:
+\begin{lstlisting}[language=bash]
+# tf_unet on LOFAR (TensorFlow environment)
+~/tf-env/bin/python experiments/lofar_tfunet_baseline.py --lr 1e-4 --epochs 150 --seed 0
+
+# HybridRFINet on LOFAR (PyTorch environment)
+~/torch-env/bin/python experiments/lofar_hybrid.py --base 8 --no_class_weight --seed 0
+
+# Ablation: any variant through the same pipeline
+~/torch-env/bin/python experiments/lofar_hybrid.py --variant plain_unet \
+    --base 8 --no_class_weight --seed 0
+\end{lstlisting}
