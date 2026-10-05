@@ -159,14 +159,51 @@ however, is my own construction and is not taken from a published simulator.
 
 \section{HERA dataset}
 \label{sec:hera}
-% - Simulated HERA data from Mesarcik et al., Zenodo 6724065.
-%   420 train + 140 test, 512x512, boolean masks, 2.75% RFI. [PART 2]
-% - FINDING: the published split leaks. Verified by SHA-256 over raw pixels:
-%   382/420 unique train, 135/140 unique test, 31 test images identical to
-%   training images = 22% of the test set. [PART 2]
-% - After deduplication: 351 train / 135 test / 0 overlap. [PART 3]
-% - Mention briefly that it turned out too easy to be informative (models
-%   at 0.999 F1) [PART 3] -- but only if you discuss HERA results at all.
+The second dataset is simulated data for the Hydrogen Epoch of Reionization
+Array (HERA), a radio interferometer in South Africa. It was produced by
+Mesarcik et al.~\cite{mesarcik2022} and is publicly available on
+Zenodo~\cite{mesarcik2022data}. The file contains 420 training and 140 test
+spectrograms of 512$\times$512 pixels, each with a boolean RFI mask. Because
+the data is simulated, the masks are exact. RFI covers 2.75\% of the pixels,
+much less than the roughly 15\% in my synthetic dataset.
+
+\subsection{Leakage between the training and test sets}
+Before using the data I checked whether any test image also appears in the
+training set, by comparing SHA-256 hashes of the raw pixel values. The
+published split is not clean (\cref{tab:hera_leak}): both sets contain
+internal duplicates, and 31 test images are exact copies of training
+images---22\% of the test set. A model evaluated on this split is partly being
+tested on images it has already seen. This is a property of the published
+dataset, not something introduced by my processing.
+
+\begin{table}[H]
+  \centering
+  \caption{Duplicate images in the published HERA split, found by comparing
+    SHA-256 hashes of the raw pixels.}
+  \label{tab:hera_leak}
+  \begin{tabular}{lrr}
+    \toprule
+    Check & Published split & After deduplication \\
+    \midrule
+    Training images (unique / total) & 382 / 420 & 351 \\
+    Test images (unique / total)     & 135 / 140 & 135 \\
+    Test images also in training set & 31 (22\%) & 0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+I removed the duplicates and the overlapping images, leaving 351 training and
+135 test images with no overlap and no contradictory labels.
+
+\subsection{Why HERA was not used further}
+On the cleaned split my model (\cref{ch:hybrid}) reached a test \Fone{} of
+0.9996 when trained from scratch, and 0.9964 when started from the weights
+learned on the synthetic data. With both close to a perfect score, there is no
+room for the dataset to show a difference between methods, so it cannot tell
+us whether one approach is better than another. The leakage was not what made
+the scores high: the score on the contaminated split, 0.9974, was almost the
+same. I therefore treated HERA as too easy to be informative and moved to real
+LOFAR data, which is described next. \tfunet{} was not run on HERA.
 
 \section{LOFAR dataset}
 \label{sec:lofar}
