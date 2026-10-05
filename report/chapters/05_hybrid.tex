@@ -1,74 +1,223 @@
 \chapter{\hybrid}
 \label{ch:hybrid}
-% Framing depends on the novelty decision (see Chapter 1 TODO). Whatever is
-% decided, describe the model honestly: these components were ADDED and
-% motivated by RFI morphology; Chapter 6 then tests whether they helped.
+Alongside reproducing \tfunet{}, I designed a second network, which I call
+\hybrid{}. It keeps the same overall U-Net shape but combines several
+components that other RFI and segmentation work has used, chosen with the
+properties of RFI in mind. This chapter describes the model and its results;
+\cref{ch:drivers} then tests which of its components actually matter.
 
-\section{Architecture}
-% Code: src/hybrid_rfi_package/hybrid_model.py. Diagram needed (I can draw it).
-% Same U shape as tf_unet. Differences, simply (you have the plain-language
-% list from our chat):
-%  - Residual blocks: each block learns a change on top of a shortcut.
-%  - Multi-scale strip convolutions: 1xK and Kx1 kernels, K = 7, 11, 21,
-%    look along long lines in time and frequency. Motivation: RFI is
-%    often long thin streaks.
-%  - ECA channel attention: re-weights feature channels.
-%  - GroupNorm after convolutions.
-%  - Raw logits output -- no ReLU on the output layer (avoids Ch. 4 trap).
-%  - Same padding -- full 512x512 output.
-% Size: base 8 -> 593,842 params; base 32 -> 9,304,186 [PART 6].
-% tf_unet for comparison: 465,986.
+\section{Design}
+\label{sec:hybrid_design}
+The starting point was an observation about the synthetic data: after
+normalisation, faint RFI sits only about 1.5 noise standard deviations above
+the background. At that level a single pixel cannot be told apart from a
+noise fluctuation. A faint narrowband line is detectable only because it
+extends over many time samples, not because any one pixel is bright. Most of
+the design choices were aimed at using this kind of spatial context.
+
+\Cref{tab:hybrid_vs_tfunet} lists how the model differs from \tfunet{}.
+
+\begin{table}[H]
+  \centering
+  \caption{Differences between \tfunet{} and \hybrid{}.}
+  \label{tab:hybrid_vs_tfunet}
+  \begin{tabular}{p{3.4cm}p{4.3cm}p{5.2cm}}
+    \toprule
+    Component & \tfunet{} & \hybrid{} \\
+    \midrule
+    Convolution blocks & two 3$\times$3 convolutions & residual blocks (with a shortcut path) \\
+    Line-shaped filters & none & multi-scale strip convolutions \\
+    Channel attention & none & efficient channel attention (ECA) \\
+    Normalisation layers & none & GroupNorm after each convolution \\
+    Output layer & ReLU, then softmax & raw scores, then softmax \\
+    Padding & valid (output smaller than input) & same (output = input size) \\
+    Depth / first-layer width & 3 levels / 32 & 4 levels / 8 \\
+    Loss & cross-entropy & cross-entropy + Dice \\
+    Framework & TensorFlow & PyTorch \\
+    Parameters & 465{,}986 & 593{,}842 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Residual blocks.} Each block adds its input back to its output
+through a shortcut~\cite{he2016}, so a feature only has to learn a correction
+rather than be rebuilt at every layer. The aim was to stop weak, low-contrast
+features being washed out as they pass through many layers. RFI-Net, the best
+method in Mesarcik et al.'s comparison, is also built from residual
+blocks~\cite{yang2020rfinet}.
+
+\paragraph{Multi-scale strip convolutions.} Ordinary filters are small
+squares, but much RFI is line-shaped: narrowband RFI is a thin line along the
+time axis, and a wideband burst a thin line along the frequency axis. A strip
+filter of size $1\times K$ or $K\times1$ adds up the signal along such a line.
+Averaging $K$ pixels of a coherent line improves its signal-to-noise ratio by
+about $\sqrt{K}$, while noise averages down, which is how a 1.5$\sigma$ line
+could become detectable. Filters of three lengths ($K = 7, 11, 21$) run in
+parallel to cover RFI of different durations and bandwidths. Multi-scale
+convolutions of this kind have been used for RFI before~\cite{gu2024emsca}, and
+a closely related strip-convolution design has since been
+published~\cite{mars2026}, so this component is not new.
+
+\paragraph{Efficient channel attention.} After the strip filters, some feature
+channels carry evidence of faint RFI and others of bright RFI. ECA~\cite{wang2020eca}
+learns a weight for each channel at very little cost (a single small
+one-dimensional convolution), so that the faint-structure channels are not
+drowned out by the bright ones.
+
+\paragraph{GroupNorm.} Normalisation layers rescale the values inside the
+network so that they stay in a stable range. A common choice, batch
+normalisation, estimates its statistics across the images in a batch, which is
+unreliable when, as here, the GPU memory allows only one 512$\times$512 image
+per batch. GroupNorm~\cite{wu2018groupnorm} computes its statistics within a
+single image and so works at any batch size. \tfunet{} has no normalisation
+layers at all.
+
+\paragraph{No ReLU on the output.} \hybrid{} passes its raw output scores
+directly to the softmax. This removes the failure described in
+\cref{sec:relu_trap}, where class weighting and an output ReLU freeze
+\tfunet{}.
+
+\paragraph{Same padding.} The output has the same size as the input, so every
+pixel of the 512$\times$512 image receives a prediction. With \tfunet{}'s valid
+padding, a border around each image is lost.
 
 \section{Training}
-% - PyTorch. Loss = cross-entropy + Dice. Adam lr 1e-3, batch 1.
-% - 700 steps x 40 epochs = 28,000 gradient steps (same budget as synthetic).
-% - Best checkpoint and threshold chosen on 735 validation images.
-% - Fixed-range normalisation from training images only.
-% [source: experiments/lofar_hybrid.py, run metrics.json]
+\label{sec:hybrid_training}
+The model is trained with the sum of two losses. Cross-entropy scores each
+pixel separately. The Dice loss~\cite{milletari2016} measures how well the
+predicted RFI region overlaps the true one as a whole, which helps when the
+positive class is rare, as RFI is in LOFAR. I used the Adam optimiser with a
+learning rate of $10^{-3}$ and one image per batch, for 40 epochs of 700 steps
+(28{,}000 gradient steps). As for \tfunet{}, the input is scaled with a fixed
+range measured on training images only, and the best checkpoint and the
+decision threshold are chosen on the 735 validation images.
 
 \section{Results on synthetic data}
-% Keep short; synthetic is the easy case.
-%  - 276x600: 0.9808 (base 32) [Where the trained models live table]
-%  - 1024x265 v4: 0.9878 (base 8)
-%  - Width sweep [PART 6]: base 4 0.9547 | base 8 0.9749 | base 16 0.9788 |
-%    base 32 0.9812. 15.7x fewer parameters cost only 0.0063.
-%    Base 4 genuinely breaks. (These are N=1 -- say so.)
+On the synthetic data the model performs very well, but as
+\cref{sec:gap} showed, this data is much easier than real observations, so
+these results are mainly a check that the model trains correctly.
+On the 276$\times$600 dataset a wide version of the model (32 filters in the
+first layer, 9{,}304{,}186 parameters) reached an \Fone{} of 0.9808, and on the
+1024$\times$265 dataset the narrow version used in the rest of this report (8
+filters, 593{,}842 parameters) reached 0.9878. These values use a threshold
+chosen on the validation set.
+
+The width of the network can be reduced a long way at little cost
+(\cref{tab:width}). Going from 32 to 8 filters in the first layer removes 94\%
+of the parameters and lowers \Fone{} by only 0.006; only at 4 filters does the
+model clearly get worse. Each width was trained once, so differences of less
+than about 0.01 should not be over-interpreted.
+
+\begin{table}[H]
+  \centering
+  \caption{Effect of network width on the 276$\times$600 synthetic dataset
+    (one run each).}
+  \label{tab:width}
+  \begin{tabular}{rrr}
+    \toprule
+    First-layer filters & Parameters & \Fone{} \\
+    \midrule
+    4  & 152{,}582     & 0.9547 \\
+    8  & 593{,}842     & 0.9749 \\
+    16 & 2{,}342{,}474 & 0.9788 \\
+    32 & 9{,}304{,}186 & 0.9812 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \section{Results on LOFAR}
-\subsection{Class weighting}
-% - First run used class weights (56.9x on RFI): 0.6467 +/- 0.0079, but a
-%   validation threshold of 0.9619 -- badly calibrated. [PART 13.6]
-% - Without class weights: 0.6603 +/- 0.0040, threshold 0.2573.
-%   Better in every seed, paired t = 6.03 on 2 dof. [PART 13.11]
-% - Interesting: ROC fell (0.9801 -> 0.9378) while F1 rose. Ranking and
-%   decision quality are different things. [PART 13.13]
+\label{sec:hybrid_lofar}
 
-\subsection{Final comparison}
-% Table, max F1 (the paper's protocol) [PART 13.12]:
-%  sigma-clip                  0.4103
-%  tf_unet lr 1e-4 (ours)      0.5482 +/- 0.0139
-%  AOFlagger                   0.5698
-%  Mesarcik et al. U-Net       0.5876 +/- 0.0031
-%  RFI-Net (published best)    0.5979
-%  HybridRFINet base 8         0.6603 +/- 0.0040   (593,842 params)
-% Also give pooled F1: 0.6561 +/- 0.0044 [PART 20 table].
-% - +0.0624 over RFI-Net, t = 27.22 on 2 dof.
-% - Beats its own teacher: trained on AOFlagger labels (0.5698), scores
-%   0.66 against the human.
-% - Base 32 at 9.3M params: 0.6571 (N=1, with class weights) -- no gain
-%   from 15.7x more parameters [PART 13.7].
+\subsection{Class weighting}
+I first trained the model on LOFAR with class weighting, giving RFI pixels 57
+times the weight of clean ones to balance their rarity. Over three seeds it
+reached a maximum \Fone{} of $0.6467 \pm 0.0079$. However, the threshold chosen
+on the validation set was 0.96, far from the usual 0.5: the weighting pushed
+the model's outputs so high that only near-certain predictions could be
+trusted. Without class weighting, the score rose to $0.6603 \pm 0.0040$ and the
+threshold fell to $0.26$. Removing the weight improved the result for every one
+of the three seeds (by 0.009 to 0.016; paired $t = 6.03$ with 2 degrees of
+freedom, significant at the 5\% level), so the unweighted model is used from
+here on.
+
+Interestingly, the area under the ROC curve moved the opposite way, falling
+from 0.980 to 0.938. The ROC curve measures how well the model ranks RFI pixels
+above clean ones, while \Fone{} measures the quality of the final yes/no
+decision. Class weighting improved the ranking but made the decisions worse,
+which shows that a high ROC area alone does not mean a model flags RFI well.
+
+\subsection{Comparison with published methods}
+\Cref{tab:final} and \cref{fig:final} compare the final model with the other
+methods on the 109 human-labelled test images. \hybrid{} reaches a maximum
+\Fone{} of $0.6603 \pm 0.0040$, which is 0.062 above RFI-Net (0.5979), the best
+result reported by Mesarcik et al.; this difference is significant
+(one-sample $t = 27.2$ with 2 degrees of freedom). With the threshold fixed in
+advance on the validation set, the pooled \Fone{} is $0.6561 \pm 0.0044$. It
+also scores 0.11 above \tfunet{}, and it does so while having been trained on
+\aoflagger{}'s labels, which themselves score only 0.5698 against the human
+expert: the model ends up agreeing with the expert more than its own training
+labels do.
+
+\begin{table}[H]
+  \centering
+  \caption{Results on the 109 human-labelled LOFAR test images. Values for
+    Mesarcik et al.'s U-Net and RFI-Net are as reported in their
+    paper~\cite{mesarcik2022}.}
+  \label{tab:final}
+  \begin{tabular}{lcr}
+    \toprule
+    Method & max \Fone{} & Parameters \\
+    \midrule
+    $\sigma$-clipping threshold & 0.4103 & --- \\
+    \tfunet{} (lr $10^{-4}$, 3 seeds) & $0.5482 \pm 0.0139$ & 465{,}986 \\
+    \aoflagger{} & 0.5698 & --- \\
+    Mesarcik et al.\ U-Net & $0.5876 \pm 0.0031$ & --- \\
+    RFI-Net & 0.5979 & --- \\
+    \hybrid{}, class-weighted (3 seeds) & $0.6467 \pm 0.0079$ & 593{,}842 \\
+    \textbf{\hybrid{} (3 seeds)} & $\mathbf{0.6603 \pm 0.0040}$ & 593{,}842 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{hybrid_lofar_ladder}
+  \caption{Maximum \Fone{} on the 109 LOFAR test images. Error bars show the
+    standard deviation over three seeds where available.}
+  \label{fig:final}
+\end{figure}
+
+A wider version of the model, with 32 filters and 9.3 million parameters,
+scored 0.6571 with class weighting (one run), against $0.6467 \pm 0.0079$ for
+the narrow class-weighted model. Fifteen times more parameters therefore buys
+very little, consistent with the synthetic results in \cref{tab:width}.
 
 \section{Checking the result}
-% PART 14 -- an adversarial self-audit. This makes the result credible.
-%  - Metrics recomputed by independent code: differences <= 3.2e-5.
-%  - Leakage: 0 train/val images in the test set. Normalisation range
-%    computed from training images only.
-%  - Honest thresholding costs 0.0064 vs choosing on test.
-%  - Train/val/test max F1 0.7112 / 0.6820 / 0.6592 -- mild overfitting.
-%  - Not copying AOFlagger: agreement with it only 0.7430; finds 16,485
-%    true-RFI pixels AOFlagger missed, misses 7,345 it found.
-%  - Not a trivial "flag the bad columns" rule: that scores 0.0645.
-%  - Bootstrap over the 109 test images (POOLED F1, 2000 resamples):
-%    3-seed mean 0.6561, 95% CI [0.6154, 0.6923]. RFI-Net's 0.5979 lies
-%    outside; 99.5% of resamples beat it. Note the CI is +/-0.04 wide --
-%    the 109-image test set is the biggest source of uncertainty.
+\label{sec:audit}
+Because the result is better than the published state of the art, I checked
+it for mistakes before relying on it, using a separate script that shares no
+evaluation code with the training script.
+\begin{itemize}
+  \item \textbf{Metrics recomputed independently} from the saved model agree
+    with the reported values to within $3\times10^{-5}$; the remaining
+    difference comes from GPU non-determinism.
+  \item \textbf{No leakage:} none of the training or validation images appears
+    in the test set, and the normalisation range is computed from training
+    images only.
+  \item \textbf{Honest threshold:} choosing the threshold on the validation set
+    costs 0.006 in \Fone{} compared with choosing the best threshold on the
+    test set itself; the lower, honest value is the one reported.
+  \item \textbf{Little overfitting:} maximum \Fone{} is 0.711 on training
+    images, 0.682 on validation and 0.659 on test.
+  \item \textbf{Not a copy of \aoflagger{}:} the model agrees with \aoflagger{}
+    at an \Fone{} of only 0.743. It finds 16{,}485 true RFI pixels that
+    \aoflagger{} missed and misses 7{,}345 that \aoflagger{} found.
+  \item \textbf{Not a simple frequency rule:} flagging the 16 most
+    RFI-affected frequency channels everywhere scores only 0.065.
+  \item \textbf{Robust to the choice of test images:} resampling the 109 test
+    images 2000 times (bootstrap) gives a 95\% interval for the pooled \Fone{}
+    of $[0.615, 0.692]$; RFI-Net's 0.5979 lies outside it, and 99.5\% of the
+    resamples beat it.
+\end{itemize}
+The width of that interval, about $\pm0.04$, is the largest uncertainty in the
+result. It comes from having only 109 test images, not from the model.

@@ -57,7 +57,27 @@ def tfunet_lofar_ladder():
     save(fig, "tfunet_lofar_ladder")
 
 
+# --- final LOFAR comparison incl. the hybrid (PART 13.12) --------------------
+def hybrid_lofar_ladder():
+    names = ["$\\sigma$-clip", "tf_unet", "AOFlagger", "Mesarcik\nU-Net",
+             "RFI-Net", "HybridRFINet\n(this work)"]
+    v = [0.4103, 0.5482, 0.5698, 0.5876, 0.5979, 0.6603]
+    e = [0, 0.0139, 0, 0.0031, 0, 0.0040]
+    col = [MUTED, NAVY, MUTED, MUTED, MUTED, ACCENT]
+    fig, ax = plt.subplots(figsize=(6.2, 3.0))
+    bars = ax.bar(names, v, yerr=e, color=col, width=0.6, zorder=3,
+                  error_kw=dict(capsize=4, lw=1, ecolor="#555555"))
+    for b, val, err in zip(bars, v, e):
+        ax.text(b.get_x() + b.get_width() / 2, val + err + 0.012, f"{val:.4f}",
+                ha="center", fontsize=8.5, color=INK)
+    ax.set_ylabel("max $F_1$ (109 test images)")
+    ax.set_ylim(0, 0.75)
+    ax.grid(axis="y", color="#E5E5E5", zorder=0)
+    save(fig, "hybrid_lofar_ladder")
+
+
 if __name__ == "__main__":
     tfunet_controlled_runs()
     tfunet_lofar_ladder()
+    hybrid_lofar_ladder()
     print("figures written to", HERE)
