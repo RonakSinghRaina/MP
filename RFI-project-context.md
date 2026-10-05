@@ -1644,7 +1644,7 @@ three runs too):
 | model | AUROC | AUPRC | F1 |
 |---|---|---|---|
 | AOFlagger | 0.7883 | 0.5716 | 0.5698 |
-| **U-Net (Akeret 2017) — the same tf_unet we ran** | **0.8017 ± 0.0058** | 0.5920 ± 0.0031 | **0.5876 ± 0.0031** |
+| **U-Net (their Keras version — NOT tf_unet, see PART 21.1)** | **0.8017 ± 0.0058** | 0.5920 ± 0.0031 | **0.5876 ± 0.0031** |
 | RFI-Net | — | — | 0.5979 |
 | R-Net | — | — | 0.5286 |
 | NLN (theirs) | 0.8622 ± 0.0006 | 0.6216 ± 0.0005 | 0.5114 ± 0.0004 |
@@ -2862,6 +2862,81 @@ loss (CE+Dice vs CE), output activation (raw logits vs ReLU), padding (same
 vs valid), depth/width (4 levels base 8 vs 3 levels root 32), batch size
 (1 vs 4), learning rate (1e-3 vs 1e-4) and framework. **None isolated.**
 The `--dice_weight 0` arm (PART 19.2) is still the cheapest first probe.
+
+---
+
+## PART 21 — Why our U-Net is 0.039 below Mesarcik et al.'s: their code, read line by line (2026-10-05)
+
+Supervisor's question: "same U-Net, same LOFAR data — why is our result lower?"
+Our tf_unet 0.5482 +/- 0.0139 vs their published U-Net 0.5876 +/- 0.0031 (max F1,
+same metric) — **a gap of 0.039**, not 0.39. Answered by reading their released
+code, github.com/mesarcik/RFI-NLN (commit 9e756de), rather than their paper.
+
+### 21.1 It is NOT the same U-Net
+
+PART 12.7 called their row "the same tf_unet we ran". **Wrong.** Their "U-Net"
+is their own Keras network (`models.py UNET`), not Akeret's tf_unet:
+
+| | their U-Net | our tf_unet |
+|---|---|---|
+| downsampling | 5 stride-2 convolutions | 3 max-pools |
+| normalisation layers | **BatchNorm** | none |
+| padding | same | valid |
+| output | sigmoid, 1 channel | ReLU then softmax, 2 channels |
+| filters | 16 base | 32 base |
+| parameters | **1,179,121** | 465,986 |
+
+PART 12.12 had already found tf_unet cannot even build at their 32x32 patch size.
+
+### 21.2 The metric is the same
+
+`utils/metrics/segmentation_metrics.py get_metrics`: patches reassembled to
+512x512, all test pixels pooled, F1 = max over thresholds on the test set. That
+is our `max_f1`. The gap is not a metric artefact.
+
+### 21.3 Their CODE differs from their PAPER
+
+| | paper text | released code |
+|---|---|---|
+| clip bounds (LOFAR) | [\|mu - sd\|, mu + 20 sd], per image | **[\|mu - 3 sd\|, mu + 95 sd], global** (`data.py` 111-112) |
+| statistics from | — | **the TEST set's clean pixels, i.e. using the human test labels** |
+| learning rate | 1e-4 | **Keras default 1e-3** (`tf.keras.optimizers.Adam()`, `unet.py` line 17) |
+| batch | — | **1024 patches** of 32x32 (`model_config.py`) |
+
+So PART 12.7/12.10's "their lr is 1e-4" and PART 11.6b's "their clip is 20 sigma"
+describe the paper, not what produced 0.5876.
+
+### 21.4 Four things in their pipeline that we would not do
+
+1. **Trained on the test images.** No de-duplication anywhere: all 7500 training
+   images, including the 109 test images (PART 11.5), are used for training.
+2. **Normalisation computed from the test set** using the human test masks
+   (`test_data[np.invert(test_masks)]`). Mild leakage, but leakage.
+3. **The clip is degenerate.** On this data sd > mu/3, so |mu - 3 sd| = 1.787e6 lands
+   ABOVE the median clean pixel (~1.2e6). Measured on the test set: it flattens
+   **73.1% of clean pixels and 36.7% of RFI pixels** to exactly 0. Effectively a
+   hard brightness threshold applied before the network.
+4. **The loss arguments are swapped.** `loss = bce(x_hat, y)` but Keras losses take
+   (y_true, y_pred). Measured: this equals ~16.1 x mean|x_hat - y| (loss 8.02 vs
+   16.1 x L1 = 8.06 on a test batch; gradient a constant +/-4). **Their U-Net was
+   trained with an L1 loss, not BCE.**
+
+### 21.5 The experiment
+
+`experiments/mesarcik_repro/` — their `UNET` copied verbatim (MIT, licence
+included) and their pipeline reproduced line by line.
+`./scripts/run_mesarcik_repro.sh [seeds]` runs two setups:
+- `paper_code` — exactly their code, including 21.4 items 1-4. Should reproduce
+  ~0.5876 if our understanding is right.
+- `clean` — same recipe, leakage removed: our 6621 training images, clip from
+  training images only, threshold for pooled F1 from our 735 validation images.
+
+~119 s/epoch on AC, 100 epochs: ~3.3 h per setup. Seed 0 of both started
+2026-10-05. **Results go in 21.6.**
+
+### 21.6 Results
+
+(pending)
 
 ---
 
