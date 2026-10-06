@@ -65,7 +65,16 @@ TILES = 512 // P            # 16 tiles per side, 256 per image
 
 
 # ---------------------------------------------------------------------------
-def clip_bounds(images, masks, indices, chunk=200):
+# Clip bound multipliers (k_lo, k_hi) -> [|mu - k_lo*sd|, mu + k_hi*sd].
+#   july: commit 2b8e71b (12 Jul 2022) "LOFAR clipping bug resolved" onwards -- what
+#         the released code does; TEST stats used for both train and test.
+#   june: commit 753b0d3 (29 Jun 2022) "experiments complete" -- what produced the
+#         published Table 2 and matches the paper's text; train clipped with TRAIN
+#         stats, test with TEST stats.
+CLIPS = {"july": (3, 95), "june": (1, 20)}
+
+
+def clip_bounds(images, masks, indices, k=(3, 95), chunk=200):
     """mean/std of the CLEAN pixels of the given images -> their clip bounds."""
     s = ss = n = 0.0
     for i in range(0, len(indices), chunk):
@@ -76,7 +85,7 @@ def clip_bounds(images, masks, indices, chunk=200):
         s += v.sum(); ss += (v * v).sum(); n += v.size
     mu = s / n
     sd = np.sqrt(ss / n - mu * mu)
-    return abs(mu - 3 * sd), mu + 95 * sd, mu, sd
+    return abs(mu - k[0] * sd), mu + k[1] * sd, mu, sd
 
 
 def transform(x, lo, hi):
@@ -158,12 +167,16 @@ def main():
     ap.add_argument("--limit_train", type=int, default=None, help="smoke tests only")
     ap.add_argument("--correct_loss", action="store_true",
                     help="use bce(y, x_hat) instead of their swapped bce(x_hat, y)")
+    ap.add_argument("--clip", choices=["july", "june"], default="july",
+                    help="july = released code (default); june = the version that "
+                         "produced their published numbers (see CLIPS)")
     ap.add_argument("--output_dir", default=None)
     a = ap.parse_args()
 
     out = a.output_dir or os.path.join(_ROOT, "runs", "lofar",
                                        f"mesarcik_unet_{a.setup}"
-                                       f"{'_bce' if a.correct_loss else ''}_seed{a.seed}")
+                                       f"{'_bce' if a.correct_loss else ''}"
+                                       f"{'_june' if a.clip == 'june' else ''}_seed{a.seed}")
     os.makedirs(out, exist_ok=True)
     cache_dir = os.path.join(_ROOT, "data", "lofar", "mesarcik_cache")
 
@@ -176,31 +189,38 @@ def main():
     if a.setup == "paper_code":
         tr_idx = np.arange(d.train_images.shape[0])                 # all 7500
         val_idx = None
-        lo, hi, mu, sd = clip_bounds(d.test_images, d.test_masks, np.arange(109))
+        k = CLIPS[a.clip]
+        te_lo, te_hi, _, _ = clip_bounds(d.test_images, d.test_masks, np.arange(109), k)
+        if a.clip == "june":     # train clipped with its own (train) statistics
+            lo, hi, mu, sd = clip_bounds(d.train_images, d.train_masks, tr_idx, k)
+        else:                    # july: test statistics for both
+            lo, hi, mu, sd = clip_bounds(d.test_images, d.test_masks, np.arange(109), k)
     else:
         rng = np.random.default_rng(a.seed)                          # = lofar_hybrid.py split
         idx = d.clean_train_idx.copy(); rng.shuffle(idx)
         n_val = max(1, int(len(idx) * 0.1))
         val_idx, tr_idx = idx[:n_val], idx[n_val:]
         assert not set(tr_idx.tolist()) & set(d.leak_train_idx.tolist())
-        lo, hi, mu, sd = clip_bounds(d.train_images, d.train_masks, tr_idx)
+        lo, hi, mu, sd = clip_bounds(d.train_images, d.train_masks, tr_idx, CLIPS[a.clip])
+        te_lo, te_hi = lo, hi                                        # no test statistics
     if a.limit_train:
         tr_idx = tr_idx[:a.limit_train]
 
-    tag = f"{a.setup}_seed{a.seed}" if a.setup == "clean" else a.setup
+    tag = (f"{a.setup}_seed{a.seed}" if a.setup == "clean" else a.setup) + \
+          ("_june" if a.clip == "june" else "")
     print("=" * 74)
     print(f"  Mesarcik et al. U-Net reproduction  |  setup = {a.setup}  |  seed {a.seed}")
     print("=" * 74)
     print(f"  GPU               : {[g.name for g in gpus] or 'NONE -- CPU only'}")
     print(f"  training images   : {len(tr_idx)}"
           + ("  (includes the 109 test images -- as in their code)" if a.setup == "paper_code" else ""))
-    print(f"  clip bounds       : [{lo:.6g}, {hi:.6g}]  (mu {mu:.6g}, sd {sd:.6g}, "
-          f"from {'TEST' if a.setup == 'paper_code' else 'TRAINING'} clean pixels)")
+    print(f"  clip ({a.clip:<4})       : train [{lo:.6g}, {hi:.6g}] (mu {mu:.6g}, sd {sd:.6g})"
+          f"   test [{te_lo:.6g}, {te_hi:.6g}]")
 
     Xtr = np.asarray(prepare(d.train_images, tr_idx, lo, hi,
                              os.path.join(cache_dir, f"{tag}_train_{len(tr_idx)}.npy")))
     Ytr = np.asarray(d.train_masks[np.sort(tr_idx), ..., 0])[np.argsort(np.argsort(tr_idx))]
-    Xte = transform(d.test_images[..., 0], lo, hi)
+    Xte = transform(d.test_images[..., 0], te_lo, te_hi)
     Yte = np.asarray(d.test_masks[..., 0], dtype=bool)
     Ttr, Mtr = tiles_of(Xtr), tiles_of(Ytr)
     n_tiles = len(tr_idx) * TILES * TILES
@@ -263,7 +283,7 @@ def main():
              parameters=int(model.count_params()), n_train=int(len(tr_idx)),
              loss="bce(y, x_hat) -- corrected" if a.correct_loss
                   else "bce(x_hat, y) -- as in their code (effectively L1)",
-             clip_bounds=[lo, hi], clip_stats_from="test" if a.setup == "paper_code" else "train",
+             clip_version=a.clip, clip_bounds_train=[lo, hi], clip_bounds_test=[te_lo, te_hi],
              published_max_f1="0.5876 +/- 0.0031 (Mesarcik et al. 2022, Table 2)")
     os.makedirs(os.path.join(out, "eval_test"), exist_ok=True)
     json.dump(m, open(os.path.join(out, "eval_test", "metrics.json"), "w"), indent=2)
