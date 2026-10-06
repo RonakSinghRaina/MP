@@ -2966,6 +2966,27 @@ included) and their pipeline reproduced line by line.
    models' 0.94, yet better F1 than tf_unet. Its preprocessing flattens most
    pixels to zero, so it ranks coarsely but decides well.
 
+### 21.7 Why we land ABOVE their published number: the code changed after publication
+
+Their git history (github.com/mesarcik/RFI-NLN):
+
+| date (2022) | commit | LOFAR clip in `load_lofar` |
+|---|---|---|
+| 29 Jun | 753b0d3 "experiments complete" | [\|mu - sd\|, mu + 20 sd]; train clipped with TRAIN stats, test with TEST stats |
+| 1 Jul | — | arXiv:2207.00351 posted |
+| **12 Jul** | **2b8e71b "LOFAR clipping bug resolved"** | [\|mu - 3 sd\|, mu + 95 sd], TEST stats for both |
+
+The published 0.5876 was produced with the June preprocessing, which also
+matches the paper's text. We ran the July ("fixed") version -- the degenerate
+clip that zeroes 73% of pixels -- and got 0.6207. Most likely explanation of
+the +0.033, not yet proven. Lesser contributors: N=1 vs their 3-seed mean
+(their sd 0.0031 makes luck alone implausible), TF 2.21 vs their 2022 TF, full
+shuffle vs their 25k buffer. NB both versions use Adam() default lr 1e-3 --
+the paper's "1e-4" never matched their code.
+
+**Decisive test (not yet run):** `paper_code` with the June preprocessing
+should land near 0.5876 if this is right.
+
 **Caveats:** N=1 per setup -- seeds 1 and 2 needed before quoting 0.617 as a
 baseline (`./scripts/run_mesarcik_repro.sh 1 2`, ~13 h). The report's
 Chapters 2 and 4 currently describe Mesarcik et al.'s U-Net as the same
