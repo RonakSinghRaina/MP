@@ -3016,6 +3016,16 @@ conditions of the published runs we cannot see. PR AUC is LOWER than published
 different network from tf_unet. For the report, cite their published 0.5876
 and state that their code re-run here gives 0.62.
 
+### 21.9 How the report handles this (decision, 2026-10-07)
+
+The report states only: Akeret's tf_unet (ours) 0.5482 +/- 0.0139; Mesarcik et
+al.'s own U-Net implementation 0.5876 +/- 0.0031 (as published, with a note that
+it is a different network -- BatchNorm, same padding, 32x32 patches); the hybrid
+0.6603 +/- 0.0040 highest of all. The reproduction runs of 21.5-21.8
+(July 0.6207, clean 0.6166, June 0.6258) are deliberately NOT in the report and
+live only here. Report Chapters 2, 4, 5, 7 and 8 updated accordingly; the
+earlier claim that the two U-Nets are the same network is removed.
+
 **Caveats:** N=1 per setup -- seeds 1 and 2 needed before quoting 0.617 as a
 baseline (`./scripts/run_mesarcik_repro.sh 1 2`, ~13 h). The report's
 Chapters 2 and 4 currently describe Mesarcik et al.'s U-Net as the same
