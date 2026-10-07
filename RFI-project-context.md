@@ -2987,6 +2987,35 @@ the paper's "1e-4" never matched their code.
 **Decisive test (not yet run):** `paper_code` with the June preprocessing
 should land near 0.5876 if this is right.
 
+### 21.8 RESULT: the June preprocessing does NOT explain it -- 21.7 REFUTED (2026-10-07)
+
+`paper_code --clip june` (the preprocessing at "experiments complete"), seed 0:
+**max F1 0.6258**, ROC AUC 0.8269, PR AUC 0.5372.
+
+| their U-Net, our machine | max F1 |
+|---|---|
+| published (Table 2) | 0.5876 +/- 0.0031 |
+| July code (released) | 0.6207 |
+| **June code** | **0.6258** |
+
+21.7's hypothesis is wrong: both preprocessing versions land at ~0.62. Also
+ruled out: `-crop True` in run_lofar.sh is never read for LOFAR (no `crop`
+in data.py or main.py at 753b0d3), so their training did not use small random
+crops. Three independent runs (July paper_code, July clean, June) all give
+0.617-0.626, so being above the published value is systematic, not seed luck.
+
+**Still unexplained, candidates untested:** their 25,000-patch shuffle buffer
+over image-ordered data (consecutive batches come from ~100 neighbouring
+images, so training is more correlated than our full shuffle); TF 2.21 /
+Keras 3 vs their 2022 TF / Keras 2 (BatchNorm, dropout and initialisers);
+conditions of the published runs we cannot see. PR AUC is LOWER than published
+(0.53-0.54 vs 0.592) while max F1 is higher -- also unexplained.
+
+**What does not depend on this:** our data handling and metric are right
+(their own code on our data gives >= their number), and Mesarcik's U-Net is a
+different network from tf_unet. For the report, cite their published 0.5876
+and state that their code re-run here gives 0.62.
+
 **Caveats:** N=1 per setup -- seeds 1 and 2 needed before quoting 0.617 as a
 baseline (`./scripts/run_mesarcik_repro.sh 1 2`, ~13 h). The report's
 Chapters 2 and 4 currently describe Mesarcik et al.'s U-Net as the same
