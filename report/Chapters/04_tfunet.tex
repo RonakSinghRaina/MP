@@ -184,15 +184,15 @@ even a simple threshold, which confirms on real data the conclusion of
 \cref{sec:pernorm}.
 
 \Cref{fig:tfunet_lofar} places the result among published methods. The values
-for Mesarcik et al.'s U-Net and for RFI-Net are taken from their
-paper\footcite{mesarcik2022}; I did not re-run those methods. Their results are
-reported as maximum \Fone{}, which is why that measure is used here.
-\tfunet{} clearly beats a simple $\sigma$-clipping threshold (0.4103) but stays
-below \aoflagger{} (0.5698), and is 0.039 below Mesarcik et al.'s U-Net (0.5876).
-Two known differences in how that U-Net was trained could account for at least
-part of the gap: it was trained on small 32$\times$32 patches rather than full
-images, and with a different normalisation. I have not tested which of these
-matters.
+for Mesarcik et al.'s U-Net and for RFI-Net are as reported in their
+paper\footcite{mesarcik2022}. Their results are reported as maximum \Fone{},
+which is why that measure is used here. \tfunet{} clearly beats a simple
+$\sigma$-clipping threshold (0.4103) but stays below \aoflagger{} (0.5698), and
+is 0.039 below the U-Net of Mesarcik et al.\ (0.5876). The two are not the same
+network: Mesarcik et al.\ used their own implementation of a U-Net, with batch
+normalisation and same padding, trained on 32$\times$32 patches, whereas
+\tfunet{} is Akeret et al.'s original code, trained here on full images. The two
+results therefore compare two different U-Net implementations, not the same one.
 
 \begin{figure}[H]
   \centering

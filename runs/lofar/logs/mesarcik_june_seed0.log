@@ -107,3 +107,15 @@ I0000 00:00:1791276132.522226   30272 cuda_dnn.cc:461] Loaded cuDNN version 9250
   epoch  90/100  loss 0.05458  1216.9 min  ETA 135 min
   epoch  91/100  loss 0.05481  1219.0 min  ETA 121 min
   epoch  92/100  loss 0.05468  1221.0 min  ETA 106 min
+  epoch  93/100  loss 0.05456  1223.0 min  ETA 92 min
+  epoch  94/100  loss 0.05441  1225.0 min  ETA 78 min
+  epoch  95/100  loss 0.05468  1227.1 min  ETA 65 min
+  epoch  96/100  loss 0.05440  1229.1 min  ETA 51 min
+  epoch  97/100  loss 0.05475  1231.1 min  ETA 38 min
+  epoch  98/100  loss 0.05426  1233.1 min  ETA 25 min
+  epoch  99/100  loss 0.05429  1235.1 min  ETA 12 min
+  epoch 100/100  loss 0.05466  1237.1 min  ETA 0 min
+==========================================================================
+  max F1 (their protocol) : 0.6258    published 0.5876 +/- 0.0031
+  ROC AUC / PR AUC        : 0.8269 / 0.5372    published AUROC 0.8017, AUPRC 0.5920
+==========================================================================

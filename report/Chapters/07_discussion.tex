@@ -54,11 +54,12 @@ real effects from noise.
 
 \section{Limitations}
 \begin{enumerate}
-  \item \textbf{Published baselines were not re-run.} The results for
+  \item \textbf{Published baselines are quoted.} The results for
     Mesarcik et al.'s U-Net and RFI-Net are taken from their
     paper\footcite{mesarcik2022}. Because my measurement of \aoflagger{} matches
     theirs to four decimal places, the test data, labels and metric are the
-    same, but the training of those models was not reproduced here.
+    same, so the comparison is like for like; the values themselves are as
+    they reported them.
   \item \textbf{Small test set.} There are only 109 human-labelled test images.
     The resulting uncertainty, about $\pm0.04$ in \Fone{} at 95\% confidence, is
     larger than the variation between seeds.

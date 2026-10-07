@@ -84,7 +84,9 @@ proposed an approach called Nearest-Latent-Neighbours, which learns only from
 RFI-free data and flags whatever looks unusual. They compared it with several
 supervised networks on the same LOFAR test set. The best \Fone{} in their
 comparison came from RFI-Net\footcite{yang2020rfinet}, a residual U-Net, with
-0.5979; their own U-Net reached $0.5876 \pm 0.0031$. Their method had the best
+0.5979, and their U-Net reached $0.5876 \pm 0.0031$. This U-Net is their own
+implementation, not Akeret et al.'s \tfunet{}: it uses batch normalisation and
+was trained on small 32$\times$32 patches of the spectrograms. Their method had the best
 area under the ROC curve but a lower \Fone{} of 0.5114. These published values
 are the benchmarks used in \cref{ch:hybrid}.
 
