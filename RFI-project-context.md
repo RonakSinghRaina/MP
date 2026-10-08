@@ -3033,6 +3033,82 @@ network as tf_unet; they must be corrected.
 
 ---
 
+## PART 22 — Literature check + where the remaining F1 actually is (2026-10-08)
+
+### 22.1 Published results on THIS benchmark (Mesarcik LOFAR, 109 expert-labelled test images)
+
+Same protocol as ours (train on AOFlagger labels only, test on all 109, best-threshold F1):
+
+| method | F1 | params | source |
+|---|---|---|---|
+| Mesarcik et al. U-Net | 0.5876 | — | Mesarcik et al. 2022 |
+| RFI-Net | 0.5979 | — | Mesarcik et al. 2022 |
+| RFDL (inpaint, then detect) | 0.639 +/- 0.007 | — | van Zyl & Grobler 2024, MNRAS 530, 1907 (Table 9, AOFlagger-labels setting) |
+| Swin-UNETR 6M / 100M / 400M | 0.630 / 0.628 / 0.640 | 6.5M-408M | Ouyang, Dreuning, Mesarcik & van Nieuwpoort 2024, 6th RFI Conf. |
+| **our hybrid base 8** | **0.6603 +/- 0.0040** | **0.59M** | PART 13.11 |
+
+Highest in this protocol that we found, but the margin over RFDL/Swin (~0.02) is
+SMALLER than our own test-set bootstrap uncertainty (+/-0.04, PART 14.7). Honest
+claim: matches/slightly exceeds the best AOFlagger-supervised results with ~690x
+fewer parameters than Swin-400M. **The report and slides that call RFI-Net 0.5979
+"the published best" are OUT OF DATE.**
+
+Different protocols (use expert labels in training -- NOT comparable):
+RFDL with 20 expert images, 89-image test: 0.669-0.675; Du Toit, Grobler & Ludick
+2024 (MNRAS 530, 613) fine-tuned RFI-Net on 14 expert images: 0.742 as cited by
+Pritchard et al. 2025 (likely F1@0.5; exact context not verified); Zhu, Jin, Liu &
+Zhao 2026 (ApJS, semi-supervised, 24 expert images, 60-image test, F1@0.5): 0.700.
+Spiking-network work (Pritchard et al. 2024/2025) scores lower (<= 0.48).
+
+### 22.2 Novelty of the "partial hybrid" (changes 4-9): NO
+
+Every ingredient has RFI precedent: normalisation layers in RFI U-Nets (RFI-Net
+2020; Mesarcik's U-Net has BatchNorm and same padding); Dice loss (compared by
+Du Toit et al. 2024; used by MARS 2026); small widths (MARS 2026: widths 8-64,
+BN, weighted BCE + Dice, 270k params, plus strip convs and hysteresis
+post-processing). GroupNorm-vs-BatchNorm, raw logits and no class weighting are
+implementation choices. Not a methodological contribution.
+
+### 22.3 Where the errors are (analysis/diagnose_context_headroom.py,
+### analysis/error_decomposition/*.py; hybrid b8 nocw seed 0, pooled F1 0.6527)
+
+| diagnostic | result |
+|---|---|
+| per-image ORACLE threshold | 0.6746 (+0.022 at most) |
+| missed px in channels the model flags >=10% | 16.8% -> channel completion useless (val-tuned: -0.0006) |
+| channel-style: share of flags in >=80%-flagged channels | expert 9.3%, AOFlagger 14.5%, model 18.0% |
+| missed px within 1 / 2 px of a detection | 47.5% / 55.7% |
+| false alarms within 1 / 2 px of true RFI | 59.6% / 76.7% |
+| whole true objects missed | 9.9% of objects, 18.1% of missed px (fixing all -> 0.6995) |
+| false objects (no overlap) | 31.4% of predicted objects, 11.7% of FP px (removing all -> 0.6643) |
+| mask shift +/-1-2 px | (0,0) best for AOFlagger AND model -> no misalignment |
+| uniform dilation/erosion (any axis) | all worse |
+| AOFlagger vs expert | 56.7% of its misses / 45.9% of its false alarms within 2 px |
+| faint / invisible RFI px on an object EDGE | 77.7% / 80.0% (bright 59.5%; all RFI 68.0%) |
+| brightness vs label width (wings) | Spearman 0.24 in frequency, 0.02 in time -- weak |
+
+**Reading:** the remaining error is mostly the pixel-level EXTENT of small, thin
+RFI objects (run lengths 3-4 px), not separate faint sources. "Faint RFI" is
+largely the dim rim of objects the model already detects. The teacher
+(AOFlagger) disagrees with the expert in exactly the same edge-concentrated way,
+so the model inherits AOFlagger's outline convention. NB "within 2 px" is close
+to "same object" for objects this thin -- do not quote a 0.877 "if edges were
+fixed" figure as attainable.
+
+### 22.4 Proposed direction (untested)
+
+Edge-uncertainty-aware training from classical flags: treat AOFlagger's mask
+interior (depth >= 2) and far background (>= 2 px from any flag) as reliable,
+and the +/-1 px rim as uncertain -- soft targets (spatially varying label
+smoothing) or self-distillation from an EMA teacher there, instead of copying
+AOFlagger's rim. Prior art in general segmentation (SVLS, Islam & Glocker 2021;
+uncertainty-aware iterative learning); RFI work does the opposite (Zhu et al.
+2026 add STRONGER boundary supervision, on expert labels). No RFI paper found
+that treats AOFlagger's boundaries as the noisy part. Novelty = application +
+measured motivation, not a new ML principle. Must be tested at 3 seeds.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
