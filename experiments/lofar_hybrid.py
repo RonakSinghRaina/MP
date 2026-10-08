@@ -149,6 +149,62 @@ def dice_loss(logits, target, eps=1.0):
 
 
 # ---------------------------------------------------------------------------
+# Edge-aware training (PART 22.4). AOFlagger's masks disagree with the human
+# expert mostly at object EDGES (PART 22.3), so the 1-pixel rim of every
+# training mask is treated as uncertain instead of copied verbatim.
+#   svls   : spatially varying label smoothing -- soft targets from a small
+#            Gaussian blur of the mask (Islam & Glocker 2021). Interiors stay
+#            ~1, far background 0, rims in between. Nothing is ignored.
+#   ignore : the loss skips the rim on both sides of each edge, EXCEPT the
+#            pixels of objects too thin to have an interior (otherwise thin
+#            narrowband lines would lose all supervision).
+# Both are symmetric rules fixed in advance; neither looks at expert labels.
+# ---------------------------------------------------------------------------
+def _dilate(m):
+    return F.max_pool2d(m, 3, stride=1, padding=1)
+
+
+def _erode(m):
+    return 1.0 - F.max_pool2d(1.0 - m, 3, stride=1, padding=1)
+
+
+def gaussian_kernel3(sigma):
+    ax = torch.tensor([-1.0, 0.0, 1.0])
+    g = torch.exp(-(ax[:, None] ** 2 + ax[None, :] ** 2) / (2 * sigma ** 2))
+    return (g / g.sum()).view(1, 1, 3, 3)
+
+
+def edge_targets(y, mode, sigma=0.7):
+    """y: (B,H,W) int labels. Returns (soft target in [0,1], per-pixel weight)."""
+    m = (y == 1).float().unsqueeze(1)                       # (B,1,H,W)
+    if mode == "svls":
+        k = gaussian_kernel3(sigma).to(m.device)
+        t = F.conv2d(F.pad(m, (1, 1, 1, 1), mode="replicate"), k)
+        return t.squeeze(1), torch.ones_like(t.squeeze(1))
+    if mode == "ignore":
+        core = _erode(m)                                    # interior (depth >= 2)
+        band = _dilate(m) * (1.0 - core)                    # rim, both sides of the edge
+        thin = m * (1.0 - _dilate(core))                    # RFI px with no interior nearby
+        w = 1.0 - band * (1.0 - thin)                       # 0 on the rim, but keep thin objects
+        return m.squeeze(1), w.squeeze(1)
+    raise ValueError(mode)
+
+
+def soft_ce(logits, t, w, cw):
+    """Cross-entropy against soft targets t, pixel weights w, class weights cw."""
+    logp = F.log_softmax(logits, dim=1)
+    per_px = -(cw[1] * t * logp[:, 1] + cw[0] * (1.0 - t) * logp[:, 0])
+    return (w * per_px).sum() / w.sum().clamp_min(1.0)
+
+
+def soft_dice(logits, t, w, eps=1.0):
+    probs = F.softmax(logits, dim=1)[:, 1]
+    inter = (w * probs * t).sum(dim=(1, 2))
+    denom = (w * probs).sum(dim=(1, 2)) + (w * t).sum(dim=(1, 2))
+    return (1.0 - (2.0 * inter + eps) / (denom + eps)).mean()
+
+
+# ---------------------------------------------------------------------------
 def batches(images, masks, indices, bs, mode, lo, hi, rng, n_steps):
     """Yield n_steps random batches, reading only what is needed from the memmap."""
     for _ in range(n_steps):
@@ -241,6 +297,11 @@ def main():
                          "no_res, plain_unet, no_groupnorm. Everything else "
                          "(data, splits, loss, eval, thresholding) is unchanged, "
                          "so the comparison is controlled. See PART 17.")
+    ap.add_argument("--edge_mode", choices=["none", "svls", "ignore"], default="none",
+                    help="edge-aware training (PART 22.4): treat the 1-px rim of each "
+                         "AOFlagger mask as uncertain. 'none' = original training.")
+    ap.add_argument("--edge_sigma", type=float, default=0.7,
+                    help="Gaussian sigma (pixels) of the 3x3 blur used by --edge_mode svls")
     a = ap.parse_args()
 
     out = a.output_dir or os.path.join(_ROOT, "runs", "lofar",
@@ -297,6 +358,8 @@ def main():
             cw[1] = min(cw[1], a.class_weight_cap)
     print("  measured RFI frac : {:.4f}%  -> class_weights [{:.3f}, {:.3f}]".format(
         mean_rfi * 100, cw[0], cw[1]))
+    print("  edge-aware mode   : {}{}".format(
+        a.edge_mode, " (sigma {})".format(a.edge_sigma) if a.edge_mode == "svls" else ""))
     print("=" * 74, flush=True)
 
     ce = torch.nn.CrossEntropyLoss(weight=torch.tensor(cw, dtype=torch.float32).to(device))
@@ -325,7 +388,11 @@ def main():
                 x, y = x.to(device), y.to(device)
                 opt.zero_grad()
                 logits = model(x)
-                loss = ce(logits, y) + a.dice_weight * dice_loss(logits, y)
+                if a.edge_mode == "none":
+                    loss = ce(logits, y) + a.dice_weight * dice_loss(logits, y)
+                else:
+                    t, w = edge_targets(y, a.edge_mode, a.edge_sigma)
+                    loss = soft_ce(logits, t, w, cw) + a.dice_weight * soft_dice(logits, t, w)
                 loss.backward()
                 opt.step()
                 tot += float(loss.item()); nb += 1
@@ -364,6 +431,8 @@ def main():
     m["pooled_f1_crop472"] = m_crop["pooled_f1"]
     m["max_f1_crop472"] = m_crop["max_f1"]
     m["roc_auc_crop472"] = m_crop["roc_auc"]
+    m.update(edge_mode=a.edge_mode,
+             edge_sigma=a.edge_sigma if a.edge_mode == "svls" else None)
     m.update(model=model_name, variant=a.variant,
              base=a.base, depth=a.depth, dropout=a.dropout,
              parameters=n_par, norm=a.norm, fixed_range=[lo, hi], class_weights=cw,
