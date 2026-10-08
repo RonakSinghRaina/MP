@@ -200,40 +200,40 @@ text(s.shapes, 0.08, 6.62, 4.4, 0.85,
 
 # ======================================================================= 2
 s = new_slide("Summary")
-panel(s.shapes, 0.70, 1.75, 5.60, 3.55)
+panel(s.shapes, 0.70, 1.75, 5.60, 3.75)
 text(s.shapes, 0.95, 1.92, 5.15, 4.6, [
     [("This Week", True, RED)],
     [("•  Two U-Nets compared: ", True), ("Akeret et al.'s tf_unet (ours) vs. the U-Net of Mesarcik et al.", False)],
     [("•  Hybrid model: ", True), ("presented for the first time — a U-Net with 9 changes.", False)],
     [("•  Which changes matter: ", True), ("tested by removing parts and re-training.", False)],
-], size=16, space_after=12)
-panel(s.shapes, 6.65, 1.75, 5.95, 3.55)
+], size=19, space_after=18)
+panel(s.shapes, 6.65, 1.75, 5.95, 3.75)
 text(s.shapes, 6.90, 1.92, 5.5, 4.6, [
     [("Key Results (LOFAR, max F1)", True, RED)],
     [("•  tf_unet: ", True), ("0.548", False)],
     [("•  Mesarcik et al. U-Net: ", True), ("0.588  (+0.039)", False)],
     [("•  Our hybrid: ", True), ("0.660 — highest of all methods", True, RED)],
-    [("•  Hybrid with 3 parts removed: ", True), ("0.659 — no real loss", False)],
-], size=16, space_after=12)
+    [("•  Hybrid with changes 1–3 removed: ", True), ("0.658 — no real loss", False)],
+], size=19, space_after=18)
 
 # ======================================================================= 3
 s = new_slide("Two different U-Nets")
-panel(s.shapes, 0.70, 1.75, 5.55, 2.05)
-text(s.shapes, 0.92, 1.85, 5.15, 1.9, [
+panel(s.shapes, 0.70, 1.75, 5.55, 1.55)
+text(s.shapes, 0.92, 1.80, 5.15, 1.45, [
     [("Akeret et al. (2017) — tf_unet", True, NAVY)],
     "The original U-Net code for RFI detection, written in TensorFlow.",
     "This is the U-Net we ran.",
-], size=15, space_after=6)
-panel(s.shapes, 6.60, 1.75, 6.00, 2.05)
-text(s.shapes, 6.82, 1.85, 5.6, 1.9, [
+], size=15, space_after=4)
+panel(s.shapes, 6.60, 1.75, 6.00, 1.55)
+text(s.shapes, 6.82, 1.80, 5.6, 1.45, [
     [("Mesarcik et al. (2022) — their own U-Net", True, NAVY)],
     "Rebuilt from scratch by the authors of the LOFAR dataset paper.",
     "Same name, but a different network (see next slide).",
-], size=15, space_after=6)
-bar_chart(s, 3.2, 3.95, 6.9, 2.95,
+], size=15, space_after=4)
+bar_chart(s, 2.6, 3.50, 6.9, 3.35,
           ["Akeret tf_unet\n(ours)", "Mesarcik et al.\nU-Net (published)"],
           [0.548, 0.588], [NAVY, MID], vmax=0.70, errors=[0.014, 0.003])
-text(s.shapes, 9.7, 4.6, 3.1, 1.3, [
+text(s.shapes, 9.6, 4.45, 3.0, 1.3, [
     [("Gap: 0.039", True, RED)],
     "max F1 on the 109 expert-labelled LOFAR images",
 ], size=15)
@@ -255,134 +255,179 @@ text(s.shapes, 0.85, 6.0, 11.6, 0.8, [
      (" — not the same U-Net trained twice.", False)],
 ], size=16)
 
-# ======================================================================= 5
-s = new_slide("Our Hybrid model: 9 changes to the U-Net")
-rect(s.shapes, 0.70, 1.75, 5.65, 0.55, RED, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-text(s.shapes, 0.85, 1.80, 5.4, 0.45, [[("Group 1 — RFI-specific parts (3)", True, WHITE)]],
-     size=17, anchor=MSO_ANCHOR.MIDDLE)
-panel(s.shapes, 0.70, 2.40, 5.65, 2.35, fill=PALE_RED)
-text(s.shapes, 0.90, 2.55, 5.3, 2.2, [
-    [("1. Strip convolutions ", True), ("— look along long thin lines", False)],
-    [("2. Residual shortcuts ", True), ("— a bypass around each block", False)],
-    [("3. Channel attention (ECA) ", True), ("— turns useful features up", False)],
-], size=18, space_after=16)
-rect(s.shapes, 6.75, 1.75, 5.85, 0.55, NAVY, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-text(s.shapes, 6.90, 1.80, 5.6, 0.45, [[("Group 2 — training & design changes (6)", True, WHITE)]],
-     size=17, anchor=MSO_ANCHOR.MIDDLE)
-panel(s.shapes, 6.75, 2.40, 5.85, 4.05)
-text(s.shapes, 6.95, 2.52, 5.5, 4.0, [
-    [("4. GroupNorm ", True), ("— keeps internal values steady", False)],
-    [("5. No ReLU on the output ", True), ("— avoids the dead-network trap", False)],
-    [("6. Dice loss ", True), ("— rewards the right RFI shape", False)],
-    [("7. Same padding ", True), ("— predicts every pixel, edges too", False)],
-    [("8. No class weighting ", True), ("— doesn't over-push towards RFI", False)],
-    [("9. New size & training ", True), ("— 4 levels, thinner, PyTorch", False)],
-], size=18, space_after=14)
-panel(s.shapes, 0.70, 4.95, 5.65, 1.50)
-text(s.shapes, 0.90, 5.05, 5.3, 1.3, [
-    [("Result: ", True), ("max F1 ", False), ("0.660 ± 0.004", True, RED),
-     (" on LOFAR, with 593,842 parameters.", False)],
-], size=18, anchor=MSO_ANCHOR.MIDDLE)
+# ======================================================================= 5-7
+# The nine changes, three per slide: a numbered badge, the name, three lines.
+CHANGES = [
+    ("Strip convolutions", [
+        "A normal filter looks at a small 3×3 square of pixels.",
+        "A strip filter looks along a long thin line instead (7, 11 or 21 pixels).",
+        "Idea: RFI often appears as long streaks, so this should catch faint ones."]),
+    ("Residual shortcuts", [
+        "Normally the data must pass through every layer, one after another.",
+        "A shortcut lets the input skip past a block and be added back at the end.",
+        "Idea: faint details are not lost as the data goes deeper into the network."]),
+    ("Channel attention (ECA)", [
+        "The network builds many feature maps, each looking for a different pattern.",
+        "Attention learns a weight for each one: useful ones up, others down.",
+        "Idea: help the features that spot faint RFI stand out."]),
+    ("GroupNorm", [
+        "Inside a network, numbers can grow too large or shrink too small.",
+        "GroupNorm rescales them after every layer so they stay in a steady range.",
+        "tf_unet has no such step; this also makes training more stable."]),
+    ("No ReLU on the output", [
+        "tf_unet passes its final scores through a ReLU, which turns negatives into 0.",
+        "With class weighting this can freeze the network so that it stops learning.",
+        "The hybrid outputs its raw scores, so this trap cannot happen."]),
+    ("Dice loss", [
+        "The usual loss (cross-entropy) checks every pixel separately.",
+        "Dice loss also checks how well the whole predicted RFI shape overlaps the true one.",
+        "Helpful when RFI is rare: about 1 pixel in 130 on LOFAR."]),
+    ("Same padding", [
+        "tf_unet trims the border of the image at every layer (valid padding).",
+        "Same padding adds a thin border so the image keeps its full size.",
+        "So every pixel, including the edges, gets a prediction."]),
+    ("No class weighting", [
+        "Class weighting tells the model to care more about the rare RFI pixels.",
+        "Here it pushed the model to over-predict RFI and hurt its final decisions.",
+        "Removing it improved the score in every run (0.647 → 0.660)."]),
+    ("New size and training setup", [
+        "4 levels deep instead of 3, but thinner: 8 filters in the first layer, not 32.",
+        "Written in PyTorch; trained with Adam, one image at a time, 28,000 steps.",
+        "About 594,000 parameters in total."]),
+]
 
-# ======================================================================= 6
-s = new_slide("The three RFI-specific parts")
-cols = [0.70, 4.75, 8.80]
-heads = ["Strip convolutions", "Residual shortcuts", "Channel attention (ECA)"]
-for x0, hd in zip(cols, heads):
-    panel(s.shapes, x0, 1.75, 3.85, 4.95)
-    text(s.shapes, x0 + 0.15, 1.85, 3.55, 0.45, [[(hd, True, NAVY)]], size=17)
+for part in range(3):
+    s = new_slide(f"The 9 changes in our Hybrid model ({part + 1} of 3)")
+    for k in range(3):
+        n = part * 3 + k
+        name, lines = CHANGES[n]
+        y0 = 1.78 + k * 1.62
+        panel(s.shapes, 0.70, y0, 11.90, 1.48)
+        badge = rect(s.shapes, 0.92, y0 + 0.44, 0.60, 0.60, RED if n < 3 else NAVY,
+                     shape=MSO_SHAPE.OVAL)
+        label_in(badge, str(n + 1), 18)
+        text(s.shapes, 1.75, y0 + 0.06, 10.7, 1.38,
+             [[(name, True, NAVY)]] + [[("•  " + ln, False)] for ln in lines],
+             size=16, anchor=MSO_ANCHOR.MIDDLE, space_after=1)
 
-# --- illustration 1: normal 3x3 filter vs 1x7 strip on a 7x7 grid
+# ======================================================================= 8
+s = new_slide("Changes 1–3, as pictures")
+COL_X = [0.70, 4.75, 8.80]
+COL_W = 3.85
+heads = ["1. Strip convolutions", "2. Residual shortcuts", "3. Channel attention (ECA)"]
+for x0, hd in zip(COL_X, heads):
+    panel(s.shapes, x0, 1.75, COL_W, 4.50)
+    text(s.shapes, x0 + 0.15, 1.88, COL_W - 0.3, 0.42, [[(hd, True, NAVY)]], size=17,
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, space_after=0)
+
+ILL_TOP, ILL_H = 2.45, 1.65          # illustration band inside every column
+
+# --- 1: normal 3x3 filter vs 1x7 strip, each on a 7x7 grid, centred in column 1
 g = s.shapes.add_group_shape()
-cell = 0.17
-for gi, (gx, label, hl) in enumerate([(0.95, "normal filter", "square"),
-                                      (2.75, "strip filter", "strip")]):
+cell, gap = 0.19, 0.40
+grid_w = 7 * cell
+cx = COL_X[0] + COL_W / 2
+starts = [cx - gap / 2 - grid_w, cx + gap / 2]
+gy = ILL_TOP + 0.05
+for gx, lab, mode in zip(starts, ["normal filter", "strip filter"], ["square", "strip"]):
     for rr in range(7):
         for cc in range(7):
-            on = (hl == "square" and 2 <= rr <= 4 and 2 <= cc <= 4) or \
-                 (hl == "strip" and rr == 3)
-            rect(g.shapes, gx - 0.6 + cc * cell, 2.45 + rr * cell, cell, cell,
+            on = (mode == "square" and 2 <= rr <= 4 and 2 <= cc <= 4) or (mode == "strip" and rr == 3)
+            rect(g.shapes, gx + cc * cell, gy + rr * cell, cell, cell,
                  RED if on else WHITE, line=LIGHT, lw=0.5)
-    text(g.shapes, gx - 0.75, 2.45 + 7 * cell + 0.05, 1.5, 0.3, [label], size=11,
-         color=GREY, align=PP_ALIGN.CENTER, space_after=0)
-text(s.shapes, 0.85, 4.25, 3.55, 2.4, [
-    "Look along long thin lines (7, 11 or 21 pixels) instead of small squares.",
-    [("Idea: ", True), ("RFI often appears as streaks.", False)],
-], size=14)
+    text(g.shapes, gx - 0.15, gy + grid_w + 0.08, grid_w + 0.3, 0.3, [lab], size=11, color=GREY,
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, space_after=0)
 
-# --- illustration 2: input -> block -> (+) -> output, with a bypass over the block
+# --- 2: input -> layers -> (+) -> out, shortcut drawn over the top, centred in column 2
 g = s.shapes.add_group_shape()
-yb = 2.85
-b1 = rect(g.shapes, 4.95, yb, 0.75, 0.55, LIGHT); label_in(b1, "input", 11, color=INK)
-b2 = rect(g.shapes, 6.10, yb, 0.95, 0.55, NAVY); label_in(b2, "layers", 11)
-b3 = rect(g.shapes, 7.45, yb + 0.07, 0.4, 0.4, RED, shape=MSO_SHAPE.OVAL); label_in(b3, "+", 14)
-line(g.shapes, 5.70, yb + 0.275, 6.10, yb + 0.275, color=INK, width=1.5)
-line(g.shapes, 7.05, yb + 0.275, 7.45, yb + 0.275, color=INK, width=1.5)
-line(g.shapes, 7.85, yb + 0.275, 8.25, yb + 0.275, color=INK, width=1.5)
-for (x1, y1, x2, y2) in [(5.33, yb, 5.33, yb - 0.4), (5.33, yb - 0.4, 7.65, yb - 0.4),
-                         (7.65, yb - 0.4, 7.65, yb + 0.07)]:
+cx = COL_X[1] + COL_W / 2
+w_in, w_lay, d_plus, arrow = 0.75, 0.95, 0.42, 0.35
+total = w_in + arrow + w_lay + arrow + d_plus + arrow
+x = cx - total / 2
+yb = ILL_TOP + 0.85                  # boxes' top edge
+bh = 0.55
+mid = yb + bh / 2
+b_in = rect(g.shapes, x, yb, w_in, bh, LIGHT); label_in(b_in, "input", 11, color=INK)
+x_lay = x + w_in + arrow
+b_lay = rect(g.shapes, x_lay, yb, w_lay, bh, NAVY); label_in(b_lay, "layers", 11)
+x_plus = x_lay + w_lay + arrow
+b_plus = rect(g.shapes, x_plus, mid - d_plus / 2, d_plus, d_plus, RED, shape=MSO_SHAPE.OVAL)
+label_in(b_plus, "+", 14)
+line(g.shapes, x + w_in, mid, x_lay, mid, color=INK, width=1.5)
+line(g.shapes, x_lay + w_lay, mid, x_plus, mid, color=INK, width=1.5)
+line(g.shapes, x_plus + d_plus, mid, x_plus + d_plus + arrow, mid, color=INK, width=1.5)
+top = yb - 0.45
+sx1, sx2 = x + w_in / 2, x_plus + d_plus / 2
+for (x1, y1, x2, y2) in [(sx1, yb, sx1, top), (sx1, top, sx2, top), (sx2, top, sx2, mid - d_plus / 2)]:
     line(g.shapes, x1, y1, x2, y2, color=RED, width=2.0)
-text(g.shapes, 5.8, yb - 0.75, 1.8, 0.3, [[("shortcut", True, RED)]], size=11,
-     align=PP_ALIGN.CENTER, space_after=0)
-text(s.shapes, 4.90, 4.25, 3.55, 2.4, [
-    "A bypass road: each block passes its input straight through and only learns a small correction.",
-    [("Idea: ", True), ("faint details are not lost in deep layers.", False)],
-], size=14)
+text(g.shapes, sx1, top - 0.34, sx2 - sx1, 0.3, [[("shortcut", True, RED)]], size=11,
+     align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, space_after=0)
 
-# --- illustration 3: channels before and after attention
+# --- 3: five feature maps before and after attention, centred in column 3
 g = s.shapes.add_group_shape()
-before = [0.5, 0.5, 0.5, 0.5, 0.5]
-after = [0.25, 0.85, 0.35, 0.95, 0.2]
-for k, (vals, x0, lab) in enumerate([(before, 9.10, "before"), (after, 10.85, "after")]):
+cx = COL_X[2] + COL_W / 2
+bw, step, gap = 0.17, 0.24, 0.65
+grp_w = 4 * step + bw
+starts = [cx - gap / 2 - grp_w, cx + gap / 2]
+base = ILL_TOP + 1.30
+for k, (gx, vals, lab) in enumerate(zip(starts, [[.5] * 5, [.25, .85, .35, .95, .2]],
+                                        ["before", "after"])):
     for j, v in enumerate(vals):
-        hh = 1.1 * v
-        rect(g.shapes, x0 + j * 0.24, 3.65 - hh, 0.18, hh, MID if k == 0 else (RED if v > 0.6 else LIGHT))
-    text(g.shapes, x0 - 0.1, 3.7, 1.35, 0.3, [lab], size=11, color=GREY,
-         align=PP_ALIGN.CENTER, space_after=0)
-line(g.shapes, 10.40, 3.1, 10.70, 3.1, color=INK, width=1.5)
-text(s.shapes, 8.95, 4.25, 3.55, 2.4, [
-    "Learns which features matter and turns them up or down.",
-    [("Idea: ", True), ("let faint-RFI features stand out.", False)],
-], size=14)
+        hh = 1.2 * v
+        rect(g.shapes, gx + j * step, base - hh, bw, hh,
+             MID if k == 0 else (RED if v > 0.6 else LIGHT))
+    text(g.shapes, gx - 0.1, base + 0.06, grp_w + 0.2, 0.3, [lab], size=11, color=GREY,
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, space_after=0)
+rect(g.shapes, cx - 0.22, base - 0.62, 0.44, 0.26, INK, shape=MSO_SHAPE.RIGHT_ARROW)
 
-# ======================================================================= 7
-s = new_slide("Full hybrid vs. partial hybrid")
+for x0, body in zip(COL_X, [
+    ["Looks along long thin lines (7, 11 or 21 pixels) instead of small squares.",
+     [("Idea: ", True), ("RFI often appears as streaks.", False)]],
+    ["A bypass road: the input skips past the block and is added back at the end.",
+     [("Idea: ", True), ("faint details are not lost in deep layers.", False)]],
+    ["Learns which feature maps matter and turns them up or down.",
+     [("Idea: ", True), ("let faint-RFI features stand out.", False)]],
+]):
+    text(s.shapes, x0 + 0.2, 4.45, COL_W - 0.4, 1.7, body, size=15, space_after=8)
+
+# ======================================================================= 9
+s = new_slide("Do changes 1–3 matter?")
 panel(s.shapes, 0.70, 1.75, 4.55, 2.30)
-text(s.shapes, 0.90, 1.85, 4.2, 2.15, [
+text(s.shapes, 0.90, 1.85, 4.2, 2.1, [
     [("Full hybrid", True, RED)],
     "All 9 changes",
     [("593,842", True), (" parameters", False)],
-], size=16, space_after=6)
+], size=16, space_after=6, anchor=MSO_ANCHOR.MIDDLE)
 panel(s.shapes, 0.70, 4.25, 4.55, 2.40)
-text(s.shapes, 0.90, 4.35, 4.2, 2.25, [
+text(s.shapes, 0.90, 4.35, 4.2, 2.2, [
     [("Partial hybrid", True, NAVY)],
-    "Group 1 removed: no strips, no shortcuts, no attention (6 changes left)",
+    "Changes 1–3 removed (no strips, no shortcuts, no attention): 6 changes left",
     [("486,418", True), (" parameters (18% smaller)", False)],
-], size=16, space_after=6)
+], size=16, space_after=6, anchor=MSO_ANCHOR.MIDDLE)
 bar_chart(s, 5.75, 1.85, 6.6, 3.85, ["Full hybrid\n(9 changes)", "Partial hybrid\n(6 changes)"],
           [0.6603, 0.6585], [RED, NAVY], vmax=0.75, errors=[0.0040, 0.0047], fmt="{:.3f}")
-text(s.shapes, 5.75, 5.85, 6.85, 0.9, [
-    [("Difference: 0.002 — not significant ", True), ("(3 runs each, p = 0.64).", False)],
-    "The three RFI-specific parts add 18% more parameters but no accuracy.",
+text(s.shapes, 5.75, 5.85, 6.85, 0.8, [
+    [("No — the score barely moves: 0.660 vs 0.658 ", True), ("(3 runs each, p = 0.64).", False)],
+    "Strips, shortcuts and attention add 18% more parameters but no accuracy.",
 ], size=14, space_after=2)
 
-# ======================================================================= 8
+# ======================================================================= 10
 s = new_slide("Where everything stands on LOFAR")
 bar_chart(s, 0.85, 1.80, 11.6, 4.35,
           ["σ-clip\nthreshold", "Akeret\ntf_unet", "AOFlagger", "Mesarcik\nU-Net",
            "RFI-Net", "Partial\nhybrid", "Full\nhybrid"],
-          [0.410, 0.548, 0.570, 0.588, 0.598, 0.659, 0.660],
+          [0.410, 0.548, 0.570, 0.588, 0.598, 0.658, 0.660],
           [LIGHT, NAVY, LIGHT, MID, MID, RED, RED], vmax=0.75, label_size=12)
 text(s.shapes, 0.85, 6.25, 11.6, 0.6, [
     [("max F1 on the 109 expert-labelled LOFAR images. ", False),
      ("Mesarcik et al. U-Net and RFI-Net values as published by Mesarcik et al. (2022).", False)],
 ], size=12, color=GREY)
 
-# ======================================================================= 9
+# ======================================================================= 11
 s = new_slide("To Do Next Week")
 text(s.shapes, 1.1, 1.85, 11.0, 4.8, [
     [("•  Find what drives the gain: ", True),
-     ("test the 6 Group-2 changes one at a time, starting with the Dice loss.", False)],
+     ("test changes 4–9 one at a time, starting with the Dice loss.", False)],
     [("•  Repeat runs ", True), ("where results so far come from a single run.", False)],
     [("•  Project report: ", True), ("continue from the full first draft.", False)],
 ], size=19, space_after=16)
