@@ -260,16 +260,16 @@ s = new_slide("Our Hybrid model: 9 changes to the U-Net")
 rect(s.shapes, 0.70, 1.75, 5.65, 0.55, RED, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
 text(s.shapes, 0.85, 1.80, 5.4, 0.45, [[("Group 1 — RFI-specific parts (3)", True, WHITE)]],
      size=17, anchor=MSO_ANCHOR.MIDDLE)
-panel(s.shapes, 0.70, 2.40, 5.65, 2.65, fill=PALE_RED)
-text(s.shapes, 0.90, 2.52, 5.3, 2.5, [
+panel(s.shapes, 0.70, 2.40, 5.65, 2.35, fill=PALE_RED)
+text(s.shapes, 0.90, 2.55, 5.3, 2.2, [
     [("1. Strip convolutions ", True), ("— look along long thin lines", False)],
     [("2. Residual shortcuts ", True), ("— a bypass around each block", False)],
     [("3. Channel attention (ECA) ", True), ("— turns useful features up", False)],
-], size=16, space_after=14)
+], size=18, space_after=16)
 rect(s.shapes, 6.75, 1.75, 5.85, 0.55, NAVY, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
 text(s.shapes, 6.90, 1.80, 5.6, 0.45, [[("Group 2 — training & design changes (6)", True, WHITE)]],
      size=17, anchor=MSO_ANCHOR.MIDDLE)
-panel(s.shapes, 6.75, 2.40, 5.85, 4.15)
+panel(s.shapes, 6.75, 2.40, 5.85, 4.05)
 text(s.shapes, 6.95, 2.52, 5.5, 4.0, [
     [("4. GroupNorm ", True), ("— keeps internal values steady", False)],
     [("5. No ReLU on the output ", True), ("— avoids the dead-network trap", False)],
@@ -277,11 +277,12 @@ text(s.shapes, 6.95, 2.52, 5.5, 4.0, [
     [("7. Same padding ", True), ("— predicts every pixel, edges too", False)],
     [("8. No class weighting ", True), ("— doesn't over-push towards RFI", False)],
     [("9. New size & training ", True), ("— 4 levels, thinner, PyTorch", False)],
-], size=16, space_after=10)
-text(s.shapes, 0.70, 5.25, 5.65, 1.3, [
+], size=18, space_after=14)
+panel(s.shapes, 0.70, 4.95, 5.65, 1.50)
+text(s.shapes, 0.90, 5.05, 5.3, 1.3, [
     [("Result: ", True), ("max F1 ", False), ("0.660 ± 0.004", True, RED),
      (" on LOFAR, with 593,842 parameters.", False)],
-], size=16)
+], size=18, anchor=MSO_ANCHOR.MIDDLE)
 
 # ======================================================================= 6
 s = new_slide("The three RFI-specific parts")
