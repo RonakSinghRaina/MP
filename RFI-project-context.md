@@ -3142,6 +3142,31 @@ Seed 0 started 2026-10-09; results to be added here.
 
 ---
 
+## PART 24 — Correction: the "strip" module is not a strip (2026-10-09)
+
+`MultiScaleStrip` (src/hybrid_rfi_package/hybrid_model.py) runs, per branch,
+a depthwise 1xK conv **followed by** a depthwise Kx1 conv -- in sequence, not
+in parallel. Measured with a single-pixel input: each branch's footprint is a
+full **7x7, 11x11, 21x21 square** (49 / 121 / 441 px), and the effective
+filter is the outer product of the two 1-D filters (rank 1). So each branch is
+a cheap *separable large square kernel*, not a long thin line detector. It
+can behave like a thin strip only if training drives one of its two 1-D
+filters to a single spike; nothing in the architecture forces that.
+
+Consequences:
+- Every description of "strip convolutions integrating along time / along
+  frequency" (the module docstring, PART 4, the decks, the report) describes
+  the design intent, not what the code computes. The docstring's axis note is
+  also written for the synthetic data (rows = frequency); on LOFAR rows = time
+  (11.2), so 1xK runs along frequency and Kx1 along time.
+- It is consistent with PART 18/20: removing the module changes nothing
+  measurable. Whether a *true* parallel strip design (1xK and Kx1 as separate
+  branches) would help is untested.
+- Schematic deck (Hybrid_Model_Schematic.pptx) corrected to "wide 7/11/21-px
+  windows ... together it covers a KxK square".
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:

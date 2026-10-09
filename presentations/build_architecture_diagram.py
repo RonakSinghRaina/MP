@@ -198,7 +198,7 @@ draw_u(s,
        top_right="1×1 conv → 2 raw scores → softmax ⑤ → RFI probability ▲")
 panel(s.shapes, 0.75, 5.40, 3.70, 1.55, fill=PALE_RED)
 text(s.shapes, 0.88, 5.45, 3.48, 1.48, [
-    [("① Strip convolutions", True, RED), (" — long thin filters (enc. 1–3, bottleneck)", False)],
+    [("① Strip convolutions", True, RED), (" — wide 7/11/21-px windows (enc. 1–3, bottleneck)", False)],
     [("② Residual shortcut", True, RED), (" — inside every ResBlock", False)],
     [("③ ECA attention", True, RED), (" — re-weights channels, every level", False)],
     [("④ GroupNorm", True, NAVY), (" — inside every block", False)],
@@ -218,7 +218,7 @@ s = new_slide("Inside one level, step by step")
 X0 = 2.95            # where the flow diagrams start
 ROW = [1.82, 3.40, 5.48]
 heads = [("ResBlock  ②④", "Two 3×3 convolutions, each tidied by GroupNorm; the input is added back at the end."),
-         ("Strip module  ①", "Looks along long thin lines of 7, 11 and 21 pixels, in time and in frequency."),
+         ("Strip module  ①", "Looks at wider areas (7, 11, 21 px) cheaply: a thin filter along frequency, then one along time."),
          ("ECA attention  ③", "Gives each feature map a weight between 0 and 1, then scales it.")]
 heights = [1.45, 1.95, 1.42]
 for (hd, sub), y, hh in zip(heads, ROW, heights):
@@ -271,7 +271,7 @@ for lab, w in [("1×1 conv (mix)", 1.15), ("GroupNorm ④", 1.2), ("ReLU", 0.7)]
 arrow(sh, x, yc, x + gap, yc); x += gap
 box(sh, x, yc - 0.25, 0.75, 0.5, LIGHT, ["output"], size=10.5, color=INK)
 text(sh, px, ROW[1] + heights[1] - 0.3, 7.5, 0.22,
-     ["On LOFAR (rows = time): 1×K runs along frequency (catches broadband bursts) · K×1 runs along time (catches narrowband lines)"],
+     ["Each path = 1×K along frequency, then K×1 along time → together it covers a K×K square (measured)"],
      size=9, color=GREY)
 
 # --- row C: ECA
