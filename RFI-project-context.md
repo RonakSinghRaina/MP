@@ -3136,9 +3136,25 @@ is sharp, so blurring the target hurts where it is scored. **The svls form of
 22.4 is refuted.** Note seed 2 was interrupted at epoch 28 by a reboot and
 resumed from progress.json; its result is in line with the other two.
 
-### 23.2 ignore (skip the 1-px rim, keep thin objects): RUNNING
+### 23.2 ignore (skip the 1-px rim, keep thin objects): ALSO WORSE
 
-Seed 0 started 2026-10-09; results to be added here.
+| setup | n | max F1 | pooled F1 | precision | recall | ROC |
+|---|---|---|---|---|---|---|
+| ignore | 3 | **0.6490 ± 0.0036** | 0.6406 ± 0.0107 | 0.5896 ± 0.0469 | 0.7059 ± 0.0388 | 0.9571 ± 0.0085 |
+
+Paired max F1: 0.6592->0.6450 (-0.0142), 0.6647->0.6520 (-0.0127),
+0.6570->0.6501 (-0.0068). Mean **-0.0113, t = -4.97, p = 0.038**. Same
+pattern as svls but stronger: recall up (+0.083), precision down (-0.104).
+With no loss on the rim the model is never told where an object ends, so it
+grows its masks outward; the expert's rims are tight.
+
+### 23.3 Verdict on PART 22.4
+
+**Both forms of edge-aware training are significantly worse than plain
+training** (svls -0.0078, ignore -0.0113; all 6 paired seeds negative). The
+hypothesis that AOFlagger's mask rims are the noisy part that hurts the model
+is refuted for these two implementations: the rim labels carry information the
+expert-scored F1 rewards. Untested: EMA-teacher self-distillation on the rim.
 
 ---
 
