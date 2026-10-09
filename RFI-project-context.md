@@ -2879,7 +2879,7 @@ is their own Keras network (`models.py UNET`), not Akeret's tf_unet:
 
 | | their U-Net | our tf_unet |
 |---|---|---|
-| downsampling | 5 stride-2 convolutions | 3 max-pools |
+| downsampling | 5 stride-2 convolutions | 2 max-pools (3 levels; corrected 2026-10-09, see 24.1) |
 | normalisation layers | **BatchNorm** | none |
 | padding | same | valid |
 | output | sigmoid, 1 channel | ReLU then softmax, 2 channels |
@@ -3192,6 +3192,13 @@ Consequences:
   ResBlocks change the channel count (1->8, 8->16, ..., 16->8 in the decoder).
 - **Each ResBlock has Dropout2d(0.2)** after the first ReLU (training only);
   earlier diagrams omitted it.
+- **tf_unet with layers=3 max-pools twice, not three times** (it pools only
+  when layer < layers-1; 512 in -> 472 out only works with 2 pools). PART 21.1's
+  table said "3 max-pools"; corrected there.
+- Weekly deck corrected the same day: strip description, change 8 wording,
+  "22% more parameters" (was "18% more"; the partial is 18% SMALLER),
+  "shrinks 4 times instead of 2", RFDL 0.639 and Swin-UNETR 0.640 added to the
+  standings chart, "highest of all methods" replaced.
 - The "+0.11 over tf_unet" (0.6603 vs 0.5482, max F1, 3 seeds each) is scored
   on the full 512x512 for ours and 472x472 for tf_unet; ours on the same crop
   is ~0.665, so the comparison is conservative.

@@ -212,7 +212,7 @@ text(s.shapes, 6.90, 1.92, 5.5, 4.6, [
     [("Key Results (LOFAR, max F1)", True, RED)],
     [("•  tf_unet: ", True), ("0.548", False)],
     [("•  Mesarcik et al. U-Net: ", True), ("0.588  (+0.039)", False)],
-    [("•  Our hybrid: ", True), ("0.660 — highest of all methods", True, RED)],
+    [("•  Our hybrid: ", True), ("0.660 — highest we found (best published: 0.640)", True, RED)],
     [("•  Hybrid with changes 1–3 removed: ", True), ("0.658 — no real loss", False)],
 ], size=19, space_after=18)
 
@@ -243,7 +243,7 @@ s = new_slide("What is different between them")
 table(s, [
     ["", "Akeret et al. tf_unet (ours)", "Mesarcik et al. U-Net"],
     ["Normalisation layers", "None", "BatchNorm after every layer"],
-    ["Shrinking the image", "Max-pooling (3 levels)", "Stride-2 convolutions (5 levels)"],
+    ["Shrinking the image", "Max-pooling, 2 times (3 levels)", "Stride-2 convolutions, 5 times"],
     ["Image edges", "Trimmed (valid padding)", "Kept (same padding)"],
     ["Network size", "465,986 parameters", "1,179,121 parameters"],
     ["Training input", "Whole 512×512 image, 4 per batch", "32×32 patches, 1024 per batch"],
@@ -260,8 +260,8 @@ text(s.shapes, 0.85, 6.0, 11.6, 0.8, [
 CHANGES = [
     ("Strip convolutions", [
         "A normal filter looks at a small 3×3 square of pixels.",
-        "A strip filter looks along a long thin line instead (7, 11 or 21 pixels).",
-        "Idea: RFI often appears as long streaks, so this should catch faint ones."]),
+        "Each strip path chains a 1×K and a K×1 filter (K = 7, 11, 21): together they cover a K×K square.",
+        "Idea: RFI appears as long streaks. As built, it looks at a wider area, not a thin line."]),
     ("Residual shortcuts", [
         "Normally the data must pass through every layer, one after another.",
         "A shortcut lets the input skip past a block and be added back at the end.",
@@ -272,7 +272,7 @@ CHANGES = [
         "Idea: help the features that spot faint RFI stand out."]),
     ("GroupNorm", [
         "Inside a network, numbers can grow too large or shrink too small.",
-        "GroupNorm rescales them after every layer so they stay in a steady range.",
+        "GroupNorm rescales them inside every block so they stay in a steady range.",
         "tf_unet has no such step; this also makes training more stable."]),
     ("No ReLU on the output", [
         "tf_unet passes its final scores through a ReLU, which turns negatives into 0.",
@@ -288,10 +288,10 @@ CHANGES = [
         "So every pixel, including the edges, gets a prediction."]),
     ("No class weighting", [
         "Class weighting tells the model to care more about the rare RFI pixels.",
-        "Here it pushed the model to over-predict RFI and hurt its final decisions.",
-        "Removing it improved the score in every run (0.647 → 0.660)."]),
+        "Our earlier version used it; removing it improved every run (0.647 → 0.660).",
+        "tf_unet does not use it either, so this is not a difference from tf_unet."]),
     ("New size and training setup", [
-        "4 levels deep instead of 3, but thinner: 8 filters in the first layer, not 32.",
+        "Shrinks the image 4 times instead of 2, but thinner: 8 filters in the first layer, not 32.",
         "Written in PyTorch; trained with Adam, one image at a time, 28,000 steps.",
         "About 594,000 parameters in total."]),
 ]
@@ -329,10 +329,10 @@ grid_w = 7 * cell
 cx = COL_X[0] + COL_W / 2
 starts = [cx - gap / 2 - grid_w, cx + gap / 2]
 gy = ILL_TOP + 0.05
-for gx, lab, mode in zip(starts, ["normal filter", "strip filter"], ["square", "strip"]):
+for gx, lab, mode in zip(starts, ["normal 3×3 filter", "strip path: 1×7 then 7×1"], ["square", "strip"]):
     for rr in range(7):
         for cc in range(7):
-            on = (mode == "square" and 2 <= rr <= 4 and 2 <= cc <= 4) or (mode == "strip" and rr == 3)
+            on = (mode == "square" and 2 <= rr <= 4 and 2 <= cc <= 4) or mode == "strip"
             rect(g.shapes, gx + cc * cell, gy + rr * cell, cell, cell,
                  RED if on else WHITE, line=LIGHT, lw=0.5)
     text(g.shapes, gx - 0.15, gy + grid_w + 0.08, grid_w + 0.3, 0.3, [lab], size=11, color=GREY,
@@ -381,8 +381,8 @@ for k, (gx, vals, lab) in enumerate(zip(starts, [[.5] * 5, [.25, .85, .35, .95, 
 rect(g.shapes, cx - 0.22, base - 0.62, 0.44, 0.26, INK, shape=MSO_SHAPE.RIGHT_ARROW)
 
 for x0, body in zip(COL_X, [
-    ["Looks along long thin lines (7, 11 or 21 pixels) instead of small squares.",
-     [("Idea: ", True), ("RFI often appears as streaks.", False)]],
+    ["Chains a 1×7 and a 7×1 filter (also 11 and 21). Together they cover a whole square, not a line.",
+     [("Idea: ", True), ("catch streaks. As built, it sees a wider area.", False)]],
     ["A bypass road: the input skips past the block and is added back at the end.",
      [("Idea: ", True), ("faint details are not lost in deep layers.", False)]],
     ["Learns which feature maps matter and turns them up or down.",
@@ -408,26 +408,28 @@ bar_chart(s, 5.75, 1.85, 6.6, 3.85, ["Full hybrid\n(9 changes)", "Partial hybrid
           [0.6603, 0.6585], [RED, NAVY], vmax=0.75, errors=[0.0040, 0.0047], fmt="{:.3f}")
 text(s.shapes, 5.75, 5.85, 6.85, 0.8, [
     [("No — the score barely moves: 0.660 vs 0.658 ", True), ("(3 runs each, p = 0.64).", False)],
-    "Strips, shortcuts and attention add 18% more parameters but no accuracy.",
+    "Strips, shortcuts and attention add 22% more parameters but no accuracy.",
 ], size=14, space_after=2)
 
 # ======================================================================= 10
 s = new_slide("Where everything stands on LOFAR")
 bar_chart(s, 0.85, 1.80, 11.6, 4.35,
           ["σ-clip\nthreshold", "Akeret\ntf_unet", "AOFlagger", "Mesarcik\nU-Net",
-           "RFI-Net", "Partial\nhybrid", "Full\nhybrid"],
-          [0.410, 0.548, 0.570, 0.588, 0.598, 0.658, 0.660],
-          [LIGHT, NAVY, LIGHT, MID, MID, RED, RED], vmax=0.75, label_size=12)
-text(s.shapes, 0.85, 6.25, 11.6, 0.6, [
-    [("max F1 on the 109 expert-labelled LOFAR images. ", False),
-     ("Mesarcik et al. U-Net and RFI-Net values as published by Mesarcik et al. (2022).", False)],
-], size=12, color=GREY)
+           "RFI-Net", "RFDL\n(2024)", "Swin-UNETR\n(2024)", "Partial\nhybrid", "Full\nhybrid"],
+          [0.410, 0.548, 0.570, 0.588, 0.598, 0.639, 0.640, 0.658, 0.660],
+          [LIGHT, NAVY, LIGHT, MID, MID, MID, MID, RED, RED], vmax=0.75, label_size=12, value_size=13)
+text(s.shapes, 0.85, 6.18, 11.6, 0.75, [
+    [("max F1 on the 109 expert-labelled LOFAR images; every network was trained on AOFlagger labels. ", False),
+     ("Mesarcik U-Net, RFI-Net: Mesarcik et al. (2022); RFDL: van Zyl & Grobler (2024); "
+      "Swin-UNETR (400M parameters): Ouyang et al. (2024).", False)],
+    [("Our lead over RFDL and Swin-UNETR (about 0.02) is smaller than the test-set uncertainty (±0.04).", True, NAVY)],
+], size=12, color=GREY, space_after=2)
 
 # ======================================================================= 11
 s = new_slide("To Do Next Week")
 text(s.shapes, 1.1, 1.85, 11.0, 4.8, [
     [("•  Find what drives the gain: ", True),
-     ("test changes 4–9 one at a time, starting with the Dice loss.", False)],
+     ("test changes 5, 6, 7 and 9 one at a time, starting with the Dice loss.", False)],
     [("•  Repeat runs ", True), ("where results so far come from a single run.", False)],
     [("•  Project report: ", True), ("continue from the full first draft.", False)],
 ], size=19, space_after=16)
