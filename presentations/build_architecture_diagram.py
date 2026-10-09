@@ -186,38 +186,44 @@ text(s.shapes, 9.05, 5.52, 3.45, 1.05, [
                                     "when the image is shrunk.", False)],
     [("Numbers: ", True), ("channels × height × width.", False)],
 ], size=11, space_after=6)
+panel(s.shapes, 0.75, 6.72, 11.85, 0.42, fill=PALE_RED)
+text(s.shapes, 0.88, 6.75, 11.6, 0.36, [
+    [("Drawn at our model's sizes so slides 1 and 2 line up box for box. ", True, RED),
+     ("Akeret's tf_unet (our baseline) is this design, but shrinks only twice (32 → 64 → 128 channels, "
+      "465,986 parameters) and trims the border, so 512 × 512 in gives 472 × 472 out.", False)],
+], size=10, anchor=MSO_ANCHOR.MIDDLE)
 
 # ======================================================================= 2
-s = new_slide(f"{NAME}: the same U, with 9 changes")
+s = new_slide(f"{NAME}: the same U, changed inside")
 draw_u(s,
        enc_ops=["ResBlock ②④ → Strip ① → ECA ③"] * 3 + ["ResBlock ②④ → ECA ③"],
        bn_ops="ResBlock ②④ → Strip ①",
        dec_ops=["join skip → ResBlock ②④ → ECA ③"] * 4,
        enc_fill=NAVY, dec_fill=NAVY, bn_fill=MIDNAVY,
-       top_left="▼ Input: spectrogram, 1 × 512 × 512 — sizes never shrink ⑦",
+       top_left="▼ Input: spectrogram, 1 × 512 × 512 — no border trimming ⑦",
        top_right="1×1 conv → 2 raw scores → softmax ⑤ → RFI probability ▲")
-panel(s.shapes, 0.75, 5.40, 3.70, 1.55, fill=PALE_RED)
-text(s.shapes, 0.88, 5.45, 3.48, 1.48, [
-    [("① Strip convolutions", True, RED), (" — wide 7/11/21-px windows (enc. 1–3, bottleneck)", False)],
+panel(s.shapes, 0.75, 5.40, 3.70, 1.72, fill=PALE_RED)
+text(s.shapes, 0.88, 5.45, 3.48, 1.65, [
+    [("① Strip convolutions", True, RED), (" — 7/11/21-px windows (enc. 1–3, bottleneck)", False)],
     [("② Residual shortcut", True, RED), (" — inside every ResBlock", False)],
-    [("③ ECA attention", True, RED), (" — re-weights channels, every level", False)],
-    [("④ GroupNorm", True, NAVY), (" — inside every block", False)],
-    [("⑤ Raw scores", True, NAVY), (" — no ReLU before softmax", False)],
-], size=10.5, space_after=3)
-panel(s.shapes, 8.90, 5.40, 3.70, 1.55)
-text(s.shapes, 9.03, 5.45, 3.48, 1.48, [
-    [("⑥ Dice + cross-entropy loss", True, NAVY), (" (training)", False)],
+    [("③ ECA attention", True, RED), (" — after every encoder and decoder block", False)],
+    [("④ GroupNorm", True, NAVY), (" — in every ResBlock and strip (tf_unet: none)", False)],
+    [("⑤ Raw scores", True, NAVY), (" — no ReLU before softmax (tf_unet has one)", False)],
+], size=10, space_after=2)
+panel(s.shapes, 8.90, 5.40, 3.70, 1.72)
+text(s.shapes, 9.03, 5.45, 3.48, 1.65, [
+    [("⑥ Dice + cross-entropy loss", True, NAVY), (" (tf_unet: cross-entropy only)", False)],
     [("⑦ Same padding", True, NAVY), (" — every pixel gets a prediction", False)],
-    [("⑧ No class weighting", True, NAVY), (" (training)", False)],
-    [("⑨ Size", True, NAVY), (": 8 → 16 → 32 → 64 → 128 channels, 593,842 parameters", False)],
-    [("Red = RFI-specific additions ①–③", True, RED)],
-], size=10.5, space_after=3)
+    [("⑧ No class weighting", True, NAVY), (" — tf_unet has none either; our earlier version used it and scored lower", False)],
+    [("⑨ Size", True, NAVY), (": shrinks 4 times, 8 → 128 channels, 593,842 parameters", False)],
+    [("Red = the three added modules ①–③", True, RED)],
+], size=10, space_after=2)
 
 # ======================================================================= 3
 s = new_slide("Inside one level, step by step")
 X0 = 2.95            # where the flow diagrams start
 ROW = [1.82, 3.40, 5.48]
-heads = [("ResBlock  ②④", "Two 3×3 convolutions, each tidied by GroupNorm; the input is added back at the end."),
+heads = [("ResBlock  ②④", "Two 3×3 convolutions, each tidied by GroupNorm; the input is added back at the end. Dropout works in training only."),
          ("Strip module  ①", "Looks at wider areas (7, 11, 21 px) cheaply: a thin filter along frequency, then one along time."),
          ("ECA attention  ③", "Gives each feature map a weight between 0 and 1, then scales it.")]
 heights = [1.45, 1.95, 1.42]
@@ -228,26 +234,31 @@ for (hd, sub), y, hh in zip(heads, ROW, heights):
 
 # --- row A: ResBlock
 g = s.shapes.add_group_shape(); sh = g.shapes
-y = ROW[0] + 0.66; h = 0.5; gap = 0.18
-steps = [("input", 0.62, LIGHT, INK), ("3×3 conv", 0.92, MIDNAVY, WHITE), ("GroupNorm ④", 1.2, NAVY, WHITE),
-         ("ReLU", 0.7, MIDNAVY, WHITE), ("3×3 conv", 0.92, MIDNAVY, WHITE), ("GroupNorm ④", 1.2, NAVY, WHITE)]
+y = ROW[0] + 0.74; h = 0.5; gap = 0.15
+steps = [("input", 0.58, LIGHT, INK), ("3×3 conv", 0.82, MIDNAVY, WHITE), ("GroupNorm ④", 1.15, NAVY, WHITE),
+         ("ReLU", 0.6, MIDNAVY, WHITE), ("Dropout", 0.8, GREY, WHITE), ("3×3 conv", 0.82, MIDNAVY, WHITE),
+         ("GroupNorm ④", 1.15, NAVY, WHITE)]
 x = X0; xs = []
 for lab, w, f, c in steps:
-    box(sh, x, y, w, h, f, [lab], size=10.5, color=c); xs.append((x, w)); x += w
+    box(sh, x, y, w, h, f, [lab], size=10, color=c); xs.append((x, w)); x += w
     arrow(sh, x, y + h / 2, x + gap, y + h / 2); x += gap
-plus = box(sh, x, y + 0.06, 0.38, 0.38, RED, ["+"], size=14, shape=MSO_SHAPE.OVAL)
-xp = x; x += 0.38
+plus = box(sh, x, y + 0.07, 0.36, 0.36, RED, ["+"], size=14, shape=MSO_SHAPE.OVAL)
+xp = x; x += 0.36
 arrow(sh, x, y + h / 2, x + gap, y + h / 2); x += gap
-box(sh, x, y, 0.7, h, MIDNAVY, ["ReLU"], size=10.5); x += 0.7
+box(sh, x, y, 0.6, h, MIDNAVY, ["ReLU"], size=10); x += 0.6
 arrow(sh, x, y + h / 2, x + gap, y + h / 2); x += gap
-box(sh, x, y, 0.75, h, LIGHT, ["output"], size=10.5, color=INK)
-xin = xs[0][0] + xs[0][1] / 2; top = y - 0.32
+box(sh, x, y, 0.68, h, LIGHT, ["output"], size=10, color=INK)
+xin = xs[0][0] + xs[0][1] / 2; top = y - 0.36; xm = xp + 0.18
 arrow(sh, xin, y, xin, top, color=RED, width=2, head=False)
-arrow(sh, xin, top, xp + 0.19, top, color=RED, width=2, head=False)
-arrow(sh, xp + 0.19, top, xp + 0.19, y + 0.06, color=RED, width=2)
-text(sh, xin + 0.1, top - 0.27, 8.0, 0.25,
-     [[("② shortcut: ", True, RED), ("the input skips the block and is added back (1×1 conv if channel count changes)", False, RED)]],
-     size=9.5)
+sx = xin + 0.55; sw = 0.8
+arrow(sh, xin, top, sx, top, color=RED, width=2, head=False)
+box(sh, sx, top - 0.14, sw, 0.28, WHITE, [[("1×1 conv", True, RED)]], size=9.5, line=RED)
+arrow(sh, sx + sw, top, xm, top, color=RED, width=2, head=False)
+arrow(sh, xm, top, xm, y + 0.07, color=RED, width=2)
+text(sh, sx + sw + 0.12, top - 0.27, 7.8, 0.22,
+     [[("② shortcut: ", True, RED), ("input goes around the block and is added back (via a 1×1 conv: "
+                                     "every ResBlock here changes the channel count)", False, RED)]],
+     size=9)
 
 # --- row B: Strip module (4 parallel paths)
 g = s.shapes.add_group_shape(); sh = g.shapes
@@ -271,7 +282,7 @@ for lab, w in [("1×1 conv (mix)", 1.15), ("GroupNorm ④", 1.2), ("ReLU", 0.7)]
 arrow(sh, x, yc, x + gap, yc); x += gap
 box(sh, x, yc - 0.25, 0.75, 0.5, LIGHT, ["output"], size=10.5, color=INK)
 text(sh, px, ROW[1] + heights[1] - 0.3, 7.5, 0.22,
-     ["Each path = 1×K along frequency, then K×1 along time → together it covers a K×K square (measured)"],
+     ["Each path = 1×K along frequency, then K×1 along time, each channel on its own → together it covers a K×K square (measured)"],
      size=9, color=GREY)
 
 # --- row C: ECA
@@ -280,7 +291,7 @@ y = ROW[2] + 0.38; h = 0.55
 x = X0
 box(sh, x, y, 0.62, h, LIGHT, ["input"], size=10.5, color=INK); xin = x + 0.31; x += 0.62
 for lab, w, f in [("average each feature map → 1 number", 1.6, MIDNAVY),
-                  ("1-D conv (k = 3) across neighbours", 1.55, MIDNAVY),
+                  ("1-D conv (k = 3) across neighbouring channels", 1.55, MIDNAVY),
                   ("sigmoid → weight 0 to 1", 1.3, RED)]:
     arrow(sh, x, y + h / 2, x + gap, y + h / 2); x += gap
     box(sh, x, y, w, h, f, [lab], size=10, bold_first=False); x += w
@@ -297,45 +308,51 @@ text(sh, xin + 0.15, bot - 0.02, 4.5, 0.22,
 
 # ======================================================================= 4
 s = new_slide("From output to RFI mask, and how it learns")
-panel(s.shapes, 0.75, 1.80, 11.85, 1.55)
-text(s.shapes, 0.88, 1.88, 2.1, 1.4, [[("Using the model", True, RED)], "after training"], size=12,
+panel(s.shapes, 0.75, 1.76, 11.85, 1.28)
+text(s.shapes, 0.88, 1.82, 2.0, 1.16, [[("Using the model", True, RED)], "after training"], size=12,
      anchor=MSO_ANCHOR.MIDDLE)
 g = s.shapes.add_group_shape(); sh = g.shapes
-y = 2.30; h = 0.62; x = 2.95
-for lab, w, f, c in [("spectrogram", 1.3, LIGHT, INK), (f"{NAME}", 1.25, NAVY, WHITE),
-                     ("probability 0–1 for each pixel", 1.85, MIDNAVY, WHITE),
-                     ("threshold (chosen on validation data)", 2.0, RED, WHITE),
-                     ("RFI mask: yes / no per pixel", 1.75, LIGHT, INK)]:
-    box(sh, x, y, w, h, f, [lab], size=10.5, color=c, bold_first=False); x += w
-    if lab.startswith("RFI mask"):
-        break
-    arrow(sh, x, y + h / 2, x + 0.25, y + h / 2); x += 0.25
+y = 2.10; h = 0.6; x = 2.95; gap = 0.2
+flow = [("spectrogram", 1.15, LIGHT, INK), ("scale to 0–1 (fixed range)", 1.3, MIDNAVY, WHITE),
+        (f"{NAME}", 1.05, NAVY, WHITE), ("probability 0–1 for each pixel", 1.6, MIDNAVY, WHITE),
+        ("threshold (picked on validation images)", 1.75, RED, WHITE), ("RFI mask: yes / no per pixel", 1.55, LIGHT, INK)]
+for i, (lab, w, f, c) in enumerate(flow):
+    box(sh, x, y, w, h, f, [lab], size=10, color=c, bold_first=False); x += w
+    if i < len(flow) - 1:
+        arrow(sh, x, y + h / 2, x + gap, y + h / 2); x += gap
 
-panel(s.shapes, 0.75, 3.55, 11.85, 1.75)
-text(s.shapes, 0.88, 3.63, 2.1, 1.6, [[("Training", True, RED)], "repeated 28,000 times"], size=12,
-     anchor=MSO_ANCHOR.MIDDLE)
+panel(s.shapes, 0.75, 3.18, 11.85, 1.62)
+text(s.shapes, 0.88, 3.24, 2.0, 1.5, [[("Training", True, RED)], "28,000 steps, one image per step"],
+     size=12, anchor=MSO_ANCHOR.MIDDLE)
 g = s.shapes.add_group_shape(); sh = g.shapes
-y = 3.82; x = 2.95
-box(sh, x, y, 1.85, 0.5, MIDNAVY, ["model's probabilities"], size=10.5, bold_first=False)
-box(sh, x, y + 0.72, 1.85, 0.5, LIGHT, ["AOFlagger's RFI mask"], size=10.5, color=INK, bold_first=False)
-lx = x + 1.85 + 0.45
-box(sh, lx, y + 0.11, 2.6, 0.9, RED, ["loss = cross-entropy + Dice ⑥",
-                                      "how wrong the model is (no class weighting ⑧)"], size=10.5)
-arrow(sh, x + 1.85, y + 0.25, lx, y + 0.45)
-arrow(sh, x + 1.85, y + 0.97, lx, y + 0.67)
-ux = lx + 2.6 + 0.45
-box(sh, ux, y + 0.11, 2.85, 0.9, NAVY, ["Adam optimiser",
-                                        "nudges all 593,842 weights to reduce the loss"], size=10.5)
-arrow(sh, lx + 2.6, y + 0.56, ux, y + 0.56)
+y = 3.40; x = 2.95
+box(sh, x, y, 1.7, 0.5, MIDNAVY, ["model's probabilities"], size=10, bold_first=False)
+box(sh, x, y + 0.7, 1.7, 0.5, LIGHT, ["AOFlagger's RFI mask"], size=10, color=INK, bold_first=False)
+lx = x + 1.7 + 0.35
+box(sh, lx, y + 0.1, 2.3, 1.0, RED, ["loss = cross-entropy + Dice ⑥",
+                                     "how wrong the model is; no class weighting ⑧"], size=10)
+arrow(sh, x + 1.7, y + 0.25, lx, y + 0.45)
+arrow(sh, x + 1.7, y + 0.95, lx, y + 0.75)
+ux = lx + 2.3 + 0.35
+box(sh, ux, y + 0.1, 2.25, 1.0, NAVY, ["Adam optimiser",
+                                       "nudges all 593,842 numbers to lower the loss"], size=10)
+arrow(sh, lx + 2.3, y + 0.6, ux, y + 0.6)
+kx = ux + 2.25 + 0.35
+box(sh, kx, y + 0.1, 1.95, 1.0, MIDNAVY, ["Every 1,400 steps",
+                                          "check on 150 validation images; keep the best version"], size=10)
+arrow(sh, ux + 2.25, y + 0.6, kx, y + 0.6)
 
-panel(s.shapes, 0.75, 5.50, 11.85, 1.05, fill=PALE_RED)
-text(s.shapes, 0.95, 5.60, 11.5, 0.9, [
-    [("Which parts actually matter? ", True, RED),
-     ("Removing ①②③ (strips, shortcuts, attention) changes F1 from 0.660 to 0.658 — "
-      "not significant (3 runs each, p = 0.64).", False)],
-    [("So the model's strength comes from ④–⑨: ", True),
-     ("normalisation, raw output scores, the Dice loss, same padding, no class weighting, "
-      "and its size and training setup.", False)],
+panel(s.shapes, 0.75, 4.94, 11.85, 1.80, fill=PALE_RED)
+text(s.shapes, 0.95, 5.04, 11.5, 1.64, [
+    [("How it is scored: ", True, RED),
+     ("109 test images labelled by a human expert; F1 at the best threshold (the standard for this "
+      "benchmark); 3 runs each, mean ± spread.", False)],
+    [("Our model 0.6603 ± 0.0040", True), ("  vs  Akeret's tf_unet 0.5482 ± 0.0139  →  about +0.11.", False)],
+    [("Which parts matter? ", True, RED),
+     ("Removing ①②③ gives 0.6585 — not significant (p = 0.64). "
+      "Removing ④ as well gives 0.6495 — also not significant (p = 0.48).", False)],
+    [("So the gain over tf_unet sits mainly in ⑤ ⑥ ⑦ ⑨ ", True),
+     ("(raw output, Dice loss, same padding, size and training setup) — not yet tested one at a time.", False)],
 ], size=13, space_after=6)
 
 prs.save(OUT)

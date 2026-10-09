@@ -3165,6 +3165,21 @@ Consequences:
 - Schematic deck (Hybrid_Model_Schematic.pptx) corrected to "wide 7/11/21-px
   windows ... together it covers a KxK square".
 
+### 24.1 Other corrections found while checking the schematic (2026-10-09)
+
+- **"No class weighting" (change 8 in the weekly deck) is NOT a difference
+  from tf_unet.** The LOFAR tf_unet baseline also trains without class weights
+  (`lofar_tfunet_baseline.py`, `class_weights=False`). It is a change from our
+  own earlier hybrid (class weight 56.9x, 0.6467 +/- 0.0079 -> 0.6603). So only
+  8 of the 9 listed changes distinguish the hybrid from tf_unet.
+- **Every ResBlock's shortcut is a 1x1 conv, never identity**: all nine
+  ResBlocks change the channel count (1->8, 8->16, ..., 16->8 in the decoder).
+- **Each ResBlock has Dropout2d(0.2)** after the first ReLU (training only);
+  earlier diagrams omitted it.
+- The "+0.11 over tf_unet" (0.6603 vs 0.5482, max F1, 3 seeds each) is scored
+  on the full 512x512 for ours and 472x472 for tf_unet; ours on the same crop
+  is ~0.665, so the comparison is conservative.
+
 ---
 
 ## Verified facts about the synthetic dataset (trust these)
