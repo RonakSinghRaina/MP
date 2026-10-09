@@ -3109,6 +3109,39 @@ measured motivation, not a new ML principle. Must be tested at 3 seeds.
 
 ---
 
+## PART 23 — Edge-aware training (the 22.4 idea), tested at 3 seeds (2026-10-09)
+
+Code: `experiments/lofar_hybrid.py --edge_mode {svls,ignore}` (sigma 0.7),
+`scripts/run_lofar_edge.sh`, `analysis/summarise_edge.py`. Same config as the
+headline hybrid (base 8, fixed norm, no class weight, 28,000 steps, same seeds
+and splits), so differences are paired by seed. Only the loss on the AOFlagger
+mask rim changes.
+
+### 23.1 svls (3x3 Gaussian label smoothing of the rim): WORSE, significantly
+
+| setup | n | max F1 | pooled F1 | precision | recall | ROC |
+|---|---|---|---|---|---|---|
+| baseline (none) | 3 | 0.6603 ± 0.0040 | 0.6561 ± 0.0044 | 0.6936 ± 0.0061 | 0.6225 ± 0.0047 | 0.9378 ± 0.0111 |
+| svls | 3 | **0.6525 ± 0.0033** | 0.6506 ± 0.0047 | 0.6582 ± 0.0203 | 0.6436 ± 0.0101 | 0.9655 ± 0.0067 |
+
+Paired max F1 by seed: 0.6592->0.6495 (-0.0097), 0.6647->0.6560 (-0.0086),
+0.6570->0.6519 (-0.0050). Mean **-0.0078, paired t = -5.49, p = 0.032**
+(2 dof). All three seeds move the same way.
+
+Reading: smoothing the rim makes the model rank pixels better (ROC +0.028) and
+find more RFI (recall +0.021) but flag more wrongly (precision -0.035); the
+net F1 at the best threshold falls. ROC improves because soft rim targets make
+the probabilities less extreme, but F1 is decided by the expert's rim, which
+is sharp, so blurring the target hurts where it is scored. **The svls form of
+22.4 is refuted.** Note seed 2 was interrupted at epoch 28 by a reboot and
+resumed from progress.json; its result is in line with the other two.
+
+### 23.2 ignore (skip the 1-px rim, keep thin objects): RUNNING
+
+Seed 0 started 2026-10-09; results to be added here.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
