@@ -271,7 +271,7 @@ for lab, w in [("1×1 conv (mix)", 1.15), ("GroupNorm ④", 1.2), ("ReLU", 0.7)]
 arrow(sh, x, yc, x + gap, yc); x += gap
 box(sh, x, yc - 0.25, 0.75, 0.5, LIGHT, ["output"], size=10.5, color=INK)
 text(sh, px, ROW[1] + heights[1] - 0.3, 7.5, 0.22,
-     ["1×K = along time (catches narrowband lines) · K×1 = along frequency (catches broadband bursts)"],
+     ["On LOFAR (rows = time): 1×K runs along frequency (catches broadband bursts) · K×1 runs along time (catches narrowband lines)"],
      size=9, color=GREY)
 
 # --- row C: ECA
