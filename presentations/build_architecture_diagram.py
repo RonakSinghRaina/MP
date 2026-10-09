@@ -193,7 +193,7 @@ draw_u(s,
        enc_ops=["ResBlock ②④ → Strip ① → ECA ③"] * 3 + ["ResBlock ②④ → ECA ③"],
        bn_ops="ResBlock ②④ → Strip ①",
        dec_ops=["join skip → ResBlock ②④ → ECA ③"] * 4,
-       enc_fill=NAVY, dec_fill=NAVY, bn_fill=RED,
+       enc_fill=NAVY, dec_fill=NAVY, bn_fill=MIDNAVY,
        top_left="▼ Input: spectrogram, 1 × 512 × 512 — sizes never shrink ⑦",
        top_right="1×1 conv → 2 raw scores → softmax ⑤ → RFI probability ▲")
 panel(s.shapes, 0.75, 5.40, 3.70, 1.55, fill=PALE_RED)
