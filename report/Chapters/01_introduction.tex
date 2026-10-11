@@ -74,9 +74,11 @@ LOFAR. The aims were:
     architecture. Correcting them raised the score to 0.93 without changing the
     network (\cref{ch:tfunet}).
   \item On real LOFAR data with human labels, my network, \hybrid{}, reaches
-    a maximum \Fone{} of $0.6603 \pm 0.0040$ with 593{,}842 parameters, above the
-    best published result on this data, 0.5979\footcite{mesarcik2022}
-    (\cref{ch:hybrid}).
+    a maximum \Fone{} of $0.6603 \pm 0.0040$ with 593{,}842 parameters. This is
+    the highest result I found for any method trained on the same labels, above
+    the best published values, from RFDL\footcite{vanzyl2024rfdl} (0.639) and
+    Swin-UNETR\footcite{ouyang2024swin} (0.640), although the margin is smaller than the
+    uncertainty that comes from having only 109 test images (\cref{ch:hybrid}).
   \item The components the network was designed around contribute nothing
     measurable to this result, and a CRF refinement does not improve it
     (\cref{ch:drivers}).

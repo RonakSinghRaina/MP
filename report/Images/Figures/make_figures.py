@@ -59,17 +59,23 @@ def tfunet_lofar_ladder():
 
 # --- final LOFAR comparison incl. the hybrid (PART 13.12) --------------------
 def hybrid_lofar_ladder():
+    # RFDL: van Zyl & Grobler 2024, Table 9 (best F1, AOFlagger labels).
+    # Swin-UNETR: Ouyang et al. 2024, Table 2 -- the largest of three sizes (408.1 M parameters).
     names = ["$\\sigma$-clip", "tf_unet", "AOFlagger", "Mesarcik\nU-Net",
-             "RFI-Net", "HybridRFINet\n(this work)"]
-    v = [0.4103, 0.5482, 0.5698, 0.5876, 0.5979, 0.6603]
-    e = [0, 0.0139, 0, 0.0031, 0, 0.0040]
-    col = [MUTED, NAVY, MUTED, MUTED, MUTED, ACCENT]
-    fig, ax = plt.subplots(figsize=(6.2, 3.0))
-    bars = ax.bar(names, v, yerr=e, color=col, width=0.6, zorder=3,
-                  error_kw=dict(capsize=4, lw=1, ecolor="#555555"))
-    for b, val, err in zip(bars, v, e):
-        ax.text(b.get_x() + b.get_width() / 2, val + err + 0.012, f"{val:.4f}",
-                ha="center", fontsize=8.5, color=INK)
+             "RFI-Net", "RFDL", "Swin-\nUNETR\n(408 M)", "Hybrid-\nRFINet\n(this work)"]
+    v = [0.4103, 0.5482, 0.5698, 0.5876, 0.5979, 0.639, 0.6401, 0.6603]
+    e = [0, 0.0139, 0, 0.0031, 0, 0.007, 0, 0.0040]
+    shown = ["0.4103", "0.5482", "0.5698", "0.5876", "0.5979", "0.639", "0.6401", "0.6603"]
+    col = [MUTED, NAVY, MUTED, MUTED, MUTED, MUTED, MUTED, ACCENT]
+    fig, ax = plt.subplots(figsize=(7.6, 3.0))
+    bars = ax.bar(names, v, color=col, width=0.6, zorder=3)
+    k = [i for i, x in enumerate(e) if x > 0]          # error bars only where a spread exists
+    ax.errorbar(k, [v[i] for i in k], yerr=[e[i] for i in k], fmt="none",
+                capsize=4, lw=1, ecolor="#555555", zorder=4)
+    ax.tick_params(axis="x", labelsize=8)
+    for b, val, err, txt in zip(bars, v, e, shown):
+        ax.text(b.get_x() + b.get_width() / 2, val + err + 0.012, txt,
+                ha="center", fontsize=8, color=INK)
     ax.set_ylabel("max $F_1$ (109 test images)")
     ax.set_ylim(0, 0.75)
     ax.grid(axis="y", color="#E5E5E5", zorder=0)

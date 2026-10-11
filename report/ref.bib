@@ -1,7 +1,8 @@
 % ============================================================================
 %  CHECK EVERY ENTRY AGAINST THE ACTUAL PAPER BEFORE SUBMISSION.
-%  These were written from memory and the context doc. Entries marked
-%  VERIFY are the ones I am least sure of (page numbers, author lists).
+%  These were first written from memory and the context doc. The entries
+%  that were marked VERIFY or TODO were checked against the publisher or
+%  arXiv pages on 2026-10-11 and corrected; the markers were removed.
 %  Easiest check: search the title on NASA ADS (ui.adsabs.harvard.edu) and
 %  use its "Export -> BibTeX" button, then replace the entry.
 % ============================================================================
@@ -15,14 +16,15 @@
   year    = {2017}
 }
 
-% VERIFY page numbers
 @article{mesarcik2022,
   author  = {Mesarcik, Michael and Boonstra, Albert-Jan and Ranguelova, Elena and van Nieuwpoort, Rob V.},
-  title   = {Learning to detect {RFI} in radio astronomy without seeing it},
+  title   = {Learning to detect radio frequency interference in radio astronomy without seeing it},
   journal = {Monthly Notices of the Royal Astronomical Society},
   volume  = {516},
+  number  = {4},
   pages   = {5367--5378},
   year    = {2022},
+  doi     = {10.1093/mnras/stac2503},
   eprint  = {2207.00351}
 }
 
@@ -62,22 +64,46 @@
   doi     = {10.1088/1674-4527/acd52b}
 }
 
-% VERIFY authors, volume and pages -- this is the RFI-Net paper
+% RFI-Net
 @article{yang2020rfinet,
   author  = {Yang, Zhicheng and Yu, Ce and Xiao, Jian and Zhang, Bo},
   title   = {Deep residual detection of radio frequency interference for {FAST}},
   journal = {Monthly Notices of the Royal Astronomical Society},
   volume  = {492},
+  number  = {1},
   pages   = {1421--1431},
-  year    = {2020}
+  year    = {2020},
+  doi     = {10.1093/mnras/stz3521}
 }
 
-% VERIFY -- only the arXiv ID is recorded in the context doc (PART 4).
 @misc{mars2026,
-  author       = {TODO},
-  title        = {TODO -- MARS},
+  author       = {Gong, Zhaocheng and White, Jack and Roy, Jayanta and Armour, Wesley},
+  title        = {{MARS}: A Lightweight Morphology-Aware {RFI} Segmentation Network for Mask-Guided Mitigation in Radio Astronomy},
   howpublished = {arXiv:2608.05546},
   year         = {2026}
+}
+
+% RFDL -- best F1 0.639 +/- 0.007 trained on AOFlagger labels (their Table 9)
+@article{vanzyl2024rfdl,
+  options = {useprefix=true},
+  author  = {van Zyl, Daniel J. and Grobler, Trienko L.},
+  title   = {Remove First Detect Later: a counter-intuitive approach for detecting radio frequency interference in radio sky imagery},
+  journal = {Monthly Notices of the Royal Astronomical Society},
+  volume  = {530},
+  number  = {2},
+  pages   = {1907--1920},
+  year    = {2024},
+  doi     = {10.1093/mnras/stae979}
+}
+
+% Swin-UNETR on LOFAR -- F1 0.6302 / 0.6281 / 0.6401 at 6.5 M / 102.1 M / 408.1 M parameters
+@inproceedings{ouyang2024swin,
+  author    = {Ouyang, Xiaowei and Dreuning, Henk and Mesarcik, Michael and van Nieuwpoort, Rob V.},
+  title     = {Hierarchical vision transformers for {RFI} mitigation in radio astronomy},
+  booktitle = {6th {RFI} Conference},
+  address   = {Bariloche, Argentina},
+  year      = {2024},
+  url       = {https://hdl.handle.net/1887/4177551}
 }
 
 @inproceedings{he2016,
@@ -140,14 +166,15 @@
   year    = {1978}
 }
 
-% VERIFY volume and pages
 @article{popping2008,
   author  = {Popping, A. and Braun, R.},
   title   = {The standing wave phenomenon in radio telescopes: frequency modulation of the {WSRT} primary beam},
   journal = {Astronomy \& Astrophysics},
   volume  = {479},
+  number  = {3},
   pages   = {903--913},
   year    = {2008},
+  doi     = {10.1051/0004-6361:20079122},
   eprint  = {0712.2303}
 }
 
@@ -160,31 +187,39 @@
   year    = {1996}
 }
 
-% VERIFY authors and title -- cited in hybrid_model.py as
-% "EMSCA-UNet, Gu et al. 2024, MNRAS 529, 4719"
+% EMSCA-UNet
 @article{gu2024emsca,
-  author  = {Gu, TODO and others},
-  title   = {{EMSCA-UNet}: TODO full title},
+  author  = {Gu, Fei and Hao, Longfei and Liang, Bo and Feng, Song and Wei, Shoulin and Dai, Wei and Xu, Yonghua and Li, Zhixuan and Dao, Yihang},
+  title   = {Radio frequency interference detection using efficient multiscale convolutional attention {UNet}},
   journal = {Monthly Notices of the Royal Astronomical Society},
   volume  = {529},
-  pages   = {4719},
-  year    = {2024}
+  number  = {4},
+  pages   = {4719--4727},
+  year    = {2024},
+  doi     = {10.1093/mnras/stae868}
 }
 
-% VERIFY -- PSRCHIVE, which provides the paz tool
+% PSRCHIVE, which provides the paz tool
 @article{vanstraten2012psrchive,
-  author  = {van Straten, W. and Demorest, P. and Oslowski, S.},
+  options = {useprefix=true},
+  author  = {van Straten, W. and Demorest, P. and Os{\l}owski, S.},
   title   = {Pulsar Data Analysis with {PSRCHIVE}},
   journal = {Astronomical Research and Technology},
   volume  = {9},
+  number  = {3},
   pages   = {237--256},
-  year    = {2012}
+  year    = {2012},
+  eprint  = {1205.6276}
 }
 
-% VERIFY -- cite the software; check whether a paper should be cited instead
-@misc{clfd,
-  author       = {Morello, Vincent},
-  title        = {clfd: Clean folded data},
-  howpublished = {\url{https://github.com/v-morello/clfd}},
-  year         = {2019}
+% clfd: its README asks users to cite this paper (github.com/v-morello/clfd)
+@article{clfd,
+  author  = {Morello, V. and Barr, E. D. and Cooper, S. and others},
+  title   = {The High Time Resolution Universe survey {XIV}: discovery of 23 pulsars through {GPU}-accelerated reprocessing},
+  journal = {Monthly Notices of the Royal Astronomical Society},
+  volume  = {483},
+  number  = {3},
+  pages   = {3673--3685},
+  year    = {2019},
+  doi     = {10.1093/mnras/sty3328}
 }

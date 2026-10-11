@@ -248,9 +248,9 @@ values reveals the structure (\cref{fig:lofar_overview}).
 
 \paragraph{Orientation.} In these arrays the rows are time and the columns are
 frequency---the opposite of my synthetic data. I confirmed this from the masks:
-persistent RFI stays at fixed frequencies, and 65\% of the flagged training
-pixels (74\% in the test set) fall in just 16 of the 512 columns, against
-about 25\% in the top 16 rows.
+persistent RFI stays at fixed frequencies. Within a single image, on average
+64\% of the flagged pixels (75\% in the test images) lie in that image's 16
+most-flagged columns, but only 32\% (22\%) in its 16 most-flagged rows.
 
 \paragraph{Test images inside the training set.} All 109 test spectrograms are
 byte-for-byte identical to 109 of the training spectrograms. I verified this
@@ -288,7 +288,9 @@ only the images actually needed are read from disk.
 LOFAR is harder than the synthetic data for three measurable reasons.
 
 \paragraph{RFI is much rarer.} RFI covers 0.766\% of the pixels in the test
-set (1.27\% in the training set), compared with about 15\% in the synthetic
+set (1.27\% across all 7500 training images, but 0.81\% across the 7356 used
+for training, because the removed dead images are flagged entirely as RFI),
+compared with about 15\% in the synthetic
 data---roughly one RFI pixel for every 129 clean ones, against one in six. A
 model that predicts ``no RFI'' everywhere would be 99.23\% accurate on the test
 set while finding nothing, which is why accuracy is not used as a measure
@@ -324,9 +326,9 @@ evidence at all; they can only be recognised from their surroundings.
 \paragraph{The training labels are often wrong.} Because every test image also
 appears in the training set, the \aoflagger{} mask and the human mask can be
 compared on exactly the same pixels. Taking the human as correct, \aoflagger{}
-has a precision of 0.560 and a recall of 0.580, an \Fone{} of 0.5698. Roughly
-44\% of what any model learns from the training labels therefore disagrees
-with the expert. As a check on my processing, Mesarcik et al.\ report the same
+has a precision of 0.560 and a recall of 0.580, an \Fone{} of 0.5698. In other
+words, 44\% of the pixels \aoflagger{} flags are not RFI according to the
+expert, and it misses 42\% of the RFI the expert marks. As a check on my processing, Mesarcik et al.\ report the same
 \aoflagger{} \Fone{} of 0.5698 in their paper\footcite{mesarcik2022}; my value,
 0.5698403, agrees to four decimal places, which confirms that I am using the
 same test data, labels and metric.

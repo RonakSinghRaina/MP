@@ -25,8 +25,9 @@ data \tfunet{} first scored an \Fone{} of 0.39; controlled experiments traced th
 to class weighting combined with its ReLU output layer and to per-image
 normalisation, and correcting both raised it to 0.93 without changing the
 network. On real LOFAR data, the improved network, \hybrid{}, reaches a maximum
-\Fone{} of $0.6603 \pm 0.0040$ with 593{,}842 parameters, above the best published
-result of 0.5979. However, removing the components it was designed around---strip
+\Fone{} of $0.6603 \pm 0.0040$ with 593{,}842 parameters, matching or slightly
+exceeding the best published results for the same training labels (0.639--0.640,
+from models with up to 408 million parameters). However, removing the components it was designed around---strip
 convolutions, channel attention and residual blocks---leaves its score
 unchanged, and a conditional random field refinement adds nothing. Checking the
 public datasets revealed test images duplicated in the training sets of both

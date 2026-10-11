@@ -87,8 +87,18 @@ comparison came from RFI-Net\footcite{yang2020rfinet}, a residual U-Net, with
 0.5979, and their U-Net reached $0.5876 \pm 0.0031$. This U-Net is their own
 implementation, not Akeret et al.'s \tfunet{}: it uses batch normalisation and
 was trained on small 32$\times$32 patches of the spectrograms. Their method had the best
-area under the ROC curve but a lower \Fone{} of 0.5114. These published values
-are the benchmarks used in \cref{ch:hybrid}.
+area under the ROC curve but a lower \Fone{} of 0.5114.
+
+Two later studies report higher scores on the same 109 test images, again
+training only on \aoflagger{}'s labels. Van Zyl and Grobler\footcite{vanzyl2024rfdl}
+first remove likely RFI with an inpainting network and then detect it from the
+difference between the original and the repaired spectrogram (``Remove First
+Detect Later'', RFDL), reaching $0.639 \pm 0.007$. Ouyang et
+al.\footcite{ouyang2024swin} applied a vision transformer, Swin-UNETR, reaching
+0.628 to 0.640 with 6.5 to 408 million parameters. Some studies also train on a
+few of the expert-labelled images and score higher still; those results follow a
+different protocol and are not compared here. These published values are the
+benchmarks used in \cref{ch:hybrid}.
 
 \section{Measuring performance}
 \label{sec:metrics}

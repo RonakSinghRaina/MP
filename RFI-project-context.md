@@ -3312,6 +3312,55 @@ benchmark. Laptop rebooted mid-run; resumed from JSON (6 pairs kept).
 
 ---
 
+## PART 26 — Topic 11 full experiment built; report corrected (2026-10-11)
+
+### 26.1 The experiment (not yet run)
+
+`experiments/active_learning/al_lofar.py` + `analysis/active_learning/summarise_al.py`
++ `scripts/run_lofar_al.sh`. NEW FILES ONLY: hybrid_model.py and lofar_hybrid.py
+are imported, not modified (git diff empty). Design in the script docstring:
+5-fold group-aware CV over all 109 (77 groups; folds 22/22/22/22/21; 19 val,
+68-69 pool per fold); arms base, full, and nested 5/10/20% budgets of
+uncertainty / most-predicted-RFI / random patches and random whole images
+(active rounds re-score the pool with the previous round's model); masked
+CE+Dice; Adam 1e-4; early stopping on expert validation every 200 steps,
+patience 5, cap 4000; best-within-600-steps also scored. 195 fine-tunes,
+measured 40 ms/step -> roughly 3-9 h on AC.
+Self-test passed: masked loss = training loss (1.401068 both; partial mask =
+lofar_hybrid soft loss); base model reproduces headline (0.659204 vs 0.659199
+recomputed); histogram max F1 within 1e-6 of exact. Smoke + resume tested.
+
+### 26.2 Report corrections (report/, rebuilt, 62 pages, no undefined refs)
+
+- "Best published 0.5979" (abstract, ch1, ch6, ch7, ch8, 5.4.2) -> RFDL 0.639
+  and Swin-UNETR 0.628-0.640 added (both verified at source: RFDL Table 9;
+  Ouyang et al. 2024 Table 2: 0.6302/0.6281/0.6401 at 6.5/102.1/408.1 M params);
+  "matches or slightly exceeds"; both inside the bootstrap CI [0.615, 0.692].
+- Strip convolutions described as built (KxK square, PART 24); shortcut always
+  1x1; ECA after every encoder/decoder block; GroupNorm "inside every residual
+  block and strip module"; "times halved 2 vs 4"; batch/lr row added.
+- "GPU allows only one image per batch" was false for base 8 -> removed.
+- Threshold/checkpoint chosen on 150 of the 735 validation images (both scripts).
+- Synthetic v4 val-threshold F1 0.9877 (0.9878 was the oracle value).
+- "False positives are the largest error source" was WRONG: summed over the 3
+  headline models FN 247,933 > FP 180,571; removing all FN -> 0.819, all FP ->
+  0.767. Future work rewritten; edge-aware (PART 23) and pilot (25.5) added.
+- 44% wording made exact (44% of AOFlagger flags not expert RFI; misses 42%).
+- **Correction to 11.2:** the "65% / 74% of flagged pixels in 16 columns" and
+  "28.8% / 21.2% in the top 16 rows" are PER-IMAGE means (share of an image's
+  flags in its own 16 most-flagged columns/rows), not pooled. Recomputed:
+  test 74.6% columns / 21.6% rows (median 87.6%); all 7500 training images
+  63.9% / 31.9%. Pooled over images the column share is only 53.9% (test).
+- Training RFI fraction 1.270% over all 7500 includes the 35 all-RFI images;
+  0.808% over the 7356 used.
+- Bibliography: TODO entries (MARS, EMSCA-UNet) filled; all VERIFY entries
+  checked at publisher/arXiv; clfd now cites the paper its README requests
+  (Morello et al. 2019); results figure redrawn with RFDL and Swin-UNETR.
+- Still placeholders (need the student): Certificate TC members, and the
+  Acknowledgement page.
+
+---
+
 ## Verified facts about the synthetic dataset (trust these)
 
 Regenerates **bit-exactly** from `--seed 42`:
