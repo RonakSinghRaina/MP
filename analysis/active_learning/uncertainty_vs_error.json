@@ -1,0 +1,97 @@
+{
+  "patch": 64,
+  "budgets": [
+    0.05,
+    0.1,
+    0.2
+  ],
+  "seeds": {
+    "0": {
+      "threshold": 0.25090736150741577,
+      "error_px": 144875,
+      "pixel": {
+        "0.05": 0.6855150992234685,
+        "0.1": 0.753746333045729,
+        "0.2": 0.8326902502157032
+      },
+      "patch": {
+        "0.05": {
+          "uncertainty": 0.4612596929073334,
+          "most_predicted_rfi": 0.4368731677532196,
+          "random": 0.04750854168087244
+        },
+        "0.1": {
+          "uncertainty": 0.6196721196174622,
+          "most_predicted_rfi": 0.5902743935585022,
+          "random": 0.09904020801186561
+        },
+        "0.2": {
+          "uncertainty": 0.7868093252182007,
+          "most_predicted_rfi": 0.7807143926620483,
+          "random": 0.19717204570770264
+        }
+      },
+      "patch_spearman_uncertainty_vs_errors": 0.7012804317154399,
+      "patch_spearman_predicted_rfi_vs_errors": 0.8116461441712086,
+      "image_spearman_uncertainty_vs_errors": 0.8157603923671054
+    },
+    "1": {
+      "threshold": 0.24676287174224854,
+      "error_px": 140847,
+      "pixel": {
+        "0.05": 0.7255461600176077,
+        "0.1": 0.7680390778646332,
+        "0.2": 0.8230988235461174
+      },
+      "patch": {
+        "0.05": {
+          "uncertainty": 0.4770566523075104,
+          "most_predicted_rfi": 0.44867125153541565,
+          "random": 0.048040426708757876
+        },
+        "0.1": {
+          "uncertainty": 0.6422075033187866,
+          "most_predicted_rfi": 0.6091219782829285,
+          "random": 0.09777595624327659
+        },
+        "0.2": {
+          "uncertainty": 0.7815927863121033,
+          "most_predicted_rfi": 0.817823588848114,
+          "random": 0.2010866403579712
+        }
+      },
+      "patch_spearman_uncertainty_vs_errors": 0.710035087244177,
+      "patch_spearman_predicted_rfi_vs_errors": 0.8095351881896001,
+      "image_spearman_uncertainty_vs_errors": 0.8338295087843837
+    },
+    "2": {
+      "threshold": 0.27435824275016785,
+      "error_px": 142803,
+      "pixel": {
+        "0.05": 0.6843343627234721,
+        "0.1": 0.7423373458540787,
+        "0.2": 0.8092897208041848
+      },
+      "patch": {
+        "0.05": {
+          "uncertainty": 0.4713696539402008,
+          "most_predicted_rfi": 0.4527285695075989,
+          "random": 0.05066070035099983
+        },
+        "0.1": {
+          "uncertainty": 0.6391952633857727,
+          "most_predicted_rfi": 0.62021803855896,
+          "random": 0.09730082750320435
+        },
+        "0.2": {
+          "uncertainty": 0.8028542995452881,
+          "most_predicted_rfi": 0.8116496205329895,
+          "random": 0.20496033057570456
+        }
+      },
+      "patch_spearman_uncertainty_vs_errors": 0.689956604591687,
+      "patch_spearman_predicted_rfi_vs_errors": 0.8121595776130296,
+      "image_spearman_uncertainty_vs_errors": 0.845284347747789
+    }
+  }
+}
