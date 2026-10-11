@@ -18,6 +18,10 @@ case this became visible only through a controlled test.
   \item A CRF refinement that works well on top of a simple threshold added
     nothing on top of a network that already uses neighbourhood information,
     and with its published settings it was harmful (\cref{sec:crf}).
+  \item Choosing which image patches the expert should label by the model's
+    own uncertainty, the usual active-learning strategy, did worse than
+    choosing them at random, because it picked patches far richer in RFI than
+    the data as a whole (\cref{sec:expert_ft}).
 \end{itemize}
 
 The model still matches or slightly exceeds the best published results on
@@ -99,11 +103,12 @@ specific, measured weakness, and each should be tested by removing it again.
     of every \aoflagger{} mask during training, were tried after the main
     experiments; both lowered \Fone{} (by 0.008 and 0.011, significant over
     three seeds).
-  \item \textbf{Use a few expert labels.} In a pilot, fine-tuning on 20
-    expert-labelled images raised \Fone{} on 70 other expert-labelled images by
-    0.018, in all 9 runs, while the same fine-tuning with \aoflagger{}'s labels
-    gave no gain. A cross-validated study that also chooses which image patches
-    to label is the next step.
+  \item \textbf{Choose expert labels better.} Fine-tuning on expert labels
+    raised \Fone{} by 0.014 (\cref{sec:expert_ft}), but choosing patches by the
+    model's uncertainty did not help, because the chosen patches are rich in
+    RFI. Keeping \aoflagger{}'s labels outside the chosen patches, or
+    reweighting the loss to the true share of RFI, so that the model still
+    sees ordinary background, is a simple fix that remains to be tested.
   \item \textbf{Faint RFI.} Only about a quarter of the faint and invisible RFI
     is found. Since these pixels carry no brightness signal of their own, any
     improvement has to come from wider context.

@@ -19,6 +19,12 @@ for the same training labels (0.639--0.640, from models with up to 408 million
 parameters). Independent checks found no leakage or evaluation error behind
 this result.
 
+Fine-tuning \hybrid{} on expert labels, measured by cross-validation over all
+109 images, raised its maximum \Fone{} to $0.6747 \pm 0.0083$, level with
+RFDL's results with expert labels. Choosing which patches to label by the
+network's own uncertainty did worse than choosing them at random, because it
+selected patches far richer in RFI than the data as a whole.
+
 Removing the strip convolutions, channel attention and residual blocks that
 \hybrid{} was designed around did not measurably change its score, and adding
 a CRF refinement did not improve it. The advantage over \tfunet{} therefore

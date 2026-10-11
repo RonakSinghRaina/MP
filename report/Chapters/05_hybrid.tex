@@ -244,3 +244,90 @@ evaluation code with the training script.
 \end{itemize}
 The width of that interval, about $\pm0.04$, is the largest uncertainty in the
 result. It comes from having only 109 test images, not from the model.
+
+\section{Fine-tuning with expert labels}
+\label{sec:expert_ft}
+Every label used to train \hybrid{} comes from \aoflagger{}, which itself
+scores only 0.5698 against the human expert, so part of the model's remaining
+error may be learned from its labels. Expert labels exist only for the 109
+test images. To measure what some of them add without ever testing on an image
+whose expert label the model has seen, I used five-fold cross-validation over
+these 109 images. Images that nearly duplicate each other (77 groups, whose
+expert masks overlap by more than 0.3) were always kept in the same fold. In
+each fold, 21--22 images formed the test set, 19 other images the validation
+set, and the remaining 68--69 images could be used for fine-tuning. Each of the
+three trained models was fine-tuned with its architecture unchanged, using the
+same loss computed only on the labelled pixels, a learning rate of $10^{-4}$
+and random flips in time and frequency; the checkpoint was chosen on the 19
+validation images. In a pilot on 20 images, the same fine-tuning with
+\aoflagger{}'s labels instead of the expert's gave no gain, so any improvement
+comes from the expert labels and not from the extra training.
+
+\begin{table}[H]
+  \centering
+  \caption{Fine-tuning \hybrid{} on expert labels, scored on all 109 images by
+    five-fold cross-validation (three seeds). These results use expert labels
+    in training, so they are not comparable with \cref{tab:final}.}
+  \label{tab:expert_ft}
+  \begin{tabular}{lcc}
+    \toprule
+    Setting & max \Fone{} & pooled \Fone{} \\
+    \midrule
+    No fine-tuning & $0.6603 \pm 0.0040$ & $0.6534 \pm 0.0035$ \\
+    \textbf{All expert labels, 600 steps} & $\mathbf{0.6747 \pm 0.0083}$ & $\mathbf{0.6685 \pm 0.0092}$ \\
+    All expert labels, up to 4000 steps & $0.6676 \pm 0.0157$ & $0.6636 \pm 0.0175$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Fine-tuning for 600 steps on all available expert labels raised the maximum
+\Fone{} over the 109 images from 0.6603 to $0.6747 \pm 0.0083$
+(\cref{tab:expert_ft}), an improvement for all three seeds (by 0.012 to
+0.020; paired $t = 5.69$ with 2 degrees of freedom, significant at the 5\%
+level). The pooled \Fone{}, with each fold's threshold chosen on its
+validation images, rises by a similar 0.015. This is level with RFDL's results when it too is trained with expert
+labels\footcite{vanzyl2024rfdl}, $0.669 \pm 0.022$ and $0.675 \pm 0.012$,
+obtained with 20 expert-labelled training images and a different test set of
+70 images.
+
+Training for longer did not help. With up to 4000 steps and the checkpoint
+chosen on the validation images, the score was lower in 12 of the 13 settings
+tested, even though the longer runs always looked better on the validation
+images. With only 19 validation images, choosing among many checkpoints
+favours ones that happen to suit those particular images.
+
+An expert's time is limited, so I also tested labelling only part of the
+pool: 5, 10 or 20\% of it, either as $64 \times 64$ patches or as whole images
+chosen at random. The patches were chosen in three ways: where the model was
+most uncertain (the usual choice in active learning), where it predicted the
+most RFI, or at random (\cref{tab:active}).
+
+\begin{table}[H]
+  \centering
+  \caption{Labelling part of the pool: maximum \Fone{} on the 109 images after
+    600 steps of fine-tuning, mean of three seeds. For comparison, no
+    fine-tuning gives 0.6603 and all expert labels 0.6747. The whole-image
+    budgets are 3, 7 and 14 images.}
+  \label{tab:active}
+  \begin{tabular}{lccc}
+    \toprule
+    Patches labelled & 5\% & 10\% & 20\% \\
+    \midrule
+    Where the model is most uncertain & 0.6527 & 0.6551 & 0.6604 \\
+    Where the model predicts most RFI & 0.6572 & 0.6514 & 0.6630 \\
+    At random & 0.6667 & 0.6664 & 0.6685 \\
+    Whole images at random & 0.6654 & 0.6568 & 0.6629 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Choosing patches by uncertainty or by predicted RFI did worse than choosing
+them at random in 17 of 18 comparisons (two strategies, three budgets, three
+seeds), and gave no gain over not fine-tuning at all. Random patches gave a
+small gain at every budget: labelling 5\% of the pool raised \Fone{} by 0.006,
+for all three seeds, though by less than labelling everything. The likely
+reason is that the targeted patches are where the RFI is: 3.2--7.4\% of their
+pixels are RFI, against 0.76\% in the pool as a whole. Fine-tuned on them, the
+model sees RFI several times more often than it really occurs and flags too
+much; at every budget its precision was lower than with random patches. For this task, the usual active-learning recipe backfires, and
+labelling random patches is the better choice.

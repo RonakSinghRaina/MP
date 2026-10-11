@@ -52,6 +52,8 @@ def pool_arm(out, seed, arm, folds):
             "max_f1_short": max_f1_from_hist(acc["hps"], acc["hns"])[0],
             "val_f1": f1(tp, fp, fn), "val_f1_short": f1(acc["tps"], acc["fps"], acc["fns"]),
             "precision": tp / max(tp + fp, 1), "recall": tp / max(tp + fn, 1),
+            "precision_short": acc["tps"] / max(acc["tps"] + acc["fps"], 1),
+            "recall_short": acc["tps"] / max(acc["tps"] + acc["fns"], 1),
             "n_test": n_test,
             "patches_per_fold": float(np.mean([r["labelled_patches"] for r in rows])),
             "pool_fraction": float(np.mean([r["labelled_fraction_of_pool"] for r in rows])),
@@ -154,12 +156,14 @@ def main():
             vg = np.mean([r["val_gain_longer"] for r in R[arm].values()])
             paired(arm, arm, f"{arm} longer - <=600", kx="max_f1", ky="max_f1_short", suffix=f" | val {vg:+.4f}")
 
-    print("\n  RFI share of the labelled pixels (the pool's own share is the 'full' row) and precision:")
+    print("\n  RFI share of the labelled pixels (the pool's own share is the 'full' row) and precision at"
+          " the val threshold\n  (full schedule / <=600):")
     for arm in order[1:]:
         if R[arm]:
             v = list(R[arm].values())
             share = np.mean([r["rfi_px_per_fold"] / max(r["patches_per_fold"] * PATCH_PX, 1) for r in v])
             print(f"     {arm:<8} {100 * share:5.2f}% RFI   precision {np.mean([r['precision'] for r in v]):.3f}"
+                  f" / {np.mean([r['precision_short'] for r in v]):.3f}"
                   f" (no fine-tuning {np.mean([r['precision'] for r in R['base'].values()]):.3f})")
 
     best_al = max((arm for arm in order[2:] if R[arm]), default=None,

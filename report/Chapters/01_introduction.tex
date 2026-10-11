@@ -79,6 +79,10 @@ LOFAR. The aims were:
     the best published values, from RFDL\footcite{vanzyl2024rfdl} (0.639) and
     Swin-UNETR\footcite{ouyang2024swin} (0.640), although the margin is smaller than the
     uncertainty that comes from having only 109 test images (\cref{ch:hybrid}).
+  \item Fine-tuning \hybrid{} on expert-labelled images raises its maximum
+    \Fone{} to $0.6747 \pm 0.0083$, measured by cross-validation over all 109
+    test images. Choosing which patches to label by the model's uncertainty
+    does worse than choosing them at random (\cref{sec:expert_ft}).
   \item The components the network was designed around contribute nothing
     measurable to this result, and a CRF refinement does not improve it
     (\cref{ch:drivers}).

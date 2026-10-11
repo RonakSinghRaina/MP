@@ -3484,6 +3484,57 @@ Max F1, full schedule / <=600, 3 seeds (no fine-tuning 0.6603):
 - **Untested fix:** keep AOFlagger labels, or re-weight to the natural RFI
   rate, outside the selected patches, so the loss also sees ordinary background.
 
+### 27.5 Written up (2026-10-11)
+
+- **Report:** new section 5.6 "Fine-tuning with expert labels"
+  (`sec:expert_ft`) with tables `tab:expert_ft` and `tab:active` (<=600
+  values). One sentence added to the abstract (the gap above the keywords cut
+  from 4 cm to 2.5 cm so they stay on page ix, as before). Also edited:
+  - a bullet in 1.5 "Summary of results";
+  - a bullet in 7.1 "What worked, and what did not";
+  - Future work: "Use a few expert labels" became "Choose expert labels
+    better" (the untested fix);
+  - a paragraph in the conclusion.
+
+  65 pages, no undefined refs, no overfull boxes. The only warning (bold
+  small-caps AOFlagger, 5.5) was there before.
+- **Precision at <=600** (now printed by summarise_al.py) is 0.697-0.714 for
+  the targeted arms against 0.716-0.733 for random patches, the highest at
+  every budget (no fine-tuning: 0.740). Targeted < random in 17/18 seed x
+  budget pairs at <=600 as well.
+- **Deck:** `presentations/build_topic11_deck.py` builds
+  `Weekly_Report_Topic11_DiL_Lab.pptx` / `.pdf`, 4 slides on the lab template:
+  title, result chart, patch-choice table, to-do. Plain shapes and native
+  tables only.
+
+---
+
+## PART 28 — Dice-off run: built, not yet run (2026-10-11)
+
+Closes the largest untested piece of the +0.11 over tf_unet (18.4, 20.2):
+CE + Dice vs plain CE.
+- `scripts/run_lofar_nodice.sh` trains the headline config
+  (`--base 8 --norm fixed --no_class_weight`, 28,000 steps) with
+  `--dice_weight 0`, seeds 0-2, into `runs/lofar/nodice_b08_nocw_seed{s}`.
+- The flag already existed: with edge_mode none the loss is
+  `ce + dice_weight * dice_loss`, so 0 gives plain CE. No code changed.
+- It runs on the full hybrid, not on plain_unet as 19.2 first wrote. The
+  components are inert (PART 20, p 0.64), and the hybrid pairs with the 3
+  headline seeds.
+- Guards: refuses on battery or a busy GPU; 3 attempts per seed (the PyTorch
+  clock abort); resumable.
+- **Timing:** expect ~30 min per seed. The edge runs took 28-41 min per seed.
+- `analysis/summarise_nodice.py` checks that every config field matches the
+  headline except dice_weight (it flags any mismatch). It prints
+  mean +/- sd, a paired t by seed, and the share of the hybrid's lead over
+  tf_unet that Dice explains (lead +0.1121 = 0.6603 - 0.5482).
+- **Tested:**
+  - a 5-step smoke run trains and records dice_weight 0.0;
+  - with the svls runs as a stand-in, the script reproduces PART 23 exactly
+    (0.6525 +/- 0.0033, -0.0078, p 0.032) and flags their dice_weight and
+    edge_mode.
+- Run: `nohup ./scripts/run_lofar_nodice.sh > runs/lofar/logs/nodice_runs.log 2>&1 &`
+
 ---
 
 ## Verified facts about the synthetic dataset (trust these)
