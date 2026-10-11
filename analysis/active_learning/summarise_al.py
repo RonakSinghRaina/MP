@@ -18,9 +18,10 @@ from scipy import stats
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "experiments", "active_learning"))
-from al_lofar import arm_name, max_f1_from_hist  # noqa: E402  (same metric code as the runs)
+from al_lofar import PATCH, arm_name, max_f1_from_hist  # noqa: E402  (same metric code as the runs)
 
 CHAINS = ("unc", "rfi", "rand", "img")
+PATCH_PX = PATCH * PATCH
 LABEL = {"unc": "uncertainty patches", "rfi": "most-RFI patches", "rand": "random patches",
          "img": "random whole images"}
 
@@ -56,6 +57,7 @@ def pool_arm(out, seed, arm, folds):
             "pool_fraction": float(np.mean([r["labelled_fraction_of_pool"] for r in rows])),
             "rfi_px_per_fold": float(np.mean([r["labelled_rfi_pixels"] for r in rows])),
             "best_steps": [r["best"]["step"] for r in rows],
+            "val_gain_longer": float(np.mean([r["best"]["val_max_f1"] - r["short"]["val_max_f1"] for r in rows])),
             "hit_cap": sum(r["hit_step_cap"] for r in rows),
             "n_runs": len(rows)}
 
@@ -119,43 +121,68 @@ def main():
               f"{int(np.median(steps)) if steps else 0:>12}"
               f"{('  (' + str(cap) + ' hit the step cap)') if cap else '':<9}")
 
-    def paired(x, y, label):
+    def paired(x, y, label, kx="max_f1", ky="max_f1", suffix=""):
         common = sorted(set(R[x]) & set(R[y]))
         if len(common) < 1:
             return
-        d = np.array([R[x][s]["max_f1"] - R[y][s]["max_f1"] for s in common])
+        vx = [R[x][s][kx] for s in common]; vy = [R[y][s][ky] for s in common]
+        d = np.array(vx) - np.array(vy)
         extra = ""
         if len(common) >= 3:
-            t, p = stats.ttest_rel([R[x][s]["max_f1"] for s in common], [R[y][s]["max_f1"] for s in common])
+            t, p = stats.ttest_rel(vx, vy)
             extra = f", paired t = {t:.2f}, p = {p:.3f}"
-        print(f"     {label:<44} {d.mean():+.4f}  (per seed: {', '.join(f'{v:+.4f}' for v in d)}){extra}")
+        print(f"     {label:<44} {d.mean():+.4f}  (per seed: {', '.join(f'{v:+.4f}' for v in d)}){extra}{suffix}")
 
     print("\n  gain over no fine-tuning (max F1, paired by seed):")
     for arm in order[1:]:
         if R[arm]:
             paired(arm, "base", f"{arm} - base")
+    print("\n  gain over no fine-tuning, stopped within 600 steps (the pilot's length; max F1):")
+    for arm in order[1:]:
+        if R[arm]:
+            paired(arm, "base", f"{arm} (<=600) - base", kx="max_f1_short")
     print("\n  which patches to label? (same budget, paired by seed):")
     for b in budgets:
         pct = int(round(100 * b))
         paired(arm_name("unc", b), arm_name("rand", b), f"{pct:>2}%: uncertainty patches - random patches")
         paired(arm_name("rfi", b), arm_name("rand", b), f"{pct:>2}%: most-RFI patches - random patches")
         paired(arm_name("rand", b), arm_name("img", b), f"{pct:>2}%: random patches - random whole images")
-    print("\n  train longer? (same runs: best state within 600 steps vs the full schedule):")
+    print("\n  train longer? (same runs: best state within 600 steps vs the full schedule; 'val' = how much"
+          " better the longer\n  schedule looked on the 19 validation images that chose its step):")
     for arm in order[1:]:
-        common = sorted(R[arm])
-        if common:
-            d = [R[arm][s]["max_f1"] - R[arm][s]["max_f1_short"] for s in common]
-            print(f"     {arm:<8} longer - <=600: {np.mean(d):+.4f}")
+        if R[arm]:
+            vg = np.mean([r["val_gain_longer"] for r in R[arm].values()])
+            paired(arm, arm, f"{arm} longer - <=600", kx="max_f1", ky="max_f1_short", suffix=f" | val {vg:+.4f}")
+
+    print("\n  RFI share of the labelled pixels (the pool's own share is the 'full' row) and precision:")
+    for arm in order[1:]:
+        if R[arm]:
+            v = list(R[arm].values())
+            share = np.mean([r["rfi_px_per_fold"] / max(r["patches_per_fold"] * PATCH_PX, 1) for r in v])
+            print(f"     {arm:<8} {100 * share:5.2f}% RFI   precision {np.mean([r['precision'] for r in v]):.3f}"
+                  f" (no fine-tuning {np.mean([r['precision'] for r in R['base'].values()]):.3f})")
 
     best_al = max((arm for arm in order[2:] if R[arm]), default=None,
                   key=lambda x: np.mean([r["max_f1"] for r in R[x].values()]))
-    print("\n  FINAL (max F1 on all 109 images, cross-validated; expert-label protocol -- compare"
+    print("\n  FINAL (F1 on all 109 images, cross-validated; expert-label protocol -- compare"
           " with RFDL 0.669 / 0.675, NOT with the AOFlagger-only 0.660):")
-    print(f"     no fine-tuning       {ms([r['max_f1'] for r in R['base'].values()])}")
-    if R["full"]:
-        print(f"     all pool labels      {ms([r['max_f1'] for r in R['full'].values()])}")
+    print(f"     {'':<40}{'max F1':>22}{'val F1':>22}")
+
+    def final(label, arm, short=False):
+        if R[arm]:
+            v = list(R[arm].values()); k = "_short" if short else ""
+            line = f"     {label:<40}{ms([r['max_f1' + k] for r in v]):>22}{ms([r['val_f1' + k] for r in v]):>22}"
+            common = sorted(set(R[arm]) & set(R["base"]))
+            if arm != "base" and len(common) >= 3:                # vs no fine-tuning, paired by seed
+                for key in ("max_f1", "val_f1"):
+                    x = [R[arm][s][key + k] for s in common]; y = [R["base"][s][key] for s in common]
+                    line += f"  {key[:3]} {np.mean(x) - np.mean(y):+.4f} (p {stats.ttest_rel(x, y).pvalue:.3f})"
+            print(line)
+    final("no fine-tuning", "base")
+    final("all pool labels, full schedule", "full")
+    final("all pool labels, <=600 steps (pilot)", "full", short=True)
     if best_al:
-        print(f"     best budgeted arm    {best_al}: {ms([r['max_f1'] for r in R[best_al].values()])}")
+        final(f"highest budgeted arm ({best_al}; picked on test)", best_al)
     out = {arm: {str(s): {k: v for k, v in r.items()} for s, r in rs.items()} for arm, rs in R.items()}
     path = os.path.join(a.out, "summary.json")
     json.dump({"folds": folds, "all_folds": all_folds, "results": out}, open(path, "w"), indent=1)

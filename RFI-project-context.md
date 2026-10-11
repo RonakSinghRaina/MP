@@ -12,6 +12,10 @@ session starts with the same picture instead of re-deriving it.
 > 2. The model is **oversized** — PART 6. base 16 (2.3M params) scores 0.9788
 >    against base 32's (9.3M) 0.9812.
 > 3. **The hybrid beats the published state of the art on real LOFAR data.**
+>    *(Superseded wording -- RFDL 0.639 and Swin-UNETR 0.640 are newer; ours
+>    matches/slightly exceeds them; the ~0.02 margin is inside our +/-0.04 test-set
+>    uncertainty, PART 22.1. With expert-label
+>    fine-tuning: 0.6747 +/- 0.0083, level with RFDL's expert-label 0.675, PART 27.)*
 >    base 8, no class weight, 3 seeds: **max F1 0.6603 ± 0.0040** against
 >    RFI-Net's 0.5979, with **593,842 parameters** (PART 13). Significant at
 >    t = 27.2. This is the headline result.
@@ -124,6 +128,9 @@ stands — check the superseded list below first.
 | "lr 1e-4 gains +0.094 F1" | 12.8 | **halved** — seed 0 only; 3-seed mean is +0.046 and not significant, 12.10 |
 | dataset mean RFI fraction 12.4% | PAPER_DIMENSIONS.md | **wrong** — 14.67% |
 | `unet_run_gpu/eval_test/metrics.json` | — | **mislabelled**, holds faircompare numbers |
+| "RFI-Net 0.5979 is the published best" | top item 3, PART 13 | **superseded** — RFDL 0.639, Swin-UNETR 0.640; ours matches/slightly exceeds, 22.1 |
+| "600 steps under-trains the expert fine-tuning; the gain is likely larger" | 25.5 | **refuted** — longer training lowered test F1 in 12 of 13 arms, 27.2 |
+| "uncertainty selection adds little over most-predicted-RFI" | 25.3, 25.6 | **worse** — both targeted selections lose to random patches, 27.3 |
 
 ### Headline results in one table
 
@@ -148,7 +155,10 @@ are comparable to Mesarcik et al. Table 2.
 | tf_unet, lr 1e-4, per-image norm | **real** | 0.3039 | 12.11 |
 | AOFlagger (wrote the training labels) | **real** | 0.5698 | 11.6 |
 | Mesarcik et al.'s U-Net, same architecture | **real** | 0.5876 ± 0.0031 | 12.7 |
-| RFI-Net, published best | **real** | 0.5979 | 12.7 |
+| RFI-Net | **real** | 0.5979 | 12.7 |
+| RFDL (van Zyl & Grobler 2024), AOFlagger labels | **real** | 0.639 ± 0.007 | 22.1 |
+| Swin-UNETR 408M (Ouyang et al. 2024) | **real** | 0.640 | 22.1 |
+| hybrid base 8 + expert fine-tuning, 600 steps, 5-fold CV, 3 seeds (*expert-label protocol*) | **real** | 0.6747 ± 0.0083 | 27.1 |
 
 ---
 
@@ -3289,7 +3299,8 @@ p 0.0001); at the val threshold expert - base +0.0145 (t 4.21, p 0.003). All 9
 pairs improved. The gain is from the LABEL STYLE, not extra training.
 Expert arm peaked at the LAST checkpoint in 7/9 runs (best steps
 600,600,600,500,600,600,400,600,600); control peaked early or at 0 -> 600 steps
-under-trains, the attainable gain is likely larger. Caveats: 9 non-independent
+under-trains, the attainable gain is likely larger **[REFUTED by 27.2: training
+longer lowered test F1 in 12 of 13 arms]**. Caveats: 9 non-independent
 pairs (t approximate); 70-image tests; comparable with RFDL's expert setting
 (0.669/0.675, different random split), NOT with the 109-image AOFlagger
 benchmark. Laptop rebooted mid-run; resumed from JSON (6 pairs kept).
@@ -3300,7 +3311,8 @@ benchmark. Laptop rebooted mid-run; resumed from JSON (6 pairs kept).
    change; attacks the measured limit (AOFlagger's outline convention, 22.3);
    pilot +0.018 with 20 images. Honest framing: uncertainty SELECTION adds little
    over "label patches with RFI" (25.3); the contribution is label-efficient
-   fine-tuning, F1 per labelled patch.
+   fine-tuning, F1 per labelled patch. **[RESULT, PART 27: +0.0144 on all 109
+   (p 0.029) -> 0.6747; targeted selection HURTS, random patches help.]**
 2. **12 Real-time / efficient -- cheap ADD-ON, no F1 gain.** 0.59M params vs
    Swin-UNETR 6.5M-408M at 0.630-0.640.
 3. **10 Generative restoration -- possible, weak for F1.** RFDL's
@@ -3314,7 +3326,7 @@ benchmark. Laptop rebooted mid-run; resumed from JSON (6 pairs kept).
 
 ## PART 26 — Topic 11 full experiment built; report corrected (2026-10-11)
 
-### 26.1 The experiment (not yet run)
+### 26.1 The experiment (run 2026-10-11 -- results in PART 27)
 
 `experiments/active_learning/al_lofar.py` + `analysis/active_learning/summarise_al.py`
 + `scripts/run_lofar_al.sh`. NEW FILES ONLY: hybrid_model.py and lofar_hybrid.py
@@ -3358,6 +3370,119 @@ recomputed); histogram max F1 within 1e-6 of exact. Smoke + resume tested.
   (Morello et al. 2019); results figure redrawn with RFDL and Swin-UNETR.
 - Still placeholders (need the student): Certificate TC members, and the
   Acknowledgement page.
+
+---
+
+## PART 27 — RESULT: topic 11 on all 109 images (5-fold CV, 3 seeds, 2026-10-11)
+
+Run `./scripts/run_lofar_al.sh` 13:04-20:04 (seed 0 done at 134 min, seed 1 at
+283, seed 2 at 420), all 195 fine-tunes in one attempt, no crash. Outputs
+`runs/lofar/al/` (+ `summary.json`), log `runs/lofar/logs/al_runs.log`. Every
+number below is printed by `analysis/active_learning/summarise_al.py`. It was
+extended after the run with four blocks: <=600 vs base, a paired train-longer
+test showing what the validation images said, the RFI share of labelled pixels,
+and paired FINAL rows. The blocks it printed before are unchanged (diffed).
+Hybrid code untouched (PART 26.1).
+
+**Check:** base, pooled over the folds, reproduces the headline for every seed:
+0.6592 / 0.6647 / 0.6569 vs 0.6592 / 0.6647 / 0.6570 (|diff| <= 1e-5).
+
+### 27.1 FINAL: F1 on all 109, each image scored by a model that never saw its expert label
+
+| arm | max F1 | val-threshold F1 | gain vs no fine-tuning, paired, 3 seeds (max / val) |
+|---|---|---|---|
+| no fine-tuning | 0.6603 +/- 0.0040 | 0.6534 +/- 0.0035 | -- |
+| all pool labels (68-69 expert images/fold), full schedule | 0.6676 +/- 0.0157 | 0.6636 +/- 0.0175 | +0.0073 (p 0.393) / +0.0102 (p 0.343) |
+| **all pool labels, <=600 steps (the pilot's protocol)** | **0.6747 +/- 0.0083** | **0.6685 +/- 0.0092** | **+0.0144 (p 0.029)** / +0.0151 (p 0.049) |
+
+- Per seed (<=600, max F1): +0.0119, +0.0195, +0.0119. This is consistent with
+  the pilot's +0.0176 (25.5: 20 images, 70-image tests).
+- The <=600 protocol was fixed BEFORE this run (it is the pilot's), so the
+  headline is a replication, not a post-hoc pick. The full-schedule number is
+  always reported beside it.
+- Expert labels trade precision for recall. Full schedule, at the val
+  threshold: base 0.740 / 0.585, full 0.678 / 0.650.
+- **Comparison (expert-label protocol only):**
+  - LEVEL with RFDL, not above it: Transfer 0.675 +/- 0.012, Ground truth
+    0.669 +/- 0.022 (20 expert images to train, 70 to test). We fine-tune on
+    68-69 expert images per fold against their 20. Our pilot at their 20/19/70
+    sizes gave 0.6748 +/- 0.0146.
+  - BELOW Zhu et al. 2026: 0.700 (F1@0.5, semi-supervised, 24 expert images,
+    60 to test; 22.1).
+  - Not comparable with the AOFlagger-only 0.660 benchmark.
+- **Caveats:**
+  - The 3 seeds are the 3 headline models, on one fixed fold split
+    (split_seed 0), so split-to-split variance is not sampled.
+  - Paired t on 2 dof.
+  - 13 arms x 2 schedules were scored, so p = 0.02-0.06 for any single arm is
+    weak on its own.
+  - The <=600 checkpoints are 0/200/400/600; the pilot's were every 100 steps.
+
+### 27.2 Point 1, train longer: NO (refutes 25.5's "attainable gain likely larger")
+
+Same runs, best state over the full schedule (cap 4000, patience 5) vs best
+within 600 steps:
+- **Test F1 was LOWER in 12 of 13 arms.**
+  - full -0.0071 (-0.0097 / +0.0012 / -0.0128, p 0.238).
+  - Only rfi10 is individually significant: -0.0125, p 0.006.
+  - Only rand05 rose: +0.0055, p 0.284.
+- **On the 19 validation images that chose the step, the longer schedule looked
+  BETTER in all 13** (+0.0016 to +0.0157; full +0.0119).
+- Picking among up to 20 checkpoints on 19 images overfits the validation set
+  (CLAUDE.md s9, winner's curse).
+- 5 of 15 full runs hit the 4000 cap with validation still rising (median best
+  step 2600). The rising validation curve is not a reason to train longer.
+
+### 27.3 Point 2, which patches to label: random; active selection HURTS
+
+Max F1, full schedule / <=600, 3 seeds (no fine-tuning 0.6603):
+
+| budget of the pool | uncertainty patches | most-predicted-RFI patches | random patches | random whole images |
+|---|---|---|---|---|
+| 5% (3.4 image-equiv.; img 3 images) | 0.6337 / 0.6527 | 0.6480 / 0.6572 | 0.6722 / 0.6667 | 0.6644 / 0.6654 |
+| 10% (6.8; img 7) | 0.6493 / 0.6551 | 0.6389 / 0.6514 | 0.6622 / 0.6664 | 0.6514 / 0.6568 |
+| 20% (13.6; img 14) | 0.6529 / 0.6604 | 0.6499 / 0.6630 | 0.6654 / 0.6685 | 0.6612 / 0.6629 |
+
+- **Targeted selection loses to random:** below random patches in 17 of 18 seed
+  x budget pairs.
+  - uncertainty - random: -0.0385 / -0.0129 / -0.0124
+  - most-RFI - random: -0.0242 / -0.0233 (p 0.010) / -0.0155
+- **Full schedule:** both targeted selections are below no fine-tuning at every
+  budget (rfi10 -0.0214, p 0.009).
+- **At <=600:**
+  - targeted selection: -0.0089 to +0.0027, i.e. no gain;
+  - random patches: +0.0064 (p 0.043) / +0.0061 (p 0.022) / +0.0082 (p 0.057),
+    all 9 seed x budget pairs positive.
+- **Likely mechanism (measured inputs, untested cause):** the targeted patches
+  are RFI-dense.
+  - RFI share of labelled pixels:
+    - uncertainty 7.02 / 4.63 / 3.16%
+    - most-RFI 7.35 / 5.29 / 3.39%
+    - random patches 0.79 / 0.74 / 0.76%
+    - whole images 0.76 / 0.83 / 0.77%
+    - the pool itself 0.76%
+  - The masked loss sees up to ~10x the true RFI rate and little ordinary
+    background.
+  - Precision at the val threshold: 0.649-0.671, against 0.680-0.711 for random
+    patches (0.740 without fine-tuning).
+- **Random patches vs whole images:** no reliable difference (+0.0078 /
+  +0.0108 / +0.0041, all p > 0.4).
+- **Budget curve unresolved:** at <=600, whole images 3 / 7 / 14 gave +0.0052 /
+  -0.0034 / +0.0027, below the pilot's +0.0176 with 20 images. The per-arm sd is
+  ~0.01 at 3 seeds.
+
+### 27.4 Verdict on topic 11 (updates 25.3 and 25.6)
+
+- Expert-label fine-tuning of the UNCHANGED hybrid raises F1 on all 109 by
+  **+0.0144 (p 0.029), to 0.6747 +/- 0.0083**: level with RFDL's expert-label
+  results, not above them.
+- **The active-learning part fails here.** Uncertainty selection is worse than
+  random patches and no better than no fine-tuning. This corrects 25.3/25.6's
+  "selection adds little" to "selection hurts".
+- **Practice:** fine-tune about 600 steps; if labels must be rationed, label
+  random patches (5% of the pool gave +0.006).
+- **Untested fix:** keep AOFlagger labels, or re-weight to the natural RFI
+  rate, outside the selected patches, so the loss also sees ordinary background.
 
 ---
 
