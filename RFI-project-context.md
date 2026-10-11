@@ -3054,7 +3054,7 @@ fewer parameters than Swin-400M. **The report and slides that call RFI-Net 0.597
 "the published best" are OUT OF DATE.**
 
 Different protocols (use expert labels in training -- NOT comparable):
-RFDL with 20 expert images, 89-image test: 0.669-0.675; Du Toit, Grobler & Ludick
+RFDL with 20 expert images (19 val), 70-image test: 0.669-0.675 [corrected from "89", see 25.2]; Du Toit, Grobler & Ludick
 2024 (MNRAS 530, 613) fine-tuned RFI-Net on 14 expert images: 0.742 as cited by
 Pritchard et al. 2025 (likely F1@0.5; exact context not verified); Zhu, Jin, Liu &
 Zhao 2026 (ApJS, semi-supervised, 24 expert images, 60-image test, F1@0.5): 0.700.
@@ -3202,6 +3202,113 @@ Consequences:
 - The "+0.11 over tf_unet" (0.6603 vs 0.5482, max F1, 3 seeds each) is scored
   on the full 512x512 for ours and 472x472 for tf_unet; ours on the same crop
   is ~0.665, so the comparison is conservative.
+
+---
+
+## PART 25 — The professor's topics 7-12: what can build on the hybrid (2026-10-11)
+
+Photo `~/Downloads/further on hybrid.jpeg` (only topics 7-12 received): 7 causal
+RFI disentanglement, 8 GNNs for array-level detection, 9 spiking neural networks,
+10 generative restoration, 11 active learning for expert annotation, 12 real-time
+energy-efficient detection. Question: which can be built on the EXISTING hybrid
+and raise F1. Scripts and JSON in `analysis/active_learning/`.
+
+### 25.1 What the data can support (measured)
+
+- Both LOFAR pickles hold only image/mask arrays: **no antenna, baseline,
+  station, time or observation identifiers**.
+- Neighbouring images are not simultaneous baselines: AOFlagger-mask IoU of
+  images 1/2/4/8 apart = mean 0.007-0.010, same as random pairs (0.009);
+  channel profiles uncorrelated (median r -0.01). The order is shuffled.
+- The 109 expert masks: median pairwise IoU 0.000; 9 pairs > 0.5 (10 images);
+  at IoU > 0.3 they form 77 groups (largest 6). Splits must keep groups together.
+
+### 25.2 Literature, read at the source
+
+- **RFDL** (van Zyl & Grobler 2024, MNRAS 530, 1907), Table 9 verbatim, best F1
+  (F1@0.5): AOFlagger setting (1200/300 AO, test **109**): U-Net 0.556, R-Net6
+  0.627, RFDL (No Blur) 0.626, RFDL **0.639 +/- 0.007** (0.634). Ground truth
+  (20 expert train / 19 val / **70** test): U-Net 0.605, R-Net6 0.638, RFDL
+  **0.669 +/- 0.022**. Transfer (AO + 20 expert): U-Net 0.605, R-Net6 0.664, RFDL
+  **0.675 +/- 0.012** (0.660). "No Blur" still inpaints (only skips a Gaussian
+  blur), so there is **no detection-without-restoration ablation**.
+  **Correction to 22.1:** the expert-label test set is 70 images, not 89.
+- **Du Toit, Grobler & Ludick 2024** (MNRAS 530, 613): L3 fine-tunes on **14
+  hand-labelled LOFAR images**; values only in their Fig. 14(a). The 0.742 cited
+  by Pritchard et al. remains UNVERIFIED.
+- **Pritchard et al.**: 2023 SNNs "exhibit difficulty" on LOFAR; the 2025
+  liquid-state-machine F1 0.743 is on **simulated HERA only**.
+- **Active learning:** Doran 2013 (JPL Publication 13-12) classified RFI EVENTS
+  in 1-bit Parkes data -- not pixel masks. No pixel-level active learning for
+  RFI masks found. No GNN-for-RFI or causal-disentanglement-for-RFI work found.
+
+### 25.3 Does the model's uncertainty point at its errors? (uncertainty_vs_error.py)
+
+Errors vs expert at each model's val threshold; entropy; 64x64 patches; 3 models:
+
+| patches selected | by uncertainty | by most predicted RFI | random |
+|---|---|---|---|
+| 5% | 46.1-47.7% of errors | 43.7-45.3% | ~5% |
+| 10% | 62.0-64.2% | 59.0-62.0% | ~10% |
+| 20% | 78.2-80.3% | 78.1-81.8% | ~20% |
+
+Errors are concentrated, but uncertainty beats the trivial "most predicted RFI"
+rule by only 2-3 points at 5-10% and not at 20% (patch Spearman 0.69-0.71 vs
+0.81). The SELECTION part of active learning adds little; the labels matter.
+
+### 25.4 How visible is the RFI the model misses? (missed_rfi_brightness.py)
+
+Tiers as 18.5 (vs each image's clean pixels), mean of 3 models:
+
+| tier | share of all expert RFI | share of MISSED RFI | recall |
+|---|---|---|---|
+| bright (> clean p99) | 49.9% | 8.3% | 0.93-0.94 |
+| moderate (p75-p99) | 19.0% | 30.6% | 0.39-0.40 |
+| faint (p50-p75) | 11.0% | 21.4% | 0.26-0.28 |
+| invisible (< clean p50) | 20.0% | 39.7% | 0.25-0.26 |
+
+61% of missed RFI is below the clean p75 and 40% below the clean median: out of
+reach of any restoration residual (topic 10).
+
+### 25.5 PILOT: do 20 expert-labelled images raise F1? YES (pilot_expert_finetune.py)
+
+Fixed protocol (docstring): 20 fine-tune / 19 val / 70 test (RFDL sizes),
+group-aware, 3 splits x 3 headline models = 9 paired comparisons. Adam 1e-4,
+batch 1, 600 steps, CE+Dice, time/frequency flips; best of steps 0,100..600 on
+the 19 val images. CONTROL = same images and procedure, AOFlagger masks.
+
+| arm | max F1 | F1 at val-chosen thr. | precision / recall |
+|---|---|---|---|
+| no fine-tuning | 0.6571 +/- 0.0157 | 0.6555 +/- 0.0148 | 0.746 / 0.585 |
+| fine-tune, AOFlagger labels (control) | 0.6581 +/- 0.0161 | 0.6561 +/- 0.0140 | 0.743 / 0.588 |
+| **fine-tune, expert labels** | **0.6748 +/- 0.0146** | **0.6699 +/- 0.0115** | 0.727 / 0.626 |
+
+Paired: expert - base **+0.0176** (min +0.0086, max +0.0285; t 8.42, p < 0.0001),
+control - base +0.0010 (t 1.65, p 0.14, n.s.), expert - control +0.0166 (t 7.80,
+p 0.0001); at the val threshold expert - base +0.0145 (t 4.21, p 0.003). All 9
+pairs improved. The gain is from the LABEL STYLE, not extra training.
+Expert arm peaked at the LAST checkpoint in 7/9 runs (best steps
+600,600,600,500,600,600,400,600,600); control peaked early or at 0 -> 600 steps
+under-trains, the attainable gain is likely larger. Caveats: 9 non-independent
+pairs (t approximate); 70-image tests; comparable with RFDL's expert setting
+(0.669/0.675, different random split), NOT with the 109-image AOFlagger
+benchmark. Laptop rebooted mid-run; resumed from JSON (6 pairs kept).
+
+### 25.6 Verdict per topic (F1, on top of the existing hybrid)
+
+1. **11 Active learning / expert labels -- RECOMMENDED.** No architecture
+   change; attacks the measured limit (AOFlagger's outline convention, 22.3);
+   pilot +0.018 with 20 images. Honest framing: uncertainty SELECTION adds little
+   over "label patches with RFI" (25.3); the contribution is label-efficient
+   fine-tuning, F1 per labelled patch.
+2. **12 Real-time / efficient -- cheap ADD-ON, no F1 gain.** 0.59M params vs
+   Swin-UNETR 6.5M-408M at 0.630-0.640.
+3. **10 Generative restoration -- possible, weak for F1.** RFDL's
+   restore-then-detect 0.639 (AOFlagger labels) is below our 0.660, no clean
+   ablation, and 61% of our misses are out of its reach (25.4).
+4. **7, 8, 9 -- not buildable / not for F1.** 7 needs observation/instrument
+   factors the data lacks; 8 needs baseline/antenna identities (absent, 25.1);
+   9 struggles on LOFAR (0.743 is simulated HERA) and targets energy, not F1.
 
 ---
 
