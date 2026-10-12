@@ -3574,6 +3574,16 @@ the abstract (keyword gap 2.5 cm -> 1.2 cm to keep page ix), intro summary,
 limitations ("only partly explained"), future work ("Find the source of the
 remaining gain") and conclusion. 66 pages, no overfull boxes or undefined refs.
 
+### 28.3 Report shortening, step 1 (2026-10-12)
+
+The supervisor wants the report at most ~25-30 pages; the main text was 45.
+Cut list A done: appendix A (environment, WSL2 -> Linux, battery) commented
+out of Main_Report.tex (GitHub link moved to the conclusion); LOFAR "Size"
+paragraph deleted; "Raw values" cut to one line; GPU-memory details removed
+(3.1.3, 4.1); "Structure of this report" (1.6) deleted. 63 pages in total, main
+text pp. 1-44. Lists B (side stories, ~12 pages) and C (repetition, ~4-5 pages)
+proposed, awaiting the user's choice.
+
 ---
 
 ## Verified facts about the synthetic dataset (trust these)

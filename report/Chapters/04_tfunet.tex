@@ -7,8 +7,7 @@ code without modifying the network itself, with 3 layers and 32 features in
 the first layer (465{,}986 trainable parameters), and trained it on the
 276$\times$600 synthetic dataset. Two settings had to differ from the paper.
 Akeret et al.\footcite{akeret2017} used a batch of 32 images and momentum gradient descent with a
-learning rate of 0.2. A batch of 32 does not fit on the
-6\,GB GPU used here, so I used a batch of 4. At such a small batch the paper's
+learning rate of 0.2. I used a batch of 4, and at such a small batch the paper's
 learning rate destroyed the network within a few iterations (with a batch of
 one it stopped learning at iteration 4), so I used the Adam optimiser with a
 learning rate of $10^{-3}$ instead.

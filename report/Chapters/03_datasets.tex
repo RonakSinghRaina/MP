@@ -77,12 +77,10 @@ labelled.
 
 \subsection{Two versions of the dataset}
 \label{sec:synthetic_versions}
-Two versions of the dataset were used (\cref{tab:synth_versions}). My first
-images were 1024$\times$1024 pixels. At that size only one image fitted in a
-training batch on the 6\,GB GPU, which made training unstable. Akeret et
+Two versions of the dataset were used (\cref{tab:synth_versions}). Akeret et
 al.\footcite{akeret2017} trained \tfunet{} on images of 276$\times$600 pixels, so
-I regenerated the dataset at exactly that size to reproduce their setup as
-closely as possible. When the image size changes, the RFI shapes have to be
+the first version uses exactly that size to reproduce their setup as closely
+as possible. When the image size changes, the RFI shapes have to be
 rescaled as well: a blob 40 channels wide covers 3.9\% of a 1024-channel band
 but 14.5\% of a 276-channel band. Seven size-dependent parameters of the
 generator were therefore scaled in proportion to the image dimensions.
@@ -239,12 +237,9 @@ therefore the only real ground truth available.
 Several properties of the file had to be found and handled before any model
 could be trained on it.
 
-\paragraph{Raw values.} The spectrograms are not normalised. Pixel values
-range from 0 to $1.4\times10^{11}$, while the median is about $1.2\times10^{6}$;
-the maximum is roughly 39{,}000 times the 99th percentile. When I first plotted
-an image it appeared as a flat, single-coloured square, because a handful of
-extremely bright pixels set the colour scale. Clipping and log-scaling the
-values reveals the structure (\cref{fig:lofar_overview}).
+\paragraph{Raw values.} The spectrograms are not normalised: pixel values range
+from 0 to $1.4\times10^{11}$, so they are clipped and log-scaled for display
+(\cref{fig:lofar_overview}).
 
 \paragraph{Orientation.} In these arrays the rows are time and the columns are
 frequency---the opposite of my synthetic data. I confirmed this from the masks:
@@ -266,12 +261,6 @@ seen. I removed these 109 images from the training set.
 of these contain only zeros. They teach a model nothing useful and were also
 removed. This leaves 7356 usable training images, of which 735 were held back
 for validation and 6621 used for training.
-
-\paragraph{Size.} The full file does not fit in memory alongside other work on
-the 19\,GB machine used here, and loading it repeatedly crashed the
-development environment. I converted it once into separate memory-mapped
-arrays, which can be opened in 0.007\,s while using about 29\,MB of memory;
-only the images actually needed are read from disk.
 
 \begin{figure}[H]
   \centering
