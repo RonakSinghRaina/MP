@@ -162,6 +162,47 @@ does not come from the components it was designed around. A plain U-Net with
 the same training setup scores almost as well. What remains are the other
 differences listed in \cref{tab:hybrid_vs_tfunet}: the Dice loss, the output
 layer without a ReLU, same padding, the different depth and width, batch size,
-learning rate and framework. I have not yet tested these one by one, so I
-cannot say which of them is responsible. The natural first test is to train
-the plain U-Net without the Dice loss.
+learning rate and framework.
+
+\subsection{The Dice loss}
+\label{sec:dice}
+The first of these I tested is the loss. I trained \hybrid{} again with
+exactly the same settings and seeds, but with plain cross-entropy, the loss
+\tfunet{} uses, instead of cross-entropy plus Dice. Since the components were
+shown above to make no measurable difference, the full model was used, so that
+each run pairs with a headline run of the same seed.
+
+\begin{table}[H]
+  \centering
+  \caption{\hybrid{} with and without the Dice loss on the 109 LOFAR test
+    images (mean $\pm$ standard deviation over three seeds).}
+  \label{tab:dice}
+  \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    Loss & max \Fone{} & pooled \Fone{} & ROC AUC & PR AUC \\
+    \midrule
+    with Dice (headline) & $0.6603 \pm 0.0040$ & $0.6561 \pm 0.0044$ & $0.938 \pm 0.011$ & $0.658 \pm 0.009$ \\
+    without Dice         & $0.6495 \pm 0.0049$ & $0.6472 \pm 0.0064$ & $0.987 \pm 0.001$ & $0.708 \pm 0.008$ \\
+    \tfunet{}            & $0.5482 \pm 0.0139$ & $0.5021 \pm 0.0259$ & $0.947 \pm 0.007$ & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Without Dice the maximum \Fone{} fell for all three seeds, by 0.007 to 0.015
+(mean 0.011; paired $t = -4.44$ with 2 degrees of freedom, significant at the
+5\% level), and the pooled \Fone{} by 0.009 (\cref{tab:dice}). The Dice loss
+is therefore a real part of the gain, but a small one: it accounts for 0.011
+of the 0.112 by which \hybrid{} leads \tfunet{}, about a tenth. Even without
+it, \hybrid{} scores 0.10 above \tfunet{}.
+
+As with class weighting (\cref{ch:hybrid}), the ROC area moved the other way:
+without Dice it rose from 0.938 to 0.987, and the area under the
+precision--recall curve from 0.658 to 0.708. The Dice loss improves the
+decision at the best threshold but makes the model rank pixels less well
+overall, probably because it pushes outputs towards exactly 0 or 1. It also
+explains why the headline model's ROC area is slightly below \tfunet{}'s.
+
+The remaining 0.10 lies among the output layer, padding, depth and width,
+batch size, learning rate and framework. I have not tested these one by one,
+so I cannot yet say which of them is responsible.

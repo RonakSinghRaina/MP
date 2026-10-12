@@ -77,7 +77,8 @@ real effects from noise.
   \item \textbf{One real dataset.} All real-data results come from LOFAR. The
     method has not been tested on data from another telescope, including the
     GMRT data that originally motivated this project.
-  \item \textbf{The gain over \tfunet{} is not yet explained}
+  \item \textbf{The gain over \tfunet{} is only partly explained.} The Dice
+    loss accounts for about a tenth of it; the rest is not yet attributed
     (\cref{sec:unexplained}).
   \item \textbf{\tfunet{} was not run on HERA}, so it is compared with my model
     only on the synthetic data and on LOFAR.
@@ -87,9 +88,11 @@ real effects from noise.
 The results suggest that further additions to the model should target a
 specific, measured weakness, and each should be tested by removing it again.
 \begin{itemize}
-  \item \textbf{Find the source of the current gain.} Train the plain U-Net
-    without the Dice loss, then test the other remaining differences from
-    \tfunet{} one at a time. This is cheap and would explain the main result.
+  \item \textbf{Find the source of the remaining gain.} The Dice loss
+    explains 0.011 of the 0.112 gain over \tfunet{} (\cref{sec:dice}). The
+    other differences---the output layer, padding, depth and width, batch size
+    and learning rate---can be tested one at a time in the same way. Each test
+    takes about 1.5 hours and would explain the main result.
   \item \textbf{Errors at the edges of RFI.} Missed RFI is the larger source
     of error: removing every missed pixel would raise \Fone{} from about 0.66 to
     0.82, and removing every false alarm would raise it to 0.77. In one model

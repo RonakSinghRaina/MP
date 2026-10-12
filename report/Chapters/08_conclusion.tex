@@ -27,9 +27,10 @@ selected patches far richer in RFI than the data as a whole.
 
 Removing the strip convolutions, channel attention and residual blocks that
 \hybrid{} was designed around did not measurably change its score, and adding
-a CRF refinement did not improve it. The advantage over \tfunet{} therefore
-comes from other differences in the network and its training, which remain to
-be identified.
+a CRF refinement did not improve it. The Dice loss accounts for about a
+tenth of the advantage over \tfunet{} (0.011 of 0.112); the rest comes from
+other differences in the network and its training, which remain to be
+identified.
 
 Along the way, checking the public HERA and LOFAR datasets showed that both
 contain test images that also appear in the training set, and comparing the

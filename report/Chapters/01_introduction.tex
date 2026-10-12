@@ -84,7 +84,8 @@ LOFAR. The aims were:
     test images. Choosing which patches to label by the model's uncertainty
     does worse than choosing them at random (\cref{sec:expert_ft}).
   \item The components the network was designed around contribute nothing
-    measurable to this result, and a CRF refinement does not improve it
+    measurable to this result, and a CRF refinement does not improve it. The
+    Dice loss explains only about a tenth of the gain over \tfunet{}
     (\cref{ch:drivers}).
   \item Checking the public datasets revealed that test images also appear in
     the training set: 31 of 140 in HERA and all 109 in LOFAR

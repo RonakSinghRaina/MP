@@ -31,14 +31,15 @@ from models with up to 408 million parameters). Fine-tuning it on expert labels
 raises this to 0.675 under cross-validation, but choosing which patches to label
 by its own uncertainty does worse than choosing at random. However, removing the components it was designed around---strip
 convolutions, channel attention and residual blocks---leaves its score
-unchanged, and a conditional random field refinement adds nothing. Checking the
+unchanged, the Dice loss explains only a tenth of its lead over \tfunet{},
+and a conditional random field refinement adds nothing. Checking the
 public datasets revealed test images duplicated in the training sets of both
 HERA and LOFAR, and the same network scores 0.44 lower on real data than on
 synthetic data. The results show that synthetic benchmarks and single training
 runs can both mislead, and that claims about why a model works need to be
 tested directly.
 
-\vspace{2.5cm}
+\vspace{1.2cm}
 
 {\large \textbf{Keywords: }}\par{\Large \ThesisKeywords}
 
