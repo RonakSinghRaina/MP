@@ -3567,6 +3567,13 @@ Config check passed: identical to the headline except dice_weight 1.0 -> 0.0.
 - Verdict: **Dice is a real but small part of the gain.** Keep CE + Dice for
   the headline (it is what the max-F1 benchmark rewards).
 
+### 28.2 Written up (2026-10-12, commit bad062c)
+
+Report: new 6.4.1 "The Dice loss" with table 6.5 (tab:dice); one line each in
+the abstract (keyword gap 2.5 cm -> 1.2 cm to keep page ix), intro summary,
+limitations ("only partly explained"), future work ("Find the source of the
+remaining gain") and conclusion. 66 pages, no overfull boxes or undefined refs.
+
 ---
 
 ## Verified facts about the synthetic dataset (trust these)
