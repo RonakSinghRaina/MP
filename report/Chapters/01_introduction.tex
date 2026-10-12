@@ -1,96 +1,89 @@
 \chapter{Introduction}
 \label{ch:intro}
+Radio astronomy studies the Universe through the radio waves emitted by
+astronomical sources such as pulsars, galaxies and the neutral hydrogen gas
+between them. By the time these signals reach the Earth they are extremely
+weak, and radio telescopes are built to be very sensitive in order to detect
+them. The same frequency bands, however, are also used by human technology:
+mobile phone towers, satellites, aircraft and weather radar, television and
+radio broadcasts, and electrical equipment such as power lines. Signals from
+these sources leak into the telescope and are usually many orders of
+magnitude stronger than the astronomical signal. This unwanted signal is known
+as radio frequency interference (RFI).
 
-\section{Radio frequency interference}
-Radio telescopes detect extremely faint signals from space. The same frequency
-bands are also used by human technology: mobile phone towers, satellites,
-aircraft and weather radar, television and radio broadcasts, and electrical
-equipment such as power lines and car spark plugs. Signals from these sources
-leak into the telescope and are usually many orders of magnitude stronger than
-the astronomical signal. This is radio frequency interference (RFI).
+RFI is different from the ordinary noise that is present in every radio
+observation. The thermal noise of the receiver and the sky is random and close
+to Gaussian, and its statistics are well understood. RFI on the other hand is
+strong, has structure in both time and frequency, and changes during the
+observation. Depending on its source it can appear as a narrow line at a single
+frequency that lasts for the whole observation, a short burst that covers
+almost all frequencies at once, or a broad patch that appears and fades within
+a few minutes. Before any scientific analysis, the parts of the data affected
+by RFI have to be found and removed, a step called RFI flagging. Modern
+telescopes produce far too much data for this to be done by hand, so flagging
+has to be automatic.
 
-RFI is different in character from the ordinary noise in a radio observation.
-The thermal noise of the receiver and the sky is random and close to Gaussian,
-and its statistics are well understood. RFI is not: it is strong, it has
-structure in time and frequency, and it changes during an observation. It is
-non-Gaussian and non-stationary. Before any scientific analysis, the parts of
-the data affected by RFI have to be found and removed, a step called RFI
-flagging. Modern telescopes produce far too much data for this to be done by
-hand, so it must be automatic.
+Radio data can be arranged as a two-dimensional image with frequency along one
+axis and time along the other, called a spectrogram. In this picture RFI shows
+up as lines, bands and patches, and flagging means deciding for every pixel
+whether it is affected by RFI or not. This is the same problem that computer
+vision calls semantic segmentation, and it can therefore be approached with the
+convolutional neural networks used for image segmentation. The
+U-Net\footcite{ronneberger2015} is the standard network for this task, and
+Akeret et al.\footcite{akeret2017} were the first to apply it to RFI, in a code
+called \tfunet{}. A different approach was proposed by Chen et
+al.\footcite{chen2023}, who first label pixels with a statistical threshold and
+then refine these labels with a conditional random field (CRF) that takes the
+neighbourhood of each pixel into account.
 
-\section{Motivation: pulsar timing}
-This project started from pulsar observations with the upgraded Giant
-Metrewave Radio Telescope (uGMRT) in India. Pulsars are rotating neutron stars
-that emit very regular pulses; millisecond pulsars are regular enough to be
-used as precise clocks. The Indian Pulsar Timing Array (InPTA) times such
-pulsars to search for low-frequency gravitational waves, which requires the
+In this project we treat RFI flagging as an image segmentation problem. We
+reproduce the U-Net method of Akeret et al., design an improved network called
+\hybrid{}, and test both on synthetic data and on real observations from the
+Low-Frequency Array (LOFAR) that were labelled by a human expert.
+
+\section{Motivation and Objectives of this Work}
+Pulsars are a good example of why RFI flagging matters. Pulsars are rotating
+neutron stars that emit very regular pulses, and millisecond pulsars are
+regular enough to be used as precise clocks. Pulsar timing arrays time such
+pulsars to search for low-frequency gravitational waves, which needs the
 arrival times of the pulses to be measured to better than a microsecond. RFI
 that is not removed distorts the measured pulse profiles and therefore the
-arrival times. The 300--500\,MHz band used by uGMRT is heavily affected by
-terrestrial RFI.
+arrival times. The tools commonly used to clean such data, for example
+\texttt{paz} from PSRCHIVE\footcite{vanstraten2012psrchive} and
+\texttt{clfd}\footcite{clfd}, rely on simple statistics such as median
+filters. Since RFI is not Gaussian, these tools can miss weak RFI or, when made
+more aggressive, remove parts of the real signal.
 
-The tools commonly used to clean folded pulsar data, such as \texttt{paz}
-from PSRCHIVE\footcite{vanstraten2012psrchive} and \texttt{clfd}\footcite{clfd}, rely
-on simple statistics such as median filters. Because RFI is non-Gaussian, these
-can miss weak broadband RFI or, if made more aggressive, remove parts of the
-real pulsar signal.
+Neural networks can learn what RFI looks like directly from examples instead
+of relying on a fixed statistical rule. Most of these networks, however, are
+developed and tested on synthetic data, where the exact position of every RFI
+pixel is known. Real observations are much harder: RFI is rarer, a large part
+of it is faint, and the labels available for training are produced by other
+automatic flaggers and are themselves often wrong. It is therefore not clear
+how much of the reported performance carries over to real data, or which parts
+of a network are actually responsible for it.
 
-\section{RFI flagging as image segmentation}
-Radio data can be arranged as a two-dimensional image with frequency along one
-axis and time along the other, a spectrogram. For folded pulsar data, a
-similar image is formed from a statistic of the pulse profile (such as its root
-mean square) in each frequency channel and time sub-integration. In this
-picture RFI appears as lines, bands and patches, and flagging means deciding,
-for every pixel, whether it is affected by RFI. This is the problem that
-computer vision calls semantic segmentation.
-
-The U-Net\footcite{ronneberger2015} is a standard neural network for segmentation,
-and Akeret et al.\footcite{akeret2017} were the first to apply it to RFI, in a
-code called \tfunet{}. A different approach is the 2$\sigma$CRF method of Chen
-et al.\footcite{chen2023}, which labels pixels with a statistical threshold and
-then refines the labels with a conditional random field (CRF) that takes each
-pixel's neighbours into account.
-
-\section{Aims}
-The original plan was to combine the two ideas: a U-Net for segmentation,
-followed by a CRF to refine its output. The work was carried out on a
-synthetic dataset I generated, and then on public datasets from HERA and
-LOFAR. The aims were:
-\begin{enumerate}
-  \item to reproduce the U-Net method of Akeret et al.\ on our own data;
-  \item to understand why it initially performed poorly, and correct it;
-  \item to design an improved network for RFI;
-  \item to test both on real telescope data with labels checked by a human
-    expert, not only on synthetic data;
-  \item to find out what actually makes the improved network better, including
-    whether the CRF step helps.
-\end{enumerate}
-
-\section{Summary of results}
+This project approaches RFI detection as a pixel-wise segmentation problem on
+spectrograms. We use a synthetic dataset that we generated ourselves, a
+simulated dataset from the Hydrogen Epoch of Reionization Array (HERA), and
+real LOFAR data whose test images were labelled by a human expert. Our specific
+objectives are:
 \begin{itemize}
-  \item \tfunet{} initially scored an \Fone{} of 0.39 on synthetic data. The
-    cause was two training settings---class weighting combined with the
-    network's output layer, and per-image normalisation---not its
-    architecture. Correcting them raised the score to 0.93 without changing the
-    network (\cref{ch:tfunet}).
-  \item On real LOFAR data with human labels, my network, \hybrid{}, reaches
-    a maximum \Fone{} of $0.6603 \pm 0.0040$ with 593{,}842 parameters. This is
-    the highest result I found for any method trained on the same labels, above
-    the best published values, from RFDL\footcite{vanzyl2024rfdl} (0.639) and
-    Swin-UNETR\footcite{ouyang2024swin} (0.640), although the margin is smaller than the
-    uncertainty that comes from having only 109 test images (\cref{ch:hybrid}).
-  \item Fine-tuning \hybrid{} on expert-labelled images raises its maximum
-    \Fone{} to $0.6747 \pm 0.0083$, measured by cross-validation over all 109
-    test images. Choosing which patches to label by the model's uncertainty
-    does worse than choosing them at random (\cref{sec:expert_ft}).
-  \item The components the network was designed around contribute nothing
-    measurable to this result, and a CRF refinement does not improve it. The
-    Dice loss explains only about a tenth of the gain over \tfunet{}
-    (\cref{ch:drivers}).
-  \item Checking the public datasets revealed that test images also appear in
-    the training set: 31 of 140 in HERA and all 109 in LOFAR
-    (\cref{ch:datasets}).
-  \item The same network that scores 0.93 on synthetic data scores 0.49 on real
-    data under identical settings, showing how much synthetic benchmarks can
-    overstate real performance (\cref{sec:gap}).
+  \item To reproduce the U-Net method of Akeret et al.\ (\tfunet{}) on our own
+    data, understand why it initially performed poorly, and correct it.
+  \item To design an improved network for RFI detection (\hybrid{}) and compare
+    it with \tfunet{} and with published methods.
+  \item To test both networks on real telescope data labelled by a human
+    expert, and not only on synthetic data.
+  \item To find out which parts of the improved network actually make it
+    better, including whether a CRF refinement step helps.
+  \item To study whether a small number of expert labels can improve the
+    network further, and how these labels should be chosen.
 \end{itemize}
+
+The poor initial performance of \tfunet{} was traced back to its training
+settings, and the improved network was compared with published methods on the
+109 expert-labelled LOFAR images. We also removed the components of the network
+one at a time to measure what each contributes, and fine-tuned it using expert
+labels. Through this analysis, we aim to understand not only how well a neural
+network can flag RFI in real observations, but also why it works.

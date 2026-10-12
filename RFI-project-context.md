@@ -3584,6 +3584,28 @@ paragraph deleted; "Raw values" cut to one line; GPU-memory details removed
 text pp. 1-44. Lists B (side stories, ~12 pages) and C (repetition, ~4-5 pages)
 proposed, awaiting the user's choice.
 
+### 28.4 Report restructured to the senior's format, step 1 (2026-10-12)
+
+Template to follow: `Mayuri_Datta_Data_Science_Minor_Report .pdf` (29 pages in
+total: front matter i-xi, then 1 Introduction (+1.1 Motivation and Objectives
+of this Work), 2 Theory, 3 Methodology, 4 Results and Discussion,
+5 Conclusion, Bibliography; "we" voice, plain style). The user wants the WHOLE
+report within ~30 pages, same chapter order. Done so far:
+- ch.1 rewritten (intro + 1.1 with objective bullets; pulsar motivation kept
+  generic, no uGMRT; "Summary of results" and "Structure" dropped);
+- new ch.2 Theory (`02_theory.tex`): radiometer eq., RFI types, thresholds,
+  AOFlagger, 2sigmaCRF + CRF energy, CNNs, U-Net with Akeret et al. 2017 Fig. 1
+  (`Images/akeret2017_unet_fig1.png`, cropped from tf_unet.pdf at 600 dpi,
+  credited), softmax, weighted CE, Dice (eps 1, as in lofar_hybrid.py),
+  metrics;
+- new ch.3 Methodology (`03_methodology.tex`): datasets (synthetic and HERA
+  condensed), data preparation, fixed-range normalisation (200 training images
+  for LOFAR, `calibrate()`), tf_unet setup, HybridRFINet design (moved from old
+  ch.5), training, evaluation, further experiments;
+- old `02_background.tex`, `03_datasets.tex` deleted; refs added:
+  wilson2013tools, kingma2015adam. 58 pages. Old ch.4-8 still to be merged into
+  Results and Discussion + Conclusion and cut to fit 30 pages.
+
 ---
 
 ## Verified facts about the synthetic dataset (trust these)

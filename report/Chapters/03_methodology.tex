@@ -1,0 +1,244 @@
+\chapter{Methodology}
+\label{ch:methods}
+
+\section{Datasets}
+\label{ch:datasets}
+Three datasets were used in this work: a synthetic dataset that we generated,
+simulated HERA data, and real LOFAR data. Only the LOFAR data contains real
+observations with labels checked by a person, so it is the one that matters
+most for the final results.
+
+\subsection{Synthetic Dataset}
+\label{sec:synthetic}
+Real radio data with reliable pixel-level labels is scarce, so the first part
+of this work used a synthetic dataset generated in Python with a fixed random
+seed (42), so that it can be regenerated exactly. The background of each
+spectrogram is built from a sky level that varies with frequency, a smooth
+astronomical signal, a slow drift in time and Gaussian noise. Six types of RFI
+are then injected on top of it: narrowband lines, scattered single hits,
+cloud-like blobs, persistent bands, broadband blocks and short wideband bursts,
+each at random strengths. The dataset has 1000 images, split into 700 for
+training, 150 for validation and 150 for testing, and a comparison of SHA-256
+hashes showed that no image appears in more than one split.
+
+Since the RFI is injected by the generator, its strength at every pixel is
+known exactly. A pixel is labelled RFI when the injected power there is more
+than 0.5 times the standard deviation of the local noise. These labels are
+therefore noise-free and every labelled pixel is measurably above the noise,
+which makes the task much easier than labelling real data.
+
+Two versions of the dataset were made. The first uses images of
+276$\times$600 pixels, the size used by Akeret et al., to reproduce their setup
+as closely as possible; 14.67\% of its pixels are RFI. The second has
+1024$\times$265 pixels, giving finer frequency resolution, and adds an
+instrument bandpass. In this version the sky and the RFI are multiplied by the
+bandpass gain, while the receiver noise is added afterwards, as in a real
+receiver chain. RFI near the band edges, where the gain is small, therefore
+sinks into the noise and is labelled clean.
+
+\subsection{HERA Dataset}
+\label{sec:hera}
+The HERA dataset is simulated data for the Hydrogen Epoch of Reionization
+Array, released by Mesarcik et al.\footcite{mesarcik2022,mesarcik2022data}. It
+contains 420 training and 140 test spectrograms of 512$\times$512 pixels with
+exact RFI masks. Comparing SHA-256 hashes showed that 31 test images (22\%)
+are exact copies of training images, and we removed these duplicates before
+use. On the cleaned split our network reached an \Fone{} of 0.9996. With scores
+this close to perfect, the dataset cannot show a difference between methods,
+so it was not used further.
+
+\subsection{LOFAR Dataset}
+\label{sec:lofar}
+The LOFAR dataset is the most important one in this work, because it is the
+only one made of real observations with labels checked by a person. It was
+released by Mesarcik et al.\footcite{mesarcik2022} and contains 7500 training
+and 109 test spectrograms of 512$\times$512 pixels. The training masks were
+produced automatically by \aoflagger{}, while the 109 test masks were labelled
+by hand by a human expert. The test set is therefore the only real ground truth
+available. Some example images are shown in \cref{fig:lofar_overview}. In these
+arrays the rows are time and the columns are frequency, so RFI at a fixed
+frequency appears as a vertical line.
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig_lofar_overview}
+  \caption{Example LOFAR spectrograms (after clipping and log scaling for
+    display) and their masks. Top two rows: training images with their
+    \aoflagger{} masks; bottom two rows: test images with the human expert's
+    masks. Vertical lines are RFI at fixed frequencies.}
+  \label{fig:lofar_overview}
+\end{figure}
+
+\label{sec:lofar_harder}
+LOFAR is much harder than the synthetic data, for three measurable reasons.
+First, RFI is rare: it covers 0.766\% of the test pixels, about one RFI pixel for
+every 129 clean ones, compared with about 15\% in the synthetic data. Second,
+much of the RFI is faint. We compared each RFI pixel with the clean pixels of
+the same image and placed it in a brightness tier (\cref{tab:lofar_tiers}).
+Half of the RFI is brighter than 99\% of the clean pixels, but a fifth of it is
+dimmer than a typical clean pixel and can only be recognised from its
+surroundings. Third, the training labels are often wrong. Since every test
+image also appears in the training set, the \aoflagger{} mask and the expert
+mask can be compared on exactly the same pixels. Taking the expert as correct,
+\aoflagger{} has a precision of 0.560 and a recall of 0.580, an \Fone{} of
+0.5698: 44\% of the pixels it flags are not RFI according to the expert. Our
+value agrees with the one reported by Mesarcik et al.\ to four decimal places,
+which confirms that we use the same test data, labels and metric.
+
+\begin{table}[H]
+  \centering
+  \caption{Brightness of the expert-labelled RFI pixels in the 109 LOFAR test
+    images, measured against the clean pixels of the same image.}
+  \label{tab:lofar_tiers}
+  \begin{tabular}{llrr}
+    \toprule
+    Tier & Brightness relative to the image's clean pixels & RFI pixels & Share \\
+    \midrule
+    Bright    & above the 99th percentile          & 109{,}669 & 50.1\% \\
+    Moderate  & between the 75th and 99th          &  41{,}263 & 18.9\% \\
+    Faint     & between the 50th and 75th          &  24{,}113 & 11.0\% \\
+    Invisible & below the median                   &  43{,}866 & 20.0\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Data Preparation}
+\label{sec:lofar_audit}
+Before training, two problems in the LOFAR data had to be handled. All 109 test
+spectrograms are byte-for-byte identical to 109 of the training spectrograms;
+only their masks differ. Training on all 7500 images would therefore test the
+model on images it has already seen, so these 109 images were removed from the
+training set. In addition, 35 training images are flagged as 100\% RFI, and
+several of them contain only zeros, so they were removed as well. This leaves
+7356 training images, of which 735 were kept for validation and 6621 used for
+training.
+
+The raw LOFAR values are not normalised and range from 0 to
+$1.4\times10^{11}$. Every input image $x$ is therefore scaled with one fixed
+range for the whole dataset:
+\begin{equation}
+  x' = \mathrm{clip}\!\left(\frac{x - x_{\text{lo}}}{x_{\text{hi}} - x_{\text{lo}}},\; 0,\; 1\right)
+  \label{eq:fixednorm}
+\end{equation}
+where $x_{\text{lo}}$ and $x_{\text{hi}}$ are the 0.5th and 99.5th percentiles
+of the pixel values, averaged over 200 training images (40 for the synthetic
+data). Only training images are used, so no information from the test set
+enters the normalisation. The reason for using one fixed range rather than
+scaling each image separately is explained in \cref{sec:pernorm}.
+
+\section{Baseline Model: \texorpdfstring{\tfunet}{tf\_unet}}
+We used the \tfunet{} code of Akeret et al.\ without changing the network
+(3 levels, 32 filters in the first layer). The paper used a batch of 32 images
+and momentum gradient descent with a learning rate of 0.2. We used a batch of 4
+images, and at such a small batch the paper's learning rate stopped the network
+from learning within a few iterations, so we used the Adam optimiser with a
+learning rate of $10^{-3}$ instead. On LOFAR the network was trained both with
+this setting for 60 epochs and with a learning rate of $10^{-4}$ for 150
+epochs.
+
+\section{Improved Model: \hybrid{}}
+\label{sec:hybrid_design}
+\hybrid{} keeps the overall U-Net shape but combines several components that
+other RFI and segmentation work has used, chosen with the properties of RFI in
+mind. The starting point was that faint RFI sits only about 1.5 noise standard
+deviations above the background, so a single pixel cannot be told apart from
+noise; a faint line is detectable only because it extends over many pixels.
+Most of the design choices aim to use this kind of spatial context.
+\Cref{tab:hybrid_vs_tfunet} lists how the model differs from \tfunet{}.
+
+\begin{table}[H]
+  \centering
+  \caption{Differences between \tfunet{} and \hybrid{}.}
+  \label{tab:hybrid_vs_tfunet}
+  \small
+  \begin{tabular}{>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.9cm}>{\raggedright\arraybackslash}p{5.7cm}}
+    \toprule
+    Component & \tfunet{} & \hybrid{} \\
+    \midrule
+    Convolution blocks & two 3$\times$3 convolutions & residual blocks (shortcut through a 1$\times$1 convolution) \\
+    Multi-scale filters & none & ``strip'' convolutions, $K = 7, 11, 21$ \\
+    Channel attention & none & efficient channel attention (ECA) \\
+    Normalisation layers & none & GroupNorm in every residual block and strip module \\
+    Output layer & ReLU, then softmax & raw scores, then softmax \\
+    Padding & valid (output smaller than input) & same (output = input size) \\
+    Times the image is halved / first-layer width & 2 / 32 & 4 / 8 \\
+    Loss & cross-entropy & cross-entropy + Dice \\
+    Batch size / learning rate on LOFAR & 4 / $10^{-4}$ & 1 / $10^{-3}$ \\
+    Framework & TensorFlow & PyTorch \\
+    Parameters & 465{,}986 & 593{,}842 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The components are as follows:
+\begin{itemize}
+  \item \textbf{Residual blocks}\footcite{he2016} add the input of each block
+    back to its output, so that weak features are not washed out as they pass
+    through many layers. RFI-Net\footcite{yang2020rfinet}, a published RFI
+    network, is also built from residual blocks.
+  \item \textbf{Strip convolutions.} Much RFI is line-shaped, and the idea was
+    that a long, thin $1\times K$ or $K\times1$ filter adds up the signal along
+    such a line: averaging $K$ pixels of a coherent line improves its
+    signal-to-noise ratio by about $\sqrt{K}$ (\cref{eq:radiometer}). In the
+    implementation, each of the three branches applies a $1\times K$ filter
+    followed by a $K\times1$ filter, which together cover a full $K\times K$
+    square. Similar multi-scale designs have been used for RFI
+    before\footcite{gu2024emsca,mars2026}, so this component is not new.
+  \item \textbf{Efficient channel attention} (ECA)\footcite{wang2020eca} learns a
+    weight for each feature channel at very little cost, so that channels
+    carrying faint RFI are not drowned out by those carrying bright RFI.
+  \item \textbf{GroupNorm}\footcite{wu2018groupnorm} keeps the values inside
+    the network in a stable range. Unlike batch normalisation, it computes its
+    statistics within a single image, so it works with the single-image batches
+    used here.
+  \item \textbf{No ReLU on the output.} The raw scores go directly to the
+    softmax, which avoids the failure of \tfunet{} described in
+    \cref{sec:relu_trap}.
+  \item \textbf{Same padding} keeps the output the same size as the input, so
+    every pixel receives a prediction.
+\end{itemize}
+
+\section{Training}
+\label{sec:hybrid_training}
+\hybrid{} is trained with the sum of the cross-entropy and Dice losses
+(\cref{eq:ce,eq:dice}), using the Adam optimiser with a learning rate of
+$10^{-3}$ and one image per batch, for 40 epochs of 700 steps (28{,}000
+gradient steps). Class weighting, which gives RFI pixels 57 times the weight of
+clean ones, was tried first and then removed. For both networks, the best
+checkpoint and the decision threshold are chosen on 150 of the 735 validation
+images.
+
+\section{Evaluation}
+All LOFAR results are measured on the 109 expert-labelled test images, using
+the maximum and the pooled \Fone{} (\cref{sec:metrics}). Every setting was
+trained with three random seeds, and we report the mean and standard deviation.
+To decide whether a difference between two settings is real, we compare them
+seed by seed with a paired $t$-test, which with three seeds has 2 degrees of
+freedom and needs $|t| > 4.30$ for significance at the 5\% level. To estimate
+the uncertainty that comes from the small test set, we also resampled the 109
+test images 2000 times with replacement (bootstrap).
+
+\section{Further Experiments}
+To understand what drives the performance of \hybrid{}, we carried out four
+further experiments:
+\begin{itemize}
+  \item \textbf{Ablation.} We wrote a version of the network in which each
+    component can be switched off, and trained every variant through exactly
+    the same pipeline, removing the strip convolutions, the attention, the
+    residual blocks, all three together, and finally also GroupNorm.
+  \item \textbf{CRF refinement.} Following Chen et al., we added a CRF
+    (\cref{eq:crf}) on top of the trained network. It was implemented as
+    differentiable layers\footcite{zheng2015crfrnn,teichmann2018convcrf}, so
+    that its settings can be set by hand or learned, with separate ranges along
+    time and frequency. It adds only 11 parameters.
+  \item \textbf{Expert labels.} To measure what expert labels add without ever
+    testing on an image whose expert label the model has seen, we used
+    five-fold cross-validation over the 109 expert-labelled images, keeping
+    near-duplicate images in the same fold. In each fold 21--22 images form the
+    test set, 19 the validation set and the remaining 68--69 can be used for
+    fine-tuning, with a learning rate of $10^{-4}$. We also labelled only 5, 10
+    or 20\% of them, as $64\times64$ patches chosen by the model's uncertainty,
+    by its predicted RFI, or at random, or as whole images chosen at random.
+  \item \textbf{Loss.} We trained \hybrid{} again with plain cross-entropy
+    instead of cross-entropy plus Dice, keeping everything else the same.
+\end{itemize}
