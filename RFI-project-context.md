@@ -2671,6 +2671,7 @@ TensorFlow), **and the loss (CE+Dice here vs plain CE in tf_unet)**. The
 ablation runs all use `--dice_weight 1.0`. So the largest single piece of the
 gain is still not isolated, and the paper must not describe it as "padding and
 framework". Isolating it needs a `--dice_weight 0` arm at minimum.
+**[DONE, PART 28.1: Dice = +0.0108, 10% of the lead.]**
 
 ### 18.5 The strip-convolution claim, tested where it should show — it fails
 
@@ -2872,6 +2873,8 @@ loss (CE+Dice vs CE), output activation (raw logits vs ReLU), padding (same
 vs valid), depth/width (4 levels base 8 vs 3 levels root 32), batch size
 (1 vs 4), learning rate (1e-3 vs 1e-4) and framework. **None isolated.**
 The `--dice_weight 0` arm (PART 19.2) is still the cheapest first probe.
+**[DONE, PART 28.1: loss isolated -- Dice = +0.0108 (p 0.047), ~0.10 still
+unattributed among the other six.]**
 
 ---
 
@@ -3509,7 +3512,7 @@ Max F1, full schedule / <=600, 3 seeds (no fine-tuning 0.6603):
 
 ---
 
-## PART 28 — Dice-off run: built, not yet run (2026-10-11)
+## PART 28 — Dice-off run: Dice is worth +0.011, about 10% of the lead over tf_unet (built 2026-10-11, run 2026-10-11/12)
 
 Closes the largest untested piece of the +0.11 over tf_unet (18.4, 20.2):
 CE + Dice vs plain CE.
@@ -3534,6 +3537,35 @@ CE + Dice vs plain CE.
     (0.6525 +/- 0.0033, -0.0078, p 0.032) and flags their dice_weight and
     edge_mode.
 - Run: `nohup ./scripts/run_lofar_nodice.sh > runs/lofar/logs/nodice_runs.log 2>&1 &`
+
+### 28.1 Result (run 20:56-22:17, ~27 min per seed, no crashes)
+
+Config check passed: identical to the headline except dice_weight 1.0 -> 0.0.
+
+| setup | max F1 | pooled F1 | precision | recall | ROC AUC | PR AUC |
+|---|---|---|---|---|---|---|
+| CE + Dice (headline) | 0.6603 ± 0.0040 | 0.6561 ± 0.0044 | 0.6936 | 0.6225 | 0.9378 ± 0.0111 | 0.6583 ± 0.0088 |
+| CE only (Dice off) | 0.6495 ± 0.0049 | 0.6472 ± 0.0064 | 0.6684 | 0.6275 | 0.9873 ± 0.0014 | 0.7080 ± 0.0084 |
+| tf_unet (lr 1e-4) | 0.5482 ± 0.0139 | 0.5021 ± 0.0259 | 0.4302 | 0.6032 | 0.9470 ± 0.0074 | -- |
+
+- **max F1:** Dice off is lower for every seed (-0.0150, -0.0109, -0.0066);
+  mean -0.0108, paired t -4.44, p 0.047.
+- **pooled F1:** -0.0125, -0.0083, -0.0060; mean -0.0089, t -4.71, p 0.042.
+- **Share of the lead:** the hybrid leads tf_unet by +0.1121 max F1, and Dice
+  accounts for +0.0108 of it (10%). Dice off still beats tf_unet by +0.101.
+  About 0.10 therefore remains among output activation (ReLU on tf_unet's
+  logits), padding, depth/width, batch, learning rate and framework, none of
+  them isolated.
+- **Ranking gets better without Dice:**
+  - ROC AUC +0.0496 (p 0.019) and PR AUC +0.0497 (p 0.006).
+  - So Dice raises the F1 at the best threshold but makes the probability
+    ranking worse overall.
+  - Likely reason (not tested): Dice pushes outputs towards 0/1, which
+    squashes the ordering of pixels within each extreme.
+  - Consequence: the hybrid's headline ROC AUC (0.938) is below tf_unet's
+    (0.947) only because of Dice. Without Dice it is 0.987.
+- Verdict: **Dice is a real but small part of the gain.** Keep CE + Dice for
+  the headline (it is what the max-F1 benchmark rewards).
 
 ---
 
@@ -3569,7 +3601,8 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
    CLOSED 2026-09-10 — see PART 18.** The three claimed components contribute
    +0.0019 (1.7%, inside noise); GroupNorm contributes +0.0315 (28%, real).
    **+0.0807 (71%) remains unattributed** and still confounds loss (CE+Dice vs
-   CE), padding, output activation and framework. A `--dice_weight 0` arm is
+   CE), padding, output activation and framework. [Loss now isolated: Dice =
+   +0.0108, PART 28.1.] A `--dice_weight 0` arm is
    the next step for that piece.
 2. **The baseline comparison is not matched.** Baseline got 60 epochs, hybrid 22.
    Baseline reports **oracle max-F1**; hybrid reports F1 at a **fixed
