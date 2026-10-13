@@ -47,6 +47,19 @@ and how many frequencies they cover:
   \item \textbf{Patchy broadband RFI} covers several channels for a few minutes
     and then fades, appearing as irregular, cloud-like patches.
 \end{itemize}
+\Cref{fig:rfi_types} shows these types of RFI in a real observation.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.62\textwidth]{chen2023_fig1_rfi_types}
+  \caption[Types of RFI in a real observation]{Types of RFI in folded pulsar
+    data observed with the FAST telescope (PSR J1859+0430): constant broadband
+    RFI from satellites, instantaneous wideband RFI, broadband RFI lasting a few
+    minutes, and constant narrowband RFI. The colour shows the rms of the folded
+    pulse profile in each frequency channel and sub-integration. Reproduced from
+    Chen et al.\ (2023).}
+  \label{fig:rfi_types}
+\end{figure}
 
 \section{Classical Flagging Methods}
 The simplest way to flag RFI is to mark every pixel whose value $x$ lies too
@@ -62,26 +75,10 @@ way. They need no training, but they assume that the clean data is Gaussian, so
 they miss faint RFI and struggle when the noise level changes across the data.
 
 \aoflagger{}\footcite{offringa2012} is the standard RFI flagger for LOFAR. It
-combines thresholding at several scales with a morphological step that extends
-the flags along time and frequency, so that the edges of RFI features are also
-caught. It is important for this work because it produced the training labels
+looks for unusually bright pixels at several scales, and then grows each
+flagged region a little along time and frequency so that the faint edges of the
+RFI are flagged too. It is important for this work because it produced the training labels
 of the LOFAR dataset.
-
-Chen et al.\footcite{chen2023} clean RFI in folded pulsar data in two steps.
-They first fit a Gaussian to the histogram of the data; pixels within
-$2\sigma$ of its peak are labelled clean and pixels beyond $3\sigma$ are
-labelled RFI. They then refine these labels with a fully connected conditional
-random field (CRF)\footcite{krahenbuhl2011}, which finds the labelling
-$\mathbf{x}$ that minimises the energy
-\begin{equation}
-  E(\mathbf{x}) = \sum_i \psi_u(x_i) + \sum_{i<j} \psi_p(x_i, x_j)
-  \label{eq:crf}
-\end{equation}
-The unary term $\psi_u$ measures how likely each pixel is to be RFI on its own.
-The pairwise term $\psi_p$ adds a penalty when two pixels receive different
-labels, which is larger when the pixels are close together and similar in
-value. In this way, weak RFI that cannot be recognised in a single pixel can be
-picked out from its neighbourhood.
 
 \section{Convolutional Neural Networks}
 A convolutional neural network (CNN) processes an image with small learned

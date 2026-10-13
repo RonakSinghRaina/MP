@@ -3622,6 +3622,15 @@ report within ~30 pages, same chapter order. Done so far:
   pdfcrop bbox 135 450 476 680); the Akeret figure moved to the tf_unet
   baseline section (Fig. 3.2). All figures have one-line List-of-Figures
   entries (`\caption[short]{long}`), as in the senior's report. 54 pages.
+- 2026-10-13, user edits: intro drops the Chen sentence and "labelled by a
+  human expert"; objective 1 = reproduce tf_unet on the Zenodo LOFAR data,
+  approximately matching Mesarcik et al.'s U-Net (ours 0.5482 vs 0.5876);
+  objective 4 drops the CRF clause; closing "poor initial performance" sentence
+  removed. Theory: AOFlagger in plain words; the Chen/CRF energy paragraph and
+  eq. removed (a one-line CRF definition now sits in the methodology CRF
+  bullet); Fig. 2.1 = Chen et al. 2023 Fig. 1 (FAST, RFI types), the PDF's own
+  embedded 667x685 JPEG extracted losslessly (`Images/chen2023_fig1_rfi_types.jpg`).
+  One-line List of Tables too. 53 pages.
 
 ---
 

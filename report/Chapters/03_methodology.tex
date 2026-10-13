@@ -87,7 +87,7 @@ which confirms that we use the same test data, labels and metric.
 
 \begin{table}[H]
   \centering
-  \caption{Brightness of the expert-labelled RFI pixels in the 109 LOFAR test
+  \caption[Brightness of the expert-labelled RFI pixels in LOFAR]{Brightness of the expert-labelled RFI pixels in the 109 LOFAR test
     images, measured against the clean pixels of the same image.}
   \label{tab:lofar_tiers}
   \begin{tabular}{llrr}
@@ -159,7 +159,7 @@ Most of the design choices aim to use this kind of spatial context.
 
 \begin{table}[H]
   \centering
-  \caption{Differences between \tfunet{} and \hybrid{}.}
+  \caption[Differences between \tfunet{} and \hybrid{}]{Differences between \tfunet{} and \hybrid{}.}
   \label{tab:hybrid_vs_tfunet}
   \small
   \begin{tabular}{>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.9cm}>{\raggedright\arraybackslash}p{5.7cm}}
@@ -237,8 +237,10 @@ further experiments:
     component can be switched off, and trained every variant through exactly
     the same pipeline, removing the strip convolutions, the attention, the
     residual blocks, all three together, and finally also GroupNorm.
-  \item \textbf{CRF refinement.} Following Chen et al., we added a CRF
-    (\cref{eq:crf}) on top of the trained network. It was implemented as
+  \item \textbf{CRF refinement.} Chen et al.\footcite{chen2023} refine RFI
+    labels with a conditional random field (CRF)\footcite{krahenbuhl2011}, which
+    adjusts each pixel's label according to its neighbours. Following them, we
+    added a CRF on top of the trained network. It was implemented as
     differentiable layers\footcite{zheng2015crfrnn,teichmann2018convcrf}, so
     that its settings can be set by hand or learned, with separate ranges along
     time and frequency. It adds only 11 parameters.

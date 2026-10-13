@@ -31,15 +31,12 @@ vision calls semantic segmentation, and it can therefore be approached with the
 convolutional neural networks used for image segmentation. The
 U-Net\footcite{ronneberger2015} is the standard network for this task, and
 Akeret et al.\footcite{akeret2017} were the first to apply it to RFI, in a code
-called \tfunet{}. A different approach was proposed by Chen et
-al.\footcite{chen2023}, who first label pixels with a statistical threshold and
-then refine these labels with a conditional random field (CRF) that takes the
-neighbourhood of each pixel into account.
+called \tfunet{}.
 
 In this project we treat RFI flagging as an image segmentation problem. We
 reproduce the U-Net method of Akeret et al., design an improved network called
 \hybrid{}, and test both on synthetic data and on real observations from the
-Low-Frequency Array (LOFAR) that were labelled by a human expert.
+Low-Frequency Array (LOFAR).
 
 \section{Motivation and Objectives of this Work}
 Pulsars are a good example of why RFI flagging matters. Pulsars are rotating
@@ -69,21 +66,20 @@ simulated dataset from the Hydrogen Epoch of Reionization Array (HERA), and
 real LOFAR data whose test images were labelled by a human expert. Our specific
 objectives are:
 \begin{itemize}
-  \item To reproduce the U-Net method of Akeret et al.\ (\tfunet{}) on our own
-    data, understand why it initially performed poorly, and correct it.
+  \item To reproduce the U-Net method of Akeret et al.\ (\tfunet{}) on the
+    public LOFAR dataset released on Zenodo, approximately matching the U-Net
+    results reported with it by Mesarcik et al.
   \item To design an improved network for RFI detection (\hybrid{}) and compare
     it with \tfunet{} and with published methods.
   \item To test both networks on real telescope data labelled by a human
     expert, and not only on synthetic data.
   \item To find out which parts of the improved network actually make it
-    better, including whether a CRF refinement step helps.
+    better.
   \item To study whether a small number of expert labels can improve the
     network further, and how these labels should be chosen.
 \end{itemize}
 
-The poor initial performance of \tfunet{} was traced back to its training
-settings, and the improved network was compared with published methods on the
-109 expert-labelled LOFAR images. We also removed the components of the network
+We also removed the components of the network
 one at a time to measure what each contributes, and fine-tuned it using expert
 labels. Through this analysis, we aim to understand not only how well a neural
 network can flag RFI in real observations, but also why it works.

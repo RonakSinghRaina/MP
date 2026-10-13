@@ -24,7 +24,7 @@ as the full model.
 
 \begin{table}[H]
   \centering
-  \caption{Ablation on the 109 LOFAR test images (maximum \Fone{}, one seed).
+  \caption[Ablation of the network components (one seed)]{Ablation on the 109 LOFAR test images (maximum \Fone{}, one seed).
     The seed-to-seed standard deviation of the full model is 0.0040, so
     differences below about 0.008 are within noise.}
   \label{tab:ablation}
@@ -49,7 +49,7 @@ important variants with two more seeds (\cref{tab:ablation3}).
 
 \begin{table}[H]
   \centering
-  \caption{The key ablation variants over three seeds (maximum \Fone{}).}
+  \caption[Ablation over three seeds]{The key ablation variants over three seeds (maximum \Fone{}).}
   \label{tab:ablation3}
   \small
   \begin{tabular}{lcccc}
@@ -91,7 +91,7 @@ faint and invisible ones the strip convolutions were designed for.
 
 \begin{table}[H]
   \centering
-  \caption{Fraction of RFI found in each brightness tier, with both models
+  \caption[RFI found in each brightness tier]{Fraction of RFI found in each brightness tier, with both models
     flagging the same number of pixels.}
   \label{tab:faint}
   \begin{tabular}{lrrr}
@@ -124,7 +124,7 @@ time and frequency. It adds only 11 parameters.
 
 \begin{table}[H]
   \centering
-  \caption{Adding a CRF to the trained network (maximum \Fone{}, 109 LOFAR test
+  \caption[Adding a CRF refinement]{Adding a CRF to the trained network (maximum \Fone{}, 109 LOFAR test
     images).}
   \label{tab:crf}
   \begin{tabular}{lr}
@@ -174,7 +174,7 @@ each run pairs with a headline run of the same seed.
 
 \begin{table}[H]
   \centering
-  \caption{\hybrid{} with and without the Dice loss on the 109 LOFAR test
+  \caption[Effect of the Dice loss]{\hybrid{} with and without the Dice loss on the 109 LOFAR test
     images (mean $\pm$ standard deviation over three seeds).}
   \label{tab:dice}
   \small
