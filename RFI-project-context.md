@@ -3605,6 +3605,12 @@ report within ~30 pages, same chapter order. Done so far:
 - old `02_background.tex`, `03_datasets.tex` deleted; refs added:
   wilson2013tools, kingma2015adam. 58 pages. Old ch.4-8 still to be merged into
   Results and Discussion + Conclusion and cut to fit 30 pages.
+- Front pages (2026-10-13), as the senior's: degree is **Minor Degree, School
+  of Data Science** (`\SetDegree{\minor}`, `\SetDepartment{Data Science}`;
+  her doubled "SCHOOL OF SCHOOL OF" not copied); `oneside` and `\clearpage`
+  so there are no blank pages; acknowledgement rewritten from the user's text,
+  mentor **Prof. Abhimanyu Susobhanan** (spelling to be confirmed by the user),
+  Claude paragraph removed at the user's request. 53 pages.
 
 ---
 
