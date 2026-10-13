@@ -3611,6 +3611,12 @@ report within ~30 pages, same chapter order. Done so far:
   so there are no blank pages; acknowledgement rewritten from the user's text,
   mentor **Prof. Abhimanyu Susobhanan** (spelling to be confirmed by the user),
   Claude paragraph removed at the user's request. 53 pages.
+- Abstract shortened at the user's direction (2026-10-13): RFI paragraph +
+  results paragraph; dropped the 0.39 start, active-learning, Dice, CRF and
+  dataset-duplicate lines; says "exceeding" the published 0.639-0.640 (the
+  body keeps the +/-0.04 bootstrap caveat, 5.3); the 0.44 drop is attributed
+  to tf_unet (0.9317 -> 0.4901). Keywords + radio astronomy, convolutional
+  neural networks, spectrograms.
 
 ---
 
