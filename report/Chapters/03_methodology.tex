@@ -62,7 +62,7 @@ frequency appears as a vertical line.
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.85\textwidth]{fig_lofar_overview}
-  \caption{Example LOFAR spectrograms (after clipping and log scaling for
+  \caption[Example LOFAR spectrograms and their masks]{Example LOFAR spectrograms (after clipping and log scaling for
     display) and their masks. Top two rows: training images with their
     \aoflagger{} masks; bottom two rows: test images with the human expert's
     masks. Vertical lines are RFI at fixed frequencies.}
@@ -128,13 +128,24 @@ scaling each image separately is explained in \cref{sec:pernorm}.
 
 \section{Baseline Model: \texorpdfstring{\tfunet}{tf\_unet}}
 We used the \tfunet{} code of Akeret et al.\ without changing the network
-(3 levels, 32 filters in the first layer). The paper used a batch of 32 images
+(3 levels, 32 filters in the first layer; \cref{fig:tfunet_arch}). The paper used a batch of 32 images
 and momentum gradient descent with a learning rate of 0.2. We used a batch of 4
 images, and at such a small batch the paper's learning rate stopped the network
 from learning within a few iterations, so we used the Adam optimiser with a
 learning rate of $10^{-3}$ instead. On LOFAR the network was trained both with
 this setting for 60 epochs and with a learning rate of $10^{-4}$ for 150
 epochs.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{akeret2017_unet_fig1}
+  \caption[The U-Net of \tfunet{} applied to RFI]{The U-Net of \tfunet{}
+    applied to RFI, with a depth of 3 levels. The input spectrogram is
+    contracted in the downsampling path and expanded again in the upsampling
+    path, and features from the downsampling path are concatenated into the
+    upsampling path. Reproduced from Akeret et al.\ (2017).}
+  \label{fig:tfunet_arch}
+\end{figure}
 
 \section{Improved Model: \hybrid{}}
 \label{sec:hybrid_design}

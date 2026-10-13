@@ -110,7 +110,10 @@ convolutions and halves the image size, building up a description of
 \emph{what} is in the image. Its decoder, the upsampling path, reverses this
 and restores the full size to locate \emph{where} it is. Skip connections pass
 fine detail directly from each encoder level to the matching decoder level,
-where it is joined (concatenated) with the upsampled features. For every pixel
+where it is joined (concatenated) with the upsampled features. In the original
+network each level uses two 3$\times$3 convolutions with ReLU, the image is
+halved by 2$\times$2 max pooling and doubled again by 2$\times$2 up-convolutions,
+and a final 1$\times$1 convolution gives the class scores. For every pixel
 the last layer produces one score $z_c$ for each class $c$, here ``clean'' and
 ``RFI'', and these scores are turned into probabilities by the softmax function:
 \begin{equation}
@@ -120,17 +123,17 @@ the last layer produces one score $z_c$ for each class $c$, here ``clean'' and
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{akeret2017_unet_fig1}
-  \caption{Architecture of the U-Net used for RFI detection, with a depth of 3
-    levels. The input spectrogram is contracted in the downsampling path and
-    expanded again in the upsampling path, and features from the downsampling
-    path are concatenated into the upsampling path. Reproduced from Akeret et
-    al.\ (2017).}
+  \includegraphics[width=0.9\textwidth]{ronneberger2015_unet_fig1}
+  \caption[The U-Net architecture]{The U-Net architecture (example for
+    32$\times$32 pixels at the lowest resolution). Each blue box is a
+    multi-channel feature map, with the number of channels on top and the size
+    at its lower left; white boxes are copied feature maps, and the arrows mark
+    the operations. Reproduced from Ronneberger et al.\ (2015).}
   \label{fig:unet}
 \end{figure}
 
 Akeret et al.\footcite{akeret2017} applied a U-Net to RFI in their \tfunet{}
-code, written in TensorFlow. The configuration used in this work has 3 levels
+code, written in TensorFlow (\cref{fig:tfunet_arch}). The configuration used in this work has 3 levels
 and 32 filters in the first layer, giving 465{,}986 trainable parameters. Two
 details of \tfunet{} become important later: it applies a ReLU to its output
 scores before the softmax, and it has no normalisation layers.

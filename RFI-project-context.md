@@ -3617,6 +3617,11 @@ report within ~30 pages, same chapter order. Done so far:
   body keeps the +/-0.04 bootstrap caveat, 5.3); the 0.44 drop is attributed
   to tf_unet (0.9317 -> 0.4901). Keywords + radio astronomy, convolutional
   neural networks, spectrograms.
+- Figures (2026-10-13): Fig. 2.1 is now Ronneberger et al. 2015 Fig. 1, cropped
+  as VECTOR from arXiv 1505.04597v1 page 2 (`Images/ronneberger2015_unet_fig1.pdf`,
+  pdfcrop bbox 135 450 476 680); the Akeret figure moved to the tf_unet
+  baseline section (Fig. 3.2). All figures have one-line List-of-Figures
+  entries (`\caption[short]{long}`), as in the senior's report. 54 pages.
 
 ---
 
