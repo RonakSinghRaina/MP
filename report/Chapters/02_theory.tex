@@ -33,7 +33,21 @@ to every spectrogram, which a flagging method must not mistake for RFI.
 \label{sec:rfi_types}
 Unlike the noise, RFI is non-Gaussian and non-stationary. Different kinds of
 RFI leave different shapes in a spectrogram, depending on how long they last
-and how many frequencies they cover:
+and how many frequencies they cover. \Cref{fig:rfi_types} shows these types of
+RFI in a real observation.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.62\textwidth]{chen2023_fig1_rfi_types}
+  \caption[Types of RFI in a real observation]{Types of RFI in folded pulsar
+    data observed with the FAST telescope (PSR J1859+0430): constant broadband
+    RFI from satellites, instantaneous wideband RFI, broadband RFI lasting a few
+    minutes, and constant narrowband RFI. The colour shows the rms of the folded
+    pulse profile in each frequency channel and sub-integration. Reproduced from
+    Chen et al.\ (2023).}
+  \label{fig:rfi_types}
+\end{figure}
+
 \begin{itemize}
   \item \textbf{Constant narrowband RFI} affects a single frequency channel for
     the whole observation and appears as a thin line along the time axis.
@@ -47,19 +61,8 @@ and how many frequencies they cover:
   \item \textbf{Patchy broadband RFI} covers several channels for a few minutes
     and then fades, appearing as irregular, cloud-like patches.
 \end{itemize}
-\Cref{fig:rfi_types} shows these types of RFI in a real observation.
 
-\begin{figure}[!t]
-  \centering
-  \includegraphics[width=0.62\textwidth]{chen2023_fig1_rfi_types}
-  \caption[Types of RFI in a real observation]{Types of RFI in folded pulsar
-    data observed with the FAST telescope (PSR J1859+0430): constant broadband
-    RFI from satellites, instantaneous wideband RFI, broadband RFI lasting a few
-    minutes, and constant narrowband RFI. The colour shows the rms of the folded
-    pulse profile in each frequency channel and sub-integration. Reproduced from
-    Chen et al.\ (2023).}
-  \label{fig:rfi_types}
-\end{figure}
+
 
 \section{Classical Flagging Methods}
 The simplest way to flag RFI is to mark every pixel whose value $x$ lies too
@@ -190,7 +193,3 @@ yes/no decision. We report \Fone{} in two ways:
     validation set and then applied to the test set. This is the honest
     measure of how a model would perform on new data.
 \end{itemize}
-In both cases TP, FP and FN are added up over all test images before a single
-\Fone{} is computed. Averaging a separate \Fone{} for each image gives a
-different number: for \aoflagger{} on LOFAR, the per-image average is 0.103
-lower than the pooled value.
