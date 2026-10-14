@@ -89,37 +89,6 @@ achieved while training only on \aoflagger{}'s labels, which themselves score
   \label{fig:final}
 \end{figure}
 
-\section{Checking the result}
-\label{sec:audit}
-Because the result is higher than every published result I found, I checked
-it for mistakes before relying on it, using a separate script that shares no
-evaluation code with the training script.
-\begin{itemize}
-  \item \textbf{Metrics recomputed independently} from the saved model agree
-    with the reported values to within $3\times10^{-5}$; the remaining
-    difference comes from GPU non-determinism.
-  \item \textbf{No leakage:} none of the training or validation images appears
-    in the test set, and the normalisation range is computed from training
-    images only.
-  \item \textbf{Honest threshold:} choosing the threshold on the validation set
-    costs 0.006 in \Fone{} compared with choosing the best threshold on the
-    test set itself; the lower, honest value is the one reported.
-  \item \textbf{Little overfitting:} maximum \Fone{} is 0.711 on training
-    images, 0.682 on validation and 0.659 on test.
-  \item \textbf{Not a copy of \aoflagger{}:} the model agrees with \aoflagger{}
-    at an \Fone{} of only 0.743. It finds 16{,}485 true RFI pixels that
-    \aoflagger{} missed and misses 7{,}345 that \aoflagger{} found.
-  \item \textbf{Not a simple frequency rule:} flagging the 16 most
-    RFI-affected frequency channels everywhere scores only 0.065.
-  \item \textbf{Robust to the choice of test images:} resampling the 109 test
-    images 2000 times (bootstrap) gives a 95\% interval for the pooled \Fone{}
-    of $[0.615, 0.692]$; RFI-Net's 0.5979 lies outside it, and 99.5\% of the
-    resamples beat it. The newer published values, 0.639 and 0.640, lie inside
-    it.
-\end{itemize}
-The width of that interval, about $\pm0.04$, is the largest uncertainty in the
-result. It comes from having only 109 test images, not from the model.
-
 \section{Fine-tuning with expert labels}
 \label{sec:expert_ft}
 Every label used to train \hybrid{} comes from \aoflagger{}, which itself
@@ -149,8 +118,7 @@ comes from the expert labels and not from the extra training.
     Setting & max \Fone{} & pooled \Fone{} \\
     \midrule
     No fine-tuning & $0.6603 \pm 0.0040$ & $0.6534 \pm 0.0035$ \\
-    \textbf{All expert labels, 600 steps} & $\mathbf{0.6747 \pm 0.0083}$ & $\mathbf{0.6685 \pm 0.0092}$ \\
-    All expert labels, up to 4000 steps & $0.6676 \pm 0.0157$ & $0.6636 \pm 0.0175$ \\
+    \textbf{All expert labels} & $\mathbf{0.6747 \pm 0.0083}$ & $\mathbf{0.6685 \pm 0.0092}$ \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -164,45 +132,3 @@ validation images, rises by a similar 0.015. This is level with RFDL's results w
 labels\footcite{vanzyl2024rfdl}, $0.669 \pm 0.022$ and $0.675 \pm 0.012$,
 obtained with 20 expert-labelled training images and a different test set of
 70 images.
-
-Training for longer did not help. With up to 4000 steps and the checkpoint
-chosen on the validation images, the score was lower in 12 of the 13 settings
-tested, even though the longer runs always looked better on the validation
-images. With only 19 validation images, choosing among many checkpoints
-favours ones that happen to suit those particular images.
-
-An expert's time is limited, so I also tested labelling only part of the
-pool: 5, 10 or 20\% of it, either as $64 \times 64$ patches or as whole images
-chosen at random. The patches were chosen in three ways: where the model was
-most uncertain (the usual choice in active learning), where it predicted the
-most RFI, or at random (\cref{tab:active}).
-
-\begin{table}[H]
-  \centering
-  \caption[Labelling only part of the expert images]{Labelling part of the pool: maximum \Fone{} on the 109 images after
-    600 steps of fine-tuning, mean of three seeds. For comparison, no
-    fine-tuning gives 0.6603 and all expert labels 0.6747. The whole-image
-    budgets are 3, 7 and 14 images.}
-  \label{tab:active}
-  \begin{tabular}{lccc}
-    \toprule
-    Patches labelled & 5\% & 10\% & 20\% \\
-    \midrule
-    Where the model is most uncertain & 0.6527 & 0.6551 & 0.6604 \\
-    Where the model predicts most RFI & 0.6572 & 0.6514 & 0.6630 \\
-    At random & 0.6667 & 0.6664 & 0.6685 \\
-    Whole images at random & 0.6654 & 0.6568 & 0.6629 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Choosing patches by uncertainty or by predicted RFI did worse than choosing
-them at random in 17 of 18 comparisons (two strategies, three budgets, three
-seeds), and gave no gain over not fine-tuning at all. Random patches gave a
-small gain at every budget: labelling 5\% of the pool raised \Fone{} by 0.006,
-for all three seeds, though by less than labelling everything. The likely
-reason is that the targeted patches are where the RFI is: 3.2--7.4\% of their
-pixels are RFI, against 0.76\% in the pool as a whole. Fine-tuned on them, the
-model sees RFI several times more often than it really occurs and flags too
-much; at every budget its precision was lower than with random patches. For this task, the usual active-learning recipe backfires, and
-labelling random patches is the better choice.

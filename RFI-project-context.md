@@ -3663,6 +3663,11 @@ report within ~30 pages, same chapter order. Done so far:
   0.639-0.640"; (3) 5.3 bootstrap bullet 0.639/0.640; (4) conclusion 0.39
   diagnosis -- FIXED; (5) discussion 7.1 first bullet still tells the 0.39
   story and cites ch.4.
+- 2026-10-14: 5.3 "Checking the result" removed; 5.4 keeps only the all-labels
+  result (train-longer paragraph, its table row, partial-labelling text and
+  table removed; matching sentence cut from 3.6). Deferred (6): intro objective
+  5, discussion/future work/conclusion still mention uncertainty-vs-random;
+  3.5/7.4 still cite the bootstrap +/-0.04. 47 pages.
 
 ---
 
