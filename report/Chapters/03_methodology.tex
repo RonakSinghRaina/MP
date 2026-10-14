@@ -80,10 +80,7 @@ range for the whole dataset:
   \label{eq:fixednorm}
 \end{equation}
 where $x_{\text{lo}}$ and $x_{\text{hi}}$ are the 0.5th and 99.5th percentiles
-of the pixel values, averaged over 200 training images (40 for the synthetic
-data). Only training images are used, so no information from the test set
-enters the normalisation. The reason for using one fixed range rather than
-scaling each image separately is explained in \cref{sec:pernorm}.
+of the pixel values, averaged over 200 training images.
 
 \section{Baseline Model: \texorpdfstring{\tfunet}{tf\_unet}}
 We used the \tfunet{} code of Akeret et al.\ without changing the network
@@ -108,6 +105,16 @@ epochs.
 
 \section{Improved Model: \hybrid{}}
 \label{sec:hybrid_design}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{hybrid_schematic}
+  \caption[Architecture of \hybrid{}]{Architecture of \hybrid{}. It keeps
+    the U shape of a U-Net, here with four encoder levels, a bottleneck and four
+    decoder levels joined by skip connections; the numbers \textcircled{1}--\textcircled{9}
+    mark what differs from \tfunet{}, and red marks the three added modules.}
+  \label{fig:hybrid_arch}
+\end{figure}
+
 \hybrid{} keeps the overall U-Net shape but combines several components that
 other RFI and segmentation work has used, chosen with the properties of RFI in
 mind. The starting point was that faint RFI sits only about 1.5 noise standard
@@ -131,7 +138,6 @@ Most of the design choices aim to use this kind of spatial context.
     Normalisation layers & none & GroupNorm in every residual block and strip module \\
     Output layer & ReLU, then softmax & raw scores, then softmax \\
     Padding & valid (output smaller than input) & same (output = input size) \\
-    Times the image is halved / first-layer width & 2 / 32 & 4 / 8 \\
     Loss & cross-entropy & cross-entropy + Dice \\
     Batch size / learning rate on LOFAR & 4 / $10^{-4}$ & 1 / $10^{-3}$ \\
     Framework & TensorFlow & PyTorch \\
@@ -168,16 +174,6 @@ The components are as follows:
     every pixel receives a prediction.
 \end{itemize}
 
-\section{Training}
-\label{sec:hybrid_training}
-\hybrid{} is trained with the sum of the cross-entropy and Dice losses
-(\cref{eq:ce,eq:dice}), using the Adam optimiser with a learning rate of
-$10^{-3}$ and one image per batch, for 40 epochs of 700 steps (28{,}000
-gradient steps). Class weighting, which gives RFI pixels 57 times the weight of
-clean ones, was tried first and then removed. For both networks, the best
-checkpoint and the decision threshold are chosen on 150 of the 735 validation
-images.
-
 \section{Evaluation}
 All LOFAR results are measured on the 109 expert-labelled test images, using
 the maximum and the pooled \Fone{} (\cref{sec:metrics}). Every setting was
@@ -189,20 +185,13 @@ the uncertainty that comes from the small test set, we also resampled the 109
 test images 2000 times with replacement (bootstrap).
 
 \section{Further Experiments}
-To understand what drives the performance of \hybrid{}, we carried out four
+To understand what drives the performance of \hybrid{}, we carried out two
 further experiments:
 \begin{itemize}
   \item \textbf{Ablation.} We wrote a version of the network in which each
     component can be switched off, and trained every variant through exactly
     the same pipeline, removing the strip convolutions, the attention, the
     residual blocks, all three together, and finally also GroupNorm.
-  \item \textbf{CRF refinement.} Chen et al.\footcite{chen2023} refine RFI
-    labels with a conditional random field (CRF)\footcite{krahenbuhl2011}, which
-    adjusts each pixel's label according to its neighbours. Following them, we
-    added a CRF on top of the trained network. It was implemented as
-    differentiable layers\footcite{zheng2015crfrnn,teichmann2018convcrf}, so
-    that its settings can be set by hand or learned, with separate ranges along
-    time and frequency. It adds only 11 parameters.
   \item \textbf{Expert labels.} To measure what expert labels add without ever
     testing on an image whose expert label the model has seen, we used
     five-fold cross-validation over the 109 expert-labelled images, keeping
@@ -211,6 +200,4 @@ further experiments:
     fine-tuning, with a learning rate of $10^{-4}$. We also labelled only 5, 10
     or 20\% of them, as $64\times64$ patches chosen by the model's uncertainty,
     by its predicted RFI, or at random, or as whole images chosen at random.
-  \item \textbf{Loss.} We trained \hybrid{} again with plain cross-entropy
-    instead of cross-entropy plus Dice, keeping everything else the same.
 \end{itemize}

@@ -3640,6 +3640,13 @@ report within ~30 pages, same chapter order. Done so far:
   brightness-tier table moved to ch.6 faint-RFI section. RFI-types figure now
   directly under the 2.2 opening; pooled-over-images paragraph removed from
   2.7. 51 pages.
+- 2026-10-14: 3.2 normalisation sentence cut after "200 training images";
+  3.4 opens with the hybrid schematic (Fig. 3.4 = Hybrid_Model_Schematic.pdf
+  page 2, slide header/logos cropped off, vector, `Images/hybrid_schematic.pdf`);
+  "times halved / first-layer width" row dropped from tab:hybrid_vs_tfunet;
+  3.5 Training section removed; Further Experiments now only ablation + expert
+  labels (CRF and loss bullets removed; their results still sit in old ch.6).
+  52 pages.
 
 ---
 
