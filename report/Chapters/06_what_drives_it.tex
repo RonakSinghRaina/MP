@@ -19,8 +19,10 @@ it faithfully reproduces \hybrid{}.
 \Cref{tab:ablation} shows the results. Removing the strip convolutions,
 the attention or the residual blocks one at a time changes the score by less
 than 0.007, and removing the strip convolutions even raised it slightly.
-Removing all three at once (``plain U-Net'') gives 0.6605, essentially the same
-as the full model.
+Removing all three at once gives 0.6605, essentially the same as the full
+model. We call this model the ``partial hybrid'': it is \hybrid{} without its
+three added modules, and it is not the original U-Net or \tfunet{}, since it
+keeps all the other differences listed in \cref{tab:hybrid_vs_tfunet}.
 
 \begin{table}[H]
   \centering
@@ -36,15 +38,14 @@ as the full model.
     without strip convolutions                   & 508{,}210 & 0.6637 & $+0.0013$ \\
     without channel attention                    & 593{,}818 & 0.6557 & $-0.0067$ \\
     without residual blocks                      & 572{,}074 & 0.6569 & $-0.0055$ \\
-    without all three (plain U-Net)              & 486{,}418 & 0.6605 & $-0.0019$ \\
-    plain U-Net without GroupNorm                & 485{,}682 & 0.6289 & $-0.0335$ \\
+    without all three (partial hybrid)           & 486{,}418 & 0.6605 & $-0.0019$ \\
+    partial hybrid without GroupNorm             & 485{,}682 & 0.6289 & $-0.0335$ \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 With one run per variant, only the last row looked like a real effect:
-removing GroupNorm cost 0.034, more than eight times the seed spread. Because a
-single run can mislead (\cref{sec:tfunet_lofar}), I repeated the two most
+removing GroupNorm cost 0.034. Because a single run can mislead, I repeated the two most
 important variants with two more seeds (\cref{tab:ablation3}).
 
 \begin{table}[H]
@@ -57,16 +58,16 @@ important variants with two more seeds (\cref{tab:ablation3}).
     Model & Seed 0 & Seed 1 & Seed 2 & Mean $\pm$ s.d. \\
     \midrule
     Full \hybrid{}                 & 0.6592 & 0.6647 & 0.6570 & $0.6603 \pm 0.0040$ \\
-    Plain U-Net (three components removed) & 0.6605 & 0.6618 & 0.6531 & $0.6585 \pm 0.0047$ \\
-    Plain U-Net without GroupNorm  & 0.6289 & 0.6600 & 0.6595 & $0.6495 \pm 0.0178$ \\
+    Partial hybrid (three components removed) & 0.6605 & 0.6618 & 0.6531 & $0.6585 \pm 0.0047$ \\
+    Partial hybrid without GroupNorm  & 0.6289 & 0.6600 & 0.6595 & $0.6495 \pm 0.0178$ \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The full model and the plain U-Net are not significantly different (Welch
+The full model and the partial hybrid are not significantly different (Welch
 $t$-test, $p = 0.64$): the three components contribute nothing measurable. The
 apparent effect of GroupNorm also largely disappeared. The first run without it
-was an outlier; the other two scored the same as the plain U-Net, and with
+was an outlier; the other two scored the same as the partial hybrid, and with
 three seeds the difference is not significant ($p = 0.48$). The one clear sign
 is that without GroupNorm the results vary about four times more from seed to
 seed, so normalisation seems to make training more stable even if it does not
@@ -178,8 +179,9 @@ evidence to rearrange.
 \section{What explains the gain over \tfunet{}?}
 \label{sec:unexplained}
 Taken together, these results show that the gain of \hybrid{} over \tfunet{}
-does not come from the components it was designed around. A plain U-Net with
-the same training setup scores almost as well. What remains are the other
+does not come from the components it was designed around. The partial hybrid,
+with these components removed but the same training setup, scores almost as
+well. What remains are the other
 differences listed in \cref{tab:hybrid_vs_tfunet}: the Dice loss, the output
 layer without a ReLU, same padding, the different depth and width, batch size,
 learning rate and framework.

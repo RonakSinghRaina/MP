@@ -3664,6 +3664,7 @@ report within ~30 pages, same chapter order. Done so far:
   diagnosis -- FIXED; (5) discussion 7.1 first bullet still tells the 0.39
   story and cites ch.4.
 - 2026-10-14: 5.3 "Checking the result" removed; 5.4 keeps only the all-labels
+- 2026-10-14: ch.6 "plain U-Net" renamed "partial hybrid" everywhere (it is HybridRFINet minus strip/ECA/residual, NOT tf_unet: keeps GroupNorm, same padding, no output ReLU, CE+Dice, batch 1 / lr 1e-3; 0.6585 +/- 0.0047 vs tf_unet 0.5482 +/- 0.0139); defining sentence added in 6.1. "more than eight times the seed spread" removed. Discussion 7.3 "Single runs can mislead" and 7.4 "Limitations" removed (takes the bootstrap +/-0.04 quote with it). 46 pages.
   result (train-longer paragraph, its table row, partial-labelling text and
   table removed; matching sentence cut from 3.6). Deferred (6): intro objective
   5, discussion/future work/conclusion still mention uncertainty-vs-random;

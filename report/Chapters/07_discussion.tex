@@ -38,52 +38,6 @@ and fixing \tfunet{}'s training problems quickly, but it was a poor guide to
 how methods compare on real observations: on synthetic data every variant of
 my model scored above 0.95, so it could not show which parts mattered.
 
-\section{Single runs can mislead}
-Three times in this project, an effect measured with one training run shrank
-or disappeared when the run was repeated with different random seeds:
-\begin{itemize}
-  \item lowering \tfunet{}'s learning rate first appeared to add 0.118 to
-    \Fone{}; over three seeds the mean gain was 0.058 and not significant
-    (\cref{sec:tfunet_lofar});
-  \item removing GroupNorm first appeared to cost 0.034; over three seeds the
-    difference was 0.009 and not significant (\cref{sec:ablation});
-  \item strip convolutions first appeared to help faint RFI by about 0.02; the
-    effect came from comparing models at different thresholds and vanished
-    when they were compared fairly (\cref{sec:faint}).
-\end{itemize}
-On LOFAR, results vary between seeds by up to about 0.05 in \Fone{}, which is as
-large as many of the effects one might want to measure. Repeating runs and
-comparing models under identical conditions was the only reliable way to tell
-real effects from noise.
-
-\section{Limitations}
-\begin{enumerate}
-  \item \textbf{Published baselines are quoted.} The results for
-    Mesarcik et al.'s U-Net and RFI-Net, RFDL and Swin-UNETR are taken from
-    their papers\footcite{mesarcik2022,vanzyl2024rfdl,ouyang2024swin}. Because my
-    measurement of \aoflagger{} matches the value these papers report to four
-    decimal places, the test data, labels and metric are the same, so the
-    comparison is like for like; the values themselves are as they reported
-    them.
-  \item \textbf{Small test set.} There are only 109 human-labelled test images.
-    The resulting uncertainty, about $\pm0.04$ in \Fone{} at 95\% confidence, is
-    larger than the variation between seeds.
-  \item \textbf{Different training budgets.} Mesarcik et al.\ trained on
-    32$\times$32 patches for 100 epochs; I trained on full images for a fixed
-    number of steps. Each method was trained in a sensible way for it, but not
-    under one common budget.
-  \item \textbf{Three seeds.} This is the minimum for any statistical
-    statement, and several conclusions rest on it.
-  \item \textbf{One real dataset.} All real-data results come from LOFAR. The
-    method has not been tested on data from another telescope, including the
-    GMRT data that originally motivated this project.
-  \item \textbf{The gain over \tfunet{} is only partly explained.} The Dice
-    loss accounts for about a tenth of it; the rest is not yet attributed
-    (\cref{sec:unexplained}).
-  \item \textbf{\tfunet{} was not run on HERA}, so it is compared with my model
-    only on the synthetic data and on LOFAR.
-\end{enumerate}
-
 \section{Future work}
 The results suggest that further additions to the model should target a
 specific, measured weakness, and each should be tested by removing it again.
