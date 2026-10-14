@@ -3658,6 +3658,11 @@ report within ~30 pages, same chapter order. Done so far:
   paragraph removed. NB the abstract still says "exceeding ... 0.639-0.640" and
   5.3's bootstrap bullet still names 0.639/0.640 -- now unsupported in ch.5.
   48 pages.
+- Deferred by the user (remember, raise later): (1) synthetic version 276x600 vs
+  the diagram's 1024x265 (tf_unet v4 = 0.9483); (2) abstract "exceeding
+  0.639-0.640"; (3) 5.3 bootstrap bullet 0.639/0.640; (4) conclusion 0.39
+  diagnosis -- FIXED; (5) discussion 7.1 first bullet still tells the 0.39
+  story and cites ch.4.
 
 ---
 
