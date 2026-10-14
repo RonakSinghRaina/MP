@@ -3647,6 +3647,17 @@ report within ~30 pages, same chapter order. Done so far:
   3.5 Training section removed; Further Experiments now only ablation + expert
   labels (CRF and loss bullets removed; their results still sit in old ch.6).
   52 pages.
+- 2026-10-14, ch.4 "Reproducing tf_unet": the 0.39 story, four controlled runs,
+  ReLU-trap and per-image-norm sections, v4 bandpass run, LR t-test and the
+  per-image LOFAR 0.3039 line all removed AT THE USER'S REQUEST. Now: 4.1 synthetic
+  (authors' public code + preprocessing, 276x600, 0.9317, batch/optimiser adapted,
+  points to 3.3 `sec:tfunet_setup`), 4.2 LOFAR (table + ladder), 4.3 synthetic->real.
+  ch.5: wide-model/threshold/width-caveat lines cut; class weighting reduced to
+  results; RFDL/Swin paragraph, rows and figure bars removed "for now"
+  (`make_figures.py hybrid_lofar_ladder(include_later=False)`); wide 9.3M model
+  paragraph removed. NB the abstract still says "exceeding ... 0.639-0.640" and
+  5.3's bootstrap bullet still names 0.639/0.640 -- now unsupported in ch.5.
+  48 pages.
 
 ---
 

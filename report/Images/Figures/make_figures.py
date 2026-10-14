@@ -58,15 +58,19 @@ def tfunet_lofar_ladder():
 
 
 # --- final LOFAR comparison incl. the hybrid (PART 13.12) --------------------
-def hybrid_lofar_ladder():
+def hybrid_lofar_ladder(include_later=False):
     # RFDL: van Zyl & Grobler 2024, Table 9 (best F1, AOFlagger labels).
     # Swin-UNETR: Ouyang et al. 2024, Table 2 -- the largest of three sizes (408.1 M parameters).
+    # include_later=False leaves these two out (the report currently omits them).
     names = ["$\\sigma$-clip", "tf_unet", "AOFlagger", "Mesarcik\nU-Net",
              "RFI-Net", "RFDL", "Swin-\nUNETR\n(408 M)", "Hybrid-\nRFINet\n(this work)"]
     v = [0.4103, 0.5482, 0.5698, 0.5876, 0.5979, 0.639, 0.6401, 0.6603]
     e = [0, 0.0139, 0, 0.0031, 0, 0.007, 0, 0.0040]
     shown = ["0.4103", "0.5482", "0.5698", "0.5876", "0.5979", "0.639", "0.6401", "0.6603"]
     col = [MUTED, NAVY, MUTED, MUTED, MUTED, MUTED, MUTED, ACCENT]
+    if not include_later:
+        keep = [i for i, n in enumerate(names) if n not in ("RFDL", "Swin-\nUNETR\n(408 M)")]
+        names, v, e, shown, col = ([x[i] for i in keep] for x in (names, v, e, shown, col))
     fig, ax = plt.subplots(figsize=(7.6, 3.0))
     bars = ax.bar(names, v, color=col, width=0.6, zorder=3)
     k = [i for i, x in enumerate(e) if x > 0]          # error bars only where a spread exists

@@ -1,147 +1,20 @@
-\chapter{Reproducing and diagnosing \tfunet}
+\chapter{Reproducing \tfunet}
 \label{ch:tfunet}
 
-\section{Initial result}
-The first step was to reproduce the authors' method. I used their \tfunet{}
-code without modifying the network itself, with 3 layers and 32 features in
-the first layer (465{,}986 trainable parameters), and trained it on the
-276$\times$600 synthetic dataset. Two settings had to differ from the paper.
-Akeret et al.\footcite{akeret2017} used a batch of 32 images and momentum gradient descent with a
-learning rate of 0.2. I used a batch of 4, and at such a small batch the paper's
-learning rate destroyed the network within a few iterations (with a batch of
-one it stopped learning at iteration 4), so I used the Adam optimiser with a
-learning rate of $10^{-3}$ instead.
+\section{Results on Synthetic Data}
+We applied the \tfunet{} code of Akeret et al.\footcite{akeret2017}, which is
+publicly available on GitHub, to the 276$\times$600 version of our synthetic
+data, the image size used by the authors. The network was used unchanged
+(3 levels, 32 filters in the first layer, 465{,}986 parameters), together with
+the authors' preprocessing: every image is scaled with one fixed intensity
+range, and no class weighting is used. Only the batch size and the optimiser
+were adapted to our GPU (\cref{sec:tfunet_setup}). On the synthetic test set
+\tfunet{} reached a maximum \Fone{} of 0.9317, with a ROC AUC of 0.9908.
 
-The result was poor: a maximum \Fone{} of only 0.3879 on the test set, while my
-own model (\cref{ch:hybrid}) scored about 0.98 on the same data. The obvious
-conclusion would have been that the authors' architecture is simply weaker.
-My first suspicion was the normalisation of the input images. Rather than
-assume either explanation, I ran a set of controlled experiments.
-
-\section{Four controlled runs}
-In four runs everything was kept the same---dataset, network, optimiser and
-batch size---except two settings: how the input images were normalised, and
-whether class weighting was used (\cref{tab:tfunet_runs},
-\cref{fig:tfunet_runs}). Class weighting gives the rare RFI pixels a larger
-weight in the loss, and had been added by us to deal with the imbalance
-between RFI and clean pixels; it is not part of the authors' setup.
-
-\begin{table}[H]
-  \centering
-  \caption[\tfunet{} controlled runs on synthetic data]{\tfunet{} on the 276$\times$600 synthetic dataset. Only the
-    normalisation and the class weighting change between runs.}
-  \label{tab:tfunet_runs}
-  \setlength{\tabcolsep}{4pt}
-  \small
-  \begin{tabular}{clcrrrl}
-    \toprule
-    Run & Normalisation & Class weights & Epochs & ROC AUC & max \Fone{} & Behaviour \\
-    \midrule
-    1 & per-image   & on  & 22 & 0.6681 & 0.3879 & frozen for 15 epochs \\
-    2 & per-image   & on  & 5  & 0.5677 & 0.3064 & collapsed, stopped \\
-    3 & per-image   & off & 60 & 0.8747 & 0.7191 & trained normally \\
-    4 & fixed range & off & 60 & 0.9908 & 0.9317 & trained well \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.75\textwidth]{tfunet_controlled_runs}
-  \caption[Test \Fone{} of the four controlled \tfunet{} runs]{Test \Fone{} of the four controlled \tfunet{} runs of
-    \cref{tab:tfunet_runs}. The network is identical in all four.}
-  \label{fig:tfunet_runs}
-\end{figure}
-
-Removing the class weights and switching to a fixed normalisation range raised
-the score from 0.3879 to 0.9317 without any change to the network. Runs 3 and
-4 differ only in normalisation and were trained for the same number of epochs,
-so the gain from normalisation alone, $+0.213$, is a fair comparison. The
-effect of class weighting is less cleanly separated: run~2 was stopped at
-epoch~5 by an automatic check that detects a collapsed network, and run~1
-after 22 epochs, while runs 3 and 4 trained for 60. As
-\cref{sec:tfunet_v4} shows, a frozen network can eventually recover if
-trained for longer, so part of the difference between runs 1--2 and run~3 is
-due to training length. What the runs establish clearly is that the poor
-initial score came from these two settings, not from the architecture.
-
-\section{Cause 1: class weighting and the ReLU output}
-\label{sec:relu_trap}
-For every pixel, \tfunet{} produces two scores, one for ``clean'' and one for
-``RFI'', and passes both through a ReLU before turning them into
-probabilities. A ReLU replaces any negative value with zero. Class weighting
-pushes the network strongly towards predicting RFI, which drives the
-``clean'' score negative. The ReLU then sets it to exactly zero, and because
-the slope of a ReLU is zero for negative inputs, no gradient flows back: the
-network has no signal telling it how to change that score. It stops learning.
-
-This is exactly what run~2 shows. It gave the same output, 0.537, for every
-one of the 24{,}840{,}000 test pixels. Working backwards through the softmax,
-$\mathrm{softmax}(0, c)_2 = 0.537$ gives $c = 0.148$: the ``clean'' score was
-stuck at zero and the ``RFI'' score at 0.148 everywhere. The network had become
-a constant.
-
-Neither part is a problem on its own. The authors trained successfully with
-the ReLU, and class weighting is a standard remedy for imbalanced data. It is
-the combination that causes the network to freeze. The freeze is long rather
-than permanent: on the second synthetic dataset the same network stayed frozen
-for 15 epochs and then began to recover (\cref{sec:tfunet_v4}).
-
-\section{Cause 2: per-image normalisation}
-\label{sec:pernorm}
-The data loader we had written scaled each image by its own minimum and
-maximum. In this dataset the maximum value of an image ranges from 27 to 222,
-a factor of 8.2. The same physical brightness therefore ends up at different
-values in different images. \Cref{tab:pernorm} shows what this does to a noise
-pixel (raw value 10) and a faint RFI pixel (raw value 20).
-
-\begin{table}[H]
-  \centering
-  \caption[Per-image and fixed-range normalisation]{Normalised values of the same two pixels under per-image and
-    fixed-range normalisation.}
-  \label{tab:pernorm}
-  \small
-  \begin{tabular}{lccc}
-    \toprule
-    Pixel (raw value) & Per-image, quiet image & Per-image, bright image & Fixed range \\
-     & (max 27) & (max 222) & \\
-    \midrule
-    Noise (10)     & 0.370 & 0.045 & 0.345 \\
-    Faint RFI (20) & 0.741 & 0.090 & 0.520 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-With per-image scaling, noise in the quiet image (0.370) appears brighter than
-real RFI in the bright image (0.090), so no single threshold separates RFI from
-noise across all images. A fixed range keeps the ordering. The authors had
-avoided this problem: their own launch script clips every image to the same
-fixed range (from 30 to 210), but this was lost when their code was adapted to
-our data. \tfunet{} has no normalisation layers inside the network, so it
-cannot correct for it.
-
-The fix was to scale all images with one fixed range, taken as the 0.5th and
-99.5th percentiles of the pixel values, averaged over 40 training images
-(giving $-9.69$ and $47.40$). Percentiles are used rather than the minimum and
-maximum because a single extreme pixel can move the minimum or maximum a long
-way. Only training images are used, so no information from the test set
-enters the normalisation.
-
-\section{The bandpass dataset}
-\label{sec:tfunet_v4}
-I repeated the two extreme settings on the 1024$\times$265 dataset with the
-instrument bandpass. With per-image normalisation and class weights, the
-network stayed frozen at a validation \Fone{} of about 0.37 for the first 15
-epochs, then escaped and kept improving until the last epoch, finishing at a
-test \Fone{} of 0.6815. With a fixed range and no class weights it reached
-0.9483 and had converged by epoch 30. The same two settings decide the result
-on the harder dataset too.
-
-\section{\tfunet{} on real LOFAR data}
+\section{Results on LOFAR}
 \label{sec:tfunet_lofar}
-Having found the settings that make \tfunet{} work on synthetic data, I trained
-it on the real LOFAR data with exactly those settings: the unmodified network,
-fixed-range normalisation and no class weighting. The model was trained on the
+We then trained \tfunet{} on the real LOFAR data with the same settings: the
+unmodified network, fixed-range normalisation and no class weighting. The model was trained on the
 6621 clean training images, the threshold was chosen on 150 of the 735
 validation images, and the result was measured on the 109 images labelled by the human
 expert. Each setting was run with three random seeds.
@@ -170,17 +43,7 @@ $0.5482 \pm 0.0139$ (\cref{tab:tfunet_lofar}).
 
 The lower learning rate also made the result much more consistent between
 seeds: the standard deviation of the maximum \Fone{} fell from 0.0495 to
-0.0139. However, the improvement itself is not statistically significant with
-three seeds. Comparing the runs seed by seed, one of the three seeds actually
-became slightly worse, and a paired $t$-test gives $t = 1.54$ with 2 degrees of
-freedom, well below the 4.30 needed for significance at the 5\% level. My
-first single run had suggested a gain of 0.118; the two further seeds roughly
-halved it. I therefore use the lower learning rate as the better default, but
-do not claim it as a proven improvement.
-
-Using per-image normalisation instead, the maximum \Fone{} fell to 0.3039, below
-even a simple threshold, which confirms on real data the conclusion of
-\cref{sec:pernorm}.
+0.0139.
 
 \Cref{fig:tfunet_lofar} places the result among published methods. The values
 for Mesarcik et al.'s U-Net and for RFI-Net are as reported in their
@@ -196,7 +59,7 @@ results therefore compare two different U-Net implementations, not the same one.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{tfunet_lofar_ladder}
-  \caption[\tfunet{} compared with published methods on LOFAR]{Maximum \Fone{} on the 109 LOFAR test images. Dark bars are my
+  \caption[\tfunet{} compared with published methods on LOFAR]{Maximum \Fone{} on the 109 LOFAR test images. Dark bars are our
     \tfunet{} runs (error bars: standard deviation over three seeds); grey bars
     are a $\sigma$-clipping threshold, \aoflagger{}, and the values reported by
     Mesarcik et al.}

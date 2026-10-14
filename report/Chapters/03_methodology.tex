@@ -83,6 +83,7 @@ where $x_{\text{lo}}$ and $x_{\text{hi}}$ are the 0.5th and 99.5th percentiles
 of the pixel values, averaged over 200 training images.
 
 \section{Baseline Model: \texorpdfstring{\tfunet}{tf\_unet}}
+\label{sec:tfunet_setup}
 We used the \tfunet{} code of Akeret et al.\ without changing the network
 (3 levels, 32 filters in the first layer; \cref{fig:tfunet_arch}). The paper used a batch of 32 images
 and momentum gradient descent with a learning rate of 0.2. We used a batch of 4
@@ -168,8 +169,7 @@ The components are as follows:
     statistics within a single image, so it works with the single-image batches
     used here.
   \item \textbf{No ReLU on the output.} The raw scores go directly to the
-    softmax, which avoids the failure of \tfunet{} described in
-    \cref{sec:relu_trap}.
+    softmax, whereas \tfunet{} passes them through a ReLU first.
   \item \textbf{Same padding} keeps the output the same size as the input, so
     every pixel receives a prediction.
 \end{itemize}

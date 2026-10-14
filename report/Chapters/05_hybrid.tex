@@ -8,17 +8,13 @@ actually matter.
 On the synthetic data the model performs very well, but as
 \cref{sec:gap} showed, this data is much easier than real observations, so
 these results are mainly a check that the model trains correctly.
-On the 276$\times$600 dataset a wide version of the model (32 filters in the
-first layer, 9{,}304{,}186 parameters) reached an \Fone{} of 0.9808, and on the
-1024$\times$265 dataset the narrow version used in the rest of this report (8
-filters, 593{,}842 parameters) reached 0.9877. These values use a threshold
-chosen on the validation set.
+On the 1024$\times$265 dataset the version used in the rest of this report (8
+filters, 593{,}842 parameters) reached an \Fone{} of 0.9877.
 
 The width of the network can be reduced a long way at little cost
 (\cref{tab:width}). Going from 32 to 8 filters in the first layer removes 94\%
 of the parameters and lowers \Fone{} by only 0.006; only at 4 filters does the
-model clearly get worse. Each width was trained once, so differences of less
-than about 0.01 should not be over-interpreted.
+model clearly get worse.
 
 \begin{table}[H]
   \centering
@@ -41,16 +37,11 @@ than about 0.01 should not be over-interpreted.
 \label{sec:hybrid_lofar}
 
 \subsection{Class weighting}
-I first trained the model on LOFAR with class weighting, giving RFI pixels 57
-times the weight of clean ones to balance their rarity. Over three seeds it
-reached a maximum \Fone{} of $0.6467 \pm 0.0079$. However, the threshold chosen
-on the validation set was 0.96, far from the usual 0.5: the weighting pushed
-the model's outputs so high that only near-certain predictions could be
-trusted. Without class weighting, the score rose to $0.6603 \pm 0.0040$ and the
-threshold fell to $0.26$. Removing the weight improved the result for every one
-of the three seeds (by 0.009 to 0.016; paired $t = 6.03$ with 2 degrees of
-freedom, significant at the 5\% level), so the unweighted model is used from
-here on.
+With class weighting (RFI pixels given 57 times the weight of clean ones), the
+model reached a maximum \Fone{} of $0.6467 \pm 0.0079$ over three seeds;
+without it, $0.6603 \pm 0.0040$. Removing the weight improved the result for
+every seed (paired $t = 6.03$ with 2 degrees of freedom, significant at the 5\%
+level), so the unweighted model is used from here on.
 
 Interestingly, the area under the ROC curve moved the opposite way, falling
 from 0.980 to 0.938. The ROC curve measures how well the model ranks RFI pixels
@@ -65,25 +56,14 @@ methods on the 109 human-labelled test images. \hybrid{} reaches a maximum
 validation set, the pooled \Fone{} is $0.6561 \pm 0.0044$. This is 0.11 above
 \tfunet{} and 0.062 above RFI-Net (0.5979), the best result reported by
 Mesarcik et al.\ (one-sample $t = 27.2$ with 2 degrees of freedom). It is
-achieved while training on \aoflagger{}'s labels, which themselves score only
-0.5698 against the human expert: the model ends up agreeing with the expert
-more than its own training labels do.
-
-Two later studies on the same test set, also trained only on \aoflagger{}'s
-labels, scored above RFI-Net: RFDL\footcite{vanzyl2024rfdl} with $0.639 \pm 0.007$
-and Swin-UNETR\footcite{ouyang2024swin} with up to 0.640. \hybrid{} is about 0.02
-above both, with about 690 times fewer parameters than the largest Swin-UNETR.
-This margin, however, is smaller than the uncertainty that comes from the small
-test set (\cref{sec:audit}), so the fair summary is that \hybrid{} matches the
-best published results, and is the highest score I found, rather than that it
-clearly beats them.
+achieved while training only on \aoflagger{}'s labels, which themselves score
+0.5698 against the human expert.
 
 \begin{table}[H]
   \centering
   \caption[Comparison with published methods on LOFAR]{Results on the 109 human-labelled LOFAR test images. Values for
-    Mesarcik et al.'s U-Net, RFI-Net, RFDL and Swin-UNETR are as reported in
-    their papers; every learned method was trained only on \aoflagger{}'s
-    labels.}
+    Mesarcik et al.'s U-Net and RFI-Net are as reported in their paper; every
+    learned method was trained only on \aoflagger{}'s labels.}
   \label{tab:final}
   \begin{tabular}{lcr}
     \toprule
@@ -94,8 +74,6 @@ clearly beats them.
     \aoflagger{} & 0.5698 & --- \\
     Mesarcik et al.\ U-Net & $0.5876 \pm 0.0031$ & --- \\
     RFI-Net & 0.5979 & --- \\
-    RFDL & $0.639 \pm 0.007$ & --- \\
-    Swin-UNETR (three sizes) & 0.628--0.640 & 6.5--408.1\,M \\
     \hybrid{}, class-weighted (3 seeds) & $0.6467 \pm 0.0079$ & 593{,}842 \\
     \textbf{\hybrid{} (3 seeds)} & $\mathbf{0.6603 \pm 0.0040}$ & 593{,}842 \\
     \bottomrule
@@ -106,16 +84,10 @@ clearly beats them.
   \centering
   \includegraphics[width=0.8\textwidth]{hybrid_lofar_ladder}
   \caption[\hybrid{} compared with published methods on LOFAR]{Maximum \Fone{} on the 109 LOFAR test images. Error bars show the
-    standard deviation over three seeds for my models and the spread reported
-    for RFDL; values for the published methods are as reported in their papers
-    (Swin-UNETR: the largest of its three sizes).}
+    standard deviation over three seeds; values for the published methods are
+    as reported by Mesarcik et al.}
   \label{fig:final}
 \end{figure}
-
-A wider version of the model, with 32 filters and 9.3 million parameters,
-scored 0.6571 with class weighting (one run), against $0.6467 \pm 0.0079$ for
-the narrow class-weighted model. Fifteen times more parameters therefore buys
-very little, consistent with the synthetic results in \cref{tab:width}.
 
 \section{Checking the result}
 \label{sec:audit}
