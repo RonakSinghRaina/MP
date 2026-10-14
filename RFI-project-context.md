@@ -3631,8 +3631,9 @@ report within ~30 pages, same chapter order. Done so far:
   bullet); Fig. 2.1 = Chen et al. 2023 Fig. 1 (FAST, RFI types), the PDF's own
   embedded 667x685 JPEG extracted losslessly (`Images/chen2023_fig1_rfi_types.jpg`).
   One-line List of Tables too. 53 pages.
-- Datasets (2026-10-13): 3.1 prose replaced by a TikZ tree diagram
-  (Fig. 3.1, `fig:datasets`): synthetic v4 only (1024x265, 1000 = 700/150/150,
+- Datasets (2026-10-13; redrawn 2026-10-14 as a left-to-right `forest` tree,
+  white boxes, one property per box, as the user's example): 3.1 prose replaced
+  by a tree diagram (Fig. 3.1, `fig:datasets`): synthetic v4 only (1024x265, 1000 = 700/150/150,
   14.19% RFI, exact labels, bandpass), HERA (512x512, 420/140 -> 351/135,
   2.75%, F1 0.9996, check only), LOFAR (512x512, 7500/109 -> 6621/735/109,
   0.77% test RFI, AOFlagger F1 0.57 vs expert). LOFAR example figure kept;
