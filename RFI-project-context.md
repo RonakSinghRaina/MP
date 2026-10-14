@@ -2919,6 +2919,14 @@ is our `max_f1`. The gap is not a metric artefact.
 So PART 12.7/12.10's "their lr is 1e-4" and PART 11.6b's "their clip is 20 sigma"
 describe the paper, not what produced 0.5876.
 
+**Correction (2026-10-14): their normalisation is NOT per image.** The paper text
+(sec. 4.2) never says "per image" -- that was our reading. In both code versions
+mu and sd are computed over the clean pixels of a whole SET (train set or test set),
+then clip -> natural log -> min-max, so every image in a set gets the same fixed
+range, like ours. Remaining differences from ours: mean/sd-based bounds instead of
+percentiles, a log scale, and statistics taken from the test set (with its human
+masks) for the test images. The "per-image" row in the 12.7 table is wrong.
+
 ### 21.4 Four things in their pipeline that we would not do
 
 1. **Trained on the test images.** No de-duplication anywhere: all 7500 training
