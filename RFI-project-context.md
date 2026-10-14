@@ -3702,6 +3702,47 @@ Recall 0.9815 · IoU 0.9623 · MCC 0.9774 · FPR 0.0035
 
 ---
 
+## PART 29 — Training-condition audit for the Figure 5.1 comparison (2026-10-14)
+
+Supervisor's concern: the bars in the LOFAR comparison figure must be trained and
+tested under identical conditions. Every row below was checked against a primary
+source on 2026-10-14: the Mesarcik et al. 2022 paper (notes/), their code
+github.com/mesarcik/RFI-NLN at commit 753b0d3 (29 Jun 2022, "experiments complete",
+the version behind Table 2) and at HEAD 9e756de, and our own scripts plus the saved
+`eval_test/metrics.json` of the headline runs (runs/lofar/lr1e-4_seed{0,1,2},
+runs/lofar/hybrid_b08_nocw_seed{0,1,2}).
+
+| setting | Mesarcik U-Net / RFI-Net (Table 2) | our tf_unet (0.5482 +/- 0.0139) | our HybridRFINet (0.6603 +/- 0.0040) |
+|---|---|---|---|
+| training images | released 7500 (109 test images included; no dedup) | 6621 clean | 6621 clean |
+| validation / checkpoint pick | none; model after the last epoch | best of 75 checks on 150 val images | best of 20 checks on 150 val images |
+| training input | 32x32 tiles, stride 32 (256 per image) | full 512x512 | full 512x512 |
+| batch | 1024 tiles = 1,048,576 px/step | 4 images = 1,048,576 px/step | 1 image = 262,144 px/step |
+| optimiser / lr | Adam(), Keras default 1e-3 (paper says 1e-4), constant | Adam 1e-4, constant | Adam 1e-3, cosine decay to 0 over 40 epochs |
+| amount of training | 100 epochs x 7500 = 750,000 image-equivalents (~187,500 steps) | 26,250 steps x 4 = 105,000 images (~16 passes) | 28,000 steps x 1 = 28,000 images (~4.2 passes) |
+| normalisation | clip [abs(mu - sd), mu + 20 sd] -> ln -> min-max; mu/sd from clean pixels of the WHOLE set; train set uses its own (AOFlagger-mask) stats, test set its own stats computed with the EXPERT masks | linear clip to one fixed range (0.5/99.5 percentiles, mean of 200 training images), same range for test | same as tf_unet |
+| loss | bce(x_hat, y) -- arguments swapped (PART 21.4) | cross-entropy + L2 0.001 | cross-entropy + Dice |
+| dropout | 5% | 25% (keep_prob 0.75) | 20% |
+| output | 1-channel sigmoid | 2-class softmax after ReLU | 2-class softmax |
+| class weights | none | none | none |
+| augmentation | none | none | none |
+| test images | 109 expert, cut into tiles, predictions reassembled to 512x512 | 109 expert | 109 expert |
+| pixels scored | full 512x512 | **centre 472x472 only** (valid padding) | full 512x512 (472 crop: 0.6664) |
+| metric | max F1 over thresholds on test, pooled pixels | same | same |
+| runs | 3 (run_lofar.sh "repeat 1 2 3" at 753b0d3) | 3 seeds | 3 seeds |
+
+Corrections to what was said in conversation before this audit: (1) their
+normalisation is set-wide, not per image (also noted under 21.3); (2) the hybrid's
+lr is not constant -- CosineAnnealingLR, T_max 40; (3) tf_unet is scored on the
+472x472 centre only; (4) tf_unet also has L2 0.001 and 25% dropout. The paper's text
+also says the baselines use "all parameters specified by the authors other than
+patch size", but the code gives every model the same Adam() and batch 2**10.
+
+Identical for all bars: test images, expert labels, metric (max F1, pooled pixels),
+no class weights, no augmentation. NOT identical: everything else in the table.
+tf_unet cannot take 32x32 input at all (PART 12.12), so the authors' tiling cannot
+be matched for it.
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
