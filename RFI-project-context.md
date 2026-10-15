@@ -3815,6 +3815,30 @@ median position shift 15,795 vs 15,804), --input_dtype, --eval_every.
 **Crash note:** the first launch loaded the 7.9 GB float32 cache into RAM and froze the
 machine (19 GB RAM); float32 now stays memory-mapped (peak ~6.7 GB used in smoke test).
 
+### 30.4 RESULT Run A: their shuffle buffer + float32 inputs do NOT explain it (2026-10-15)
+`runs/lofar/mesarcik_unet_paper_code_june_buf25000_f32_seed0` -- June pipeline, all 7500
+images, tf.data 25k buffer emulated, float32 inputs: **max F1 0.6220** (vs 0.6258 with
+full shuffle + float16 cache). Both remaining pipeline deviations removed at once -> still
+0.62. Trajectory (float16 scores, as their code computes them):
+
+| epoch | max F1 | AUROC | AUPRC |
+|---|---|---|---|
+| 5 | 0.6327 | 0.8352 | 0.5788 |
+| 10 | 0.6232 | 0.8220 | 0.5838 |
+| 25 | 0.6276 | 0.7965 | 0.6396 |
+| 50 | 0.6229 | 0.7877 | 0.6357 |
+| 75 | 0.6232 | 0.7901 | 0.6342 |
+| 100 | 0.6220 | 0.7868 | 0.6335 |
+| published | 0.5876 | 0.8017 | 0.5920 |
+
+Max F1 is 0.62-0.63 from epoch 5 to 100: never near 0.588, so stopping early is not it
+either. AUROC falls and AUPRC rises as outputs saturate (L1 loss). Run B (full shuffle +
+float32) was stopped -- with A it would only separate two effects already shown to be
+jointly negligible. Replaced by Run C: Run A under Keras 2 (tf_keras 2.21,
+TF_USE_LEGACY_KERAS=1, env ~/tfk2-env = venv with a .pth onto tf-env + tf-keras only;
+scripts/run_mesarcik_keras2.sh). Keras 2 confirmed: swapped loss = 15.42 x L1 for mask 0,
+15.33 x L1 for mask 1 (Keras 3: 16.1).
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
