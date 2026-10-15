@@ -3769,6 +3769,52 @@ max F1 exactly).
 Not significant for either; the checkpoint rule is not what separates the bars.
 (tf_unet seed 1's best epoch was the last, 150, hence 0.0000.)
 
+## PART 30 — Why their own U-Net scores ~0.62 here vs 0.5876 published (investigation, 2026-10-15)
+
+Re-opens 21.8. Sources: paper (notes/), their git history (github.com/mesarcik/RFI-NLN,
+every commit Jan-Jul 2022), Zenodo record 6724065, our three PART 21 runs.
+
+### 30.1 Ruled out (with evidence)
+- **Architecture**: `UNET` and `Conv2D_block` are byte-identical at 753b0d3 (29 Jun) and
+  HEAD; our copy is HEAD. No weight regulariser; dropout 0.05; BatchNorm; sigmoid.
+- **float16 scoring** (their infer() stores predictions as float16): max F1 identical to
+  4 decimals on all three runs (0.6258/0.6207/0.6166 both ways).
+- **Image/mask misalignment** from their two separately shuffled tf.data streams: same
+  seed (42) keeps them aligned (tested in TF 2.21, 2 epochs, 1.92M elements).
+- **Data order**: the Zenodo training images are already in random order (500-image
+  block means flat; lag-1 correlation of log median power -0.02 vs 0.017 shuffled),
+  so their 25k shuffle buffer cannot feed one observation at a time.
+- **Preprocessing family**: code state 8 Jun-29 Jun used a FIXED clip
+  [1.75e6, 1e8] (`-clip 1.75e6`), 753b0d3 introduced mu/sigma bounds, the July "bug
+  fix" uses [|mu-3sd|, mu+95sd] = [1.787e6, 1.003e8] -- i.e. it restored the fixed clip.
+  Both families tested: June 0.6258, July 0.6207.
+- **Loss across Keras versions**: their swapped bce(x_hat, y) is 15.4 x L1 in TF 2.5
+  (log(2e-7)) and 16.1 x L1 in Keras 3 -- a constant scale, which Adam ignores.
+- **F1 formula**: max over precision_recall_curve since 9 Jun 2022 (70aa984), same as ours.
+- **Dataset**: Zenodo record published 24 Jun 2022 (v1, no later versions); their code
+  from 17 Jun loads joined_dataset.pickle with the same 4-tuple layout.
+
+### 30.2 Signature of the difference (float16 scores, as their code computes them)
+| | AUROC | AUPRC | max F1 |
+|---|---|---|---|
+| published | 0.8017 | 0.5920 | 0.5876 |
+| ours, June code | 0.7896 | 0.6365 | 0.6258 |
+| ours, July code | 0.7843 | 0.6321 | 0.6207 |
+| ours, clean | 0.7843 | 0.6276 | 0.6166 |
+Ours rank slightly WORSE overall (AUROC -0.012 to -0.017) but are more precise at the
+top -- a different training outcome, not a scoring artefact.
+
+### 30.3 Still untested -> runs launched 2026-10-15 (scripts/run_mesarcik_gap.sh)
+Remaining code-level differences: (a) their 25k tf.data shuffle buffer (we did a full
+shuffle); (b) our float16 caching of training inputs (theirs float32); (c) TF 2.5 /
+Keras 2 vs TF 2.21 / Keras 3; (d) which code state actually produced Table 2.
+Run A = June code + buffer 25000 + float32 inputs; Run B = same with full shuffle.
+Both score the test set every 5 epochs (eval_test/trajectory.json).
+`train_mesarcik_unet.py` gained --shuffle_buffer (emulation checked against tf.data:
+median position shift 15,795 vs 15,804), --input_dtype, --eval_every.
+**Crash note:** the first launch loaded the 7.9 GB float32 cache into RAM and froze the
+machine (19 GB RAM); float32 now stays memory-mapped (peak ~6.7 GB used in smoke test).
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the

@@ -36,9 +36,15 @@ which says clip [|mu-sigma|, mu+20 sigma] and lr 1e-4):
   * F1 = max over all thresholds on the test set, pooled over all pixels of the
     reassembled 512x512 images (segmentation_metrics.py get_metrics)
 
-Known deviation: their tf.data shuffle buffer (25,000 patches over image-ordered
-data) only mixes ~100 neighbouring images; this script shuffles all patches
-every epoch.
+Known deviations (both now switchable, PART 30):
+  * their tf.data shuffle buffer (25,000 patches over the image-ordered patch
+    stream) only mixes ~100 neighbouring images; by default this script shuffles
+    all patches every epoch. --shuffle_buffer 25000 reproduces theirs exactly
+    (tf.data ShuffleDataset algorithm, fresh buffer every epoch).
+  * the normalised training images are cached as float16 by default; their
+    training data is float32. --input_dtype float32 removes this.
+--eval_every K scores the test set every K epochs (float32 scores, and float16
+scores as their infer() stores them) and writes eval_test/trajectory.json.
 
 Run (TensorFlow environment):
     export LD_LIBRARY_PATH="$(ls -d ~/tf-env/lib/python3.12/site-packages/nvidia/*/lib | tr '\\n' ':')$LD_LIBRARY_PATH"
@@ -96,13 +102,33 @@ def transform(x, lo, hi):
     return ((np.log(x) - np.log(lo)) / (np.log(hi) - np.log(lo))).astype(np.float32)
 
 
-def prepare(images, indices, lo, hi, cache, chunk=100):
-    """Normalise once and cache as float16 so training reads 2 bytes/pixel."""
+def buffer_order(n, buf, rng):
+    """Order in which tf.data's shuffle(buf) emits n elements of an ordered stream:
+    fill a buffer with the first `buf` elements; each draw takes a uniformly random
+    slot and refills it with the next element; once the stream is exhausted the
+    buffer drains in random order."""
+    size = min(buf, n)
+    buffer = np.arange(size, dtype=np.int64)
+    out = np.empty(n, dtype=np.int64)
+    r = rng.random(n)
+    nxt = size
+    for k in range(n):
+        i = int(r[k] * size)
+        out[k] = buffer[i]
+        if nxt < n:
+            buffer[i] = nxt; nxt += 1
+        else:
+            size -= 1; buffer[i] = buffer[size]
+    return out
+
+
+def prepare(images, indices, lo, hi, cache, chunk=100, dtype=np.float16):
+    """Normalise once and cache (float16 by default, so training reads 2 bytes/pixel)."""
     if os.path.exists(cache):
         return np.load(cache, mmap_mode="r")
     os.makedirs(os.path.dirname(cache), exist_ok=True)
     tmp = cache + ".part.npy"
-    out = np.lib.format.open_memmap(tmp, mode="w+", dtype=np.float16,
+    out = np.lib.format.open_memmap(tmp, mode="w+", dtype=dtype,
                                     shape=(len(indices), 512, 512))
     raw_min, raw_max = np.inf, -np.inf
     for i in range(0, len(indices), chunk):
@@ -111,7 +137,7 @@ def prepare(images, indices, lo, hi, cache, chunk=100):
         order = np.argsort(np.argsort(sel))          # restore requested order
         x = x[order]
         raw_min = min(raw_min, float(x.min())); raw_max = max(raw_max, float(x.max()))
-        out[i:i + len(sel)] = transform(x, lo, hi).astype(np.float16)
+        out[i:i + len(sel)] = transform(x, lo, hi).astype(dtype)
     out.flush(); del out
     if not (raw_min <= lo and raw_max >= hi):
         raise RuntimeError("clip bounds not reached; global min-max would differ "
@@ -170,13 +196,21 @@ def main():
     ap.add_argument("--clip", choices=["july", "june"], default="july",
                     help="july = released code (default); june = the version that "
                          "produced their published numbers (see CLIPS)")
+    ap.add_argument("--shuffle_buffer", type=int, default=0,
+                    help="0 = full shuffle every epoch (default); 25000 = their tf.data buffer")
+    ap.add_argument("--input_dtype", choices=["float16", "float32"], default="float16",
+                    help="dtype of the cached normalised training images (theirs: float32)")
+    ap.add_argument("--eval_every", type=int, default=0,
+                    help="score the test set every K epochs into eval_test/trajectory.json")
     ap.add_argument("--output_dir", default=None)
     a = ap.parse_args()
 
     out = a.output_dir or os.path.join(_ROOT, "runs", "lofar",
                                        f"mesarcik_unet_{a.setup}"
                                        f"{'_bce' if a.correct_loss else ''}"
-                                       f"{'_june' if a.clip == 'june' else ''}_seed{a.seed}")
+                                       f"{'_june' if a.clip == 'june' else ''}"
+                                       f"{f'_buf{a.shuffle_buffer}' if a.shuffle_buffer else ''}"
+                                       f"{'_f32' if a.input_dtype == 'float32' else ''}_seed{a.seed}")
     os.makedirs(out, exist_ok=True)
     cache_dir = os.path.join(_ROOT, "data", "lofar", "mesarcik_cache")
 
@@ -217,8 +251,14 @@ def main():
     print(f"  clip ({a.clip:<4})       : train [{lo:.6g}, {hi:.6g}] (mu {mu:.6g}, sd {sd:.6g})"
           f"   test [{te_lo:.6g}, {te_hi:.6g}]")
 
-    Xtr = np.asarray(prepare(d.train_images, tr_idx, lo, hi,
-                             os.path.join(cache_dir, f"{tag}_train_{len(tr_idx)}.npy")))
+    Xtr = prepare(d.train_images, tr_idx, lo, hi,
+                  os.path.join(cache_dir, f"{tag}_train_{len(tr_idx)}"
+                               f"{'_f32' if a.input_dtype == 'float32' else ''}.npy"),
+                  dtype=np.float32 if a.input_dtype == "float32" else np.float16)
+    if a.input_dtype == "float16":
+        Xtr = np.asarray(Xtr)            # 3.9 GB: fits in RAM
+    # float32 (7.9 GB) stays memory-mapped. Loading it into RAM on this 19 GB
+    # machine froze the system on 2026-10-15 (PART 30).
     Ytr = np.asarray(d.train_masks[np.sort(tr_idx), ..., 0])[np.argsort(np.argsort(tr_idx))]
     Xte = transform(d.test_images[..., 0], te_lo, te_hi)
     Yte = np.asarray(d.test_masks[..., 0], dtype=bool)
@@ -252,9 +292,16 @@ def main():
 
     rng = np.random.default_rng(a.seed)
     flat = np.arange(n_tiles)
+    traj_path = os.path.join(out, "eval_test", "trajectory.json")
+    traj = json.load(open(traj_path)) if (start_ep and os.path.exists(traj_path)) else []
+    print(f"  shuffle           : {f'tf.data buffer {a.shuffle_buffer:,} over image-ordered patches' if a.shuffle_buffer else 'full shuffle'}")
+    print(f"  training dtype    : {a.input_dtype}")
     t0 = time.time()
     for ep in range(start_ep, a.epochs):
-        rng.shuffle(flat)
+        if a.shuffle_buffer:
+            flat = buffer_order(n_tiles, a.shuffle_buffer, rng)
+        else:
+            rng.shuffle(flat)
         losses = []
         for s in range(steps):
             b = flat[s * a.batch:(s + 1) * a.batch]
@@ -265,6 +312,20 @@ def main():
         model.save_weights(wpath)
         json.dump({"epochs_completed": ep + 1, "loss": float(np.mean(losses))},
                   open(prog_path, "w"))
+        if a.eval_every and ((ep + 1) % a.eval_every == 0 or ep + 1 == a.epochs):
+            p32 = predict_images(model, Xte)
+            m32 = metrics(Yte, p32)
+            m16 = metrics(Yte, p32.astype(np.float16).astype(np.float32))
+            traj.append(dict(epoch=ep + 1, loss=float(np.mean(losses)),
+                             max_f1=m32["max_f1"], roc_auc=m32["roc_auc"], pr_auc=m32["pr_auc"],
+                             max_f1_f16=m16["max_f1"], roc_auc_f16=m16["roc_auc"],
+                             pr_auc_f16=m16["pr_auc"],
+                             frac_ge_0999=float((p32 >= 0.999).mean()),
+                             frac_le_0001=float((p32 <= 0.001).mean())))
+            os.makedirs(os.path.dirname(traj_path), exist_ok=True)
+            json.dump(traj, open(traj_path, "w"), indent=1)
+            print(f"     test @ {ep + 1}: maxF1 {m32['max_f1']:.4f}  float16 scores -> "
+                  f"AUROC {m16['roc_auc']:.4f} AUPRC {m16['pr_auc']:.4f}", flush=True)
         el = time.time() - t0
         print(f"  epoch {ep + 1:>3}/{a.epochs}  loss {np.mean(losses):.5f}  "
               f"{el / 60:.1f} min  ETA {el / (ep + 1 - start_ep) * (a.epochs - ep - 1) / 60:.0f} min",
@@ -284,6 +345,7 @@ def main():
              loss="bce(y, x_hat) -- corrected" if a.correct_loss
                   else "bce(x_hat, y) -- as in their code (effectively L1)",
              clip_version=a.clip, clip_bounds_train=[lo, hi], clip_bounds_test=[te_lo, te_hi],
+             shuffle_buffer=a.shuffle_buffer, input_dtype=a.input_dtype,
              published_max_f1="0.5876 +/- 0.0031 (Mesarcik et al. 2022, Table 2)")
     os.makedirs(os.path.join(out, "eval_test"), exist_ok=True)
     json.dump(m, open(os.path.join(out, "eval_test", "metrics.json"), "w"), indent=2)
