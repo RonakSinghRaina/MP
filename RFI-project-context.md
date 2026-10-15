@@ -3743,6 +3743,18 @@ no class weights, no augmentation. NOT identical: everything else in the table.
 tf_unet cannot take 32x32 input at all (PART 12.12), so the authors' tiling cannot
 be matched for it.
 
+### 29.1 What can be matched to the authors (checked 2026-10-15)
+
+- Their Conv2D_block has no weight regulariser (753b0d3 models.py); UNET and
+  RFI_NET both default dropout 0.05, BatchNorm on, sigmoid output.
+- HybridRFINet base 8 builds and trains on 32x32 tiles (output 32x32). Measured on
+  the RTX 3060, AC, random data, Adam, CE, median of 20 steps (data loading not
+  included): 1024 x 32x32 -> 2.87 GB, 131 ms/step; 4 x 512x512 -> 2.86 GB,
+  119 ms/step; 1 x 512x512 -> 1.76 GB, 36 ms/step.
+- 100 epochs on 6621 images at 1,048,576 px/step = 165,500 steps: tf_unet
+  (174 ms/step) ~8.0 h/seed; hybrid full images ~5.5 h, tiles ~6.0 h.
+- tf_unet still cannot take 32x32 (minimum 48, PART 12.12).
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
