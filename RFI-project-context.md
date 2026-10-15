@@ -3853,7 +3853,7 @@ history (Jan-Jul 2022) and data has been tested, and none moves their U-Net from
 toward the published 0.5876: architecture, preprocessing version (fixed / June / July),
 float16 scoring, image-mask alignment, data order, shuffle buffer, input precision,
 training length / stopping point, loss scale across Keras versions, F1 formula, and
-Keras 2 vs 3. Six runs of their U-Net on this machine span 0.6166-0.6258.
+Keras 2 vs 3. Five runs of their U-Net on this machine span 0.6166-0.6258 (lowest 5-epoch checkpoint of A and C: 0.6216).
 No single epoch of our trajectories matches all three published metrics either (their
 AUROC 0.8017 ~ our epoch 20, where max F1 is already 0.626).
 What remains is not testable here: (i) their published runs used a code/data state not
