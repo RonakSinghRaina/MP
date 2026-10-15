@@ -3839,6 +3839,31 @@ TF_USE_LEGACY_KERAS=1, env ~/tfk2-env = venv with a .pth onto tf-env + tf-keras 
 scripts/run_mesarcik_keras2.sh). Keras 2 confirmed: swapped loss = 15.42 x L1 for mask 0,
 15.33 x L1 for mask 1 (Keras 3: 16.1).
 
+### 30.5 RESULT Run C: Keras 2 vs Keras 3 makes no difference -- investigation closed (2026-10-15)
+`runs/lofar/mesarcik_unet_paper_code_june_buf25000_f32_keras2_seed0` (= Run A under tf_keras
+2.21). Reached epoch 97/100 (the machine was rebooted by the user at 21:29:58 -- a
+requested reboot, not a crash; an earlier ~2 h 50 min suspend during epoch 20 only paused
+it). Test scored every 5 epochs to epoch 95. Keras 2 tracks Keras 3 within ~0.003 max F1
+at every checkpoint: epochs 50-95 mean max F1 **0.6234 (Keras 2) vs 0.6229 (Keras 3)**;
+epoch 95: 0.6226 vs 0.6233. Not resumed for the last 3 epochs (resume resets Adam; the
+curve has been flat at 0.622-0.625 since epoch 45).
+
+**Conclusion of PART 30.** Every difference that can be reproduced from their paper, code
+history (Jan-Jul 2022) and data has been tested, and none moves their U-Net from ~0.62
+toward the published 0.5876: architecture, preprocessing version (fixed / June / July),
+float16 scoring, image-mask alignment, data order, shuffle buffer, input precision,
+training length / stopping point, loss scale across Keras versions, F1 formula, and
+Keras 2 vs 3. Six runs of their U-Net on this machine span 0.6166-0.6258.
+No single epoch of our trajectories matches all three published metrics either (their
+AUROC 0.8017 ~ our epoch 20, where max F1 is already 0.626).
+What remains is not testable here: (i) their published runs used a code/data state not
+in the repository; (ii) the TF 2.5 / CUDA 11 runtime on their GPUs (TF 2.5 cannot run on
+this Python/driver stack); (iii) an error in their Table 2 U-Net row -- its F1 cell
+reads "0.5876 0.0031" with the plus-minus sign missing, and its F1 s.d. equals its AUPRC
+s.d. (0.0031), which looks like a copy slip. None of these can be proven.
+**For the report:** their U-Net, run by us with their code, consistently scores ~0.62;
+the published 0.5876 could not be reproduced.
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
