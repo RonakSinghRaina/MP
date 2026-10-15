@@ -3755,6 +3755,20 @@ be matched for it.
   (174 ms/step) ~8.0 h/seed; hybrid full images ~5.5 h, tiles ~6.0 h.
 - tf_unet still cannot take 32x32 (minimum 48, PART 12.12).
 
+### 29.2 Last-epoch model (authors' rule) vs best-on-validation (ours) -- MEASURED 2026-10-15
+
+`analysis/last_vs_best/{tfunet,hybrid}_last_vs_best.py` re-evaluate the existing
+headline checkpoints on the 109 test images (best checkpoints reproduce the recorded
+max F1 exactly).
+
+| model | best-on-val (reported) | last epoch | diff per seed | paired t (2 dof) |
+|---|---|---|---|---|
+| tf_unet lr 1e-4 | 0.5482 +/- 0.0139 | 0.5551 +/- 0.0155 | +0.0035, 0.0000, +0.0173 | t 1.32, p 0.318 |
+| HybridRFINet b8 | 0.6603 +/- 0.0040 | 0.6623 +/- 0.0036 | +0.0004, +0.0018, +0.0040 | t 1.96, p 0.189 |
+
+Not significant for either; the checkpoint rule is not what separates the bars.
+(tf_unet seed 1's best epoch was the last, 150, hence 0.0000.)
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
