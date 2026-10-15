@@ -3875,6 +3875,43 @@ possible typo in their Table 2 row). Table 5.2 gains the row "Mesarcik et al. U-
 run by us (1 run) 0.6207, 1,179,121 params"; 5.2.2 text: hybrid +0.040 above it;
 conclusion: one sentence. Figures unchanged (still the published bars). 47 pages.
 
+## PART 31 — HybridRFINet under Mesarcik et al.'s settings: the fair comparison (2026-10-15)
+
+`experiments/mesarcik_repro/train_hybrid_mesarcik_settings.py` (new) trains HybridRFINet
+(base 8, depth 4, dropout 0.2, unchanged) through the SAME pipeline as
+`train_mesarcik_unet.py`: it imports that script's clip_bounds/transform/prepare/tiles_of/
+buffer_order/metrics, so split, normalisation cache, 32x32 tiles, batch order (same seed ->
+same rng stream) and metric are shared code. Adam lr 1e-3 constant, betas (0.9, 0.999),
+eps 1e-7, no weight decay, batch 1024 tiles, 100 epochs, last-epoch model, max F1 over all
+thresholds (float32 and float16), pooled F1 with the validation threshold for `clean`.
+Checks passed: tiling/reassembly/training-tile indexing exact; loss matches Keras 3 exactly
+(swapped 4.8354 / 11.1597, BCE 0.3567 / 1.2040 at p 0.3); exact resume (model, optimiser,
+numpy shuffle rng, torch rng restored; resume bug with rng on GPU fixed).
+
+### 31.1 Their code's loss kills HybridRFINet -- MEASURED
+2-epoch pilots, `clean`, seed 0, full data (1,656 steps/epoch, ~4.4 min/epoch):
+| loss | lr | test max F1 after 2 epochs | AUROC |
+|---|---|---|---|
+| their code's swapped bce(x_hat, y) | 1e-3 (code) | 0.0153 (3 epochs: frozen, loss 0.12771 = 0.12771) | 0.5000 |
+| their code's swapped bce(x_hat, y) | 1e-4 (paper) | 0.0152 | 0.4735 |
+| correct BCE (paper) | 1e-3 | **0.6537** (epoch 1: 0.6442) | 0.9868 |
+Dead state inspected: logit difference z1-z0 between -72 and -37 on training tiles, p_RFI
+<= 6.8e-17, gradient factor p(1-p) <= 6.8e-17. Their U-Net (BatchNorm, sigmoid) survives
+the same loss; HybridRFINet (GroupNorm, softmax) does not. So "exact code settings" are
+not trainable for HybridRFINet -- like tf_unet and 32x32 tiles. The fair comparison uses the
+loss their PAPER states (BCE) for BOTH networks; their U-Net must be re-run with
+--correct_loss (the existing 0.6166 / 0.6207 used the swapped loss).
+
+### 31.2 The run
+`./scripts/run_fair_mesarcik.sh [seeds]` (default seed 0): their U-Net
+(`--setup clean --correct_loss --eval_every 10`, ~3 h; old clean run took 182 min) then
+HybridRFINet (`--setup clean --loss bce --eval_every 10`, ~7.4 h). Blocks sleep/lid via
+systemd-inhibit, refuses on battery or busy GPU, skips finished runs, logs to
+runs/lofar/logs/fair_mesarcik_seed<S>.log, prints a mean +/- sd summary at the end.
+Outputs: runs/lofar/mesarcik_unet_clean_bce_seed<S>, runs/lofar/hybrid_mesarcik_clean_bce_seed<S>.
+Both commands smoke-tested (200 images, 1 epoch): identical clip bounds
+[1.31763e6, 8.44602e7], split and settings printed by both.
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
