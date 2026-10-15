@@ -3043,8 +3043,8 @@ The report states only: Akeret's tf_unet (ours) 0.5482 +/- 0.0139; Mesarcik et
 al.'s own U-Net implementation 0.5876 +/- 0.0031 (as published, with a note that
 it is a different network -- BatchNorm, same padding, 32x32 patches); the hybrid
 0.6603 +/- 0.0040 highest of all. The reproduction runs of 21.5-21.8
-(July 0.6207, clean 0.6166, June 0.6258) are deliberately NOT in the report and
-live only here. Report Chapters 2, 4, 5, 7 and 8 updated accordingly; the
+(July 0.6207, clean 0.6166, June 0.6258) were deliberately NOT in the report --
+REVERSED 2026-10-15, see 30.6. Report Chapters 2, 4, 5, 7 and 8 updated accordingly; the
 earlier claim that the two U-Nets are the same network is removed.
 
 **Caveats:** N=1 per setup -- seeds 1 and 2 needed before quoting 0.617 as a
@@ -3863,6 +3863,17 @@ reads "0.5876 0.0031" with the plus-minus sign missing, and its F1 s.d. equals i
 s.d. (0.0031), which looks like a copy slip. None of these can be proven.
 **For the report:** their U-Net, run by us with their code, consistently scores ~0.62;
 the published 0.5876 could not be reproduced.
+
+### 30.6 Report decision (2026-10-15) -- supersedes 21.9
+The user decided to report the re-run. Report ch.4 now has 4.2.1 "Running Mesarcik
+et al.'s own code": their released (July) code with their exact settings = **0.6207**
+(1 run; the user first said "0.61" -- corrected, 0.61x is the leak-free `clean` run,
+0.6166, also given in one sentence), plus the checked-and-ruled-out list (data/score,
+code version June 0.6258, shuffle+precision 0.6220, stopping point 0.62-0.63, Keras 2
+<0.003) and the untestable reasons (unpublished code/data state, old software/hardware,
+possible typo in their Table 2 row). Table 5.2 gains the row "Mesarcik et al. U-Net,
+run by us (1 run) 0.6207, 1,179,121 params"; 5.2.2 text: hybrid +0.040 above it;
+conclusion: one sentence. Figures unchanged (still the published bars). 47 pages.
 
 ## Still outstanding before publication
 

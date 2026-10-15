@@ -55,14 +55,17 @@ methods on the 109 human-labelled test images. \hybrid{} reaches a maximum
 \Fone{} of $0.6603 \pm 0.0040$; with the threshold fixed in advance on the
 validation set, the pooled \Fone{} is $0.6561 \pm 0.0044$. This is 0.11 above
 \tfunet{} and 0.062 above RFI-Net (0.5979), the best result reported by
-Mesarcik et al.\ (one-sample $t = 27.2$ with 2 degrees of freedom). It is
+Mesarcik et al.\ (one-sample $t = 27.2$ with 2 degrees of freedom). It is also
+0.040 above Mesarcik et al.'s U-Net when we ran their own code with their
+settings (0.6207, \cref{sec:mesarcik_rerun}). It is
 achieved while training only on \aoflagger{}'s labels, which themselves score
 0.5698 against the human expert.
 
 \begin{table}[H]
   \centering
   \caption[Comparison with published methods on LOFAR]{Results on the 109 human-labelled LOFAR test images. Values for
-    Mesarcik et al.'s U-Net and RFI-Net are as reported in their paper; every
+    Mesarcik et al.'s U-Net and RFI-Net are as reported in their paper, except the
+    row marked ``run by us''; every
     learned method was trained only on \aoflagger{}'s labels.}
   \label{tab:final}
   \begin{tabular}{lcr}
@@ -73,6 +76,7 @@ achieved while training only on \aoflagger{}'s labels, which themselves score
     \tfunet{} (lr $10^{-4}$, 3 seeds) & $0.5482 \pm 0.0139$ & 465{,}986 \\
     \aoflagger{} & 0.5698 & --- \\
     Mesarcik et al.\ U-Net & $0.5876 \pm 0.0031$ & --- \\
+    Mesarcik et al.\ U-Net, run by us (1 run) & 0.6207 & 1{,}179{,}121 \\
     RFI-Net & 0.5979 & --- \\
     \hybrid{}, class-weighted (3 seeds) & $0.6467 \pm 0.0079$ & 593{,}842 \\
     \textbf{\hybrid{} (3 seeds)} & $\mathbf{0.6603 \pm 0.0040}$ & 593{,}842 \\
