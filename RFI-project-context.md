@@ -3952,6 +3952,13 @@ notes to <pendrive>/Minor_Project_backup, writes README_BACKUP.txt (restore step
 compares every file by checksum. Auto-detects a single drive under /run/media/$USER, refuses
 if space is short. Rehearsed on a test folder: 12,937 files verified, a second run copied 0
 bytes, all 117 .pt files present, data/ and HERA_npy skipped; test folder deleted.
+**Done 2026-10-24:** backup written to the user's 8 GB pen drive (vfat, label "UBUNTU 26_0"):
+5,893 files, 4.2 GB, every file checksum-verified, exit status 0; ~2 MB/s write speed (about
+35 min). Before that, at the user's choice: their earlier-deleted Ubuntu 26.04 installer files
+(6.1 GB, sitting in the drive's .Trash-1000) were permanently deleted, and an unrelated physics
+folder from the same trash, zp_efficiency_1 (89 MB, 896 files), was restored to the drive's top
+level. 3.0 GB left free; the synthetic datasets were not copied (regenerable, seed 42).
+Re-run `./scripts/backup_to_usb.sh` after the HybridRFINet run -- it copies only new files.
 
 ## Still outstanding before publication
 
