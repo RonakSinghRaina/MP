@@ -3935,6 +3935,24 @@ settings". Measured: exact released code 0.6207 (trains on the test images) and 
 settings, test images excluded from training" -- also the right partner for the hybrid run.
 Report 4.2.1 and Table 5.2 still show 0.6207; update together with the hybrid result.
 
+## PART 32 — Backup before the display repair (2026-10-24)
+
+The laptop screen shows vertical lines; a technician recommends a display replacement.
+The internal panel (card1-eDP-1) is driven by the AMD iGPU (amdgpu); the RTX 3060 used for
+training is separate (card0, its eDP disconnected); no NVIDIA Xid errors in the kernel log.
+**Where everything is:** GitHub (RonakSinghRaina/MP, 0 unpushed commits) holds the code,
+scripts, report sources + PDF, context doc, weekly slides and every run's metrics/logs
+(241 result files of the no-Dice, edge, active-learning and Mesarcik-gap runs pushed in
+f2d5a1b). NOT on GitHub: trained models (*.pt, *.h5, ckpt/, best/; 2.6 GB, 117 .pt files),
+prediction arrays (npz/npy), Mayuri's report PDF (not ours to publish), data/ (LOFAR/HERA
+public on Zenodo; synthetic regenerable with --seed 42).
+`scripts/backup_to_usb.sh [--with-synthetic] [path]` copies the project minus data/ and the
+0.7 GB HERA_npy copy (4.2 GB; 7.1 GB with the two synthetic datasets) plus Claude's memory
+notes to <pendrive>/Minor_Project_backup, writes README_BACKUP.txt (restore steps), then
+compares every file by checksum. Auto-detects a single drive under /run/media/$USER, refuses
+if space is short. Rehearsed on a test folder: 12,937 files verified, a second run copied 0
+bytes, all 117 .pt files present, data/ and HERA_npy skipped; test folder deleted.
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
