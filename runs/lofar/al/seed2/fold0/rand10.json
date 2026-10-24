@@ -1,0 +1,63 @@
+{
+ "seed": 2,
+ "fold": 0,
+ "arm": "rand10",
+ "chain": "rand",
+ "budget": 0.1,
+ "n_pool": 68,
+ "n_val": 19,
+ "n_test": 22,
+ "labelled_patches": 435,
+ "labelled_images_touched": 68,
+ "labelled_fraction_of_pool": 0.09995404411764706,
+ "labelled_rfi_pixels": 12485,
+ "best": {
+  "step": 200,
+  "val_max_f1": 0.7064096591340128,
+  "val_threshold": 0.49482277035713196,
+  "test_tp": 23182,
+  "test_fp": 9552,
+  "test_fn": 21308
+ },
+ "short": {
+  "step": 200,
+  "val_max_f1": 0.7064096591340128,
+  "val_threshold": 0.49482277035713196,
+  "test_tp": 23182,
+  "test_fp": 9552,
+  "test_fn": 21308
+ },
+ "steps_done": 1200,
+ "hit_step_cap": false,
+ "val_curve": [
+  [
+   0,
+   0.697841
+  ],
+  [
+   200,
+   0.70641
+  ],
+  [
+   400,
+   0.705489
+  ],
+  [
+   600,
+   0.699079
+  ],
+  [
+   800,
+   0.69879
+  ],
+  [
+   1000,
+   0.697155
+  ],
+  [
+   1200,
+   0.697053
+  ]
+ ],
+ "seconds": 53.9
+}

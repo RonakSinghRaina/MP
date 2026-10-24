@@ -1,0 +1,352 @@
+nohup: ignoring input
+
+-- Dice off, seed 0, attempt 1 -> runs/lofar/nodice_b08_nocw_seed0   (20:56)
+==========================================================================
+  HybridRFINet on REAL LOFAR  |  base 8  |  norm = fixed
+==========================================================================
+  parameters        : 593,842
+  device            : cuda
+  train / val / test: 6621 / 735 / 109
+  steps/epoch       : 700 x 40 epochs = 28,000 gradient steps
+                      (synthetic run was 700 x 40 = 28,000)
+  leakage check     : train clean, 0 of 6621 match a test image  (7.6s)
+  leakage check     : val clean, 0 of 735 match a test image  (0.2s)
+  fixed range       : [280723, 4.35311e+06]
+  measured RFI frac : 0.8782%  -> class_weights [1.000, 1.000]
+  edge-aware mode   : none
+==========================================================================
+  epoch 1/40  loss 0.0636  |  0.5m elapsed  ETA 18.5m
+  epoch 2/40  loss 0.0325  |  0.9m elapsed  ETA 17.5m
+     -> val max-F1 0.4561  ROC 0.9106
+        new best checkpoint
+  epoch 3/40  loss 0.0310  |  1.9m elapsed  ETA 22.9m
+  epoch 4/40  loss 0.0239  |  2.3m elapsed  ETA 20.7m
+     -> val max-F1 0.5381  ROC 0.9525
+        new best checkpoint
+  epoch 5/40  loss 0.0222  |  3.2m elapsed  ETA 22.4m
+  epoch 6/40  loss 0.0193  |  3.6m elapsed  ETA 20.7m
+     -> val max-F1 0.6175  ROC 0.9708
+        new best checkpoint
+  epoch 7/40  loss 0.0224  |  4.5m elapsed  ETA 21.4m
+  epoch 8/40  loss 0.0190  |  5.0m elapsed  ETA 19.9m
+     -> val max-F1 0.5450  ROC 0.9480
+  epoch 9/40  loss 0.0271  |  5.8m elapsed  ETA 20.1m
+  epoch 10/40  loss 0.0211  |  6.3m elapsed  ETA 18.9m
+     -> val max-F1 0.5613  ROC 0.9626
+  epoch 11/40  loss 0.0200  |  7.2m elapsed  ETA 18.9m
+  epoch 12/40  loss 0.0202  |  7.6m elapsed  ETA 17.7m
+     -> val max-F1 0.6420  ROC 0.9777
+        new best checkpoint
+  epoch 13/40  loss 0.0189  |  8.5m elapsed  ETA 17.6m
+  epoch 14/40  loss 0.0208  |  8.9m elapsed  ETA 16.6m
+     -> val max-F1 0.6451  ROC 0.9723
+        new best checkpoint
+  epoch 15/40  loss 0.0172  |  9.8m elapsed  ETA 16.3m
+  epoch 16/40  loss 0.0173  |  10.2m elapsed  ETA 15.3m
+     -> val max-F1 0.6634  ROC 0.9773
+        new best checkpoint
+  epoch 17/40  loss 0.0203  |  11.1m elapsed  ETA 15.0m
+  epoch 18/40  loss 0.0216  |  11.5m elapsed  ETA 14.1m
+     -> val max-F1 0.6660  ROC 0.9806
+        new best checkpoint
+  epoch 19/40  loss 0.0191  |  12.4m elapsed  ETA 13.7m
+  epoch 20/40  loss 0.0204  |  12.8m elapsed  ETA 12.8m
+     -> val max-F1 0.6741  ROC 0.9805
+        new best checkpoint
+  epoch 21/40  loss 0.0170  |  13.7m elapsed  ETA 12.4m
+  epoch 22/40  loss 0.0209  |  14.1m elapsed  ETA 11.6m
+     -> val max-F1 0.6702  ROC 0.9796
+  epoch 23/40  loss 0.0186  |  15.0m elapsed  ETA 11.1m
+  epoch 24/40  loss 0.0218  |  15.4m elapsed  ETA 10.3m
+     -> val max-F1 0.6705  ROC 0.9808
+  epoch 25/40  loss 0.0154  |  16.3m elapsed  ETA 9.8m
+  epoch 26/40  loss 0.0205  |  16.7m elapsed  ETA 9.0m
+     -> val max-F1 0.6751  ROC 0.9804
+        new best checkpoint
+  epoch 27/40  loss 0.0207  |  17.6m elapsed  ETA 8.5m
+  epoch 28/40  loss 0.0195  |  18.0m elapsed  ETA 7.7m
+     -> val max-F1 0.6801  ROC 0.9822
+        new best checkpoint
+  epoch 29/40  loss 0.0174  |  18.9m elapsed  ETA 7.2m
+  epoch 30/40  loss 0.0179  |  19.3m elapsed  ETA 6.4m
+     -> val max-F1 0.6817  ROC 0.9823
+        new best checkpoint
+  epoch 31/40  loss 0.0172  |  20.2m elapsed  ETA 5.9m
+  epoch 32/40  loss 0.0184  |  20.6m elapsed  ETA 5.2m
+     -> val max-F1 0.6808  ROC 0.9825
+  epoch 33/40  loss 0.0186  |  21.5m elapsed  ETA 4.6m
+  epoch 34/40  loss 0.0183  |  21.9m elapsed  ETA 3.9m
+     -> val max-F1 0.6867  ROC 0.9828
+        new best checkpoint
+  epoch 35/40  loss 0.0182  |  22.8m elapsed  ETA 3.3m
+  epoch 36/40  loss 0.0183  |  23.2m elapsed  ETA 2.6m
+     -> val max-F1 0.6868  ROC 0.9828
+        new best checkpoint
+  epoch 37/40  loss 0.0223  |  24.1m elapsed  ETA 2.0m
+  epoch 38/40  loss 0.0196  |  24.5m elapsed  ETA 1.3m
+     -> val max-F1 0.6869  ROC 0.9828
+        new best checkpoint
+  epoch 39/40  loss 0.0145  |  25.4m elapsed  ETA 0.7m
+  epoch 40/40  loss 0.0159  |  25.8m elapsed  ETA 0.0m
+     -> val max-F1 0.6871  ROC 0.9828
+        new best checkpoint
+
+Best val max-F1 0.6871 @ epoch 40
+Threshold selected on validation: 0.2963 (val F1 0.6871)
+
+==========================================================================
+  RESULT — HybridRFINet on real LOFAR, human ground truth
+==========================================================================
+  pooled F1 (512x512)      : 0.6403   precision 0.6513  recall 0.6296
+  pooled F1 (472 crop)     : 0.6510   <-- compare with tf_unet, PART 12
+  max F1 (oracle, 512)     : 0.6442   <-- compare with the paper's Table 2
+  ROC AUC                  : 0.9859
+  PR  AUC                  : 0.6983
+--------------------------------------------------------------------------
+  benchmarks: sigma-clip 0.4103 | tf_unet lr1e-4 0.5482 | AOFlagger 0.5698
+              paper's U-Net 0.5876 | RFI-Net 0.5979   (all max-F1)
+==========================================================================
+
+Saved: runs/lofar/nodice_b08_nocw_seed0/eval_test/metrics.json
+
+-- Dice off, seed 1, attempt 1 -> runs/lofar/nodice_b08_nocw_seed1   (21:23)
+==========================================================================
+  HybridRFINet on REAL LOFAR  |  base 8  |  norm = fixed
+==========================================================================
+  parameters        : 593,842
+  device            : cuda
+  train / val / test: 6621 / 735 / 109
+  steps/epoch       : 700 x 40 epochs = 28,000 gradient steps
+                      (synthetic run was 700 x 40 = 28,000)
+  leakage check     : train clean, 0 of 6621 match a test image  (1.4s)
+  leakage check     : val clean, 0 of 735 match a test image  (0.2s)
+  fixed range       : [264131, 7.33097e+06]
+  measured RFI frac : 0.8801%  -> class_weights [1.000, 1.000]
+  edge-aware mode   : none
+==========================================================================
+  epoch 1/40  loss 0.0552  |  0.5m elapsed  ETA 18.6m
+  epoch 2/40  loss 0.0294  |  0.9m elapsed  ETA 17.7m
+     -> val max-F1 0.5954  ROC 0.9354
+        new best checkpoint
+  epoch 3/40  loss 0.0192  |  1.9m elapsed  ETA 22.9m
+  epoch 4/40  loss 0.0234  |  2.3m elapsed  ETA 20.8m
+     -> val max-F1 0.6165  ROC 0.9383
+        new best checkpoint
+  epoch 5/40  loss 0.0203  |  3.2m elapsed  ETA 22.3m
+  epoch 6/40  loss 0.0220  |  3.6m elapsed  ETA 20.6m
+     -> val max-F1 0.6176  ROC 0.9437
+        new best checkpoint
+  epoch 7/40  loss 0.0222  |  4.5m elapsed  ETA 21.2m
+  epoch 8/40  loss 0.0215  |  5.0m elapsed  ETA 19.8m
+     -> val max-F1 0.6170  ROC 0.9438
+  epoch 9/40  loss 0.0187  |  5.8m elapsed  ETA 20.1m
+  epoch 10/40  loss 0.0187  |  6.3m elapsed  ETA 18.8m
+     -> val max-F1 0.6183  ROC 0.9497
+        new best checkpoint
+  epoch 11/40  loss 0.0223  |  7.1m elapsed  ETA 18.8m
+  epoch 12/40  loss 0.0193  |  7.6m elapsed  ETA 17.7m
+     -> val max-F1 0.6223  ROC 0.9504
+        new best checkpoint
+  epoch 13/40  loss 0.0206  |  8.5m elapsed  ETA 17.6m
+  epoch 14/40  loss 0.0162  |  8.9m elapsed  ETA 16.5m
+     -> val max-F1 0.6356  ROC 0.9499
+        new best checkpoint
+  epoch 15/40  loss 0.0241  |  9.8m elapsed  ETA 16.3m
+  epoch 16/40  loss 0.0200  |  10.2m elapsed  ETA 15.3m
+     -> val max-F1 0.6362  ROC 0.9521
+        new best checkpoint
+  epoch 17/40  loss 0.0185  |  11.1m elapsed  ETA 15.0m
+  epoch 18/40  loss 0.0200  |  11.6m elapsed  ETA 14.1m
+     -> val max-F1 0.6276  ROC 0.9520
+  epoch 19/40  loss 0.0170  |  12.4m elapsed  ETA 13.7m
+  epoch 20/40  loss 0.0185  |  12.9m elapsed  ETA 12.9m
+     -> val max-F1 0.6448  ROC 0.9486
+        new best checkpoint
+  epoch 21/40  loss 0.0163  |  13.7m elapsed  ETA 12.4m
+  epoch 22/40  loss 0.0180  |  14.2m elapsed  ETA 11.6m
+     -> val max-F1 0.6459  ROC 0.9510
+        new best checkpoint
+  epoch 23/40  loss 0.0195  |  15.0m elapsed  ETA 11.1m
+  epoch 24/40  loss 0.0192  |  15.5m elapsed  ETA 10.3m
+     -> val max-F1 0.6509  ROC 0.9523
+        new best checkpoint
+  epoch 25/40  loss 0.0159  |  16.3m elapsed  ETA 9.8m
+  epoch 26/40  loss 0.0179  |  16.8m elapsed  ETA 9.0m
+     -> val max-F1 0.6460  ROC 0.9527
+  epoch 27/40  loss 0.0166  |  17.7m elapsed  ETA 8.5m
+  epoch 28/40  loss 0.0203  |  18.1m elapsed  ETA 7.8m
+     -> val max-F1 0.6547  ROC 0.9549
+        new best checkpoint
+  epoch 29/40  loss 0.0197  |  19.0m elapsed  ETA 7.2m
+  epoch 30/40  loss 0.0153  |  19.4m elapsed  ETA 6.5m
+     -> val max-F1 0.6538  ROC 0.9537
+  epoch 31/40  loss 0.0177  |  20.3m elapsed  ETA 5.9m
+  epoch 32/40  loss 0.0152  |  20.7m elapsed  ETA 5.2m
+     -> val max-F1 0.6486  ROC 0.9547
+  epoch 33/40  loss 0.0158  |  21.6m elapsed  ETA 4.6m
+  epoch 34/40  loss 0.0177  |  22.0m elapsed  ETA 3.9m
+     -> val max-F1 0.6525  ROC 0.9554
+  epoch 35/40  loss 0.0171  |  22.9m elapsed  ETA 3.3m
+  epoch 36/40  loss 0.0188  |  23.3m elapsed  ETA 2.6m
+     -> val max-F1 0.6536  ROC 0.9562
+  epoch 37/40  loss 0.0153  |  24.2m elapsed  ETA 2.0m
+  epoch 38/40  loss 0.0163  |  24.7m elapsed  ETA 1.3m
+     -> val max-F1 0.6511  ROC 0.9565
+  epoch 39/40  loss 0.0187  |  25.5m elapsed  ETA 0.7m
+  epoch 40/40  loss 0.0177  |  26.0m elapsed  ETA 0.0m
+     -> val max-F1 0.6509  ROC 0.9566
+
+Best val max-F1 0.6547 @ epoch 28
+Threshold selected on validation: 0.4194 (val F1 0.6547)
+
+==========================================================================
+  RESULT — HybridRFINet on real LOFAR, human ground truth
+==========================================================================
+  pooled F1 (512x512)      : 0.6528   precision 0.6783  recall 0.6291
+  pooled F1 (472 crop)     : 0.6659   <-- compare with tf_unet, PART 12
+  max F1 (oracle, 512)     : 0.6538   <-- compare with the paper's Table 2
+  ROC AUC                  : 0.9886
+  PR  AUC                  : 0.7137
+--------------------------------------------------------------------------
+  benchmarks: sigma-clip 0.4103 | tf_unet lr1e-4 0.5482 | AOFlagger 0.5698
+              paper's U-Net 0.5876 | RFI-Net 0.5979   (all max-F1)
+==========================================================================
+
+Saved: runs/lofar/nodice_b08_nocw_seed1/eval_test/metrics.json
+
+-- Dice off, seed 2, attempt 1 -> runs/lofar/nodice_b08_nocw_seed2   (21:50)
+==========================================================================
+  HybridRFINet on REAL LOFAR  |  base 8  |  norm = fixed
+==========================================================================
+  parameters        : 593,842
+  device            : cuda
+  train / val / test: 6621 / 735 / 109
+  steps/epoch       : 700 x 40 epochs = 28,000 gradient steps
+                      (synthetic run was 700 x 40 = 28,000)
+  leakage check     : train clean, 0 of 6621 match a test image  (1.4s)
+  leakage check     : val clean, 0 of 735 match a test image  (0.2s)
+  fixed range       : [272020, 4.6843e+06]
+  measured RFI frac : 0.8527%  -> class_weights [1.000, 1.000]
+  edge-aware mode   : none
+==========================================================================
+  epoch 1/40  loss 0.0816  |  0.5m elapsed  ETA 18.3m
+  epoch 2/40  loss 0.0225  |  0.9m elapsed  ETA 17.5m
+     -> val max-F1 0.5088  ROC 0.8383
+        new best checkpoint
+  epoch 3/40  loss 0.0226  |  1.8m elapsed  ETA 22.5m
+  epoch 4/40  loss 0.0282  |  2.3m elapsed  ETA 20.5m
+     -> val max-F1 0.5362  ROC 0.8593
+        new best checkpoint
+  epoch 5/40  loss 0.0248  |  3.2m elapsed  ETA 22.1m
+  epoch 6/40  loss 0.0225  |  3.6m elapsed  ETA 20.5m
+     -> val max-F1 0.5302  ROC 0.9011
+  epoch 7/40  loss 0.0197  |  4.5m elapsed  ETA 21.1m
+  epoch 8/40  loss 0.0209  |  4.9m elapsed  ETA 19.7m
+     -> val max-F1 0.5550  ROC 0.9197
+        new best checkpoint
+  epoch 9/40  loss 0.0235  |  5.8m elapsed  ETA 20.0m
+  epoch 10/40  loss 0.0223  |  6.3m elapsed  ETA 18.8m
+     -> val max-F1 0.5554  ROC 0.9243
+        new best checkpoint
+  epoch 11/40  loss 0.0201  |  7.1m elapsed  ETA 18.8m
+  epoch 12/40  loss 0.0242  |  7.6m elapsed  ETA 17.7m
+     -> val max-F1 0.5746  ROC 0.9347
+        new best checkpoint
+  epoch 13/40  loss 0.0206  |  8.4m elapsed  ETA 17.5m
+  epoch 14/40  loss 0.0241  |  8.9m elapsed  ETA 16.5m
+     -> val max-F1 0.5795  ROC 0.9361
+        new best checkpoint
+  epoch 15/40  loss 0.0177  |  9.8m elapsed  ETA 16.3m
+  epoch 16/40  loss 0.0188  |  10.2m elapsed  ETA 15.3m
+     -> val max-F1 0.5873  ROC 0.9361
+        new best checkpoint
+  epoch 17/40  loss 0.0177  |  11.1m elapsed  ETA 15.0m
+  epoch 18/40  loss 0.0200  |  11.5m elapsed  ETA 14.1m
+     -> val max-F1 0.5885  ROC 0.9327
+        new best checkpoint
+  epoch 19/40  loss 0.0210  |  12.4m elapsed  ETA 13.7m
+  epoch 20/40  loss 0.0187  |  12.8m elapsed  ETA 12.8m
+     -> val max-F1 0.5850  ROC 0.9419
+  epoch 21/40  loss 0.0211  |  13.7m elapsed  ETA 12.4m
+  epoch 22/40  loss 0.0164  |  14.1m elapsed  ETA 11.6m
+     -> val max-F1 0.5900  ROC 0.9364
+        new best checkpoint
+  epoch 23/40  loss 0.0201  |  15.0m elapsed  ETA 11.1m
+  epoch 24/40  loss 0.0192  |  15.4m elapsed  ETA 10.3m
+     -> val max-F1 0.5957  ROC 0.9394
+        new best checkpoint
+  epoch 25/40  loss 0.0183  |  16.3m elapsed  ETA 9.8m
+  epoch 26/40  loss 0.0179  |  16.7m elapsed  ETA 9.0m
+     -> val max-F1 0.5973  ROC 0.9373
+        new best checkpoint
+  epoch 27/40  loss 0.0183  |  17.6m elapsed  ETA 8.5m
+  epoch 28/40  loss 0.0168  |  18.1m elapsed  ETA 7.7m
+     -> val max-F1 0.5947  ROC 0.9374
+  epoch 29/40  loss 0.0210  |  18.9m elapsed  ETA 7.2m
+  epoch 30/40  loss 0.0159  |  19.4m elapsed  ETA 6.5m
+     -> val max-F1 0.5991  ROC 0.9458
+        new best checkpoint
+  epoch 31/40  loss 0.0198  |  20.2m elapsed  ETA 5.9m
+  epoch 32/40  loss 0.0163  |  20.7m elapsed  ETA 5.2m
+     -> val max-F1 0.5985  ROC 0.9448
+  epoch 33/40  loss 0.0163  |  21.5m elapsed  ETA 4.6m
+  epoch 34/40  loss 0.0192  |  22.0m elapsed  ETA 3.9m
+     -> val max-F1 0.5999  ROC 0.9467
+        new best checkpoint
+  epoch 35/40  loss 0.0189  |  22.8m elapsed  ETA 3.3m
+  epoch 36/40  loss 0.0193  |  23.3m elapsed  ETA 2.6m
+     -> val max-F1 0.6005  ROC 0.9479
+        new best checkpoint
+  epoch 37/40  loss 0.0172  |  24.2m elapsed  ETA 2.0m
+  epoch 38/40  loss 0.0175  |  24.6m elapsed  ETA 1.3m
+     -> val max-F1 0.6003  ROC 0.9476
+  epoch 39/40  loss 0.0159  |  25.5m elapsed  ETA 0.7m
+  epoch 40/40  loss 0.0192  |  26.0m elapsed  ETA 0.0m
+     -> val max-F1 0.6007  ROC 0.9476
+        new best checkpoint
+
+Best val max-F1 0.6007 @ epoch 40
+Threshold selected on validation: 0.3262 (val F1 0.6007)
+
+==========================================================================
+  RESULT — HybridRFINet on real LOFAR, human ground truth
+==========================================================================
+  pooled F1 (512x512)      : 0.6485   precision 0.6755  recall 0.6236
+  pooled F1 (472 crop)     : 0.6590   <-- compare with tf_unet, PART 12
+  max F1 (oracle, 512)     : 0.6504   <-- compare with the paper's Table 2
+  ROC AUC                  : 0.9875
+  PR  AUC                  : 0.7119
+--------------------------------------------------------------------------
+  benchmarks: sigma-clip 0.4103 | tf_unet lr1e-4 0.5482 | AOFlagger 0.5698
+              paper's U-Net 0.5876 | RFI-Net 0.5979   (all max-F1)
+==========================================================================
+
+Saved: runs/lofar/nodice_b08_nocw_seed2/eval_test/metrics.json
+
+All done (22:17). Results:
+==============================================================================
+  DICE OFF vs the headline hybrid (base 8, no class weight)
+==============================================================================
+  config check: identical to the headline except dice_weight 1.0 -> 0.0
+
+setup                 n            max F1         pooled F1         precision            recall               ROC
+CE + Dice (headline)  3   0.6603 ± 0.0040   0.6561 ± 0.0044   0.6936 ± 0.0061   0.6225 ± 0.0047   0.9378 ± 0.0111
+CE only (Dice off)    3   0.6495 ± 0.0049   0.6472 ± 0.0064   0.6684 ± 0.0148   0.6275 ± 0.0033   0.9873 ± 0.0014
+tf_unet (lr 1e-4)     3   0.5482 ± 0.0139   0.5021 ± 0.0259   0.4302 ± 0.0255   0.6032 ± 0.0293   0.9470 ± 0.0074
+
+  Dice off - Dice on, paired by seed (max F1):
+     seed 0: 0.6592 -> 0.6442   (-0.0150)
+     seed 1: 0.6647 -> 0.6538   (-0.0109)
+     seed 2: 0.6570 -> 0.6504   (-0.0066)
+     mean change -0.0108, paired t = -4.44, p = 0.047  (significant at 5%)
+
+  Dice off - Dice on, paired by seed (pooled F1):
+     seed 0: 0.6528 -> 0.6403   (-0.0125)
+     seed 1: 0.6611 -> 0.6528   (-0.0083)
+     seed 2: 0.6546 -> 0.6485   (-0.0060)
+     mean change -0.0089, paired t = -4.71, p = 0.042  (significant at 5%)
+
+  lead of the hybrid over tf_unet (max F1): +0.1121
+  lost when Dice is switched off:            +0.0108  = 10% of that lead
+  (one change at a time, from the hybrid side; the other differences -- output ReLU,
+   padding, depth/width, batch, learning rate, framework -- are not isolated by this)

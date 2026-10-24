@@ -1,0 +1,302 @@
+nohup: ignoring input
+-- self-test, attempt 1 (13:03)
+SELF-TEST
+  [ok] losses: full mask 1.401068 = training loss 1.401068; partial mask 1.403556 = lofar_hybrid soft loss 1.403556
+  [ok] patch geometry
+  [ok] 77 groups (largest 6); folds: test 22/val 19/pool 68, test 22/val 19/pool 68, test 22/val 19/pool 68, test 22/val 19/pool 68, test 21/val 19/pool 69; every image tested once; no group split
+  [ok] selection: exact targets, nested rounds, whole images for 'img'
+  headline max F1 0.659204 | recomputed exact 0.659199 | histogram 0.659198
+  [ok] base model reproduces the headline; histogram F1 within 5e-4 of exact
+SELF-TEST PASSED
+
+-- run, attempt 1 (13:04), seeds 0 1 2
+77 groups; 5 folds; 195 fine-tuning runs to do (seeds [0, 1, 2], chains ['base', 'full', 'unc', 'rfi', 'rand', 'img'])
+[seed 0 fold 0] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.6966 @ step    0 (<= 600: 0.6966) |    0 steps,     0 s | 0/195, ETA 0.2 h
+[seed 0 fold 1] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.6601 @ step    0 (<= 600: 0.6601) |    0 steps,     0 s | 0/195, ETA 0.3 h
+[seed 0 fold 2] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.5351 @ step    0 (<= 600: 0.5351) |    0 steps,     0 s | 0/195, ETA 0.4 h
+[seed 0 fold 3] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.7227 @ step    0 (<= 600: 0.7227) |    0 steps,     0 s | 0/195, ETA 0.5 h
+[seed 0 fold 4] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.6196 @ step    0 (<= 600: 0.6196) |    0 steps,     0 s | 0/195, ETA 0.6 h
+[seed 0 fold 0] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7170 @ step 1400 (<= 600: 0.7141) | 2400 steps,   107 s | 1/195, ETA 6.5 h
+[seed 0 fold 1] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7277 @ step 4000 (<= 600: 0.7046) | 4000 steps,   179 s | 2/195, ETA 8.1 h
+[seed 0 fold 2] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.6031 @ step 1200 (<= 600: 0.5988) | 2200 steps,    99 s | 3/195, ETA 7.2 h
+[seed 0 fold 3] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7418 @ step 4000 (<= 600: 0.7320) | 4000 steps,   180 s | 4/195, ETA 7.8 h
+[seed 0 fold 4] full    labelled 4416 patches ( 69.0 image-equiv., 69 images touched) | val F1 0.6775 @ step 4000 (<= 600: 0.6644) | 4000 steps,   181 s | 5/195, ETA 8.1 h
+[seed 0 fold 0] unc05   labelled  218 patches (  3.4 image-equiv., 23 images touched) | val F1 0.7139 @ step 3400 (<= 600: 0.7045) | 4000 steps,   181 s | 6/195, ETA 8.3 h
+[seed 0 fold 0] unc10   labelled  435 patches (  6.8 image-equiv., 36 images touched) | val F1 0.7018 @ step  800 (<= 600: 0.7001) | 1800 steps,    81 s | 7/195, ETA 7.7 h
+[seed 0 fold 0] unc20   labelled  870 patches ( 13.6 image-equiv., 50 images touched) | val F1 0.7056 @ step 1800 (<= 600: 0.7023) | 2800 steps,   127 s | 8/195, ETA 7.6 h
+[seed 0 fold 1] unc05   labelled  218 patches (  3.4 image-equiv., 25 images touched) | val F1 0.6906 @ step 2000 (<= 600: 0.6865) | 3000 steps,   136 s | 9/195, ETA 7.5 h
+[seed 0 fold 1] unc10   labelled  435 patches (  6.8 image-equiv., 34 images touched) | val F1 0.6934 @ step  400 (<= 600: 0.6934) | 1400 steps,    64 s | 10/195, ETA 7.0 h
+[seed 0 fold 1] unc20   labelled  870 patches ( 13.6 image-equiv., 48 images touched) | val F1 0.7083 @ step 1200 (<= 600: 0.6993) | 2200 steps,   100 s | 11/195, ETA 6.8 h
+[seed 0 fold 2] unc05   labelled  218 patches (  3.4 image-equiv., 27 images touched) | val F1 0.5999 @ step 1400 (<= 600: 0.5870) | 2400 steps,   109 s | 12/195, ETA 6.7 h
+[seed 0 fold 2] unc10   labelled  435 patches (  6.8 image-equiv., 32 images touched) | val F1 0.5987 @ step  800 (<= 600: 0.5919) | 1800 steps,    82 s | 13/195, ETA 6.5 h
+[seed 0 fold 2] unc20   labelled  870 patches ( 13.6 image-equiv., 47 images touched) | val F1 0.6161 @ step 1200 (<= 600: 0.5961) | 2200 steps,   100 s | 14/195, ETA 6.4 h
+[seed 0 fold 3] unc05   labelled  218 patches (  3.4 image-equiv., 26 images touched) | val F1 0.7255 @ step  400 (<= 600: 0.7255) | 1400 steps,    63 s | 15/195, ETA 6.1 h
+[seed 0 fold 3] unc10   labelled  435 patches (  6.8 image-equiv., 29 images touched) | val F1 0.7240 @ step  200 (<= 600: 0.7240) | 1200 steps,    54 s | 16/195, ETA 5.9 h
+[seed 0 fold 3] unc20   labelled  870 patches ( 13.6 image-equiv., 53 images touched) | val F1 0.7388 @ step 3200 (<= 600: 0.7280) | 4000 steps,   181 s | 17/195, ETA 6.1 h
+[seed 0 fold 4] unc05   labelled  221 patches (  3.5 image-equiv., 22 images touched) | val F1 0.6451 @ step  400 (<= 600: 0.6451) | 1400 steps,    63 s | 18/195, ETA 5.9 h
+[seed 0 fold 4] unc10   labelled  442 patches (  6.9 image-equiv., 29 images touched) | val F1 0.6658 @ step 3600 (<= 600: 0.6528) | 4000 steps,   181 s | 19/195, ETA 6.0 h
+[seed 0 fold 4] unc20   labelled  883 patches ( 13.8 image-equiv., 64 images touched) | val F1 0.6661 @ step 2400 (<= 600: 0.6528) | 3400 steps,   154 s | 20/195, ETA 6.0 h
+[seed 0 fold 0] rfi05   labelled  218 patches (  3.4 image-equiv., 27 images touched) | val F1 0.7159 @ step 3600 (<= 600: 0.7073) | 4000 steps,   182 s | 21/195, ETA 6.2 h
+[seed 0 fold 0] rfi10   labelled  435 patches (  6.8 image-equiv., 45 images touched) | val F1 0.7095 @ step  800 (<= 600: 0.7085) | 1800 steps,    82 s | 22/195, ETA 6.0 h
+[seed 0 fold 0] rfi20   labelled  870 patches ( 13.6 image-equiv., 63 images touched) | val F1 0.7164 @ step 1000 (<= 600: 0.7135) | 2000 steps,    91 s | 23/195, ETA 5.9 h
+[seed 0 fold 1] rfi05   labelled  218 patches (  3.4 image-equiv., 31 images touched) | val F1 0.6976 @ step 1000 (<= 600: 0.6930) | 2000 steps,    91 s | 24/195, ETA 5.8 h
+[seed 0 fold 1] rfi10   labelled  435 patches (  6.8 image-equiv., 45 images touched) | val F1 0.7052 @ step 3600 (<= 600: 0.6914) | 4000 steps,   182 s | 25/195, ETA 5.9 h
+[seed 0 fold 1] rfi20   labelled  870 patches ( 13.6 image-equiv., 61 images touched) | val F1 0.7141 @ step 2400 (<= 600: 0.6895) | 3400 steps,   155 s | 26/195, ETA 5.9 h
+[seed 0 fold 2] rfi05   labelled  218 patches (  3.4 image-equiv., 33 images touched) | val F1 0.6129 @ step 3600 (<= 600: 0.5843) | 4000 steps,   182 s | 27/195, ETA 6.0 h
+[seed 0 fold 2] rfi10   labelled  435 patches (  6.8 image-equiv., 45 images touched) | val F1 0.5965 @ step 1400 (<= 600: 0.5840) | 2400 steps,   109 s | 28/195, ETA 5.9 h
+[seed 0 fold 2] rfi20   labelled  870 patches ( 13.6 image-equiv., 61 images touched) | val F1 0.6145 @ step 1800 (<= 600: 0.5949) | 2800 steps,   127 s | 29/195, ETA 5.9 h
+[seed 0 fold 3] rfi05   labelled  218 patches (  3.4 image-equiv., 36 images touched) | val F1 0.7409 @ step 3400 (<= 600: 0.7271) | 4000 steps,   181 s | 30/195, ETA 6.0 h
+[seed 0 fold 3] rfi10   labelled  435 patches (  6.8 image-equiv., 53 images touched) | val F1 0.7401 @ step 3400 (<= 600: 0.7290) | 4000 steps,   182 s | 31/195, ETA 6.0 h
+[seed 0 fold 3] rfi20   labelled  870 patches ( 13.6 image-equiv., 66 images touched) | val F1 0.7376 @ step 3600 (<= 600: 0.7309) | 4000 steps,   182 s | 32/195, ETA 6.0 h
+[seed 0 fold 4] rfi05   labelled  221 patches (  3.5 image-equiv., 29 images touched) | val F1 0.6594 @ step 3400 (<= 600: 0.6430) | 4000 steps,   182 s | 33/195, ETA 6.1 h
+[seed 0 fold 4] rfi10   labelled  442 patches (  6.9 image-equiv., 49 images touched) | val F1 0.6694 @ step 3800 (<= 600: 0.6559) | 4000 steps,   182 s | 34/195, ETA 6.1 h
+[seed 0 fold 4] rfi20   labelled  883 patches ( 13.8 image-equiv., 69 images touched) | val F1 0.6738 @ step 3200 (<= 600: 0.6580) | 4000 steps,   182 s | 35/195, ETA 6.1 h
+[seed 0 fold 0] rand05  labelled  218 patches (  3.4 image-equiv., 66 images touched) | val F1 0.6988 @ step  600 (<= 600: 0.6988) | 1600 steps,    73 s | 36/195, ETA 6.0 h
+[seed 0 fold 0] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.7088 @ step 1800 (<= 600: 0.7017) | 2800 steps,   127 s | 37/195, ETA 6.0 h
+[seed 0 fold 0] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7161 @ step 2000 (<= 600: 0.7067) | 3000 steps,   136 s | 38/195, ETA 5.9 h
+[seed 0 fold 1] rand05  labelled  218 patches (  3.4 image-equiv., 65 images touched) | val F1 0.6786 @ step  800 (<= 600: 0.6764) | 1800 steps,    82 s | 39/195, ETA 5.8 h
+[seed 0 fold 1] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.7005 @ step 1400 (<= 600: 0.6946) | 2400 steps,   109 s | 40/195, ETA 5.8 h
+[seed 0 fold 1] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7173 @ step 4000 (<= 600: 0.7012) | 4000 steps,   182 s | 41/195, ETA 5.8 h
+[seed 0 fold 2] rand05  labelled  218 patches (  3.4 image-equiv., 64 images touched) | val F1 0.5626 @ step 1200 (<= 600: 0.5487) | 2200 steps,   100 s | 42/195, ETA 5.7 h
+[seed 0 fold 2] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.5792 @ step 1200 (<= 600: 0.5763) | 2200 steps,   100 s | 43/195, ETA 5.6 h
+[seed 0 fold 2] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.5918 @ step 1400 (<= 600: 0.5784) | 2400 steps,   109 s | 44/195, ETA 5.6 h
+[seed 0 fold 3] rand05  labelled  218 patches (  3.4 image-equiv., 65 images touched) | val F1 0.7402 @ step 3400 (<= 600: 0.7277) | 4000 steps,   182 s | 45/195, ETA 5.6 h
+[seed 0 fold 3] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.7340 @ step 2400 (<= 600: 0.7292) | 3400 steps,   154 s | 46/195, ETA 5.6 h
+[seed 0 fold 3] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7317 @ step 1600 (<= 600: 0.7290) | 2600 steps,   118 s | 47/195, ETA 5.5 h
+[seed 0 fold 4] rand05  labelled  221 patches (  3.5 image-equiv., 68 images touched) | val F1 0.6568 @ step 1600 (<= 600: 0.6363) | 2600 steps,   118 s | 48/195, ETA 5.5 h
+[seed 0 fold 4] rand10  labelled  442 patches (  6.9 image-equiv., 69 images touched) | val F1 0.6480 @ step 1400 (<= 600: 0.6362) | 2400 steps,   109 s | 49/195, ETA 5.4 h
+[seed 0 fold 4] rand20  labelled  883 patches ( 13.8 image-equiv., 69 images touched) | val F1 0.6660 @ step 3800 (<= 600: 0.6460) | 4000 steps,   182 s | 50/195, ETA 5.4 h
+[seed 0 fold 0] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.7030 @ step  400 (<= 600: 0.7030) | 1400 steps,    64 s | 51/195, ETA 5.3 h
+[seed 0 fold 0] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.7097 @ step  200 (<= 600: 0.7097) | 1200 steps,    55 s | 52/195, ETA 5.2 h
+[seed 0 fold 0] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.7104 @ step  400 (<= 600: 0.7104) | 1400 steps,    64 s | 53/195, ETA 5.2 h
+[seed 0 fold 1] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.6843 @ step  600 (<= 600: 0.6843) | 1600 steps,    73 s | 54/195, ETA 5.1 h
+[seed 0 fold 1] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.7036 @ step  800 (<= 600: 0.7027) | 1800 steps,    82 s | 55/195, ETA 5.0 h
+[seed 0 fold 1] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.7020 @ step  600 (<= 600: 0.7020) | 1600 steps,    73 s | 56/195, ETA 4.9 h
+[seed 0 fold 2] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.5794 @ step  800 (<= 600: 0.5705) | 1800 steps,    82 s | 57/195, ETA 4.9 h
+[seed 0 fold 2] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.5467 @ step  400 (<= 600: 0.5467) | 1400 steps,    64 s | 58/195, ETA 4.8 h
+[seed 0 fold 2] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.5680 @ step  800 (<= 600: 0.5630) | 1800 steps,    82 s | 59/195, ETA 4.7 h
+[seed 0 fold 3] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.7404 @ step 1000 (<= 600: 0.7396) | 2000 steps,    91 s | 60/195, ETA 4.7 h
+[seed 0 fold 3] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.7432 @ step 1800 (<= 600: 0.7319) | 2800 steps,   127 s | 61/195, ETA 4.6 h
+[seed 0 fold 3] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.7398 @ step 1800 (<= 600: 0.7333) | 2800 steps,   128 s | 62/195, ETA 4.6 h
+[seed 0 fold 4] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.6275 @ step  400 (<= 600: 0.6275) | 1400 steps,    64 s | 63/195, ETA 4.5 h
+[seed 0 fold 4] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.6434 @ step 1000 (<= 600: 0.6390) | 2000 steps,    91 s | 64/195, ETA 4.5 h
+[seed 0 fold 4] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.6562 @ step 2200 (<= 600: 0.6507) | 3200 steps,   146 s | 65/195, ETA 4.5 h
+-- seed 0 finished (134 min so far)
+[seed 1 fold 0] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.7011 @ step    0 (<= 600: 0.7011) |    0 steps,     0 s | 65/195, ETA 4.5 h
+[seed 1 fold 1] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.6640 @ step    0 (<= 600: 0.6640) |    0 steps,     0 s | 65/195, ETA 4.5 h
+[seed 1 fold 2] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.5660 @ step    0 (<= 600: 0.5660) |    0 steps,     0 s | 65/195, ETA 4.5 h
+[seed 1 fold 3] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.7254 @ step    0 (<= 600: 0.7254) |    0 steps,     0 s | 65/195, ETA 4.5 h
+[seed 1 fold 4] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.6286 @ step    0 (<= 600: 0.6286) |    0 steps,     0 s | 65/195, ETA 4.5 h
+[seed 1 fold 0] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7224 @ step 1600 (<= 600: 0.7201) | 2600 steps,   118 s | 66/195, ETA 4.4 h
+[seed 1 fold 1] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7332 @ step 2600 (<= 600: 0.7141) | 3600 steps,   164 s | 67/195, ETA 4.4 h
+[seed 1 fold 2] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.6394 @ step 3600 (<= 600: 0.6233) | 4000 steps,   183 s | 68/195, ETA 4.4 h
+[seed 1 fold 3] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7502 @ step 2600 (<= 600: 0.7409) | 3600 steps,   164 s | 69/195, ETA 4.4 h
+[seed 1 fold 4] full    labelled 4416 patches ( 69.0 image-equiv., 69 images touched) | val F1 0.6935 @ step 4000 (<= 600: 0.6768) | 4000 steps,   183 s | 70/195, ETA 4.4 h
+[seed 1 fold 0] unc05   labelled  218 patches (  3.4 image-equiv., 22 images touched) | val F1 0.7205 @ step 3800 (<= 600: 0.7095) | 4000 steps,   183 s | 71/195, ETA 4.4 h
+[seed 1 fold 0] unc10   labelled  435 patches (  6.8 image-equiv., 39 images touched) | val F1 0.7209 @ step  800 (<= 600: 0.7206) | 1800 steps,    82 s | 72/195, ETA 4.3 h
+[seed 1 fold 0] unc20   labelled  870 patches ( 13.6 image-equiv., 58 images touched) | val F1 0.7225 @ step 1000 (<= 600: 0.7222) | 2000 steps,    91 s | 73/195, ETA 4.3 h
+[seed 1 fold 1] unc05   labelled  218 patches (  3.4 image-equiv., 25 images touched) | val F1 0.7112 @ step 3800 (<= 600: 0.6866) | 4000 steps,   183 s | 74/195, ETA 4.3 h
+[seed 1 fold 1] unc10   labelled  435 patches (  6.8 image-equiv., 46 images touched) | val F1 0.7073 @ step 2000 (<= 600: 0.6998) | 3000 steps,   137 s | 75/195, ETA 4.3 h
+[seed 1 fold 1] unc20   labelled  870 patches ( 13.6 image-equiv., 62 images touched) | val F1 0.7275 @ step 3800 (<= 600: 0.7029) | 4000 steps,   183 s | 76/195, ETA 4.2 h
+[seed 1 fold 2] unc05   labelled  218 patches (  3.4 image-equiv., 26 images touched) | val F1 0.6127 @ step  800 (<= 600: 0.6096) | 1800 steps,    82 s | 77/195, ETA 4.2 h
+[seed 1 fold 2] unc10   labelled  435 patches (  6.8 image-equiv., 40 images touched) | val F1 0.6285 @ step 2000 (<= 600: 0.6139) | 3000 steps,   137 s | 78/195, ETA 4.2 h
+[seed 1 fold 2] unc20   labelled  870 patches ( 13.6 image-equiv., 61 images touched) | val F1 0.6357 @ step 4000 (<= 600: 0.6176) | 4000 steps,   183 s | 79/195, ETA 4.1 h
+[seed 1 fold 3] unc05   labelled  218 patches (  3.4 image-equiv., 26 images touched) | val F1 0.7272 @ step  600 (<= 600: 0.7272) | 1600 steps,    73 s | 80/195, ETA 4.1 h
+[seed 1 fold 3] unc10   labelled  435 patches (  6.8 image-equiv., 42 images touched) | val F1 0.7375 @ step 2800 (<= 600: 0.7289) | 3800 steps,   175 s | 81/195, ETA 4.1 h
+[seed 1 fold 3] unc20   labelled  870 patches ( 13.6 image-equiv., 63 images touched) | val F1 0.7450 @ step 2800 (<= 600: 0.7328) | 3800 steps,   174 s | 82/195, ETA 4.1 h
+[seed 1 fold 4] unc05   labelled  221 patches (  3.5 image-equiv., 21 images touched) | val F1 0.6657 @ step 2400 (<= 600: 0.6547) | 3400 steps,   154 s | 83/195, ETA 4.0 h
+[seed 1 fold 4] unc10   labelled  442 patches (  6.9 image-equiv., 43 images touched) | val F1 0.6793 @ step 3200 (<= 600: 0.6616) | 4000 steps,   180 s | 84/195, ETA 4.0 h
+[seed 1 fold 4] unc20   labelled  883 patches ( 13.8 image-equiv., 67 images touched) | val F1 0.6907 @ step 4000 (<= 600: 0.6649) | 4000 steps,   181 s | 85/195, ETA 4.0 h
+[seed 1 fold 0] rfi05   labelled  218 patches (  3.4 image-equiv., 27 images touched) | val F1 0.7156 @ step 1600 (<= 600: 0.7122) | 2600 steps,   117 s | 86/195, ETA 4.0 h
+[seed 1 fold 0] rfi10   labelled  435 patches (  6.8 image-equiv., 43 images touched) | val F1 0.7148 @ step  800 (<= 600: 0.7134) | 1800 steps,    81 s | 87/195, ETA 3.9 h
+[seed 1 fold 0] rfi20   labelled  870 patches ( 13.6 image-equiv., 61 images touched) | val F1 0.7219 @ step 3600 (<= 600: 0.7175) | 4000 steps,   180 s | 88/195, ETA 3.9 h
+[seed 1 fold 1] rfi05   labelled  218 patches (  3.4 image-equiv., 31 images touched) | val F1 0.7033 @ step 1800 (<= 600: 0.6896) | 2800 steps,   126 s | 89/195, ETA 3.9 h
+[seed 1 fold 1] rfi10   labelled  435 patches (  6.8 image-equiv., 47 images touched) | val F1 0.7128 @ step 3600 (<= 600: 0.6952) | 4000 steps,   180 s | 90/195, ETA 3.8 h
+[seed 1 fold 1] rfi20   labelled  870 patches ( 13.6 image-equiv., 66 images touched) | val F1 0.7348 @ step 3800 (<= 600: 0.7097) | 4000 steps,   181 s | 91/195, ETA 3.8 h
+[seed 1 fold 2] rfi05   labelled  218 patches (  3.4 image-equiv., 32 images touched) | val F1 0.6159 @ step 1000 (<= 600: 0.6131) | 2000 steps,    90 s | 92/195, ETA 3.8 h
+[seed 1 fold 2] rfi10   labelled  435 patches (  6.8 image-equiv., 46 images touched) | val F1 0.6212 @ step 1800 (<= 600: 0.6137) | 2800 steps,   126 s | 93/195, ETA 3.7 h
+[seed 1 fold 2] rfi20   labelled  870 patches ( 13.6 image-equiv., 59 images touched) | val F1 0.6220 @ step 1200 (<= 600: 0.6133) | 2200 steps,    99 s | 94/195, ETA 3.7 h
+[seed 1 fold 3] rfi05   labelled  218 patches (  3.4 image-equiv., 38 images touched) | val F1 0.7426 @ step 3600 (<= 600: 0.7308) | 4000 steps,   180 s | 95/195, ETA 3.7 h
+[seed 1 fold 3] rfi10   labelled  435 patches (  6.8 image-equiv., 55 images touched) | val F1 0.7490 @ step 3200 (<= 600: 0.7318) | 4000 steps,   180 s | 96/195, ETA 3.6 h
+[seed 1 fold 3] rfi20   labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7528 @ step 3600 (<= 600: 0.7335) | 4000 steps,   180 s | 97/195, ETA 3.6 h
+[seed 1 fold 4] rfi05   labelled  221 patches (  3.5 image-equiv., 30 images touched) | val F1 0.6716 @ step 2600 (<= 600: 0.6587) | 3600 steps,   162 s | 98/195, ETA 3.6 h
+[seed 1 fold 4] rfi10   labelled  442 patches (  6.9 image-equiv., 50 images touched) | val F1 0.6701 @ step 2000 (<= 600: 0.6591) | 3000 steps,   135 s | 99/195, ETA 3.6 h
+[seed 1 fold 4] rfi20   labelled  883 patches ( 13.8 image-equiv., 69 images touched) | val F1 0.6851 @ step 3200 (<= 600: 0.6662) | 4000 steps,   180 s | 100/195, ETA 3.5 h
+[seed 1 fold 0] rand05  labelled  218 patches (  3.4 image-equiv., 66 images touched) | val F1 0.7032 @ step  800 (<= 600: 0.7024) | 1800 steps,    81 s | 101/195, ETA 3.5 h
+[seed 1 fold 0] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.7076 @ step  400 (<= 600: 0.7076) | 1400 steps,    63 s | 102/195, ETA 3.4 h
+[seed 1 fold 0] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7134 @ step  600 (<= 600: 0.7134) | 1600 steps,    72 s | 103/195, ETA 3.4 h
+[seed 1 fold 1] rand05  labelled  218 patches (  3.4 image-equiv., 65 images touched) | val F1 0.7067 @ step 2200 (<= 600: 0.6959) | 3200 steps,   144 s | 104/195, ETA 3.3 h
+[seed 1 fold 1] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.7137 @ step 3000 (<= 600: 0.6968) | 4000 steps,   180 s | 105/195, ETA 3.3 h
+[seed 1 fold 1] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7291 @ step 2400 (<= 600: 0.7084) | 3400 steps,   153 s | 106/195, ETA 3.3 h
+[seed 1 fold 2] rand05  labelled  218 patches (  3.4 image-equiv., 64 images touched) | val F1 0.6234 @ step 3600 (<= 600: 0.5944) | 4000 steps,   180 s | 107/195, ETA 3.3 h
+[seed 1 fold 2] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.6401 @ step 4000 (<= 600: 0.6185) | 4000 steps,   180 s | 108/195, ETA 3.2 h
+[seed 1 fold 2] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.6295 @ step 2600 (<= 600: 0.6136) | 3600 steps,   162 s | 109/195, ETA 3.2 h
+[seed 1 fold 3] rand05  labelled  218 patches (  3.4 image-equiv., 65 images touched) | val F1 0.7383 @ step 1200 (<= 600: 0.7342) | 2200 steps,    99 s | 110/195, ETA 3.2 h
+[seed 1 fold 3] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.7420 @ step 1400 (<= 600: 0.7375) | 2400 steps,   108 s | 111/195, ETA 3.1 h
+[seed 1 fold 3] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7457 @ step 2400 (<= 600: 0.7369) | 3400 steps,   153 s | 112/195, ETA 3.1 h
+[seed 1 fold 4] rand05  labelled  221 patches (  3.5 image-equiv., 65 images touched) | val F1 0.6577 @ step 3400 (<= 600: 0.6335) | 4000 steps,   180 s | 113/195, ETA 3.1 h
+[seed 1 fold 4] rand10  labelled  442 patches (  6.9 image-equiv., 69 images touched) | val F1 0.6747 @ step 3800 (<= 600: 0.6492) | 4000 steps,   180 s | 114/195, ETA 3.0 h
+[seed 1 fold 4] rand20  labelled  883 patches ( 13.8 image-equiv., 69 images touched) | val F1 0.6780 @ step 3400 (<= 600: 0.6576) | 4000 steps,   180 s | 115/195, ETA 3.0 h
+[seed 1 fold 0] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.7183 @ step  200 (<= 600: 0.7183) | 1200 steps,    54 s | 116/195, ETA 2.9 h
+[seed 1 fold 0] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.7131 @ step  200 (<= 600: 0.7131) | 1200 steps,    54 s | 117/195, ETA 2.9 h
+[seed 1 fold 0] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.7137 @ step  400 (<= 600: 0.7137) | 1400 steps,    63 s | 118/195, ETA 2.8 h
+[seed 1 fold 1] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.6951 @ step 1400 (<= 600: 0.6918) | 2400 steps,   108 s | 119/195, ETA 2.8 h
+[seed 1 fold 1] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.6949 @ step 3000 (<= 600: 0.6884) | 4000 steps,   180 s | 120/195, ETA 2.8 h
+[seed 1 fold 1] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.7233 @ step 4000 (<= 600: 0.7017) | 4000 steps,   181 s | 121/195, ETA 2.7 h
+[seed 1 fold 2] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.5694 @ step  200 (<= 600: 0.5694) | 1200 steps,    54 s | 122/195, ETA 2.7 h
+[seed 1 fold 2] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.5937 @ step 1000 (<= 600: 0.5934) | 2000 steps,    90 s | 123/195, ETA 2.7 h
+[seed 1 fold 2] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.6242 @ step  600 (<= 600: 0.6242) | 1600 steps,    72 s | 124/195, ETA 2.6 h
+[seed 1 fold 3] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.7390 @ step 1200 (<= 600: 0.7354) | 2200 steps,    99 s | 125/195, ETA 2.6 h
+[seed 1 fold 3] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.7472 @ step 1800 (<= 600: 0.7387) | 2800 steps,   126 s | 126/195, ETA 2.5 h
+[seed 1 fold 3] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.7438 @ step 1400 (<= 600: 0.7389) | 2400 steps,   108 s | 127/195, ETA 2.5 h
+[seed 1 fold 4] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.6485 @ step 1400 (<= 600: 0.6436) | 2400 steps,   108 s | 128/195, ETA 2.4 h
+[seed 1 fold 4] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.6526 @ step  400 (<= 600: 0.6526) | 1400 steps,    63 s | 129/195, ETA 2.4 h
+[seed 1 fold 4] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.6685 @ step 1200 (<= 600: 0.6638) | 2200 steps,    99 s | 130/195, ETA 2.4 h
+-- seed 1 finished (283 min so far)
+[seed 2 fold 0] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.6978 @ step    0 (<= 600: 0.6978) |    0 steps,     0 s | 130/195, ETA 2.4 h
+[seed 2 fold 1] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.6547 @ step    0 (<= 600: 0.6547) |    0 steps,     0 s | 130/195, ETA 2.4 h
+[seed 2 fold 2] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.5283 @ step    0 (<= 600: 0.5283) |    0 steps,     0 s | 130/195, ETA 2.4 h
+[seed 2 fold 3] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.7267 @ step    0 (<= 600: 0.7267) |    0 steps,     0 s | 130/195, ETA 2.4 h
+[seed 2 fold 4] base    labelled    0 patches (  0.0 image-equiv.,  0 images touched) | val F1 0.6187 @ step    0 (<= 600: 0.6187) |    0 steps,     0 s | 130/195, ETA 2.4 h
+[seed 2 fold 0] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7178 @ step 1800 (<= 600: 0.7171) | 2800 steps,   126 s | 131/195, ETA 2.3 h
+[seed 2 fold 1] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7164 @ step 3200 (<= 600: 0.6940) | 4000 steps,   180 s | 132/195, ETA 2.3 h
+[seed 2 fold 2] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.5992 @ step 2000 (<= 600: 0.5804) | 3000 steps,   135 s | 133/195, ETA 2.3 h
+[seed 2 fold 3] full    labelled 4352 patches ( 68.0 image-equiv., 68 images touched) | val F1 0.7397 @ step 1600 (<= 600: 0.7360) | 2600 steps,   117 s | 134/195, ETA 2.2 h
+[seed 2 fold 4] full    labelled 4416 patches ( 69.0 image-equiv., 69 images touched) | val F1 0.6805 @ step 4000 (<= 600: 0.6644) | 4000 steps,   180 s | 135/195, ETA 2.2 h
+[seed 2 fold 0] unc05   labelled  218 patches (  3.4 image-equiv., 20 images touched) | val F1 0.7188 @ step 3800 (<= 600: 0.7015) | 4000 steps,   180 s | 136/195, ETA 2.2 h
+[seed 2 fold 0] unc10   labelled  435 patches (  6.8 image-equiv., 36 images touched) | val F1 0.7306 @ step 3800 (<= 600: 0.7049) | 4000 steps,   180 s | 137/195, ETA 2.1 h
+[seed 2 fold 0] unc20   labelled  870 patches ( 13.6 image-equiv., 56 images touched) | val F1 0.7386 @ step 3800 (<= 600: 0.7112) | 4000 steps,   180 s | 138/195, ETA 2.1 h
+[seed 2 fold 1] unc05   labelled  218 patches (  3.4 image-equiv., 22 images touched) | val F1 0.6687 @ step 3200 (<= 600: 0.6619) | 4000 steps,   180 s | 139/195, ETA 2.1 h
+[seed 2 fold 1] unc10   labelled  435 patches (  6.8 image-equiv., 44 images touched) | val F1 0.6804 @ step 1400 (<= 600: 0.6786) | 2400 steps,   108 s | 140/195, ETA 2.0 h
+[seed 2 fold 1] unc20   labelled  870 patches ( 13.6 image-equiv., 62 images touched) | val F1 0.6974 @ step 1600 (<= 600: 0.6817) | 2600 steps,   117 s | 141/195, ETA 2.0 h
+[seed 2 fold 2] unc05   labelled  218 patches (  3.4 image-equiv., 26 images touched) | val F1 0.5670 @ step  600 (<= 600: 0.5670) | 1600 steps,    72 s | 142/195, ETA 1.9 h
+[seed 2 fold 2] unc10   labelled  435 patches (  6.8 image-equiv., 31 images touched) | val F1 0.5705 @ step 1200 (<= 600: 0.5701) | 2200 steps,    99 s | 143/195, ETA 1.9 h
+[seed 2 fold 2] unc20   labelled  870 patches ( 13.6 image-equiv., 52 images touched) | val F1 0.5965 @ step  800 (<= 600: 0.5945) | 1800 steps,    81 s | 144/195, ETA 1.9 h
+[seed 2 fold 3] unc05   labelled  218 patches (  3.4 image-equiv., 27 images touched) | val F1 0.7267 @ step    0 (<= 600: 0.7267) | 1000 steps,    45 s | 145/195, ETA 1.8 h
+[seed 2 fold 3] unc10   labelled  435 patches (  6.8 image-equiv., 48 images touched) | val F1 0.7473 @ step 3800 (<= 600: 0.7290) | 4000 steps,   180 s | 146/195, ETA 1.8 h
+[seed 2 fold 3] unc20   labelled  870 patches ( 13.6 image-equiv., 61 images touched) | val F1 0.7466 @ step 3800 (<= 600: 0.7310) | 4000 steps,   180 s | 147/195, ETA 1.8 h
+[seed 2 fold 4] unc05   labelled  221 patches (  3.5 image-equiv., 23 images touched) | val F1 0.6525 @ step 2000 (<= 600: 0.6344) | 3000 steps,   135 s | 148/195, ETA 1.7 h
+[seed 2 fold 4] unc10   labelled  442 patches (  6.9 image-equiv., 39 images touched) | val F1 0.6661 @ step 3800 (<= 600: 0.6467) | 4000 steps,   180 s | 149/195, ETA 1.7 h
+[seed 2 fold 4] unc20   labelled  883 patches ( 13.8 image-equiv., 63 images touched) | val F1 0.6774 @ step 4000 (<= 600: 0.6574) | 4000 steps,   180 s | 150/195, ETA 1.7 h
+[seed 2 fold 0] rfi05   labelled  218 patches (  3.4 image-equiv., 26 images touched) | val F1 0.7218 @ step 4000 (<= 600: 0.7012) | 4000 steps,   180 s | 151/195, ETA 1.6 h
+[seed 2 fold 0] rfi10   labelled  435 patches (  6.8 image-equiv., 43 images touched) | val F1 0.7208 @ step 3400 (<= 600: 0.7058) | 4000 steps,   180 s | 152/195, ETA 1.6 h
+[seed 2 fold 0] rfi20   labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7207 @ step 2600 (<= 600: 0.7136) | 3600 steps,   162 s | 153/195, ETA 1.6 h
+[seed 2 fold 1] rfi05   labelled  218 patches (  3.4 image-equiv., 30 images touched) | val F1 0.6865 @ step 2600 (<= 600: 0.6638) | 3600 steps,   162 s | 154/195, ETA 1.5 h
+[seed 2 fold 1] rfi10   labelled  435 patches (  6.8 image-equiv., 45 images touched) | val F1 0.6931 @ step 2000 (<= 600: 0.6670) | 3000 steps,   135 s | 155/195, ETA 1.5 h
+[seed 2 fold 1] rfi20   labelled  870 patches ( 13.6 image-equiv., 66 images touched) | val F1 0.7115 @ step 3800 (<= 600: 0.6810) | 4000 steps,   180 s | 156/195, ETA 1.5 h
+[seed 2 fold 2] rfi05   labelled  218 patches (  3.4 image-equiv., 33 images touched) | val F1 0.6001 @ step 2800 (<= 600: 0.5770) | 3800 steps,   171 s | 157/195, ETA 1.4 h
+[seed 2 fold 2] rfi10   labelled  435 patches (  6.8 image-equiv., 45 images touched) | val F1 0.5666 @ step  800 (<= 600: 0.5615) | 1800 steps,    81 s | 158/195, ETA 1.4 h
+[seed 2 fold 2] rfi20   labelled  870 patches ( 13.6 image-equiv., 59 images touched) | val F1 0.5942 @ step 1600 (<= 600: 0.5833) | 2600 steps,   117 s | 159/195, ETA 1.3 h
+[seed 2 fold 3] rfi05   labelled  218 patches (  3.4 image-equiv., 36 images touched) | val F1 0.7267 @ step    0 (<= 600: 0.7267) | 1000 steps,    45 s | 160/195, ETA 1.3 h
+[seed 2 fold 3] rfi10   labelled  435 patches (  6.8 image-equiv., 52 images touched) | val F1 0.7354 @ step 2000 (<= 600: 0.7267) | 3000 steps,   135 s | 161/195, ETA 1.3 h
+[seed 2 fold 3] rfi20   labelled  870 patches ( 13.6 image-equiv., 67 images touched) | val F1 0.7454 @ step 3400 (<= 600: 0.7317) | 4000 steps,   180 s | 162/195, ETA 1.2 h
+[seed 2 fold 4] rfi05   labelled  221 patches (  3.5 image-equiv., 30 images touched) | val F1 0.6530 @ step 3800 (<= 600: 0.6329) | 4000 steps,   180 s | 163/195, ETA 1.2 h
+[seed 2 fold 4] rfi10   labelled  442 patches (  6.9 image-equiv., 45 images touched) | val F1 0.6613 @ step 3200 (<= 600: 0.6444) | 4000 steps,   180 s | 164/195, ETA 1.2 h
+[seed 2 fold 4] rfi20   labelled  883 patches ( 13.8 image-equiv., 68 images touched) | val F1 0.6773 @ step 3800 (<= 600: 0.6496) | 4000 steps,   180 s | 165/195, ETA 1.1 h
+[seed 2 fold 0] rand05  labelled  218 patches (  3.4 image-equiv., 68 images touched) | val F1 0.7032 @ step  600 (<= 600: 0.7032) | 1600 steps,    72 s | 166/195, ETA 1.1 h
+[seed 2 fold 0] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.7064 @ step  200 (<= 600: 0.7064) | 1200 steps,    54 s | 167/195, ETA 1.0 h
+[seed 2 fold 0] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7098 @ step  400 (<= 600: 0.7098) | 1400 steps,    63 s | 168/195, ETA 1.0 h
+[seed 2 fold 1] rand05  labelled  218 patches (  3.4 image-equiv., 65 images touched) | val F1 0.6687 @ step  400 (<= 600: 0.6687) | 1400 steps,    63 s | 169/195, ETA 1.0 h
+[seed 2 fold 1] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.6973 @ step 3200 (<= 600: 0.6781) | 4000 steps,   180 s | 170/195, ETA 0.9 h
+[seed 2 fold 1] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7125 @ step 2800 (<= 600: 0.6922) | 3800 steps,   171 s | 171/195, ETA 0.9 h
+[seed 2 fold 2] rand05  labelled  218 patches (  3.4 image-equiv., 66 images touched) | val F1 0.5758 @ step 2000 (<= 600: 0.5686) | 3000 steps,   135 s | 172/195, ETA 0.9 h
+[seed 2 fold 2] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.6009 @ step 1800 (<= 600: 0.5793) | 2800 steps,   126 s | 173/195, ETA 0.8 h
+[seed 2 fold 2] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.6146 @ step 2400 (<= 600: 0.5745) | 3400 steps,   153 s | 174/195, ETA 0.8 h
+[seed 2 fold 3] rand05  labelled  218 patches (  3.4 image-equiv., 66 images touched) | val F1 0.7334 @ step 2400 (<= 600: 0.7295) | 3400 steps,   153 s | 175/195, ETA 0.7 h
+[seed 2 fold 3] rand10  labelled  435 patches (  6.8 image-equiv., 68 images touched) | val F1 0.7325 @ step  400 (<= 600: 0.7325) | 1400 steps,    64 s | 176/195, ETA 0.7 h
+[seed 2 fold 3] rand20  labelled  870 patches ( 13.6 image-equiv., 68 images touched) | val F1 0.7447 @ step 4000 (<= 600: 0.7353) | 4000 steps,   180 s | 177/195, ETA 0.7 h
+[seed 2 fold 4] rand05  labelled  221 patches (  3.5 image-equiv., 66 images touched) | val F1 0.6494 @ step 2000 (<= 600: 0.6356) | 3000 steps,   135 s | 178/195, ETA 0.6 h
+[seed 2 fold 4] rand10  labelled  442 patches (  6.9 image-equiv., 69 images touched) | val F1 0.6596 @ step 3600 (<= 600: 0.6392) | 4000 steps,   180 s | 179/195, ETA 0.6 h
+[seed 2 fold 4] rand20  labelled  883 patches ( 13.8 image-equiv., 69 images touched) | val F1 0.6583 @ step 2400 (<= 600: 0.6463) | 3400 steps,   153 s | 180/195, ETA 0.6 h
+[seed 2 fold 0] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.6978 @ step    0 (<= 600: 0.6978) | 1000 steps,    45 s | 181/195, ETA 0.5 h
+[seed 2 fold 0] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.7004 @ step  200 (<= 600: 0.7004) | 1200 steps,    54 s | 182/195, ETA 0.5 h
+[seed 2 fold 0] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.7077 @ step  400 (<= 600: 0.7077) | 1400 steps,    63 s | 183/195, ETA 0.4 h
+[seed 2 fold 1] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.6766 @ step  800 (<= 600: 0.6739) | 1800 steps,    82 s | 184/195, ETA 0.4 h
+[seed 2 fold 1] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.6761 @ step  600 (<= 600: 0.6761) | 1600 steps,    73 s | 185/195, ETA 0.4 h
+[seed 2 fold 1] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.6927 @ step 1200 (<= 600: 0.6885) | 2200 steps,   100 s | 186/195, ETA 0.3 h
+[seed 2 fold 2] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.5420 @ step  200 (<= 600: 0.5420) | 1200 steps,    54 s | 187/195, ETA 0.3 h
+[seed 2 fold 2] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.5389 @ step  200 (<= 600: 0.5389) | 1200 steps,    54 s | 188/195, ETA 0.3 h
+[seed 2 fold 2] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.5447 @ step  200 (<= 600: 0.5447) | 1200 steps,    54 s | 189/195, ETA 0.2 h
+[seed 2 fold 3] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.7329 @ step  400 (<= 600: 0.7329) | 1400 steps,    63 s | 190/195, ETA 0.2 h
+[seed 2 fold 3] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.7330 @ step  400 (<= 600: 0.7330) | 1400 steps,    63 s | 191/195, ETA 0.1 h
+[seed 2 fold 3] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.7416 @ step 1200 (<= 600: 0.7390) | 2200 steps,    99 s | 192/195, ETA 0.1 h
+[seed 2 fold 4] img05   labelled  192 patches (  3.0 image-equiv.,  3 images touched) | val F1 0.6329 @ step  400 (<= 600: 0.6329) | 1400 steps,    63 s | 193/195, ETA 0.1 h
+[seed 2 fold 4] img10   labelled  448 patches (  7.0 image-equiv.,  7 images touched) | val F1 0.6395 @ step  600 (<= 600: 0.6395) | 1600 steps,    72 s | 194/195, ETA 0.0 h
+[seed 2 fold 4] img20   labelled  896 patches ( 14.0 image-equiv., 14 images touched) | val F1 0.6654 @ step 2000 (<= 600: 0.6594) | 3000 steps,   136 s | 195/195, ETA 0.0 h
+-- seed 2 finished (420 min so far)
+ALL DONE. Summarise with: ~/torch-env/bin/python analysis/active_learning/summarise_al.py
+
+All done (20:04). Results:
+====================================================================================================
+  TOPIC 11 -- expert-label fine-tuning, 5-fold cross-validation, ALL 109 images
+====================================================================================================
+  check -- base, pooled over the folds, must reproduce the headline max F1:
+     seed 0: 0.6592  vs headline 0.6592  (diff -0.00001; histogram bins, exact within 5e-4)
+     seed 1: 0.6647  vs headline 0.6647  (diff +0.00001; histogram bins, exact within 5e-4)
+     seed 2: 0.6569  vs headline 0.6570  (diff -0.00001; histogram bins, exact within 5e-4)
+
+  labelling cost = patches labelled in the pool (shown as image-equivalents, 64 patches = 1 image) + 19 validation images in every arm
+
+  arm            labelled / fold seeds                max F1                val F1    prec / rec    max F1 <=600  best steps (median)
+  base           0.0 img ( 0.0%)     3     0.6603 +/- 0.0040     0.6534 +/- 0.0035  0.740/0.5850.6603 +/- 0.0040           0         
+  full         68.2 img (100.0%)     3     0.6676 +/- 0.0157     0.6636 +/- 0.0175  0.678/0.6500.6747 +/- 0.0083        2600  (5 hit the step cap)
+  unc05          3.4 img ( 5.0%)     3     0.6337 +/- 0.0166     0.6360 +/- 0.0140  0.666/0.6090.6527 +/- 0.0044        2000         
+  rfi05          3.4 img ( 5.0%)     3     0.6480 +/- 0.0134     0.6461 +/- 0.0135  0.656/0.6360.6572 +/- 0.0045        2800  (1 hit the step cap)
+  rand05         3.4 img ( 5.0%)     3     0.6722 +/- 0.0053     0.6675 +/- 0.0058  0.711/0.6290.6667 +/- 0.0028        1600         
+  img05          3.0 img ( 4.4%)     3     0.6644 +/- 0.0127     0.6605 +/- 0.0099  0.690/0.6330.6654 +/- 0.0124         400         
+  unc10          6.8 img (10.0%)     3     0.6493 +/- 0.0178     0.6477 +/- 0.0203  0.671/0.6270.6551 +/- 0.0172        2000         
+  rfi10          6.8 img (10.0%)     3     0.6389 +/- 0.0074     0.6372 +/- 0.0097  0.649/0.6270.6514 +/- 0.0071        2000         
+  rand10         6.8 img (10.0%)     3     0.6622 +/- 0.0058     0.6538 +/- 0.0127  0.682/0.6300.6664 +/- 0.0049        1800  (1 hit the step cap)
+  img10          7.0 img (10.3%)     3     0.6514 +/- 0.0124     0.6466 +/- 0.0131  0.676/0.6210.6568 +/- 0.0074         600         
+  unc20         13.6 img (20.0%)     3     0.6529 +/- 0.0115     0.6470 +/- 0.0138  0.653/0.6420.6604 +/- 0.0121        2800  (3 hit the step cap)
+  rfi20         13.6 img (20.0%)     3     0.6499 +/- 0.0166     0.6437 +/- 0.0191  0.650/0.6390.6630 +/- 0.0124        3200         
+  rand20        13.6 img (20.0%)     3     0.6654 +/- 0.0142     0.6571 +/- 0.0167  0.680/0.6380.6685 +/- 0.0073        2400  (2 hit the step cap)
+  img20         14.0 img (20.5%)     3     0.6612 +/- 0.0054     0.6556 +/- 0.0071  0.674/0.6390.6629 +/- 0.0022        1200  (1 hit the step cap)
+
+  gain over no fine-tuning (max F1, paired by seed):
+     full - base                                  +0.0073  (per seed: +0.0022, +0.0207, -0.0010), paired t = 1.08, p = 0.393
+     unc05 - base                                 -0.0266  (per seed: -0.0162, -0.0211, -0.0423), paired t = -3.31, p = 0.080
+     rfi05 - base                                 -0.0123  (per seed: -0.0052, -0.0073, -0.0243), paired t = -2.03, p = 0.179
+     rand05 - base                                +0.0119  (per seed: +0.0103, +0.0041, +0.0214), paired t = 2.37, p = 0.142
+     img05 - base                                 +0.0041  (per seed: +0.0130, +0.0067, -0.0072), paired t = 0.70, p = 0.558
+     unc10 - base                                 -0.0109  (per seed: -0.0171, +0.0049, -0.0206), paired t = -1.37, p = 0.305
+     rfi10 - base                                 -0.0214  (per seed: -0.0212, -0.0179, -0.0249), paired t = -10.50, p = 0.009
+     rand10 - base                                +0.0019  (per seed: +0.0060, +0.0013, -0.0015), paired t = 0.89, p = 0.468
+     img10 - base                                 -0.0089  (per seed: -0.0119, -0.0231, +0.0084), paired t = -0.96, p = 0.438
+     unc20 - base                                 -0.0074  (per seed: -0.0108, +0.0014, -0.0126), paired t = -1.67, p = 0.236
+     rfi20 - base                                 -0.0104  (per seed: -0.0178, +0.0044, -0.0177), paired t = -1.41, p = 0.294
+     rand20 - base                                +0.0051  (per seed: +0.0084, +0.0137, -0.0068), paired t = 0.83, p = 0.494
+     img20 - base                                 +0.0009  (per seed: +0.0080, -0.0079, +0.0027), paired t = 0.20, p = 0.859
+
+  which patches to label? (same budget, paired by seed):
+      5%: uncertainty patches - random patches    -0.0385  (per seed: -0.0266, -0.0252, -0.0637), paired t = -3.05, p = 0.093
+      5%: most-RFI patches - random patches       -0.0242  (per seed: -0.0155, -0.0115, -0.0457), paired t = -2.24, p = 0.154
+      5%: random patches - random whole images    +0.0078  (per seed: -0.0026, -0.0026, +0.0286), paired t = 0.75, p = 0.531
+     10%: uncertainty patches - random patches    -0.0129  (per seed: -0.0231, +0.0037, -0.0192), paired t = -1.54, p = 0.263
+     10%: most-RFI patches - random patches       -0.0233  (per seed: -0.0273, -0.0192, -0.0235), paired t = -9.95, p = 0.010
+     10%: random patches - random whole images    +0.0108  (per seed: +0.0179, +0.0244, -0.0099), paired t = 1.03, p = 0.412
+     20%: uncertainty patches - random patches    -0.0124  (per seed: -0.0192, -0.0123, -0.0058), paired t = -3.23, p = 0.084
+     20%: most-RFI patches - random patches       -0.0155  (per seed: -0.0262, -0.0093, -0.0109), paired t = -2.88, p = 0.102
+     20%: random patches - random whole images    +0.0041  (per seed: +0.0003, +0.0216, -0.0095), paired t = 0.45, p = 0.696
+
+  train longer? (same runs: best state within 600 steps vs the full schedule):
+     full     longer - <=600: -0.0071
+     unc05    longer - <=600: -0.0190
+     rfi05    longer - <=600: -0.0092
+     rand05   longer - <=600: +0.0055
+     img05    longer - <=600: -0.0010
+     unc10    longer - <=600: -0.0058
+     rfi10    longer - <=600: -0.0125
+     rand10   longer - <=600: -0.0042
+     img10    longer - <=600: -0.0054
+     unc20    longer - <=600: -0.0075
+     rfi20    longer - <=600: -0.0131
+     rand20   longer - <=600: -0.0031
+     img20    longer - <=600: -0.0017
+
+  FINAL (max F1 on all 109 images, cross-validated; expert-label protocol -- compare with RFDL 0.669 / 0.675, NOT with the AOFlagger-only 0.660):
+     no fine-tuning       0.6603 +/- 0.0040
+     all pool labels      0.6676 +/- 0.0157
+     best budgeted arm    rand05: 0.6722 +/- 0.0053
+
+  saved /home/ronaksingh/Documents/minor project/Minor Project/runs/lofar/al/summary.json

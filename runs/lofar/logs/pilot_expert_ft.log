@@ -1,0 +1,33 @@
+=== attempt 1 09:03:30
+77 groups from 109 images (largest 6)
+model 0 split 0: base 0.6738 | ft_aof 0.6775 (step 500) | ft_expert 0.6866 (step 600)   [10.4 min]
+model 0 split 1: base 0.6382 | ft_aof 0.6382 (step 0) | ft_expert 0.6546 (step 600)   [20.7 min]
+model 0 split 2: base 0.6559 | ft_aof 0.6551 (step 100) | ft_expert 0.6719 (step 600)   [31.0 min]
+model 1 split 0: base 0.6782 | ft_aof 0.6810 (step 100) | ft_expert 0.6963 (step 500)   [41.3 min]
+model 1 split 1: base 0.6480 | ft_aof 0.6506 (step 100) | ft_expert 0.6765 (step 600)   [51.6 min]
+model 1 split 2: base 0.6606 | ft_aof 0.6592 (step 200) | ft_expert 0.6860 (step 600)   [62.0 min]
+=== attempt 1 11:46:00
+77 groups from 109 images (largest 6)
+model 2 split 0: base 0.6726 | ft_aof 0.6726 (step 0) | ft_expert 0.6812 (step 400)   [1.5 min]
+model 2 split 1: base 0.6339 | ft_aof 0.6360 (step 100) | ft_expert 0.6539 (step 600)   [2.9 min]
+model 2 split 2: base 0.6529 | ft_aof 0.6529 (step 0) | ft_expert 0.6657 (step 600)   [4.3 min]
+
+=== 70 test images, mean +/- sd over 9 (model, split) pairs ===
+max F1 (best threshold on test)
+   base       0.6571 +/- 0.0157
+   ft_aof     0.6581 +/- 0.0161
+   ft_expert  0.6748 +/- 0.0146
+   ft_expert - base: +0.0176 (min +0.0086, max +0.0285), paired t = 8.42, p = 0.0000
+   ft_aof - base: +0.0010 (min -0.0014, max +0.0037), paired t = 1.65, p = 0.1384
+   ft_expert - ft_aof: +0.0166 (min +0.0086, max +0.0268), paired t = 7.80, p = 0.0001
+F1 at validation-chosen threshold
+   base       0.6555 +/- 0.0148
+   ft_aof     0.6561 +/- 0.0140
+   ft_expert  0.6699 +/- 0.0115
+   ft_expert - base: +0.0145 (min -0.0060, max +0.0283), paired t = 4.21, p = 0.0029
+   ft_aof - base: +0.0006 (min -0.0013, max +0.0036), paired t = 1.20, p = 0.2661
+   ft_expert - ft_aof: +0.0138 (min -0.0060, max +0.0256), paired t = 4.32, p = 0.0026
+   ft_aof: precision 0.743, recall 0.588 (at val threshold)
+   ft_expert: precision 0.727, recall 0.626 (at val threshold)
+   base: precision 0.746, recall 0.585
+saved /home/ronaksingh/Documents/minor project/Minor Project/analysis/active_learning/pilot_expert_finetune.json

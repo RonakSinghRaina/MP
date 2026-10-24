@@ -1,0 +1,75 @@
+{
+ "seed": 1,
+ "fold": 0,
+ "arm": "rfi10",
+ "chain": "rfi",
+ "budget": 0.1,
+ "n_pool": 68,
+ "n_val": 19,
+ "n_test": 22,
+ "labelled_patches": 435,
+ "labelled_images_touched": 43,
+ "labelled_fraction_of_pool": 0.09995404411764706,
+ "labelled_rfi_pixels": 91328,
+ "best": {
+  "step": 800,
+  "val_max_f1": 0.7147773435992086,
+  "val_threshold": 0.6375232934951782,
+  "test_tp": 24665,
+  "test_fp": 7156,
+  "test_fn": 19825
+ },
+ "short": {
+  "step": 600,
+  "val_max_f1": 0.7134432295117166,
+  "val_threshold": 0.45963239669799805,
+  "test_tp": 24744,
+  "test_fp": 7299,
+  "test_fn": 19746
+ },
+ "steps_done": 1800,
+ "hit_step_cap": false,
+ "val_curve": [
+  [
+   0,
+   0.701053
+  ],
+  [
+   200,
+   0.707061
+  ],
+  [
+   400,
+   0.71104
+  ],
+  [
+   600,
+   0.713443
+  ],
+  [
+   800,
+   0.714777
+  ],
+  [
+   1000,
+   0.713474
+  ],
+  [
+   1200,
+   0.713575
+  ],
+  [
+   1400,
+   0.711686
+  ],
+  [
+   1600,
+   0.712876
+  ],
+  [
+   1800,
+   0.711635
+  ]
+ ],
+ "seconds": 80.9
+}
