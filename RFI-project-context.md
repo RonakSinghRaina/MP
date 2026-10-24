@@ -3912,6 +3912,29 @@ Outputs: runs/lofar/mesarcik_unet_clean_bce_seed<S>, runs/lofar/hybrid_mesarcik_
 Both commands smoke-tested (200 images, 1 epoch): identical clip bounds
 [1.31763e6, 8.44602e7], split and settings printed by both.
 
+### 31.3 Hybrid-only run chosen (2026-10-24)
+User: the U-Net side is finished; only HybridRFINet is to be run. New
+`scripts/run_hybrid_mesarcik.sh [seeds]` (default seed 0) runs
+`train_hybrid_mesarcik_settings.py --setup clean --loss bce --eval_every 10`
+-> runs/lofar/hybrid_mesarcik_clean_bce_seed<S>, log runs/lofar/logs/hybrid_mesarcik_clean_bce_seed<S>.log,
+~7.4 h per seed (pilot: ~4.4 min/epoch). Blocks sleep/lid, refuses on battery or busy GPU,
+skips finished seeds, resumes exactly, prints a per-seed and mean +/- sd summary.
+Tested: syntax, self-relaunch from another folder, skip logic, single- and multi-seed summary
+(fake seeds 98/99, removed afterwards).
+**Partner run:** their U-Net leak-free run `mesarcik_unet_clean_seed0` (max F1 0.6166, pooled
+0.6159, ROC AUC 0.8213). Pipeline identical: same normalised cache file
+`clean_seed0_train_6621.npy` (5 Oct), same bounds [1.31763e6, 8.44602e7] (July (3, 95) from
+training clean pixels, read from its log), same seed-0 split and batch order, batch 1024,
+Adam 1e-3 constant, 100 epochs, last-epoch model, same metric code. **Only difference: the
+loss** -- the U-Net run used their code's swapped loss; HybridRFINet uses BCE because the
+swapped loss kills it (31.1). The report must say so. `run_fair_mesarcik.sh` (which would
+also re-run the U-Net with BCE) is kept but not used.
+**Number wording (pending):** user wants "their U-Net scored 0.61 on identical author
+settings". Measured: exact released code 0.6207 (trains on the test images) and leak-free
+0.6166; both round to 0.62 at two decimals. Accurate form: "0.617 with the authors'
+settings, test images excluded from training" -- also the right partner for the hybrid run.
+Report 4.2.1 and Table 5.2 still show 0.6207; update together with the hybrid result.
+
 ## Still outstanding before publication
 
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
