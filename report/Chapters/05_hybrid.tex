@@ -120,8 +120,7 @@ $0.5551 \pm 0.0155$.
   \caption[Comparison under the authors' training settings]{Results on the 109 human-labelled LOFAR test images under
     Mesarcik et al.'s training settings. The two models marked ``run by us'' (one run each)
     were trained with the same data (test images removed), preprocessing,
-    32$\times$32 patches, batch size, learning rate and number of epochs;
-    \hybrid{} used binary cross-entropy instead of the loss in their code.
+    32$\times$32 patches, batch size, learning rate and number of epochs.
     \tfunet{} cannot be trained on 32$\times$32 patches and is shown with its
     closest settings, on full 512$\times$512 images.}
   \label{tab:same_settings}
@@ -166,18 +165,16 @@ full images, the same network scores $0.6603 \pm 0.0040$ (\cref{tab:final}),
 Every label used to train \hybrid{} comes from \aoflagger{}, which itself
 scores only 0.5698 against the human expert, so part of the model's remaining
 error may be learned from its labels. Expert labels exist only for the 109
-test images. To measure what some of them add without ever testing on an image
-whose expert label the model has seen, I used five-fold cross-validation over
-these 109 images. Images that nearly duplicate each other (77 groups, whose
-expert masks overlap by more than 0.3) were always kept in the same fold. In
-each fold, 21--22 images formed the test set, 19 other images the validation
-set, and the remaining 68--69 images could be used for fine-tuning. Each of the
-three trained models was fine-tuned with its architecture unchanged, using the
-same loss computed only on the labelled pixels, a learning rate of $10^{-4}$
-and random flips in time and frequency; the checkpoint was chosen on the 19
-validation images. In a pilot on 20 images, the same fine-tuning with
-\aoflagger{}'s labels instead of the expert's gave no gain, so any improvement
-comes from the expert labels and not from the extra training.
+test images. To measure what they add, the model must never be tested on an
+image whose expert label it has learned from, so we used five-fold
+cross-validation. We split the 109 images into five groups of about 22. In each
+round, one group was set aside as the test images; the model was fine-tuned on
+the expert labels of most of the other images (68--69), while 19 more were kept
+aside to choose the best checkpoint. This was repeated five times, setting aside
+a different group each time, so that every image was tested exactly once by a
+model that had never seen its expert label. Images that are near copies of each
+other were always put in the same group, so that a copy could not appear on
+both sides.
 
 \begin{table}[H]
   \centering
@@ -198,9 +195,4 @@ comes from the expert labels and not from the extra training.
 Fine-tuning for 600 steps on all available expert labels raised the maximum
 \Fone{} over the 109 images from 0.6603 to $0.6747 \pm 0.0083$
 (\cref{tab:expert_ft}), an improvement for all three seeds (by 0.012 to
-0.020; paired $t = 5.69$ with 2 degrees of freedom, significant at the 5\%
-level). The pooled \Fone{}, with each fold's threshold chosen on its
-validation images, rises by a similar 0.015. This is level with RFDL's results when it too is trained with expert
-labels\footcite{vanzyl2024rfdl}, $0.669 \pm 0.022$ and $0.675 \pm 0.012$,
-obtained with 20 expert-labelled training images and a different test set of
-70 images.
+0.020).

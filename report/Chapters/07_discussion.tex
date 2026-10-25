@@ -13,8 +13,7 @@ case this became visible only through a controlled test.
     the network (\cref{ch:tfunet}).
   \item The components \hybrid{} was designed around---strip convolutions,
     channel attention and residual blocks---contribute nothing measurable on
-    real data, not even for the faint RFI they were meant to target
-    (\cref{ch:drivers}).
+    real data (\cref{ch:drivers}).
   \item A CRF refinement that works well on top of a simple threshold added
     nothing on top of a network that already uses neighbourhood information,
     and with its published settings it was harmful (\cref{sec:crf}).
@@ -31,8 +30,8 @@ credited the wrong parts of the model.
 \section{Synthetic benchmarks can mislead}
 The same network, trained the same way, scored 0.93 on my synthetic data and
 0.49 on LOFAR. The synthetic labels are noise-free and every labelled pixel is
-above the noise by construction, while on real data a fifth of the RFI is
-fainter than a typical clean pixel and 44\% of the pixels flagged in the
+above the noise by construction, while on real data much of the RFI is
+hard to see against the noise and 44\% of the pixels flagged in the
 training labels are not RFI according to a human expert. The synthetic data was useful for finding
 and fixing \tfunet{}'s training problems quickly, but it was a poor guide to
 how methods compare on real observations: on synthetic data every variant of
@@ -66,9 +65,6 @@ specific, measured weakness, and each should be tested by removing it again.
     RFI. Keeping \aoflagger{}'s labels outside the chosen patches, or
     reweighting the loss to the true share of RFI, so that the model still
     sees ordinary background, is a simple fix that remains to be tested.
-  \item \textbf{Faint RFI.} Only about a quarter of the faint and invisible RFI
-    is found. Since these pixels carry no brightness signal of their own, any
-    improvement has to come from wider context.
   \item \textbf{Apply the method to GMRT pulsar data}, the original motivation
     for this project.
 \end{itemize}

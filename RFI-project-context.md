@@ -3979,6 +3979,15 @@ value 0.5551 +/- 0.0155 (authors' rule; pooled F1 not measured for last epoch, s
 0.5482 kept everywhere else (our own settings). Removed from the 5.2.3 text: the loss-difference
 sentences (Table 5.3 caption still says HybridRFINet used BCE), the pixels-per-step/steps
 comparison for tf_unet, and the "difference smaller than the spread, take as equal" sentence.
+Then (user's request): removed the BCE line from the Table 5.3 caption and "equal" from the
+conclusion; 5.3 fine-tuning method rewritten in plain words (five-fold CV explained; dropped the
+77-group / 0.3-overlap detail, lr, flips, AOFlagger-label pilot); removed the paired t = 5.69,
+pooled +0.015 and RFDL-with-expert-labels comparison; removed section 6.2 (faint-RFI tiers,
+tab:lofar_tiers, tab:faint) and the discussion statements that depended on it (the "not even for
+faint RFI" clause, "a fifth of the RFI is fainter than a typical clean pixel", future-work bullet
+"Faint RFI"); CRF section cut to one plain paragraph (0.6592 -> 0.4884 with Chen's settings,
++0.0012 at best), table dropped. Report 47 pages. Conclusion still says fine-tuning is "level
+with RFDL's results with expert labels" -- now unsupported in the body (flagged to user).
 
 ## PART 32 — Backup before the display repair (2026-10-24)
 

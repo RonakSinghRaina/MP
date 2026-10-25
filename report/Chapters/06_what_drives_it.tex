@@ -73,108 +73,16 @@ is that without GroupNorm the results vary about four times more from seed to
 seed, so normalisation seems to make training more stable even if it does not
 make the final model better on average.
 
-\section{Do the strip convolutions help with faint RFI?}
-\label{sec:faint}
-The main reason for adding strip convolutions was faint RFI
-(\cref{sec:hybrid_design}). Faint RFI is a small share of all RFI pixels, so a
-benefit there could be hidden in the overall score. To test this I measured how
-much of the RFI in each brightness tier the model finds, with and without the
-strip convolutions. Each expert-labelled RFI pixel was placed in a tier by
-comparing it with the clean pixels of the same image (\cref{tab:lofar_tiers}):
-half of the RFI is brighter than 99\% of the clean pixels, but a fifth of it is
-dimmer than a typical clean pixel.
-
-\begin{table}[H]
-  \centering
-  \caption[Brightness of the expert-labelled RFI pixels in LOFAR]{Brightness of the expert-labelled RFI pixels in the 109 LOFAR test
-    images, measured against the clean pixels of the same image.}
-  \label{tab:lofar_tiers}
-  \begin{tabular}{llrr}
-    \toprule
-    Tier & Brightness relative to the image's clean pixels & RFI pixels & Share \\
-    \midrule
-    Bright    & above the 99th percentile          & 109{,}669 & 50.1\% \\
-    Moderate  & between the 75th and 99th          &  41{,}263 & 18.9\% \\
-    Faint     & between the 50th and 75th          &  24{,}113 & 11.0\% \\
-    Invisible & below the median                   &  43{,}866 & 20.0\% \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-The first comparison seemed to show a small benefit of about 0.02 in the
-fainter tiers. However, each model had been scored at its own threshold, and
-these differed (0.30 with strip convolutions, 0.43 without). A lower threshold
-flags more pixels and so finds more RFI in every tier, regardless of the
-architecture. To remove this effect I set each model's threshold so that both
-flag exactly the same number of pixels (199{,}951), and compared again
-(\cref{tab:faint}). The difference vanished in every tier, including the
-faint and invisible ones the strip convolutions were designed for.
-
-\begin{table}[H]
-  \centering
-  \caption[RFI found in each brightness tier]{Fraction of RFI found in each brightness tier, with both models
-    flagging the same number of pixels.}
-  \label{tab:faint}
-  \begin{tabular}{lrrr}
-    \toprule
-    Tier & With strip conv. & Without & Difference \\
-    \midrule
-    Bright    & 0.940 & 0.945 & $-0.005$ \\
-    Moderate  & 0.405 & 0.402 & $+0.003$ \\
-    Faint     & 0.273 & 0.274 & $-0.001$ \\
-    Invisible & 0.258 & 0.257 & $+0.001$ \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-The table also shows where the model's errors are. Bright RFI is almost
-entirely found (94\%), but only about a quarter of the faint and invisible RFI
-is, so most of the RFI the model misses is dim.
-
 \section{Adding a CRF refinement}
 \label{sec:crf}
-Chen et al.\footcite{chen2023} clean RFI in pulsar data by first labelling pixels
-with a simple statistical threshold and then refining the labels with a
-conditional random field (CRF), which adjusts each pixel's label according to
-its neighbours. They report that this recovers weak RFI that is unrecognisable
-in individual pixels but visible from its surroundings---exactly the faint RFI
-my model misses. I therefore added a CRF on top of the trained network. I
-implemented it as differentiable layers\footcite{zheng2015crfrnn,teichmann2018convcrf},
-so that its settings can also be learned, and gave it separate ranges along
-time and frequency. It adds only 11 parameters.
-
-\begin{table}[H]
-  \centering
-  \caption[Adding a CRF refinement]{Adding a CRF to the trained network (maximum \Fone{}, 109 LOFAR test
-    images).}
-  \label{tab:crf}
-  \begin{tabular}{lr}
-    \toprule
-    Configuration & max \Fone{} \\
-    \midrule
-    Network alone                                  & 0.6592 \\
-    + CRF with Chen et al.'s settings              & 0.4884 \\
-    + CRF with the best hand-chosen settings       & 0.6604 \\
-    + CRF with settings learned in training        & 0.6604 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-With Chen et al.'s published settings the CRF was harmful
-(\cref{tab:crf}): it removed isolated detections whose neighbours were labelled
-clean, raising precision to 0.74 but cutting recall to 0.35. Their RFI arrives
-in large connected blocks, while LOFAR RFI is sparse and thin. With better
-settings, whether chosen by hand or learned, the gain was 0.0012, well inside
-the seed spread. When the CRF was free to learn how strongly to act, it reduced
-its own weights towards zero (the setting at which it changes nothing) and
-stopped improving after the second of 40 epochs.
-
-There are two reasons it does not help here. The network already uses the
-neighbourhood of each pixel through its convolutions, so the CRF has little to
-add; Chen et al.\ applied theirs to a simple threshold that uses no
-neighbourhood information at all. And a CRF can only rearrange evidence that is
-already in the network's prediction; for faint RFI there is very little such
-evidence to rearrange.
+A conditional random field (CRF) is an extra step after the network that
+changes each pixel's label to agree better with its neighbours. Chen et
+al.\footcite{chen2023} used one to find weak RFI in pulsar data, so I added one
+on top of \hybrid{}. It did not help. With Chen et al.'s settings the score fell
+from 0.6592 to 0.4884, because the CRF deleted the thin, scattered RFI that is
+common in LOFAR; with the best settings it rose by only 0.0012, too little to
+count. The network's convolutions already look at each pixel's neighbours, so
+the CRF had nothing new to add.
 
 \section{What explains the gain over \tfunet{}?}
 \label{sec:unexplained}
