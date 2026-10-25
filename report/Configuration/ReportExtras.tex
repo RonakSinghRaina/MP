@@ -44,3 +44,9 @@
 \hyphenation{Hybrid-RFI-Net PSR-CHIVE AO-Flagger}
 \setlength{\emergencystretch}{1.5em}      % lets awkward lines break without overflowing
 \appto{\bibsetup}{\emergencystretch=1em}   % same for long bibliography entries
+
+% Bibliography lists only the key papers; every other source is still cited in full in
+% a footnote where it is used.
+\DeclareBibliographyCategory{core}
+\addtocategory{core}{akeret2017,ronneberger2015,mesarcik2022,mesarcik2022data,offringa2012,
+  yang2020rfinet,chen2023,milletari2016,he2016,wang2020eca,wu2018groupnorm}

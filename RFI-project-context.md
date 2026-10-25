@@ -3988,6 +3988,12 @@ faint RFI" clause, "a fifth of the RFI is fainter than a typical clean pixel", f
 "Faint RFI"); CRF section cut to one plain paragraph (0.6592 -> 0.4884 with Chen's settings,
 +0.0012 at best), table dropped. Report 47 pages. Conclusion still says fine-tuning is "level
 with RFDL's results with expert labels" -- now unsupported in the body (flagged to user).
+Then: future work cut to two bullets ("Find the source of the remaining gain", "Apply the
+method to GMRT pulsar data"); bibliography now prints only 11 key papers (biblatex category
+'core' in Configuration/ReportExtras.tex; \nocite{*} removed; all other sources still cited in
+footnotes); conclusion rewritten as one page of six plain bullets (RFDL/Swin and active-learning
+claims dropped). Report 43 pages. Still open: abstract line 31 "0.639--0.640, up to 408 M
+params" and discussion 7.1 active-learning bullet have no support in the body.
 
 ## PART 32 — Backup before the display repair (2026-10-24)
 

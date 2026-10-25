@@ -1,44 +1,28 @@
 \chapter{Conclusion}
 \label{ch:conclusion}
-This project set out to apply U-Net-based RFI detection, first by reproducing
-the method of Akeret et al.\ and then by designing an improved network, and to
-test both on real telescope data rather than only on synthetic data.
-
-Using the authors' publicly available code and preprocessing, \tfunet{}
-reached a maximum \Fone{} of 0.93 on our synthetic data.
-
-On real LOFAR data labelled by a human expert, \tfunet{} reached
-a maximum \Fone{} of $0.5482 \pm 0.0139$, 0.039 below the result Mesarcik et al.\
-published for their own implementation of a U-Net on
-the same data. Running their released code with their exact settings gave 0.6207
-rather than their published 0.5876; we could not find the cause of this
-difference. Trained with exactly the same settings as their U-Net, my
-network, \hybrid{}, scored 0.6258 against the U-Net's 0.6166 (one run each),
-with half as many parameters. With our own training settings,
-\hybrid{} reached $0.6603 \pm 0.0040$ with under
-600{,}000 parameters, matching or slightly exceeding the best published results
-for the same training labels (0.639--0.640, from models with up to 408 million
-parameters). Independent checks found no leakage or evaluation error behind
-this result.
-
-Fine-tuning \hybrid{} on expert labels, measured by cross-validation over all
-109 images, raised its maximum \Fone{} to $0.6747 \pm 0.0083$, level with
-RFDL's results with expert labels. Choosing which patches to label by the
-network's own uncertainty did worse than choosing them at random, because it
-selected patches far richer in RFI than the data as a whole.
-
-Removing the strip convolutions, channel attention and residual blocks that
-\hybrid{} was designed around did not measurably change its score, and adding
-a CRF refinement did not improve it. The Dice loss accounts for about a
-tenth of the advantage over \tfunet{} (0.011 of 0.112); the rest comes from
-other differences in the network and its training, which remain to be
-identified.
-
-Along the way, checking the public HERA and LOFAR datasets showed that both
-contain test images that also appear in the training set, and comparing the
-same network on synthetic and real data showed a drop of 0.44 in \Fone{}. Both
-point to the same lesson as the rest of this work: results need to be checked
-on real data, with repeated runs, before their explanations can be trusted.
-
-All code, analysis scripts and per-run results are available at
+This project tested U-Net-based RFI detection on real telescope data with an
+existing method, \tfunet{}, and a new network, \hybrid{}. The main results are:
+\begin{itemize}
+  \item \textbf{Results on synthetic data do not carry over to real data.}
+    \tfunet{} scored a maximum \Fone{} of 0.93 on our synthetic data but only
+    0.49 on real LOFAR data with the same settings.
+  \item \textbf{\hybrid{} beats the published methods on LOFAR.} With our
+    training settings it scored $0.6603 \pm 0.0040$, above \tfunet{} (0.5482) and
+    RFI-Net (0.5979), the best method reported by Mesarcik et al., with under
+    600{,}000 parameters.
+  \item \textbf{With the authors' own settings it matches their U-Net with half
+    the parameters:} 0.6258 against 0.6166 (one run each). Running their
+    released code gave 0.6207 instead of their published 0.5876; we could not
+    find out why.
+  \item \textbf{Expert labels help.} Fine-tuning on the expert labels of about
+    68 images raised the score to $0.6747 \pm 0.0083$.
+  \item \textbf{The new components are not the reason for the gain.} Removing
+    the strip convolutions, channel attention and residual blocks changed
+    nothing measurable, and adding a CRF did not help. The Dice loss explains
+    about a tenth of the lead over \tfunet{}; the rest is still unexplained.
+  \item \textbf{Public datasets need checking.} Both the HERA and the LOFAR
+    datasets contain test images that also appear in their training sets.
+\end{itemize}
+The main lesson is simple: a method has to be tested on real data, with
+several runs, before we can trust why it works. All code, analysis scripts and per-run results are available at
 \url{https://github.com/RonakSinghRaina/MP}.

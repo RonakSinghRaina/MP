@@ -46,25 +46,6 @@ specific, measured weakness, and each should be tested by removing it again.
     other differences---the output layer, padding, depth and width, batch size
     and learning rate---can be tested one at a time in the same way. Each test
     takes about 1.5 hours and would explain the main result.
-  \item \textbf{Errors at the edges of RFI.} Missed RFI is the larger source
-    of error: removing every missed pixel would raise \Fone{} from about 0.66 to
-    0.82, and removing every false alarm would raise it to 0.77. In one model
-    examined in detail, 56\% of the missed pixels lie within two pixels of a
-    correct detection and 77\% of the false alarms within two pixels of real
-    RFI, so most errors concern the exact outline of an RFI feature rather than
-    whole features.
-  \item \textbf{Learn from noisy labels.} Every training label comes from
-    \aoflagger{}, and 44\% of the pixels it flags are not RFI according to the
-    human expert. Two simple remedies, softening or ignoring the one-pixel edge
-    of every \aoflagger{} mask during training, were tried after the main
-    experiments; both lowered \Fone{} (by 0.008 and 0.011, significant over
-    three seeds).
-  \item \textbf{Choose expert labels better.} Fine-tuning on expert labels
-    raised \Fone{} by 0.014 (\cref{sec:expert_ft}), but choosing patches by the
-    model's uncertainty did not help, because the chosen patches are rich in
-    RFI. Keeping \aoflagger{}'s labels outside the chosen patches, or
-    reweighting the loss to the true share of RFI, so that the model still
-    sees ordinary background, is a simple fix that remains to be tested.
   \item \textbf{Apply the method to GMRT pulsar data}, the original motivation
     for this project.
 \end{itemize}
