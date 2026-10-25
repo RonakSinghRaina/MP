@@ -3974,6 +3974,11 @@ calls the two "equal" with half the parameters, states the loss difference, and 
 recipe gives the hybrid 0.6603 (+0.035, single run). Old Fig 5.1 / Table 5.2 left unchanged
 (user's request), except the sentence "0.040 above Mesarcik U-Net run by us (0.6207)" was replaced
 by a pointer to 5.2.3. One conclusion sentence added. Report builds clean, 48 pages.
+Same day, at the user's request: 5.2.3 / Table 5.3 / Fig 5.2 now use tf_unet's LAST-epoch
+value 0.5551 +/- 0.0155 (authors' rule; pooled F1 not measured for last epoch, shown as ---);
+0.5482 kept everywhere else (our own settings). Removed from the 5.2.3 text: the loss-difference
+sentences (Table 5.3 caption still says HybridRFINet used BCE), the pixels-per-step/steps
+comparison for tf_unet, and the "difference smaller than the spread, take as equal" sentence.
 
 ## PART 32 — Backup before the display repair (2026-10-24)
 

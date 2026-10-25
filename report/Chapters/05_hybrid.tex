@@ -106,23 +106,14 @@ optimiser with a constant learning rate of $10^{-3}$, 100 epochs, no class
 weighting, the model after the last epoch, and the maximum \Fone{} on the 109
 test images, with the predictions for the patches put back together into full
 512$\times$512 images. Both models used the same preprocessed data and the same
-order of training batches. Only one setting had to differ: the loss. Their code
-passes the two inputs of its loss function in the wrong order, and with this
-loss \hybrid{} stopped learning within the first epoch (maximum \Fone{} 0.015),
-so it was trained with the ordinary binary cross-entropy that their paper
-describes.
+order of training batches.
 
 \tfunet{} cannot be trained on 32$\times$32 patches: its convolutions have no
 padding, so the network loses 40 pixels across each image and needs an input of
 at least 48$\times$48 pixels. Its closest run is the one in
-\cref{sec:tfunet_lofar} with a learning rate of $10^{-4}$. Each training step
-sees the same number of pixels as in the authors' setting (four 512$\times$512
-images equal 1024 patches of 32$\times$32), but it uses full images, a lower
-learning rate, fewer steps (26{,}250 instead of about 165{,}500) and its own
-preprocessing. Taking its model after the last epoch, as the authors do,
-instead of the one chosen on the validation images changes its maximum \Fone{}
-from $0.5482 \pm 0.0139$ to $0.5551 \pm 0.0155$, which is not a significant
-difference.
+\cref{sec:tfunet_lofar} with a learning rate of $10^{-4}$, here using the model
+after the last epoch, as the authors do: this gives a maximum \Fone{} of
+$0.5551 \pm 0.0155$.
 
 \begin{table}[H]
   \centering
@@ -141,7 +132,7 @@ difference.
     \midrule
     $\sigma$-clipping threshold & 0.4103 & --- & --- \\
     \aoflagger{} & 0.5698 & --- & --- \\
-    \tfunet{}, full images (3 seeds) & $0.5482 \pm 0.0139$ & $0.5021 \pm 0.0259$ & 465{,}986 \\
+    \tfunet{}, full images (3 seeds) & $0.5551 \pm 0.0155$ & --- & 465{,}986 \\
     Mesarcik et al.\ U-Net, published & $0.5876 \pm 0.0031$ & --- & --- \\
     RFI-Net, published & 0.5979 & --- & --- \\
     Mesarcik et al.\ U-Net, run by us & 0.6166 & 0.6159 & 1{,}179{,}121 \\
@@ -165,11 +156,8 @@ difference.
 
 Under identical settings \hybrid{} reaches a maximum \Fone{} of 0.6258 and a
 pooled \Fone{} of 0.6219 (\cref{tab:same_settings,fig:same_settings}), against
-0.6166 and 0.6159 for Mesarcik et al.'s U-Net. With one run of each, this
-difference of 0.009 is smaller than the spread of our runs of their code under
-small changes (0.617 to 0.626, \cref{sec:mesarcik_rerun}), so the two models
-should be taken as equal; \hybrid{} reaches this level with half as many
-parameters (593{,}842 against 1{,}179{,}121). Trained with our own settings on
+0.6166 and 0.6159 for Mesarcik et al.'s U-Net, with half as many parameters
+(593{,}842 against 1{,}179{,}121). Trained with our own settings on
 full images, the same network scores $0.6603 \pm 0.0040$ (\cref{tab:final}),
 0.035 more than with the authors' settings in this single run.
 

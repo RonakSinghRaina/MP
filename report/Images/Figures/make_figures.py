@@ -90,11 +90,12 @@ def hybrid_lofar_ladder(include_later=False):
 def lofar_same_settings():
     # Their U-Net run by us: runs/lofar/mesarcik_unet_clean_seed0 (test images excluded, PART 30).
     # HybridRFINet: runs/lofar/hybrid_mesarcik_clean_bce_seed0 (PART 31.4).
-    # tf_unet cannot take 32x32 tiles; closest run = lr 1e-4, full images (PART 12.10, 29).
+    # tf_unet cannot take 32x32 tiles; closest run = lr 1e-4, full images, LAST-epoch model as the
+    # authors do: 0.5551 +/- 0.0155 (analysis/last_vs_best/tfunet_last_vs_best.json, PART 29.2).
     names = ["$\\sigma$-clip", "AOFlagger", "tf_unet\n(closest\nsettings)", "Mesarcik\nU-Net\n(published)",
              "RFI-Net\n(published)", "Mesarcik\nU-Net\n(run by us)", "Hybrid-\nRFINet\n(this work)"]
-    v = [0.4103, 0.5698, 0.5482, 0.5876, 0.5979, 0.6166, 0.6258]
-    e = [0, 0, 0.0139, 0.0031, 0, 0, 0]
+    v = [0.4103, 0.5698, 0.5551, 0.5876, 0.5979, 0.6166, 0.6258]
+    e = [0, 0, 0.0155, 0.0031, 0, 0, 0]
     col = [MUTED, MUTED, NAVY, MUTED, MUTED, NAVY, ACCENT]
     fig, ax = plt.subplots(figsize=(7.6, 3.1))
     bars = ax.bar(names, v, color=col, width=0.6, zorder=3)
