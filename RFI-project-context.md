@@ -4176,3 +4176,36 @@ so the synthetic specialist and any HERA specialist coexist as separate files.
 `experiments/lofar_tfunet_baseline.py` (the PART 12 tf_unet run) ·
 `scripts/run_lofar_*.sh` (the PART 11.12, 12.8 and 12.12 protocols) ·
 `scripts/status.sh` (live status of every LOFAR run)
+
+## PART 33 — Full report audit (2026-10-25, report 42 pages, commit 75a837e)
+
+Every number in the report was checked against this doc and the run files; all table values,
+t/p values and arithmetic match (tf_unet table, class weight 56.9x / t 6.03 / ROC 0.980->0.938,
+ablation + Welch p 0.64/0.48, Dice t -4.44, fine-tuning 27.1, Mesarcik-settings 31.4, dataset
+tree, 99.23%, 1:129, 7356/6621/735, one-sample t 27.2, last-epoch 0.5551 +/- 0.0155).
+Open problems found (not yet fixed; reported to the user):
+- MUST FIX: (1) 4.2.1 "The only change was that we removed the 109 test images" is false -- the
+  clean run trained on 6621 images (also -35 all-RFI, -735 validation) with clip bounds from
+  training data. (2) Images/ronneberger2015_unet_fig1.pdf carries the Ronneberger paper page's
+  hidden text (gs txtwrite shows "Obviously, the strategy in Ciresan et al. [1] has two
+  drawbacks..."); it lands in the report PDF (page 7) -> plagiarism-checker risk; rasterise it.
+  (3) certificate TC placeholders. (4) 3.5 "Every setting was trained with three random seeds"
+  (Tables 5.1, 5.3, 6.1 and CRF are single runs). (5) 3.5 bootstrap method with no result
+  (PART 14.7: 95% CI [0.6154, 0.6923], +/-0.04).
+- Unsupported/contradictory: 7.1 "0.39 -> 0.93 (Chapter 4)" not in ch.4; 4.3 "reasons set out
+  in Section 3.1" (3.1 is only the dataset tree); conclusion's HERA-leak claim not in the body
+  (PART 2: 31 of 140 HERA test images = training copies) and HERA used for no result; pooled F1
+  0.6561 (5.2.2) vs 0.6534 (Table 5.4) for the same model, unexplained; objective 1 conflates
+  tf_unet with Mesarcik's U-Net, objective 5 (label choice) unanswered; ch.6 says depth/width
+  are in Table 3.1 (they are not; table also lacks dropout, L2, cosine lr, 472-crop scoring);
+  Fig 3.4 marker 8 is not a difference and Fig 3.4 is never cited; declaration says all sources
+  are in the bibliography (now 11 + footnotes); I/my in ch.6-7 vs we elsewhere.
+- Interpretation caveats: 5.2.3 "exactly/identical settings" but the loss differs (user removed
+  the sentence); "beats the published methods" rests on quoted, never re-run baselines while
+  their U-Net re-ran 0.029 higher than published (~ the hybrid's 0.028 margin over RFI-Net under
+  their settings); 0.009 hybrid-U-Net gap is N=1 inside +/-0.04; tf_unet scored on 472 crop vs
+  hybrid full 512 (conservative); tf_unet "epoch" = 175 steps; fine-tuning "600 steps" = best
+  of <=600, full-schedule arm (0.6676 +/- 0.0157) unreported; Table 5.1 F1 is val-threshold F1
+  with class weights; Mesarcik "+/- 0.0031" possibly a typo column; 1.5-sigma premise is from
+  synthetic data; Dice "depends only on the RFI pixels" imprecise; GroupNorm "0.034" is vs full
+  model (0.032 vs partial).
