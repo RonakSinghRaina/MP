@@ -51,16 +51,6 @@ person; example images are shown in \cref{fig:lofar_overview}.
   \label{fig:datasets}
 \end{figure}
 
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.85\textwidth]{fig_lofar_overview}
-  \caption[Example LOFAR spectrograms and their masks]{Example LOFAR spectrograms (after clipping and log scaling for
-    display) and their masks. Top two rows: training images with their
-    \aoflagger{} masks; bottom two rows: test images with the human expert's
-    masks. Vertical lines are RFI at fixed frequencies.}
-  \label{fig:lofar_overview}
-\end{figure}
-
 \section{Data Preparation}
 \label{sec:lofar_audit}
 Before training, two problems in the LOFAR data had to be handled. All 109 test
@@ -81,6 +71,17 @@ range for the whole dataset:
 \end{equation}
 where $x_{\text{lo}}$ and $x_{\text{hi}}$ are the 0.5th and 99.5th percentiles
 of the pixel values, averaged over 200 training images.
+
+\newpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig_lofar_overview}
+  \caption[Example LOFAR spectrograms and their masks]{Example LOFAR spectrograms (after clipping and log scaling for
+    display) and their masks. Top two rows: training images with their
+    \aoflagger{} masks; bottom two rows: test images with the human expert's
+    masks. Vertical lines are RFI at fixed frequencies.}
+  \label{fig:lofar_overview}
+\end{figure}
 
 \section{Baseline Model: \texorpdfstring{\tfunet}{tf\_unet}}
 \label{sec:tfunet_setup}
