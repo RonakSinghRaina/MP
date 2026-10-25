@@ -86,8 +86,35 @@ def hybrid_lofar_ladder(include_later=False):
     save(fig, "hybrid_lofar_ladder")
 
 
+# --- comparison under Mesarcik et al.'s training settings (PART 29, 30, 31.4) ------
+def lofar_same_settings():
+    # Their U-Net run by us: runs/lofar/mesarcik_unet_clean_seed0 (test images excluded, PART 30).
+    # HybridRFINet: runs/lofar/hybrid_mesarcik_clean_bce_seed0 (PART 31.4).
+    # tf_unet cannot take 32x32 tiles; closest run = lr 1e-4, full images (PART 12.10, 29).
+    names = ["$\\sigma$-clip", "AOFlagger", "tf_unet\n(closest\nsettings)", "Mesarcik\nU-Net\n(published)",
+             "RFI-Net\n(published)", "Mesarcik\nU-Net\n(run by us)", "Hybrid-\nRFINet\n(this work)"]
+    v = [0.4103, 0.5698, 0.5482, 0.5876, 0.5979, 0.6166, 0.6258]
+    e = [0, 0, 0.0139, 0.0031, 0, 0, 0]
+    col = [MUTED, MUTED, NAVY, MUTED, MUTED, NAVY, ACCENT]
+    fig, ax = plt.subplots(figsize=(7.6, 3.1))
+    bars = ax.bar(names, v, color=col, width=0.6, zorder=3)
+    bars[2].set_facecolor("white"); bars[2].set_edgecolor(NAVY); bars[2].set_hatch("////")
+    k = [i for i, x in enumerate(e) if x > 0]
+    ax.errorbar(k, [v[i] for i in k], yerr=[e[i] for i in k], fmt="none",
+                capsize=4, lw=1, ecolor="#555555", zorder=4)
+    ax.tick_params(axis="x", labelsize=8)
+    for b, val, err in zip(bars, v, e):
+        ax.text(b.get_x() + b.get_width() / 2, val + err + 0.012, f"{val:.4f}",
+                ha="center", fontsize=8, color=INK)
+    ax.set_ylabel("max $F_1$ (109 test images)")
+    ax.set_ylim(0, 0.75)
+    ax.grid(axis="y", color="#E5E5E5", zorder=0)
+    save(fig, "lofar_same_settings")
+
+
 if __name__ == "__main__":
     tfunet_controlled_runs()
     tfunet_lofar_ladder()
     hybrid_lofar_ladder()
+    lofar_same_settings()
     print("figures written to", HERE)

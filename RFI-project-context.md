@@ -3964,6 +3964,17 @@ depth 4, dropout 0.2). Clip bounds in metrics.json identical to the U-Net partne
   unused --correct_loss U-Net run, never trained); the actual partner is
   `mesarcik_unet_clean_seed0`. Label only.
 
+**Report updated 2026-10-25:** new subsection 5.2.3 "Comparison under the authors' training
+settings" (`sec:same_settings`) with Table 5.3 (`tab:same_settings`) and Fig 5.2
+(`report/Images/Figures/lofar_same_settings.pdf`, `make_figures.py: lofar_same_settings()`):
+sigma-clip 0.4103, AOFlagger 0.5698, tf_unet closest settings 0.5482 +/- 0.0139 (hatched; full
+images, cannot take 32x32; last-epoch 0.5551 +/- 0.0155 quoted in text), published U-Net 0.5876
+and RFI-Net 0.5979, their U-Net run by us 0.6166 / 0.6159, HybridRFINet 0.6258 / 0.6219. Text
+calls the two "equal" with half the parameters, states the loss difference, and notes our own
+recipe gives the hybrid 0.6603 (+0.035, single run). Old Fig 5.1 / Table 5.2 left unchanged
+(user's request), except the sentence "0.040 above Mesarcik U-Net run by us (0.6207)" was replaced
+by a pointer to 5.2.3. One conclusion sentence added. Report builds clean, 48 pages.
+
 ## PART 32 — Backup before the display repair (2026-10-24)
 
 The laptop screen shows vertical lines; a technician recommends a display replacement.

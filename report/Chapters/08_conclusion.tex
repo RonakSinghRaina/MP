@@ -12,7 +12,10 @@ a maximum \Fone{} of $0.5482 \pm 0.0139$, 0.039 below the result Mesarcik et al.
 published for their own implementation of a U-Net on
 the same data. Running their released code with their exact settings gave 0.6207
 rather than their published 0.5876; we could not find the cause of this
-difference. My network, \hybrid{}, reached $0.6603 \pm 0.0040$ with under
+difference. Trained with exactly the same settings as their U-Net, my
+network, \hybrid{}, scored 0.6258 against the U-Net's 0.6166 (one run each):
+an equal result with half as many parameters. With our own training settings,
+\hybrid{} reached $0.6603 \pm 0.0040$ with under
 600{,}000 parameters, matching or slightly exceeding the best published results
 for the same training labels (0.639--0.640, from models with up to 408 million
 parameters). Independent checks found no leakage or evaluation error behind

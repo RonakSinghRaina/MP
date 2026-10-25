@@ -55,9 +55,7 @@ methods on the 109 human-labelled test images. \hybrid{} reaches a maximum
 \Fone{} of $0.6603 \pm 0.0040$; with the threshold fixed in advance on the
 validation set, the pooled \Fone{} is $0.6561 \pm 0.0044$. This is 0.11 above
 \tfunet{} and 0.062 above RFI-Net (0.5979), the best result reported by
-Mesarcik et al.\ (one-sample $t = 27.2$ with 2 degrees of freedom). It is also
-0.040 above Mesarcik et al.'s U-Net when we ran their own code with their
-settings (0.6207, \cref{sec:mesarcik_rerun}). It is
+Mesarcik et al.\ (one-sample $t = 27.2$ with 2 degrees of freedom). It is
 achieved while training only on \aoflagger{}'s labels, which themselves score
 0.5698 against the human expert.
 
@@ -92,6 +90,88 @@ achieved while training only on \aoflagger{}'s labels, which themselves score
     as reported by Mesarcik et al.}
   \label{fig:final}
 \end{figure}
+
+These models were not all trained in the same way, however: the published
+values use Mesarcik et al.'s training settings, while \tfunet{} and \hybrid{}
+use our own. \Cref{sec:same_settings} therefore repeats the comparison with the
+models trained under the authors' settings.
+
+\subsection{Comparison under the authors' training settings}
+\label{sec:same_settings}
+To compare the models under identical conditions, we trained \hybrid{} with
+exactly the settings we used for Mesarcik et al.'s U-Net in
+\cref{sec:mesarcik_rerun}: the 6621 training images without the test images,
+their preprocessing, 32$\times$32 patches in batches of 1024, the Adam
+optimiser with a constant learning rate of $10^{-3}$, 100 epochs, no class
+weighting, the model after the last epoch, and the maximum \Fone{} on the 109
+test images, with the predictions for the patches put back together into full
+512$\times$512 images. Both models used the same preprocessed data and the same
+order of training batches. Only one setting had to differ: the loss. Their code
+passes the two inputs of its loss function in the wrong order, and with this
+loss \hybrid{} stopped learning within the first epoch (maximum \Fone{} 0.015),
+so it was trained with the ordinary binary cross-entropy that their paper
+describes.
+
+\tfunet{} cannot be trained on 32$\times$32 patches: its convolutions have no
+padding, so the network loses 40 pixels across each image and needs an input of
+at least 48$\times$48 pixels. Its closest run is the one in
+\cref{sec:tfunet_lofar} with a learning rate of $10^{-4}$. Each training step
+sees the same number of pixels as in the authors' setting (four 512$\times$512
+images equal 1024 patches of 32$\times$32), but it uses full images, a lower
+learning rate, fewer steps (26{,}250 instead of about 165{,}500) and its own
+preprocessing. Taking its model after the last epoch, as the authors do,
+instead of the one chosen on the validation images changes its maximum \Fone{}
+from $0.5482 \pm 0.0139$ to $0.5551 \pm 0.0155$, which is not a significant
+difference.
+
+\begin{table}[H]
+  \centering
+  \caption[Comparison under the authors' training settings]{Results on the 109 human-labelled LOFAR test images under
+    Mesarcik et al.'s training settings. The two models marked ``run by us'' (one run each)
+    were trained with the same data (test images removed), preprocessing,
+    32$\times$32 patches, batch size, learning rate and number of epochs;
+    \hybrid{} used binary cross-entropy instead of the loss in their code.
+    \tfunet{} cannot be trained on 32$\times$32 patches and is shown with its
+    closest settings, on full 512$\times$512 images.}
+  \label{tab:same_settings}
+  \small
+  \begin{tabular}{lccr}
+    \toprule
+    Method & max \Fone{} & pooled \Fone{} & Parameters \\
+    \midrule
+    $\sigma$-clipping threshold & 0.4103 & --- & --- \\
+    \aoflagger{} & 0.5698 & --- & --- \\
+    \tfunet{}, full images (3 seeds) & $0.5482 \pm 0.0139$ & $0.5021 \pm 0.0259$ & 465{,}986 \\
+    Mesarcik et al.\ U-Net, published & $0.5876 \pm 0.0031$ & --- & --- \\
+    RFI-Net, published & 0.5979 & --- & --- \\
+    Mesarcik et al.\ U-Net, run by us & 0.6166 & 0.6159 & 1{,}179{,}121 \\
+    \textbf{\hybrid{}, run by us} & \textbf{0.6258} & \textbf{0.6219} & 593{,}842 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{lofar_same_settings}
+  \caption[Comparison under the authors' training settings]{Maximum \Fone{} on the 109 LOFAR test images under
+    Mesarcik et al.'s training settings. Dark bars were trained by us with
+    their settings (one run each); the hatched bar is \tfunet{} with its closest
+    settings, on full images (error bar: standard deviation over three seeds);
+    grey bars are methods without training and the values published by
+    Mesarcik et al. In \cref{fig:final}, \tfunet{} and \hybrid{} use our own
+    training settings instead.}
+  \label{fig:same_settings}
+\end{figure}
+
+Under identical settings \hybrid{} reaches a maximum \Fone{} of 0.6258 and a
+pooled \Fone{} of 0.6219 (\cref{tab:same_settings,fig:same_settings}), against
+0.6166 and 0.6159 for Mesarcik et al.'s U-Net. With one run of each, this
+difference of 0.009 is smaller than the spread of our runs of their code under
+small changes (0.617 to 0.626, \cref{sec:mesarcik_rerun}), so the two models
+should be taken as equal; \hybrid{} reaches this level with half as many
+parameters (593{,}842 against 1{,}179{,}121). Trained with our own settings on
+full images, the same network scores $0.6603 \pm 0.0040$ (\cref{tab:final}),
+0.035 more than with the authors' settings in this single run.
 
 \section{Fine-tuning with expert labels}
 \label{sec:expert_ft}
