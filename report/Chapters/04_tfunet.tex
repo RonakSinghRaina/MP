@@ -71,10 +71,20 @@ results therefore compare two different U-Net implementations, not the same one.
 Mesarcik et al.\ shared their code on GitHub\footnote{\url{https://github.com/mesarcik/RFI-NLN}}.
 We ran it with exactly their settings: their own U-Net, the images cut into
 small 32$\times$32 pieces, batches of 1024 pieces, 100 epochs and the same
-maximum \Fone{} score. It scored 0.6207 (one run), higher than the 0.5876 given
-in their paper. Their code also trains on the 109 test images, because these
-are copies of training images (\cref{sec:lofar_audit}). When we removed them
-from training, it scored 0.6166.
+maximum \Fone{} score. The only change was that we removed the 109 test images
+from training: their code trains on them, because they are copies of training
+images (\cref{sec:lofar_audit}). It scored 0.6166 (one run), higher than the
+0.5876 given in their paper (\cref{fig:mesarcik_rerun}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{mesarcik_rerun}
+  \caption[Mesarcik et al.'s U-Net: published and run by us]{Maximum \Fone{} of
+    Mesarcik et al.'s U-Net on the 109 LOFAR test images: the value in their
+    paper (error bar: their standard deviation) and their code run by us
+    (one run).}
+  \label{fig:mesarcik_rerun}
+\end{figure}
 
 
 \section{From synthetic to real data}

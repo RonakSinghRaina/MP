@@ -4001,6 +4001,12 @@ Mesarcik et al.". 4.2.1 cut to one plain paragraph (0.6207 their code; 0.6166 te
 the ruled-out list (data/score, code version 0.6258, training details 0.6220, stopping point,
 Keras 2) and the untestable-reasons/typo paragraph were removed from the report (still recorded in
 PART 30). Report 42 pages.
+Then: Fig 4.2 (`mesarcik_rerun.pdf`, make_figures.mesarcik_rerun) under 4.2.1: published 0.5876
++/- 0.0031 vs their code run by us 0.6166. 0.6207 removed from the report everywhere (4.2.1,
+Table 5.2 row, conclusion) -- the report now quotes only 0.6166 (test images removed, stated in
+4.2.1). Synthetic audit for the user: 276x600 carries 0.9317 (4.1, 4.3, abstract, conclusion,
+discussion) and the width table; 1024x265 only the hybrid's 0.9877 (5.1); Fig 3.1 and the intro
+describe only one synthetic dataset (1024x265) -- mismatch still open (pending item 1).
 
 ## PART 32 — Backup before the display repair (2026-10-24)
 

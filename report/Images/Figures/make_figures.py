@@ -113,9 +113,29 @@ def lofar_same_settings():
     save(fig, "lofar_same_settings")
 
 
+# --- their U-Net: published vs their code run by us (PART 30) ------------------
+def mesarcik_rerun():
+    # runs/lofar/mesarcik_unet_clean_seed0/eval_test/metrics.json: max F1 0.6166 (test images
+    # removed from training). Published: Mesarcik et al. 2022, Table 2, 0.5876 +/- 0.0031.
+    names = ["Mesarcik et al. U-Net\n(published)", "Mesarcik et al. U-Net\n(their code, run by us)"]
+    v, e = [0.5876, 0.6166], [0.0031, 0]
+    fig, ax = plt.subplots(figsize=(4.2, 3.0))
+    bars = ax.bar(names, v, color=[MUTED, NAVY], width=0.5, zorder=3)
+    ax.errorbar([0], [v[0]], yerr=[e[0]], fmt="none", capsize=4, lw=1, ecolor="#555555", zorder=4)
+    ax.tick_params(axis="x", labelsize=8.5)
+    for b, val, err in zip(bars, v, e):
+        ax.text(b.get_x() + b.get_width() / 2, val + err + 0.012, f"{val:.4f}",
+                ha="center", fontsize=9, color=INK)
+    ax.set_ylabel("max $F_1$ (109 test images)")
+    ax.set_ylim(0, 0.72)
+    ax.grid(axis="y", color="#E5E5E5", zorder=0)
+    save(fig, "mesarcik_rerun")
+
+
 if __name__ == "__main__":
     tfunet_controlled_runs()
     tfunet_lofar_ladder()
     hybrid_lofar_ladder()
     lofar_same_settings()
+    mesarcik_rerun()
     print("figures written to", HERE)
