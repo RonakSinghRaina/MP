@@ -17,14 +17,10 @@ case this became visible only through a controlled test.
   \item A CRF refinement that works well on top of a simple threshold added
     nothing on top of a network that already uses neighbourhood information,
     and with its published settings it was harmful (\cref{sec:crf}).
-  \item Choosing which image patches the expert should label by the model's
-    own uncertainty, the usual active-learning strategy, did worse than
-    choosing them at random, because it picked patches far richer in RFI than
-    the data as a whole (\cref{sec:expert_ft}).
 \end{itemize}
 
-The model still matches or slightly exceeds the best published results on
-LOFAR, but the reason is not the one it was designed around. Without the ablation, I would have
+The model still beats the methods published by Mesarcik et al.\ on LOFAR,
+but the reason is not the one it was designed around. Without the ablation, I would have
 credited the wrong parts of the model.
 
 \section{Synthetic benchmarks can mislead}

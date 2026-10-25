@@ -27,8 +27,8 @@ spectrograms. We reproduce the U-Net method of Akeret et al.\ (\tfunet{}), which
 reaches an \Fone{} of 0.93 on our synthetic data, and design an improved
 network, \hybrid{}. On real LOFAR observations labelled by a human expert,
 \hybrid{} reaches a maximum \Fone{} of $0.6603 \pm 0.0040$ with 593{,}842
-parameters, exceeding the best published results for the same training labels
-(0.639--0.640, from models with up to 408 million parameters). Fine-tuning it on
+parameters, higher than the best method in Mesarcik et al.'s comparison
+(RFI-Net, 0.5979). Fine-tuning it on
 expert labels raises this further to 0.675 under cross-validation. However,
 removing the components it was designed around, namely the strip convolutions,
 channel attention and residual blocks, leaves its score unchanged. Finally,

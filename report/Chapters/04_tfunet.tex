@@ -68,42 +68,13 @@ results therefore compare two different U-Net implementations, not the same one.
 
 \subsection{Running Mesarcik et al.'s own code}
 \label{sec:mesarcik_rerun}
-Mesarcik et al.\ released their code on GitHub\footnote{\url{https://github.com/mesarcik/RFI-NLN}}.
-To check their U-Net result, we ran their released code with exactly their
-settings: their U-Net, all 7500 training images cut into 32$\times$32 patches,
-a batch of 1024 patches, the Adam optimiser with its default settings, 100
-epochs, their preprocessing, the model after the last epoch, and the maximum
-\Fone{} over all thresholds. This gave a maximum \Fone{} of 0.6207 (one run),
-0.033 \emph{above} their published 0.5876. Their code trains on all 7500
-images, which include the 109 test images (\cref{sec:lofar_audit}); with these
-removed, and the preprocessing computed without the test labels, the result was
-0.6166.
-
-We could not find the reason for this difference. The following were checked
-and ruled out:
-\begin{itemize}
-  \item \textbf{Data and score.} Our \aoflagger{} score matches theirs to four
-    decimal places, so the test images, labels and \Fone{} calculation are the
-    same.
-  \item \textbf{Code version.} Their code was changed shortly after the paper
-    appeared. The earlier version, which matches the paper's text, gave 0.6258;
-    the network itself is identical in both versions.
-  \item \textbf{Training details.} Copying their exact way of shuffling the
-    training patches and their number precision gave 0.6220.
-  \item \textbf{Stopping point.} The score was between 0.62 and 0.63 at every
-    5-epoch check from epoch 5 to 100, so stopping earlier or later would not
-    have given 0.5876 either.
-  \item \textbf{Software version.} They used an older version of TensorFlow
-    and Keras. Repeating the run with Keras 2, as they used, instead of Keras 3
-    changed the score by less than 0.003.
-\end{itemize}
-The remaining possible reasons could not be tested: their published runs may
-have used a version of the code or data that is not in their public repository,
-or differences in their older software and hardware may matter. It is also
-possible that their table contains a typing error, since the \Fone{} entry for
-the U-Net is printed without the $\pm$ sign and with the same spread (0.0031) as
-the AUPRC entry in the same row. All our runs of their code lie between 0.617
-and 0.626.
+Mesarcik et al.\ shared their code on GitHub\footnote{\url{https://github.com/mesarcik/RFI-NLN}}.
+We ran it with exactly their settings: their own U-Net, the images cut into
+small 32$\times$32 pieces, batches of 1024 pieces, 100 epochs and the same
+maximum \Fone{} score. It scored 0.6207 (one run), higher than the 0.5876 given
+in their paper. Their code also trains on the 109 test images, because these
+are copies of training images (\cref{sec:lofar_audit}). When we removed them
+from training, it scored 0.6166.
 
 
 \section{From synthetic to real data}

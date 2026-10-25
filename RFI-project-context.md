@@ -3994,6 +3994,13 @@ method to GMRT pulsar data"); bibliography now prints only 11 key papers (biblat
 footnotes); conclusion rewritten as one page of six plain bullets (RFDL/Swin and active-learning
 claims dropped). Report 43 pages. Still open: abstract line 31 "0.639--0.640, up to 408 M
 params" and discussion 7.1 active-learning bullet have no support in the body.
+Then (user's request): both removed -- abstract now says "higher than the best method in Mesarcik
+et al.'s comparison (RFI-Net, 0.5979)"; discussion 7.1 AL bullet deleted; "matches the best
+published results" in discussion 7.1 and the ch.6 intro changed to "beats the methods published by
+Mesarcik et al.". 4.2.1 cut to one plain paragraph (0.6207 their code; 0.6166 test images removed);
+the ruled-out list (data/score, code version 0.6258, training details 0.6220, stopping point,
+Keras 2) and the untestable-reasons/typo paragraph were removed from the report (still recorded in
+PART 30). Report 42 pages.
 
 ## PART 32 — Backup before the display repair (2026-10-24)
 
