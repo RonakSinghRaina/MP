@@ -3935,6 +3935,35 @@ settings". Measured: exact released code 0.6207 (trains on the test images) and 
 settings, test images excluded from training" -- also the right partner for the hybrid run.
 Report 4.2.1 and Table 5.2 still show 0.6207; update together with the hybrid result.
 
+### 31.4 RESULT -- HybridRFINet under Mesarcik settings, seed 0 (finished 2026-10-25 09:48)
+`runs/lofar/hybrid_mesarcik_clean_bce_seed0/eval_test/metrics.json` (593,842 params, base 8,
+depth 4, dropout 0.2). Clip bounds in metrics.json identical to the U-Net partner's
+([1317627.80, 84460233.59]) -- preprocessing confirmed identical.
+
+| (one seed each) | max F1 | pooled F1 (val thr) | ROC AUC | PR AUC | params |
+|---|---|---|---|---|---|
+| HybridRFINet, BCE | **0.6258** | 0.6219 | 0.9719 | 0.6401 | 593,842 |
+| their U-Net, their code's loss (`mesarcik_unet_clean_seed0`) | 0.6166 | 0.6159 | 0.8213 | 0.5283 | 1,179,121 |
+| difference | +0.0092 | +0.0060 | | | half the params |
+
+- Test max F1 every 10 epochs: 0.6406, 0.6255, 0.6263, 0.6242, 0.6285, 0.6257, 0.6241,
+  0.6253, 0.6267, 0.6258 (epochs 10..100). Flat 0.624-0.629 from epoch 20; peak at epoch 10.
+  Train loss fell throughout (0.0169 -> 0.0130); ROC AUC slid 0.988 -> 0.972. Reported
+  number is the epoch-100 one (their protocol, last epoch).
+- **Do not compare ROC/PR AUC across the two rows:** the U-Net's swapped (L1-like) loss gives
+  near-binary outputs (its max-F1 threshold 0.0086, pooled threshold 2.6e-6), which lowers
+  ROC AUC; the loss differs. Compare max F1 (their metric) and pooled F1 only.
+- N=1 per model. The +0.009 margin is smaller than the differences between our own repeats of
+  the U-Net pipeline variants (0.6166-0.6258, PART 30), so it is NOT evidence that the hybrid
+  is better here; say "about equal, with half the parameters". Seeds 1, 2 (~15 h,
+  `./scripts/run_hybrid_mesarcik.sh 1 2`) would give a spread; not run.
+- Run history: started 2026-10-24 12:55; laptop restarted uncleanly at 18:42 (journal just
+  ends, no error logged) after epoch 79; resumed exactly from last.pt on 2026-10-25 08:20
+  (model, optimiser, shuffle and RNG state restored).
+- Header/metrics.json field `unet_partner_run` names `mesarcik_unet_clean_bce_seed0` (the
+  unused --correct_loss U-Net run, never trained); the actual partner is
+  `mesarcik_unet_clean_seed0`. Label only.
+
 ## PART 32 — Backup before the display repair (2026-10-24)
 
 The laptop screen shows vertical lines; a technician recommends a display replacement.

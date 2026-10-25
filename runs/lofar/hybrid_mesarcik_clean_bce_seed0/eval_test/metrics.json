@@ -1,0 +1,42 @@
+{
+  "max_f1": 0.6258399937917024,
+  "max_f1_threshold": 0.6094474792480469,
+  "roc_auc": 0.9718890388522878,
+  "pr_auc": 0.6401100813969277,
+  "pooled_f1": 0.6218609139718959,
+  "pooled_precision": 0.6571184440737274,
+  "pooled_recall": 0.5901941885058312,
+  "threshold": 0.381430983543396,
+  "max_f1_f16": 0.6258310598513337,
+  "roc_auc_f16": 0.9718878132319678,
+  "pr_auc_f16": 0.6431888998562821,
+  "model": "HybridRFINet",
+  "base": 8,
+  "depth": 4,
+  "dropout": 0.2,
+  "parameters": 593842,
+  "setup": "clean",
+  "seed": 0,
+  "epochs": 100,
+  "batch": 1024,
+  "patch": 32,
+  "lr": 0.001,
+  "optimizer": "Adam(0.9, 0.999, eps 1e-7), constant lr",
+  "loss": "bce(y, x_hat) -- correct BCE",
+  "n_train": 6621,
+  "clip_version": "july",
+  "clip_bounds_train": [
+    1317627.8015230452,
+    84460233.58956149
+  ],
+  "clip_bounds_test": [
+    1317627.8015230452,
+    84460233.58956149
+  ],
+  "shuffle_buffer": 0,
+  "input_dtype": "float16",
+  "model_selection": "last epoch (their protocol)",
+  "unet_partner_run": "runs/lofar/mesarcik_unet_clean_bce_seed0  (train_mesarcik_unet.py --correct_loss)",
+  "unet_partner_max_f1": null,
+  "test_set": "109 expert-labelled LOFAR baselines"
+}
