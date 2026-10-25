@@ -4007,6 +4007,11 @@ Table 5.2 row, conclusion) -- the report now quotes only 0.6166 (test images rem
 4.2.1). Synthetic audit for the user: 276x600 carries 0.9317 (4.1, 4.3, abstract, conclusion,
 discussion) and the width table; 1024x265 only the hybrid's 0.9877 (5.1); Fig 3.1 and the intro
 describe only one synthetic dataset (1024x265) -- mismatch still open (pending item 1).
+RESOLVED same day (user said yes): report now uses only the 276x600 set. Fig 3.1 synthetic branch:
+276x600, 1000 images, 700/150/150, RFI 14.67% of pixels (mean per-image, from the dataset's
+dataset_statistics.txt), labels exact (RFI > 0.5 sigma); "instrument bandpass" line dropped. 5.1:
+hybrid 0.9877 (1024x265) replaced by 0.9749 (base 8 on 276x600, Table 5.1). No 1024x265 number
+left in the report.
 
 ## PART 32 — Backup before the display repair (2026-10-24)
 
