@@ -4209,3 +4209,26 @@ Open problems found (not yet fixed; reported to the user):
   with class weights; Mesarcik "+/- 0.0031" possibly a typo column; 1.5-sigma premise is from
   synthetic data; Dice "depends only on the RFI pixels" imprecise; GroupNorm "0.034" is vs full
   model (0.032 vs partial).
+
+---
+
+## PART 34 — Basic data analysis of LOFAR, for the professor (2026-10-26)
+
+Script `analysis/lofar_eda/lofar_eda.py` (reads every image once, ~5 min); numbers in
+`analysis/lofar_eda/lofar_eda.json`, four figures `analysis/lofar_eda/fig_*.png`.
+All measured; they agree with PART 11 where they overlap (AOFlagger vs expert
+F1 0.5698403, 1.2703 % / 0.7661 % RFI, 34 duplicates, 109 leaked).
+
+- Splits: 7500 released + 109 test -> 7356 clean -> 6621 train / 735 val (seed 0, same code as lofar_hybrid.py).
+- NEW: the 35 all-flagged images are exactly the 35 all-zero images (dead baselines; overlap 35/35).
+  652 images contain at least one exact zero.
+- RFI share: released train 1.27 % (pulled up by the 35 dead images); clean train 0.80 %,
+  val 0.87 %, test 0.77 %. Median per image 0.20 % train, 0.38 % test. Max per image
+  23.1 % train, 4.4 % test. No image is RFI-free.
+- Where: column (frequency) CV 0.82 train / 1.07 test vs row (time) CV 0.16 / 0.22.
+  Busiest channels 482, 467, 500, 418, 366 (train). Per image, 16 of 512 channels hold
+  a median 63 % (train, 500 sampled) / 88 % (test) of the RFI. Pooled over the dataset only
+  13.6 % / 16.4 % — the busy channels change from image to image.
+- Brightness (test, vs the median clean pixel of the same image): RFI median 2.14x;
+  20.0 % of RFI pixels are below it, 54.2 % above 2x, 20.4 % above 10x; only 3.4 % of clean pixels exceed 2x.
+- Raw train values: 0 to 1.45e11, mean 1.44e6, std 2.16e7, median ~1.18e6, p99 ~3.67e6 (sampled).
