@@ -212,7 +212,7 @@ text(s.shapes, 0.88, 5.45, 3.48, 1.65, [
 ], size=10, space_after=2)
 panel(s.shapes, 8.90, 5.40, 3.70, 1.72)
 text(s.shapes, 9.03, 5.45, 3.48, 1.65, [
-    [("⑥ Dice + cross-entropy loss", True, NAVY), (" (tf_unet: cross-entropy only)", False)],
+    [("⑥ Dice + cross-entropy loss", True, NAVY), (" (tf_unet: cross-entropy + L2 penalty)", False)],
     [("⑦ Same padding", True, NAVY), (" — every pixel gets a prediction", False)],
     [("⑧ No class weighting", True, NAVY), (" — tf_unet has none either; our earlier version used it and scored lower", False)],
     [("⑨ Size", True, NAVY), (": shrinks 4 times, 8 → 128 channels, 593,842 parameters", False)],

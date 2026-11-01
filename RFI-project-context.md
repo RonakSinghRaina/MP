@@ -4232,3 +4232,11 @@ F1 0.5698403, 1.2703 % / 0.7661 % RFI, 34 duplicates, 109 leaked).
 - Brightness (test, vs the median clean pixel of the same image): RFI median 2.14x;
   20.0 % of RFI pixels are below it, 54.2 % above 2x, 20.4 % above 10x; only 3.4 % of clean pixels exceed 2x.
 - Raw train values: 0 to 1.45e11, mean 1.44e6, std 2.16e7, median ~1.18e6, p99 ~3.67e6 (sampled).
+
+## PART 35 — Schematic wording corrections (2026-11-01)
+
+- Akeret et al. 2017 Section 2 and `scripts/rfi_launcher.py` both use an L2 regulariser of 0.001, and our tf_unet runs do too (`regularizer=0.001`). The hybrid has no L2.
+- Schematic marker 6 now reads "tf_unet: cross-entropy + L2 penalty"; Table 3.1 Loss row and the 6.3.1 sentence updated to match. Dice-off run is plain CE with no L2, so "the loss tf_unet uses" was replaced by "the main loss term of tf_unet".
+- Fig 3.4 caption now says all markers differ from tf_unet except 8, a change from our earlier version.
+- Rebuilt: pptx, PDF, `report/Images/hybrid_schematic.pdf` (same crop box "40 20 930 414", so the top line is still slightly clipped). Report 42 pages.
+- Full check of slide 2 against the model (2026-10-26): all sizes, positions and 593,842 parameters correct. Still open on slide 4: says 6 is untested (Dice now +0.0108, PART 28.1).

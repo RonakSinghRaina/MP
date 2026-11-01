@@ -111,8 +111,9 @@ epochs.
   \includegraphics[width=\textwidth]{hybrid_schematic}
   \caption[Architecture of \hybrid{}]{Architecture of \hybrid{}. It keeps
     the U shape of a U-Net, here with four encoder levels, a bottleneck and four
-    decoder levels joined by skip connections; the numbers \textcircled{1}--\textcircled{9}
-    mark what differs from \tfunet{}, and red marks the three added modules.}
+    decoder levels joined by skip connections. The numbers mark the design
+    choices: all differ from \tfunet{} except \textcircled{8}, which is a change
+    from our own earlier version. Red marks the three added modules.}
   \label{fig:hybrid_arch}
 \end{figure}
 
@@ -139,7 +140,7 @@ Most of the design choices aim to use this kind of spatial context.
     Normalisation layers & none & GroupNorm in every residual block and strip module \\
     Output layer & ReLU, then softmax & raw scores, then softmax \\
     Padding & valid (output smaller than input) & same (output = input size) \\
-    Loss & cross-entropy & cross-entropy + Dice \\
+    Loss & cross-entropy + L2 penalty (0.001) & cross-entropy + Dice \\
     Batch size / learning rate on LOFAR & 4 / $10^{-4}$ & 1 / $10^{-3}$ \\
     Framework & TensorFlow & PyTorch \\
     Parameters & 465{,}986 & 593{,}842 \\
