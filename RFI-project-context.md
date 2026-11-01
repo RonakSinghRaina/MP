@@ -4241,3 +4241,31 @@ F1 0.5698403, 1.2703 % / 0.7661 % RFI, 34 duplicates, 109 leaked).
 - Rebuilt: pptx, PDF, `report/Images/hybrid_schematic.pdf` (crop box now "40 20 930 416.5", so the top line is no longer clipped). Report 42 pages.
 - Full check of slide 2 against the model (2026-10-26): all sizes, positions and 593,842 parameters correct. Still open on slide 4: says 6 is untested (Dice now +0.0108, PART 28.1).
 - Slide 3 re-measured (ResBlock call order, dropout train-only, KxK footprints 49/121/441 px, join/mix channels, ECA weights): all correct. Layout/wording only: ECA caption moved off the bypass line; "Each red path ... (LOFAR axes)". Diagonal arrows on slides 1-2 now labelled max-pool / up-conv. `Hybrid_Model_Slides_2_and_3.pdf` added.
+
+## PART 36 — tf_unet last-epoch AUCs and what the HERA labels are (2026-11-01)
+
+### 36.1 tf_unet lr 1e-4, LAST-epoch checkpoints, 109 expert images (no training, CPU)
+`analysis/last_vs_best/tfunet_last_auc.py` -> `tfunet_last_auc.json`.
+
+| checkpoint | max F1 | ROC AUC | PR AUC |
+|---|---|---|---|
+| best on validation | 0.5482 +/- 0.0139 | 0.9470 +/- 0.0074 | 0.5562 +/- 0.0152 |
+| last epoch (Mesarcik's rule) | 0.5551 +/- 0.0155 | 0.9482 +/- 0.0052 | 0.5608 +/- 0.0167 |
+
+Last per seed: ROC 0.9509, 0.9515, 0.9422; PR 0.5717, 0.5416, 0.5692. Check: the best checkpoints reproduce
+the recorded metrics to within 3e-5 and the last ones reproduce PART 29.2's F1s. Scored on the 472 crop as before.
+
+### 36.2 HERA labels: simulator ground truth, no expert labels
+`data/hera/HERA_04-03-2022_all.pkl` masks are the simulator's pixel-exact ground truth, for train AND test.
+- Mesarcik's code: `hera.py` returns the pickle's masks unmodified; only with `rfi_threshold` set does `load_hera`
+  replace them with `flag_data` (AOFlagger, `utils/flagging/ao_flagger`), keeping the originals as `test_masks_orig`,
+  the test truth. Paper Table 1: trained on AOFlagger at threshold 10, evaluated on simulator truth.
+- So PART 3's F1 0.9964/0.9996 trained AND tested on perfect labels, an easier task than the paper's U-Net 0.9015.
+- Not directly tested against AOFlagger: it is not installed here. Upstream now loads a newer file (HERA_28-07-2023);
+  ours is 04-03-2022.
+- Clean split measured: train 351 RFI 2.782 %, test 135 RFI 2.712 %, no RFI-free image.
+- To match Table 1 we would need AOFlagger installed. Without it, a HERA run is train-on-truth and must be labelled so.
+
+### 36.3 NVIDIA driver updated
+Driver packages went to 615.78.08 on 2026-11-01 while the loaded module is 610.57: NVML and CUDA fail until a reboot.
+CLAUDE.md section 1 still says 610.57.04.
