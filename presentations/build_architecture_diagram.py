@@ -163,6 +163,9 @@ def draw_u(s, enc_ops, bn_ops, dec_ops, enc_fill, dec_fill, bn_fill, top_left, t
     box(sh, BN_X, BN_Y, BW, BH, bn_fill, ["Bottleneck · 128 × 32 × 32", bn_ops], size=10.5)
     arrow(sh, ENC_X[3] + BW - 0.15, ROWS[3] + BH, BN_X, BN_Y + BH / 2)
     arrow(sh, BN_X + BW, BN_Y + BH / 2, DEC_X[3] + 0.15, ROWS[3] + BH)
+    text(sh, ENC_X[3] + BW + 0.15, ROWS[3] + BH - 0.03, 1.3, 0.25, ["max-pool: half size"], size=9, color=GREY)
+    text(sh, DEC_X[3] - 0.15 - 1.35, ROWS[3] + BH - 0.03, 1.35, 0.25, ["up-conv: double size"], size=9,
+         color=GREY, align=PP_ALIGN.RIGHT)
     return g
 
 
@@ -282,7 +285,7 @@ for lab, w in [("1×1 conv (mix)", 1.15), ("GroupNorm ④", 1.2), ("ReLU", 0.7)]
 arrow(sh, x, yc, x + gap, yc); x += gap
 box(sh, x, yc - 0.25, 0.75, 0.5, LIGHT, ["output"], size=10.5, color=INK)
 text(sh, px, ROW[1] + heights[1] - 0.3, 7.5, 0.22,
-     ["Each path = 1×K along frequency, then K×1 along time, each channel on its own → together it covers a K×K square (measured)"],
+     ["Each red path = 1×K along frequency, then K×1 along time (LOFAR axes), each channel on its own → together it covers a K×K square (measured)"],
      size=9, color=GREY)
 
 # --- row C: ECA
@@ -290,11 +293,11 @@ g = s.shapes.add_group_shape(); sh = g.shapes
 y = ROW[2] + 0.38; h = 0.55
 x = X0
 box(sh, x, y, 0.62, h, LIGHT, ["input"], size=10.5, color=INK); xin = x + 0.31; x += 0.62
-for lab, w, f in [("average each feature map → 1 number", 1.6, MIDNAVY),
-                  ("1-D conv (k = 3) across neighbouring channels", 1.55, MIDNAVY),
-                  ("sigmoid → weight 0 to 1", 1.3, RED)]:
+for lab, w, f in [("average each feature map | → 1 number", 1.6, MIDNAVY),
+                  ("1-D conv (k = 3) across | neighbouring channels", 1.55, MIDNAVY),
+                  ("sigmoid → | weight 0 to 1", 1.3, RED)]:
     arrow(sh, x, y + h / 2, x + gap, y + h / 2); x += gap
-    box(sh, x, y, w, h, f, [lab], size=10, bold_first=False); x += w
+    box(sh, x, y, w, h, f, lab.split(" | "), size=10, bold_first=False); x += w
 arrow(sh, x, y + h / 2, x + gap, y + h / 2); x += gap
 mult = box(sh, x, y + 0.08, 0.4, 0.4, RED, ["×"], size=14, shape=MSO_SHAPE.OVAL); xm = x + 0.2; x += 0.4
 arrow(sh, x, y + h / 2, x + gap, y + h / 2); x += gap
@@ -303,7 +306,7 @@ bot = y + h + 0.22
 arrow(sh, xin, y + h, xin, bot, color=GREY, width=1.25, head=False)
 arrow(sh, xin, bot, xm, bot, color=GREY, width=1.25, head=False)
 arrow(sh, xm, bot, xm, y + 0.48, color=GREY, width=1.25)
-text(sh, xin + 0.15, bot - 0.02, 4.5, 0.22,
+text(sh, xin + 0.15, bot + 0.02, 4.5, 0.22,
      ["the feature maps themselves go straight to × and are scaled by their weights"], size=9, color=GREY)
 
 # ======================================================================= 4
