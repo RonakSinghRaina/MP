@@ -7,8 +7,11 @@ base 8, 512x512 input): 8->16->32->64 channels, bottleneck 128 x 32 x 32,
 593,842 parameters.
 
     ~/torch-env/bin/python presentations/build_architecture_diagram.py
+    ~/torch-env/bin/python presentations/build_architecture_diagram.py --short-key out.pptx
+        (slide 2 with only the five-point key, used for Hybrid_Model_Slides_2_and_3.pdf)
 """
 import os
+import sys
 
 from lxml import etree
 from pptx import Presentation
@@ -23,6 +26,9 @@ ROOT = os.path.normpath(os.path.join(HERE, ".."))
 TEMPLATE = os.path.join(ROOT, "Weekly_Report_Week2_DiL_Lab_v2.pptx")
 OUT = os.path.join(ROOT, "Hybrid_Model_Schematic.pptx")
 NAME = "Our model"          # change here once the new name is chosen
+SHORT_KEY = "--short-key" in sys.argv
+if SHORT_KEY:
+    OUT = sys.argv[sys.argv.index("--short-key") + 1]
 
 RED = RGBColor(0xE3, 0x18, 0x37)
 PALE_RED = RGBColor(0xFB, 0xE3, 0xE7)
@@ -203,24 +209,32 @@ draw_u(s,
        bn_ops="ResBlock ②④ → Strip ①",
        dec_ops=["join skip → ResBlock ②④ → ECA ③"] * 4,
        enc_fill=NAVY, dec_fill=NAVY, bn_fill=MIDNAVY,
-       top_left="▼ Input: spectrogram, 1 × 512 × 512 — no border trimming ⑦",
+       top_left="▼ Input: spectrogram, 1 × 512 × 512 — no border trimming" + ("" if SHORT_KEY else " ⑦"),
        top_right="1×1 conv → 2 raw scores → softmax ⑤ → RFI probability ▲")
-panel(s.shapes, 0.75, 5.40, 3.70, 1.72, fill=PALE_RED)
-text(s.shapes, 0.88, 5.45, 3.48, 1.65, [
+KEY_X, KEY_Y, KEY_W, KEY_H = ENC_X[0], 6.42, DEC_X[0] + BW - ENC_X[0], 0.5
+if SHORT_KEY:
+    panel(s.shapes, KEY_X, KEY_Y, KEY_W, KEY_H, fill=PALE_RED)
+    for i, (lab, col) in enumerate([("① Strip convolutions", RED), ("② Residual shortcut", RED),
+                                    ("③ ECA attention", RED), ("④ GroupNorm", NAVY), ("⑤ Raw scores", NAVY)]):
+        text(s.shapes, KEY_X + i * KEY_W / 5, KEY_Y, KEY_W / 5, KEY_H, [[(lab, True, col)]], size=13,
+             align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, space_after=0)
+else:
+  panel(s.shapes, 0.75, 5.40, 3.70, 1.72, fill=PALE_RED)
+  text(s.shapes, 0.88, 5.45, 3.48, 1.65, [
     [("① Strip convolutions", True, RED), (" — 7/11/21-px windows (enc. 1–3, bottleneck)", False)],
     [("② Residual shortcut", True, RED), (" — inside every ResBlock", False)],
     [("③ ECA attention", True, RED), (" — after every encoder and decoder block", False)],
     [("④ GroupNorm", True, NAVY), (" — in every ResBlock and strip (tf_unet: none)", False)],
     [("⑤ Raw scores", True, NAVY), (" — no ReLU before softmax (tf_unet has one)", False)],
-], size=10, space_after=2)
-panel(s.shapes, 8.90, 5.40, 3.70, 1.72)
-text(s.shapes, 9.03, 5.45, 3.48, 1.65, [
+  ], size=10, space_after=2)
+  panel(s.shapes, 8.90, 5.40, 3.70, 1.72)
+  text(s.shapes, 9.03, 5.45, 3.48, 1.65, [
     [("⑥ Dice + cross-entropy loss", True, NAVY), (" (tf_unet: cross-entropy + L2 penalty)", False)],
     [("⑦ Same padding", True, NAVY), (" — every pixel gets a prediction", False)],
     [("⑧ No class weighting", True, NAVY), (" — tf_unet has none either; our earlier version used it and scored lower", False)],
     [("⑨ Size", True, NAVY), (": shrinks 4 times, 8 → 128 channels, 593,842 parameters", False)],
     [("Red = the three added modules ①–③", True, RED)],
-], size=10, space_after=2)
+  ], size=10, space_after=2)
 
 # ======================================================================= 3
 s = new_slide("Inside one level, step by step")

@@ -4315,3 +4315,8 @@ training images; with 10 % validation that is 316 train / 35 validation.
 - Not yet tested on the GPU: the driver went to 615.78.08 and needs a reboot (36.3). Time per seed in the script header
   (U-Net 9, hybrid theirs 21, hybrid ours 27, tf_unet 78 min, about 7 h for 3 seeds) is an estimate, not a HERA
   measurement. Re-measure from `runs/hera/logs/run_hera.log`.
+
+### PART 35 addendum (2026-11-01): shorter key on slide 2
+`Hybrid_Model_Slides_2_and_3.pdf` only: slide 2's grey box is removed and the pink key is one full-width band naming ①–⑤,
+with marker ⑦ dropped from the input label. Built with `build_architecture_diagram.py --short-key <out.pptx>`. Slide 3 is
+unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schematic.pdf` keep the full ①–⑨ key, as asked.
