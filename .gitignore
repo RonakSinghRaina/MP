@@ -40,6 +40,10 @@ results/*.npy
 # --- analysis working data ---------------------------------------------------
 analysis/hera_transfer_test/HERA_npy/
 
+# --- HERA run outputs (about 70 MB of test predictions per run) ----------------
+runs/hera/**/*.npy
+runs/hera/.run_hera.lock
+
 # --- python / editor / os ----------------------------------------------------
 __pycache__/
 *.pyc

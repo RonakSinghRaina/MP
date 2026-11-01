@@ -4291,3 +4291,27 @@ Third venv `~/aof-env` (Python 3.12, `aoflagger==3.5.post0` from pip; do not mer
 tf_unet ours 0.5482/0.9470/0.5562; tf_unet closest to Mesarcik (last epoch) 0.5551/0.9482/0.5608; hybrid ours
 0.6603/0.9378/0.6583; their U-Net run by us 0.6166/0.8213/0.5283; hybrid Mesarcik settings 0.6258/0.9719/0.6401.
 Published (Table 2): AOFlagger 0.5698/0.7883/0.5716; U-Net 0.5876/0.8017/0.5920; RFI-Net 0.5979/0.8109/0.5991.
+
+## PART 38 — HERA pipeline for all models, stage 2 (2026-11-01, written and tested, GPU runs not started)
+
+Goal: Mesarcik's Table 1 protocol on HERA with our models: train on AOFlagger labels (threshold 10), score on the
+simulator's labels. The pickle's 420/140 images reduce to 351/135 after removing the 31 test images that are copies of
+training images; with 10 % validation that is 316 train / 35 validation.
+
+- `analysis/hera_aoflagger/make_hera_arrays.py` (run once, in `~/aof-env`) writes `data/hera/HERA_arrays/`;
+  `hera_data.py` `load_hera()` gives the same fields as `load_lofar()`. Measured AOFlagger vs simulator: train F1 0.8896,
+  test (135) F1 0.8740.
+- All four trainers take `--dataset {lofar,hera}`; default lofar, behaviour unchanged. Hybrid code not touched.
+- `scripts/run_hera.sh` runs, for each of seeds 0 1 2: Mesarcik U-Net (their settings), HybridRFINet (their settings,
+  plain BCE), HybridRFINet (our settings), tf_unet lr 1e-4 (our settings). Then tf_unet last-epoch scoring and
+  `analysis/hera_aoflagger/summarise_hera.py`, which also checks every run's settings against what was intended.
+- tf_unet cannot take 32x32 patches, so its "closest to their settings" row is the last-epoch model of the same run. The
+  U-Net has no our-settings run, as on LOFAR. U-Net loss swap caveat from PART 31 applies: AUROC and AUPRC are not
+  comparable between the U-Net and the hybrid under their settings.
+- Tested end to end on the CPU with tiny settings (`HERA_SMOKE=1`, one seed, about 8 training images): all four trainers,
+  last-epoch scoring and the summary ran, and the settings check correctly flagged the tiny settings. Those scores mean
+  nothing. The first test died with a shell syntax error after the fourth trainer; the script had been edited while it
+  ran, and a re-run of the unchanged file passed.
+- Not yet tested on the GPU: the driver went to 615.78.08 and needs a reboot (36.3). Time per seed in the script header
+  (U-Net 9, hybrid theirs 21, hybrid ours 27, tf_unet 78 min, about 7 h for 3 seeds) is an estimate, not a HERA
+  measurement. Re-measure from `runs/hera/logs/run_hera.log`.

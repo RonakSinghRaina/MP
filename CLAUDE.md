@@ -41,7 +41,8 @@ effects this project has ever claimed. A single run is not a result.
 
 ## 1. Hardware — measured, not spec-sheet
 
-- **GPU:** NVIDIA RTX 3060 Laptop, **6144 MiB**, driver **610.57.04**.
+- **GPU:** NVIDIA RTX 3060 Laptop, **6144 MiB**, driver **615.78.08** (updated 2026-11-01; needs a reboot
+  after any driver update, or NVML and CUDA fail with a version mismatch).
 - **Usable VRAM is close to the full 6 GB on Fedora.** *(An earlier version of
   this file said "~3.5 GB usable because the Windows compositor shares the
   card." That was a Windows fact and no longer applies.)* Measured at
@@ -87,12 +88,13 @@ effects this project has ever claimed. A single run is not a result.
 - The old Windows partition can be mounted read-only if an old file is needed:
   `sudo mount -o ro /dev/nvme0n1p3 /mnt/win`.
 
-## 3. Two Python virtual environments — do not merge them
+## 3. Three Python virtual environments — do not merge them
 
 | Env | Purpose | Python | Framework |
 |---|---|---|---|
 | `~/tf-env` | TensorFlow / the authors' `tf_unet` | **3.12.14** | TF **2.21.0** |
 | `~/torch-env` | PyTorch / the hybrid, and all analysis scripts | **3.14.3** | torch **2.13.0+cu130** |
+| `~/aof-env` | AOFlagger, for the HERA labels only (PART 37) | **3.12** | aoflagger **3.5.post0** |
 
 - **They were one environment once, and it broke.** `pip install torch`
   silently downgraded the cuDNN TensorFlow needed. The two require
@@ -230,6 +232,10 @@ export LD_LIBRARY_PATH="$(ls -d ~/tf-env/lib/python3.12/site-packages/nvidia/*/l
 # ---- LOFAR: the hybrid ------------------------------------------------------
 ~/torch-env/bin/python experiments/lofar_hybrid.py                # base 8 default
 ./scripts/run_lofar_hybrid.sh                                     # 3 seeds + base32 + per-image arms
+
+# ---- HERA: all models, 3 seeds, in the background (PART 38) -------------------
+./scripts/run_hera.sh                                             # checks the laptop first; rerun to resume
+~/torch-env/bin/python analysis/hera_aoflagger/summarise_hera.py  # table so far
 
 # ---- status of any running work ---------------------------------------------
 ./scripts/status.sh          # or -w to refresh every 30 s

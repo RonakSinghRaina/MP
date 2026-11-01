@@ -65,6 +65,7 @@ sys.path.insert(0, _ROOT)
 sys.path.insert(0, _HERE)
 
 from lofar_data import load_lofar  # noqa: E402
+from hera_data import load_hera  # noqa: E402
 
 P = 32                      # patch size (run_lofar.sh)
 TILES = 512 // P            # 16 tiles per side, 256 per image
@@ -77,7 +78,19 @@ TILES = 512 // P            # 16 tiles per side, 256 per image
 #   june: commit 753b0d3 (29 Jun 2022) "experiments complete" -- what produced the
 #         published Table 2 and matches the paper's text; train clipped with TRAIN
 #         stats, test with TEST stats.
-CLIPS = {"july": (3, 95), "june": (1, 20)}
+#   hera: their HERA settings, data.py load_hera: [|mu - sd|, mu + 4 sd] of pixels that
+#         AOFlagger left unflagged (the paper's section 4.1 gives the same bounds).
+CLIPS = {"july": (3, 95), "june": (1, 20), "hera": (1, 4)}
+
+
+def resolve_dataset(a):
+    """--dataset hera: their HERA recipe, leak-free. Returns (data, cache dir)."""
+    if a.dataset == "lofar":
+        return load_lofar(), os.path.join(_ROOT, "data", "lofar", "mesarcik_cache")
+    if a.setup != "clean":
+        raise SystemExit("--dataset hera exists only with --setup clean")
+    a.clip = "hera"
+    return load_hera(), os.path.join(_ROOT, "data", "hera", "mesarcik_cache")
 
 
 def clip_bounds(images, masks, indices, k=(3, 95), chunk=200):
@@ -187,6 +200,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--setup", choices=["paper_code", "clean"], required=True)
+    ap.add_argument("--dataset", choices=["lofar", "hera"], default="lofar",
+                    help="hera: train on AOFlagger labels, test on the simulator's (PART 38)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--batch", type=int, default=1024)
@@ -205,21 +220,20 @@ def main():
     ap.add_argument("--output_dir", default=None)
     a = ap.parse_args()
 
-    out = a.output_dir or os.path.join(_ROOT, "runs", "lofar",
+    out = a.output_dir or os.path.join(_ROOT, "runs", a.dataset,
                                        f"mesarcik_unet_{a.setup}"
                                        f"{'_bce' if a.correct_loss else ''}"
                                        f"{'_june' if a.clip == 'june' else ''}"
                                        f"{f'_buf{a.shuffle_buffer}' if a.shuffle_buffer else ''}"
                                        f"{'_f32' if a.input_dtype == 'float32' else ''}_seed{a.seed}")
     os.makedirs(out, exist_ok=True)
-    cache_dir = os.path.join(_ROOT, "data", "lofar", "mesarcik_cache")
 
     import tensorflow as tf
     from mesarcik_unet import UNET
     tf.keras.utils.set_random_seed(a.seed)
     gpus = tf.config.list_physical_devices("GPU")
 
-    d = load_lofar()
+    d, cache_dir = resolve_dataset(a)
     if a.setup == "paper_code":
         tr_idx = np.arange(d.train_images.shape[0])                 # all 7500
         val_idx = None
@@ -346,16 +360,20 @@ def main():
                   else "bce(x_hat, y) -- as in their code (effectively L1)",
              clip_version=a.clip, clip_bounds_train=[lo, hi], clip_bounds_test=[te_lo, te_hi],
              shuffle_buffer=a.shuffle_buffer, input_dtype=a.input_dtype,
-             published_max_f1="0.5876 +/- 0.0031 (Mesarcik et al. 2022, Table 2)")
+             dataset=a.dataset,
+             published_max_f1="0.9015 +/- 0.0074 (Mesarcik et al. 2022, Table 1)" if a.dataset == "hera"
+                              else "0.5876 +/- 0.0031 (Mesarcik et al. 2022, Table 2)")
     os.makedirs(os.path.join(out, "eval_test"), exist_ok=True)
     json.dump(m, open(os.path.join(out, "eval_test", "metrics.json"), "w"), indent=2)
     np.save(os.path.join(out, "eval_test", "test_pred.npy"), pred.astype(np.float16))
     print("=" * 74)
-    print(f"  max F1 (their protocol) : {m['max_f1']:.4f}    published 0.5876 +/- 0.0031")
+    print(f"  max F1 (their protocol) : {m['max_f1']:.4f}    published "
+          + ("0.9015 +/- 0.0074" if a.dataset == "hera" else "0.5876 +/- 0.0031"))
     if th is not None:
         print(f"  pooled F1 (val thresh)  : {m['pooled_f1']:.4f}")
     print(f"  ROC AUC / PR AUC        : {m['roc_auc']:.4f} / {m['pr_auc']:.4f}"
-          f"    published AUROC 0.8017, AUPRC 0.5920")
+          f"    published " + ("AUROC 0.9746, AUPRC 0.8963" if a.dataset == "hera"
+                               else "AUROC 0.8017, AUPRC 0.5920"))
     print("=" * 74)
 
 

@@ -106,6 +106,7 @@ sys.path.insert(0, _ROOT)
 from tf_unet import unet, util, image_util        # authors' unmodified code
 from sklearn.metrics import roc_curve, auc, precision_recall_curve
 from lofar_data import load_lofar, preprocess
+from hera_data import load_hera
 
 
 # ---------------------------------------------------------------------------
@@ -321,6 +322,8 @@ def save_progress(d, prog):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--dataset", choices=["lofar", "hera"], default="lofar",
+                    help="hera: train on AOFlagger labels, test on the simulator's (PART 38)")
     ap.add_argument("--norm", choices=["fixed", "fixed_log", "per_image"], default="fixed",
                     help="fixed = PART 1 recipe (default). See module docstring.")
     ap.add_argument("--epochs", type=int, default=60,
@@ -350,11 +353,12 @@ def main():
     ap.add_argument("--output_dir", default=None)
     a = ap.parse_args()
 
-    out = a.output_dir or os.path.join(_ROOT, "runs", "lofar", "tfunet_{}_ncw".format(a.norm))
+    out = a.output_dir or os.path.join(_ROOT, "runs", a.dataset, "tfunet_{}_ncw".format(a.norm))
     os.makedirs(out, exist_ok=True)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-    d = load_lofar()
+    d = load_hera() if a.dataset == "hera" else load_lofar()
+    n_test = d.test_images.shape[0]
     rng = np.random.default_rng(a.seed)
     idx = d.clean_train_idx.copy()
     rng.shuffle(idx)
@@ -364,11 +368,13 @@ def main():
     val_idx, tr_idx = idx[:n_val], idx[n_val:]
 
     print("=" * 74)
-    print("  tf_unet on REAL LOFAR   |   norm = {}   |   class weights = OFF".format(a.norm))
+    print("  tf_unet on {}   |   norm = {}   |   class weights = OFF".format(
+        "simulated HERA" if a.dataset == "hera" else "REAL LOFAR", a.norm))
     print("=" * 74)
     print("  train images      : {}".format(len(tr_idx)))
     print("  val images        : {}".format(len(val_idx)))
-    print("  test images       : 109  (human expert labels)")
+    print("  test images       : {}  ({} labels)".format(
+        n_test, "simulator" if a.dataset == "hera" else "human expert"))
     print("  leaked images excluded from training: {}".format(len(d.leak_train_idx)))
     _it = a.iters_per_epoch if a.iters_per_epoch > 0 else max(1, len(tr_idx) // a.batch_size)
     print("  steps/epoch       : {}   x {} epochs = {:,} gradient steps".format(
@@ -398,7 +404,7 @@ def main():
     train_p = LofarProvider(d.train_images, d.train_masks, tr_idx, a.norm, lo, hi,
                             shuffle=True, patch_size=a.patch_size)
     val_p = LofarProvider(d.train_images, d.train_masks, val_idx, a.norm, lo, hi, shuffle=False)
-    test_p = LofarProvider(d.test_images, d.test_masks, np.arange(109), a.norm, lo, hi, shuffle=False)
+    test_p = LofarProvider(d.test_images, d.test_masks, np.arange(n_test), a.norm, lo, hi, shuffle=False)
 
     iters = a.iters_per_epoch if a.iters_per_epoch > 0 else max(1, len(tr_idx) // a.batch_size)
     prog = load_progress(out)
@@ -447,7 +453,7 @@ def main():
 
     print("\nTraining done. Best val max-F1 {:.4f} @ epoch {}".format(
         prog["best_f1"], prog["best_epoch"]))
-    print("Evaluating the BEST checkpoint on the 109 HUMAN-LABELLED test images ...",
+    print("Evaluating the BEST checkpoint on the {} test images ...".format(n_test),
           flush=True)
 
     tf1.reset_default_graph()
@@ -466,7 +472,7 @@ def main():
                     features_root=a.features_root, cost="cross_entropy",
                     cost_kwargs=dict(regularizer=0.001), summaries=False)
     test_p.pos = -1
-    m = score(net, os.path.join(best_dir, "model.ckpt"), test_p, 109,
+    m = score(net, os.path.join(best_dir, "model.ckpt"), test_p, n_test,
               quiet=False, threshold=th)
     m.pop("_yt", None); m.pop("_yp", None)
     m.update(val_selected_threshold=th, val_f1_at_threshold=vf1, patch_size=a.patch_size,
@@ -476,10 +482,13 @@ def main():
              optimizer="adam", learning_rate=a.lr, seed=a.seed,
              n_train=len(tr_idx), n_val=len(val_idx),
              best_val_max_f1=prog["best_f1"], best_epoch=prog["best_epoch"],
-             test_set="109 expert-labelled LOFAR baselines (data[3])")
+             dataset=a.dataset,
+             test_set="135 HERA images, simulator labels" if a.dataset == "hera"
+                      else "109 expert-labelled LOFAR baselines (data[3])")
 
     print("\n" + "=" * 74)
-    print("  RESULT on real LOFAR data, human ground truth")
+    print("  RESULT on simulated HERA, simulator labels" if a.dataset == "hera"
+          else "  RESULT on real LOFAR data, human ground truth")
     print("=" * 74)
     print("  pooled F1      : {:.4f}   <-- HEADLINE. threshold {:.4f} chosen on val.".format(
         m["pooled_f1"], th))

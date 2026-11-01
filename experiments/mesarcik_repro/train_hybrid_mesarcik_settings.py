@@ -75,7 +75,7 @@ sys.path.insert(0, _HERE)
 sys.path.insert(0, os.path.join(_ROOT, "src", "hybrid_rfi_package"))
 
 import train_mesarcik_unet as R          # noqa: E402  shared pipeline (no TensorFlow at import)
-from train_mesarcik_unet import load_lofar, P, TILES, CLIPS  # noqa: E402
+from train_mesarcik_unet import P, TILES, CLIPS  # noqa: E402
 
 # their U-Net through the same pipeline, seed 0 -- only valid for the SAME loss
 REFERENCE = {("paper_code", "swapped"): 0.6207, ("clean", "swapped"): 0.6166}
@@ -113,6 +113,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--setup", choices=["paper_code", "clean"], required=True)
+    ap.add_argument("--dataset", choices=["lofar", "hera"], default="lofar",
+                    help="hera: train on AOFlagger labels, test on the simulator's (PART 38)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--batch", type=int, default=1024)
@@ -134,14 +136,13 @@ def main():
     a = ap.parse_args()
 
     out = a.output_dir or os.path.join(
-        _ROOT, "runs", "lofar",
+        _ROOT, "runs", a.dataset,
         f"hybrid_mesarcik_{a.setup}"
         f"{'_bce' if a.loss == 'bce' else ''}"
         f"{'_june' if a.clip == 'june' else ''}"
         f"{f'_buf{a.shuffle_buffer}' if a.shuffle_buffer else ''}"
         f"{'_f32' if a.input_dtype == 'float32' else ''}_seed{a.seed}")
     os.makedirs(os.path.join(out, "eval_test"), exist_ok=True)
-    cache_dir = os.path.join(_ROOT, "data", "lofar", "mesarcik_cache")
 
     import torch
     from hybrid_model import HybridRFINet
@@ -149,7 +150,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # ---- data: identical to train_mesarcik_unet.main() --------------------------
-    d = load_lofar()
+    d, cache_dir = R.resolve_dataset(a)
     if a.setup == "paper_code":
         tr_idx = np.arange(d.train_images.shape[0])                 # all 7500
         val_idx = None
@@ -207,9 +208,11 @@ def main():
     print(f"  loss              : {'bce(x_hat, y) [their code; effectively L1]' if a.loss == 'swapped' else 'bce(y, x_hat) [correct BCE]'}")
     print(f"  shuffle           : {f'tf.data buffer {a.shuffle_buffer:,}' if a.shuffle_buffer else 'full shuffle every epoch'}"
           f"  |  inputs {a.input_dtype}")
-    ref = REFERENCE.get((a.setup, a.loss))
+    ref = REFERENCE.get((a.setup, a.loss)) if a.dataset == "lofar" else None
     partner = PARTNER.format(setup=a.setup, bce="_bce" if a.loss == "bce" else "", seed=a.seed,
                              flag=" --correct_loss" if a.loss == "bce" else "")
+    if a.dataset == "hera":
+        partner = partner.replace("runs/lofar/", "runs/hera/")
     print(f"  U-Net partner     : {partner}"
           + (f"  -> max F1 {ref}" if ref is not None else ""))
     print("=" * 74, flush=True)
@@ -296,8 +299,9 @@ def main():
              n_train=int(len(tr_idx)), clip_version=a.clip, clip_bounds_train=[lo, hi],
              clip_bounds_test=[te_lo, te_hi], shuffle_buffer=a.shuffle_buffer,
              input_dtype=a.input_dtype, model_selection="last epoch (their protocol)",
-             unet_partner_run=partner, unet_partner_max_f1=ref,
-             test_set="109 expert-labelled LOFAR baselines")
+             unet_partner_run=partner, unet_partner_max_f1=ref, dataset=a.dataset,
+             test_set="135 HERA images, simulator labels" if a.dataset == "hera"
+                      else "109 expert-labelled LOFAR baselines")
     json.dump(m, open(os.path.join(out, "eval_test", "metrics.json"), "w"), indent=2)
     np.save(os.path.join(out, "eval_test", "test_pred.npy"), pred.astype(np.float16))
     print("=" * 74)

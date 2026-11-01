@@ -1,0 +1,37 @@
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/compat/v2_compat.py:98: disable_resource_variables (from tensorflow.python.ops.resource_variables_toggle) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+2026-11-01 11:22:59,967 Layers 3, features 32, filter size 3x3, pool size: 2x2
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+2026-11-01 11:22:59,987 From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1793512382.235566  147314 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: CUDA_ERROR_NO_DEVICE: no CUDA-capable device is detected
+E0000 00:00:1793512382.236026  147314 cuda_diagnostics.cc:287] kernel version 610.57.4 does not match DSO version 615.78.8 -- cannot find working devices in this configuration
+INFO:tensorflow:Restoring parameters from /home/ronaksingh/Documents/minor project/Minor Project/runs/lofar/lr1e-4_seed0/best/model.ckpt
+seed 0 best: max_f1 0.5640  roc_auc 0.9511  pr_auc 0.5720
+2026-11-01 11:23:46,096 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from /home/ronaksingh/Documents/minor project/Minor Project/runs/lofar/lr1e-4_seed0/ckpt/model.ckpt
+seed 0 last: max_f1 0.5675  roc_auc 0.9509  pr_auc 0.5717
+2026-11-01 11:24:31,401 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from /home/ronaksingh/Documents/minor project/Minor Project/runs/lofar/lr1e-4_seed1/best/model.ckpt
+seed 1 best: max_f1 0.5378  roc_auc 0.9515  pr_auc 0.5416
+2026-11-01 11:25:14,276 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from /home/ronaksingh/Documents/minor project/Minor Project/runs/lofar/lr1e-4_seed1/ckpt/model.ckpt
+seed 1 last: max_f1 0.5378  roc_auc 0.9515  pr_auc 0.5416
+2026-11-01 11:25:58,010 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from /home/ronaksingh/Documents/minor project/Minor Project/runs/lofar/lr1e-4_seed2/best/model.ckpt
+seed 2 best: max_f1 0.5428  roc_auc 0.9385  pr_auc 0.5549
+2026-11-01 11:26:44,320 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from /home/ronaksingh/Documents/minor project/Minor Project/runs/lofar/lr1e-4_seed2/ckpt/model.ckpt
+seed 2 last: max_f1 0.5601  roc_auc 0.9422  pr_auc 0.5692
+best max_f1: 0.5482 +/- 0.0139
+best roc_auc: 0.9470 +/- 0.0074
+best pr_auc: 0.5562 +/- 0.0152
+last max_f1: 0.5551 +/- 0.0155
+last roc_auc: 0.9482 +/- 0.0052
+last pr_auc: 0.5608 +/- 0.0167
+DONE

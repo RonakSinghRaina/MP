@@ -92,6 +92,7 @@ sys.path.insert(0, _ROOT)
 
 from hybrid_model import HybridRFINet          # noqa: E402
 from lofar_data import load_lofar, preprocess  # noqa: E402
+from hera_data import load_hera                # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -266,6 +267,8 @@ def best_threshold(yt2d, yp2d):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--dataset", choices=["lofar", "hera"], default="lofar",
+                    help="hera: train on AOFlagger labels, test on the simulator's (PART 38)")
     ap.add_argument("--base", type=int, default=8,
                     help="8 = PART 6's efficiency pick (593,842 params) and the default. "
                          "32 = the published width (9,304,186). 4 genuinely breaks -- "
@@ -304,14 +307,15 @@ def main():
                     help="Gaussian sigma (pixels) of the 3x3 blur used by --edge_mode svls")
     a = ap.parse_args()
 
-    out = a.output_dir or os.path.join(_ROOT, "runs", "lofar",
+    out = a.output_dir or os.path.join(_ROOT, "runs", a.dataset,
                                        "hybrid_base{}_{}_seed{}".format(a.base, a.norm, a.seed))
     os.makedirs(out, exist_ok=True)
     torch.manual_seed(a.seed)
     np.random.seed(a.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    d = load_lofar()
+    d = load_hera() if a.dataset == "hera" else load_lofar()
+    n_test = d.test_images.shape[0]
     rng = np.random.default_rng(a.seed)
     idx = d.clean_train_idx.copy()
     rng.shuffle(idx)
@@ -330,11 +334,12 @@ def main():
     n_par = sum(p.numel() for p in model.parameters())
 
     print("=" * 74)
-    print("  {} on REAL LOFAR  |  base {}  |  norm = {}".format(model_name, a.base, a.norm))
+    print("  {} on {}  |  base {}  |  norm = {}".format(
+        model_name, "simulated HERA" if a.dataset == "hera" else "REAL LOFAR", a.base, a.norm))
     print("=" * 74)
     print("  parameters        : {:,}".format(n_par))
     print("  device            : {}".format(device))
-    print("  train / val / test: {} / {} / 109".format(len(tr_idx), len(val_idx)))
+    print("  train / val / test: {} / {} / {}".format(len(tr_idx), len(val_idx), n_test))
     print("  steps/epoch       : {} x {} epochs = {:,} gradient steps".format(
         a.iters_per_epoch, a.total_epochs, a.iters_per_epoch * a.total_epochs))
     print("                      (synthetic run was 700 x 40 = 28,000)")
@@ -424,7 +429,7 @@ def main():
     th, vf1 = best_threshold(yt_v, yp_v)
     print("Threshold selected on validation: {:.4f} (val F1 {:.4f})".format(th, vf1))
 
-    yt_t, yp_t = predict_scores(model, d.test_images, d.test_masks, np.arange(109),
+    yt_t, yp_t = predict_scores(model, d.test_images, d.test_masks, np.arange(n_test),
                                 a.norm, lo, hi, device)
     m = metrics_from(yt_t, yp_t, th)
     m_crop = metrics_from(yt_t, yp_t, th, crop=472)
@@ -442,10 +447,13 @@ def main():
              seed=a.seed, n_train=len(tr_idx), n_val=len(val_idx),
              val_selected_threshold=th, best_val_max_f1=prog["best_f1"],
              best_epoch=prog["best_epoch"],
-             test_set="109 expert-labelled LOFAR baselines (data[3])")
+             dataset=a.dataset,
+             test_set="135 HERA images, simulator labels" if a.dataset == "hera"
+                      else "109 expert-labelled LOFAR baselines (data[3])")
 
     print("\n" + "=" * 74)
-    print("  RESULT — {} on real LOFAR, human ground truth".format(model_name))
+    print("  RESULT — {} on {}".format(model_name, "simulated HERA, simulator labels"
+                                       if a.dataset == "hera" else "real LOFAR, human ground truth"))
     print("=" * 74)
     print("  pooled F1 (512x512)      : {:.4f}   precision {:.4f}  recall {:.4f}".format(
         m["pooled_f1"], m["pooled_precision"], m["pooled_recall"]))
