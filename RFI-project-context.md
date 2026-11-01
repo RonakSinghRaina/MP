@@ -4269,3 +4269,25 @@ the recorded metrics to within 3e-5 and the last ones reproduce PART 29.2's F1s.
 ### 36.3 NVIDIA driver updated
 Driver packages went to 615.78.08 on 2026-11-01 while the loaded module is 610.57: NVML and CUDA fail until a reboot.
 CLAUDE.md section 1 still says 610.57.04.
+
+## PART 37 — AOFlagger reproduces Mesarcik's HERA row (2026-11-01, stage 1, no training)
+
+Third venv `~/aof-env` (Python 3.12, `aoflagger==3.5.post0` from pip; do not merge with the other two).
+`analysis/hera_aoflagger/check_aoflagger_hera.py`, their `hera_10.lua`, raw values before clipping as in their
+`ao_flagger.py`. 140 test images in 12.8 s, CPU. Scored against the pickle's masks:
+
+| | F1 | AUROC | AUPRC | precision | recall |
+|---|---|---|---|---|---|
+| paper Table 1, AOFlagger | 0.8729 | 0.9736 | 0.8799 | | |
+| ours, all 140 test images | 0.8731 | 0.9734 | 0.8800 | 0.8053 | 0.9534 |
+| ours, 135 unique test images | 0.8740 | 0.9739 | 0.8808 | 0.8062 | 0.9543 |
+
+- Differences are at most 0.0002, so this setup and our 04-03-2022 file are fit for their protocol, and the pickle's
+  masks behave as their simulator truth (confirms 36.2). Their AUPRC matches the trapezoid `auc(recall, precision)`,
+  not `average_precision_score` (0.7691 on this binary mask). Use the trapezoid when comparing with the paper.
+- Stage 2 not started: train on AOFlagger masks of the training images, test on simulator masks. Needs a reboot (36.3).
+
+### LOFAR scores for the report (F1, AUROC, AUPRC), max F1 on 109 expert images
+tf_unet ours 0.5482/0.9470/0.5562; tf_unet closest to Mesarcik (last epoch) 0.5551/0.9482/0.5608; hybrid ours
+0.6603/0.9378/0.6583; their U-Net run by us 0.6166/0.8213/0.5283; hybrid Mesarcik settings 0.6258/0.9719/0.6401.
+Published (Table 2): AOFlagger 0.5698/0.7883/0.5716; U-Net 0.5876/0.8017/0.5920; RFI-Net 0.5979/0.8109/0.5991.
