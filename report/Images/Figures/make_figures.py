@@ -86,30 +86,70 @@ def hybrid_lofar_ladder(include_later=False):
     save(fig, "hybrid_lofar_ladder")
 
 
-# --- comparison under Mesarcik et al.'s training settings (PART 29, 30, 31.4) ------
+# --- every method of Table 5.3: max F1, AUROC, AUPRC, under both settings ------------
 def lofar_same_settings():
-    # Their U-Net run by us: runs/lofar/mesarcik_unet_clean_seed0 (test images excluded, PART 30).
-    # HybridRFINet: runs/lofar/hybrid_mesarcik_clean_bce_seed0 (PART 31.4).
-    # tf_unet cannot take 32x32 tiles; closest run = lr 1e-4, full images, LAST-epoch model as the
-    # authors do: 0.5551 +/- 0.0155 (analysis/last_vs_best/tfunet_last_vs_best.json, PART 29.2).
-    names = ["$\\sigma$-clip", "AOFlagger", "tf_unet\n(closest\nsettings)", "Mesarcik\nU-Net\n(published)",
-             "RFI-Net\n(published)", "Mesarcik\nU-Net\n(run by us)", "Hybrid-\nRFINet\n(this work)"]
-    v = [0.4103, 0.5698, 0.5551, 0.5876, 0.5979, 0.6166, 0.6258]
-    e = [0, 0, 0.0155, 0.0031, 0, 0, 0]
-    col = [MUTED, MUTED, NAVY, MUTED, MUTED, NAVY, ACCENT]
-    fig, ax = plt.subplots(figsize=(7.6, 3.1))
-    bars = ax.bar(names, v, color=col, width=0.6, zorder=3)
-    bars[2].set_facecolor("white"); bars[2].set_edgecolor(NAVY); bars[2].set_hatch("////")
-    k = [i for i, x in enumerate(e) if x > 0]
-    ax.errorbar(k, [v[i] for i in k], yerr=[e[i] for i in k], fmt="none",
-                capsize=4, lw=1, ecolor="#555555", zorder=4)
-    ax.tick_params(axis="x", labelsize=8)
-    for b, val, err in zip(bars, v, e):
-        ax.text(b.get_x() + b.get_width() / 2, val + err + 0.012, f"{val:.4f}",
-                ha="center", fontsize=8, color=INK)
-    ax.set_ylabel("max $F_1$ (109 test images)")
-    ax.set_ylim(0, 0.75)
+    # Ours: runs/lofar/{lr1e-4_seed*, hybrid_b08_nocw_seed*, mesarcik_unet_clean_seed0,
+    # hybrid_mesarcik_clean_bce_seed0}/eval_test/metrics.json; tf_unet closest = last-epoch
+    # checkpoint, analysis/last_vs_best/tfunet_last_auc.json (PART 36.1).
+    # Published: Mesarcik et al. 2022, Table 2. Sigma-clip: F1 only (PART 11.9).
+    # name, (max F1, sd), (AUROC, sd), (AUPRC, sd); None = no such score
+    groups = [
+        ("Our settings", [
+            ("tf_unet", (0.5482, 0.0139), (0.9470, 0.0074), (0.5562, 0.0152)),
+            ("Hybrid-\nRFINet", (0.6603, 0.0040), (0.9378, 0.0111), (0.6583, 0.0088)),
+        ]),
+        ("Mesarcik et al.'s settings", [
+            ("tf_unet\n(closest)", (0.5551, 0.0155), (0.9482, 0.0052), (0.5608, 0.0167)),
+            ("Mesarcik\nU-Net", (0.6166, 0), (0.8213, 0), (0.5283, 0)),
+            ("Hybrid-\nRFINet", (0.6258, 0), (0.9719, 0), (0.6401, 0)),
+        ]),
+        ("Published by Mesarcik et al.", [
+            ("AOFlagger", (0.5698, 0), (0.7883, 0), (0.5716, 0)),
+            ("Mesarcik\nU-Net", (0.5876, 0.0031), (0.8017, 0.0058), (0.5920, 0.0031)),
+            ("RFI-Net", (0.5979, 0.0012), (0.8109, 0.0037), (0.5991, 0.0038)),
+        ]),
+        ("Threshold", [
+            ("$\\sigma$-clip", (0.4103, 0), None, None),
+        ]),
+    ]
+    metrics = [("max $F_1$", NAVY), ("AUROC", MUTED), ("AUPRC", ACCENT)]
+    w, step, gap = 0.27, 1.12, 0.5           # bar width; model spacing; extra space between groups
+    fig, ax = plt.subplots(figsize=(7.6, 3.7))
+    x, ticks, labels = 0.0, [], []
+    for gi, (title, models) in enumerate(groups):
+        x0 = x
+        for name, *scores in models:
+            for j, sc in enumerate(scores):
+                if sc is None:
+                    continue
+                val, err = sc
+                xb = x + (j - 1) * w
+                ax.bar(xb, val, w * 0.92, color=metrics[j][1], zorder=3)
+                if err:
+                    ax.errorbar(xb, val, yerr=err, fmt="none", capsize=1.5, lw=0.7,
+                                ecolor="#333333", zorder=4)
+                ax.text(xb, val + err + 0.012, f"{val:.4f}", rotation=90, ha="center",
+                        va="bottom", fontsize=6.6, color=INK)
+            ticks.append(x); labels.append(name)
+            x += step
+        x1 = x - step
+        ax.text((x0 + x1) / 2, 1.215, title, ha="center", va="bottom", fontsize=8.5,
+                fontweight="bold", color=INK)
+        ax.plot([x0 - 0.45, x1 + 0.45], [1.205, 1.205], color="#888888", lw=0.8,
+                clip_on=False)
+        if gi < len(groups) - 1:
+            ax.axvline(x1 + (step + gap) / 2, color="#CCCCCC", lw=0.8, zorder=1)
+        x += gap
+    ax.set_xticks(ticks); ax.set_xticklabels(labels, fontsize=7.6)
+    ax.tick_params(axis="x", length=0)
+    ax.set_ylabel("score (109 LOFAR test images)", fontsize=9)
+    ax.set_ylim(0, 1.2); ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    ax.set_xlim(-0.6, x - gap - step + 0.6)
     ax.grid(axis="y", color="#E5E5E5", zorder=0)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=c) for _, c in metrics]
+    ax.legend(handles, [m for m, _ in metrics], frameon=False, fontsize=8.5, ncol=3,
+              loc="upper center", bbox_to_anchor=(0.5, -0.17), handlelength=1.2,
+              columnspacing=1.6)
     save(fig, "lofar_same_settings")
 
 

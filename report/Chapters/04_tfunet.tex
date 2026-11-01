@@ -9,7 +9,7 @@ data, the image size used by the authors. The network was used unchanged
 the authors' preprocessing: every image is scaled with one fixed intensity
 range, and no class weighting is used. Only the batch size and the optimiser
 were adapted to our GPU (\cref{sec:tfunet_setup}). On the synthetic test set
-\tfunet{} reached a maximum \Fone{} of 0.9317, with a ROC AUC of 0.9908.
+\tfunet{} reached a maximum \Fone{} of 0.9317, with an AUROC of 0.9908.
 
 \section{Results on LOFAR}
 \label{sec:tfunet_lofar}
@@ -31,12 +31,13 @@ $0.5482 \pm 0.0139$ (\cref{tab:tfunet_lofar}).
   \caption[\tfunet{} results on LOFAR]{\tfunet{} on the 109 human-labelled LOFAR test images. Mean and
     standard deviation over three seeds.}
   \label{tab:tfunet_lofar}
-  \begin{tabular}{lccc}
+  \footnotesize
+  \begin{tabular}{lcccc}
     \toprule
-    Training & max \Fone{} & pooled \Fone{} & ROC AUC \\
+    Training & max \Fone{} & pooled \Fone{} & AUROC & AUPRC \\
     \midrule
-    lr $10^{-3}$, 60 epochs  & $0.4901 \pm 0.0495$ & $0.4563 \pm 0.0279$ & $0.9389 \pm 0.0045$ \\
-    lr $10^{-4}$, 150 epochs & $0.5482 \pm 0.0139$ & $0.5021 \pm 0.0259$ & $0.9470 \pm 0.0074$ \\
+    lr $10^{-3}$, 60 epochs  & $0.4901 \pm 0.0495$ & $0.4563 \pm 0.0279$ & $0.9389 \pm 0.0045$ & $0.4851 \pm 0.0346$ \\
+    lr $10^{-4}$, 150 epochs & $0.5482 \pm 0.0139$ & $0.5021 \pm 0.0259$ & $0.9470 \pm 0.0074$ & $0.5562 \pm 0.0152$ \\
     \bottomrule
   \end{tabular}
 \end{table}

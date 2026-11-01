@@ -179,8 +179,11 @@ the fraction of the RFI that was found. \Fone{} is high only if both are.
 Accuracy, the fraction of pixels classified correctly, is not useful here: RFI
 covers less than 1\% of the LOFAR test pixels, so a method that flags nothing
 at all is 99.23\% accurate while finding no RFI. The area under the ROC curve
-(ROC AUC) measures something different, namely how well a model \emph{ranks} RFI
-pixels above clean ones, regardless of where the final cut is made.
+(AUROC) measures something different, namely how well a model \emph{ranks} RFI
+pixels above clean ones, regardless of where the final cut is made. The area
+under the precision--recall curve (AUPRC) also needs no threshold, but it
+ignores the many correctly classified clean pixels, so it stays low unless the
+rare RFI pixels are found with few false alarms.
 
 A network outputs a probability for each pixel, and a threshold turns it into a
 yes/no decision. We report \Fone{} in two ways:
