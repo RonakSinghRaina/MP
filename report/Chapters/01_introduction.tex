@@ -34,7 +34,7 @@ Akeret et al.\footcite{akeret2017} were the first to apply it to RFI, in a code
 called \tfunet{}.
 
 In this project we treat RFI flagging as an image segmentation problem. We
-reproduce the U-Net method of Akeret et al., design an improved network called
+apply the U-Net method of Akeret et al., design an improved network called
 \hybrid{}, and test both on synthetic data and on real observations from the
 Low-Frequency Array (LOFAR).
 
@@ -66,8 +66,8 @@ simulated dataset from the Hydrogen Epoch of Reionization Array (HERA), and
 real LOFAR data whose test images were labelled by a human expert. Our specific
 objectives are:
 \begin{itemize}
-  \item To reproduce the U-Net method of Akeret et al.\ (\tfunet{}) on the
-    public LOFAR dataset released on Zenodo, approximately matching the U-Net
+  \item To apply the U-Net method of Akeret et al.\ (\tfunet{}) to the
+    public LOFAR dataset released on Zenodo, and compare it with the U-Net
     results reported with it by Mesarcik et al.
   \item To design an improved network for RFI detection (\hybrid{}) and compare
     it with \tfunet{} and with published methods.

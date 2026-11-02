@@ -4367,3 +4367,8 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   wider columns so it fits on page 13 under Fig 3.4.
 - Section 3.6 "Further Experiments" removed (2026-11-03); the ablation is described in chapter 6 and the five-fold
   expert-label setup in section 5.x. The fine-tuning learning rate (1e-4) was only stated there. Report 39 pages.
+- Chapter 4 renamed "The tf_unet Baseline" (2026-11-03): we applied Akeret's code, we never reproduced their results
+  (their Bleien data was not used). Intro: "reproduce" -> "apply"; the objective no longer says "approximately
+  matching" Mesarcik's U-Net (tf_unet is 0.039 below it). Section 4.1 now gives the two reasons: batch 4 because tf_unet
+  at batch 4 already uses 4.3 GB of the 6 GB card on LOFAR (batch 32 itself was never measured; the HERA run held the
+  GPU); Adam because lr 0.2 momentum died at step 4 (tested at batch 1). Report 40 pages.

@@ -1,4 +1,4 @@
-\chapter{Reproducing \tfunet}
+\chapter{The \tfunet{} Baseline}
 \label{ch:tfunet}
 
 \section{Results on Synthetic Data}
@@ -7,9 +7,18 @@ publicly available on GitHub, to the 276$\times$600 version of our synthetic
 data, the image size used by the authors. The network was used unchanged
 (3 levels, 32 filters in the first layer, 465{,}986 parameters), together with
 the authors' preprocessing: every image is scaled with one fixed intensity
-range, and no class weighting is used. Only the batch size (4 instead of the
-paper's 32) and the optimiser (Adam instead of momentum gradient descent) were
-changed. On the synthetic test set
+range, and no class weighting is used. We changed only two things:
+\begin{itemize}
+  \item \textbf{Batch size: 4 images instead of the paper's 32.} Our graphics
+    card has 6\,GB of memory, and with only 4 LOFAR images per batch \tfunet{}
+    already uses 4.3\,GB of it, so 32 images do not fit.
+  \item \textbf{Optimiser: Adam with a learning rate of $10^{-3}$ instead of
+    the paper's momentum gradient descent starting at 0.2.} When we tried the
+    paper's setting (with a batch of one image), the network stopped learning
+    after only 4 steps: it gave every pixel a probability of 0.5. With Adam it
+    trained normally.
+\end{itemize}
+On the synthetic test set
 \tfunet{} reached a maximum \Fone{} of 0.9317, with an AUROC of 0.9908.
 
 \section{Results on LOFAR}
