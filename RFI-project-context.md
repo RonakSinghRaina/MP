@@ -4403,3 +4403,9 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   parameter count 1,179,121 is Keras model.count_params() from our run of their code (metrics.json); their paper
   does not state it.
 - 6.3.1 (2026-11-03): the "as with class weighting, ROC moved the other way (0.938 -> 0.987, AUPRC 0.658 -> 0.708)" sentence and the Table 6.2 caption "(mean +/- s.d. over three seeds)" removed.
+- Naming (2026-11-03): Kestrel minus strip/ECA/residual = "partial Kestrel" (variant flag plain_unet, 486,418 params:
+  max F1 0.6585 +/- 0.0047, AUROC 0.9394 +/- 0.0135, AUPRC 0.6676 +/- 0.0091, 3 seeds); without GroupNorm too =
+  "partial Kestrel without GroupNorm" (485,682 params: 0.6495 +/- 0.0178, 0.9690 +/- 0.0072, 0.6650 +/- 0.0186).
+  Never call these "plain U-Net". The report text already uses "partial Kestrel"; only the appendix command keeps
+  the flag --variant plain_unet. Expert-label fine-tuning (0.6747) starts from the full Kestrel headline checkpoints
+  (runs/lofar/hybrid_b08_nocw_seed{0,1,2}/best.pt, al_lofar.py), not the partial Kestrel.
