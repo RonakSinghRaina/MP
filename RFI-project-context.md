@@ -4392,3 +4392,9 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   checked by a person", so \cref{sec:lofar_harder} finally points at text that says it. Chapter 5's "as Section 4.3
   showed" became "as noted in Section 3.1". The 0.93 -> 0.49 gap is still in 7.x and the conclusion. Report 39 pages.
 - Chapter 5 opening sentence removed; Table 6.1 caption simplified ("Maximum F1 ... after removing parts of Kestrel (one run each). Changes smaller than about 0.008 are within normal run-to-run variation.") (2026-11-03).
+- Chapter 6 (2026-11-03): the three-seed ablation table (old Table 6.2, Welch p = 0.64 / 0.48, "four times more
+  variation") removed at the user's request; Table 6.1 caption drops the 0.008 noise sentence. Replaced by: removing
+  the three modules cost 0.002, then also removing GroupNorm cost a further 0.032 (0.6605 -> 0.6289, one run each), so
+  GroupNorm matters more than the three added modules; "a guide rather than an exact measurement". NOTE: over three
+  seeds the GroupNorm gap was only 0.009 and not significant (p = 0.48); its clear effect was 4x larger seed spread.
+  The Dice table is now Table 6.2. Report 38 pages.

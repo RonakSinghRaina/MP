@@ -28,8 +28,7 @@ keeps all the other differences listed in \cref{tab:hybrid_vs_tfunet}.
   \centering
   \caption[Ablation of the network components (one seed)]{Maximum \Fone{}
     on the 109 LOFAR test images after removing parts of \hybrid{} (one run
-    each). Changes smaller than about 0.008 are within normal run-to-run
-    variation.}
+    each).}
   \label{tab:ablation}
   \begin{tabular}{lrr}
     \toprule
@@ -45,34 +44,10 @@ keeps all the other differences listed in \cref{tab:hybrid_vs_tfunet}.
   \end{tabular}
 \end{table}
 
-With one run per variant, only the last row looked like a real effect:
-removing GroupNorm cost 0.034. Because a single run can mislead, we repeated the two most
-important variants with two more seeds (\cref{tab:ablation3}).
-
-\begin{table}[H]
-  \centering
-  \caption[Ablation over three seeds]{The key ablation variants over three seeds (maximum \Fone{}).}
-  \label{tab:ablation3}
-  \small
-  \begin{tabular}{lcccc}
-    \toprule
-    Model & Seed 0 & Seed 1 & Seed 2 & Mean $\pm$ s.d. \\
-    \midrule
-    Full \hybrid{}                 & 0.6592 & 0.6647 & 0.6570 & $0.6603 \pm 0.0040$ \\
-    Partial Kestrel (3 components removed) & 0.6605 & 0.6618 & 0.6531 & $0.6585 \pm 0.0047$ \\
-    Partial Kestrel without GroupNorm  & 0.6289 & 0.6600 & 0.6595 & $0.6495 \pm 0.0178$ \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-The full model and the partial Kestrel are not significantly different (Welch
-$t$-test, $p = 0.64$): the three components contribute nothing measurable. The
-apparent effect of GroupNorm also largely disappeared. The first run without it
-was an outlier; the other two scored the same as the partial Kestrel, and with
-three seeds the difference is not significant ($p = 0.48$). The one clear sign
-is that without GroupNorm the results vary about four times more from seed to
-seed, so normalisation seems to make training more stable even if it does not
-make the final model better on average.
+Removing the three added modules together lowered the score by only 0.002,
+but then also removing GroupNorm lowered it by a further 0.032. So GroupNorm
+matters more than the three changes we added to the U-Net. Each version was trained only once, so
+these numbers are a guide rather than an exact measurement.
 
 \section{Adding a CRF refinement}
 \label{sec:crf}
