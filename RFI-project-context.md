@@ -4363,3 +4363,5 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   0.57 textwidth (2026-11-03). Table 3.1 checked against the code and run files: every entry correct (tf_unet VALID
   padding, ReLU on logits, cross-entropy + L2 0.001, batch 4 / Adam 1e-4; Kestrel 593,842 params, batch 1, lr 1e-3
   with cosine decay, CE + Dice weight 1.0).
+- Table 3.1 (2026-11-03): Kestrel learning rate now "1 / 10^-3 (start)" (cosine decay); table set in footnotesize with
+  wider columns so it fits on page 13 under Fig 3.4.

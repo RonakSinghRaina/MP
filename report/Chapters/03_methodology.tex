@@ -121,8 +121,9 @@ Most of the design choices aim to use this kind of spatial context.
   \centering
   \caption[Differences between \tfunet{} and \hybrid{}]{Differences between \tfunet{} and \hybrid{}.}
   \label{tab:hybrid_vs_tfunet}
-  \small
-  \begin{tabular}{>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.9cm}>{\raggedright\arraybackslash}p{5.7cm}}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{6.4cm}}
     \toprule
     Component & \tfunet{} & \hybrid{} \\
     \midrule
@@ -133,7 +134,7 @@ Most of the design choices aim to use this kind of spatial context.
     Output layer & ReLU, then softmax & raw scores, then softmax \\
     Padding & valid (output smaller than input) & same (output = input size) \\
     Loss & cross-entropy + L2 penalty (0.001) & cross-entropy + Dice \\
-    Batch size / learning rate on LOFAR & 4 / $10^{-4}$ & 1 / $10^{-3}$ \\
+    Batch size / learning rate on LOFAR & 4 / $10^{-4}$ & 1 / $10^{-3}$ (start) \\
     Framework & TensorFlow & PyTorch \\
     Parameters & 465{,}986 & 593{,}842 \\
     \bottomrule
