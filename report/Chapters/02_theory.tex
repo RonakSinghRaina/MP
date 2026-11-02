@@ -104,18 +104,19 @@ the step size for each weight.
 
 \section{The U-Net Architecture}
 \label{sec:unet}
-The U-Net\footcite{ronneberger2015} is a CNN designed for image segmentation
-(\cref{fig:unet}). Its encoder, the downsampling path, repeatedly applies
-convolutions and halves the image size, building up a description of
-\emph{what} is in the image. Its decoder, the upsampling path, reverses this
-and restores the full size to locate \emph{where} it is. Skip connections pass
-fine detail directly from each encoder level to the matching decoder level,
-where it is joined (concatenated) with the upsampled features. In the original
-network each level uses two 3$\times$3 convolutions with ReLU, the image is
-halved by 2$\times$2 max pooling and doubled again by 2$\times$2 up-convolutions,
-and a final 1$\times$1 convolution gives the class scores. For every pixel
-the last layer produces one score $z_c$ for each class $c$, here ``clean'' and
-``RFI'', and these scores are turned into probabilities by the softmax function:
+The U-Net\footcite{ronneberger2015} is a CNN that labels every pixel of an
+image (\cref{fig:unet}). It has two halves. The encoder shrinks the image step
+by step and learns \emph{what} is in it. The decoder grows it back to full size
+and finds \emph{where} it is. Skip connections copy fine detail from each
+encoder level straight across to the matching decoder level, so that it is not
+lost when the image is shrunk.
+
+Each level uses two 3$\times$3 convolutions, each followed by a ReLU. Max
+pooling halves the image size on the way down, and up-convolutions double it on
+the way up. At the end, a 1$\times$1 convolution gives every pixel two scores,
+one for ``clean'' and one for ``RFI''. The softmax function turns these scores
+into probabilities that add up to 1. If $z_c$ is the score for class $c$, its
+probability is
 \begin{equation}
   p_c = \frac{e^{z_c}}{\sum_k e^{z_k}}
   \label{eq:softmax}
@@ -132,11 +133,11 @@ the last layer produces one score $z_c$ for each class $c$, here ``clean'' and
   \label{fig:unet}
 \end{figure}
 
-Akeret et al.\footcite{akeret2017} applied a U-Net to RFI in their \tfunet{}
-code, written in TensorFlow (\cref{fig:tfunet_arch}). The configuration used in this work has 3 levels
-and 32 filters in the first layer, giving 465{,}986 trainable parameters. Two
-details of \tfunet{} become important later: it applies a ReLU to its output
-scores before the softmax, and it has no normalisation layers.
+Akeret et al.\footcite{akeret2017} used a U-Net for RFI in their code,
+\tfunet{} (\cref{fig:tfunet_arch}). We use it with 3 levels and 32 filters in
+the first layer, which gives 465{,}986 parameters. Two things about \tfunet{}
+matter later: it applies a ReLU to the scores just before the softmax, and it has
+no normalisation layers.
 
 \section{Loss Functions}
 \label{sec:losses}
