@@ -30,16 +30,16 @@ keeps all the other differences listed in \cref{tab:hybrid_vs_tfunet}.
     The seed-to-seed standard deviation of the full model is 0.0040, so
     differences below about 0.008 are within noise.}
   \label{tab:ablation}
-  \begin{tabular}{lrrr}
+  \begin{tabular}{lrr}
     \toprule
-    Variant & Parameters & max \Fone{} & Change \\
+    Variant & max \Fone{} & Change \\
     \midrule
-    Full model                                   & 593{,}842 & 0.6624 & --- \\
-    without strip convolutions                   & 508{,}210 & 0.6637 & $+0.0013$ \\
-    without channel attention                    & 593{,}818 & 0.6557 & $-0.0067$ \\
-    without residual blocks                      & 572{,}074 & 0.6569 & $-0.0055$ \\
-    without all three (partial Kestrel)           & 486{,}418 & 0.6605 & $-0.0019$ \\
-    partial Kestrel without GroupNorm             & 485{,}682 & 0.6289 & $-0.0335$ \\
+    Full model                                   & 0.6624 & --- \\
+    without strip convolutions                   & 0.6637 & $+0.0013$ \\
+    without channel attention                    & 0.6557 & $-0.0067$ \\
+    without residual blocks                      & 0.6569 & $-0.0055$ \\
+    without all three (partial Kestrel)           & 0.6605 & $-0.0019$ \\
+    partial Kestrel without GroupNorm             & 0.6289 & $-0.0335$ \\
     \bottomrule
   \end{tabular}
 \end{table}

@@ -4347,3 +4347,6 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   pooled F1 / paired t-test / bootstrap description in section 3.5, and the "every variant scored above 0.95" clause
   in section 7.2. Pooled F1 values and t-tests still appear in results text (5.2.2, Table 5.2, chapter 6).
   Report 41 pages, no overfull boxes.
+- Further cuts: Table 6.1 has no Parameters column; pooled F1 and t-tests removed outside chapter 6 (Table 4.1,
+  section 5.2.2 text, fine-tuning Table 5.2); Table 5.1 drops the class-weighted Kestrel row and "run by us" from the
+  U-Net (1 run) row. The pooled F1 definition in section 2.7 stays because Table 6.3 uses it. Report 40 pages.

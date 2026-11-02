@@ -28,10 +28,8 @@ which shows that a high ROC area alone does not mean a model flags RFI well.
 \subsection{Comparison with published methods}
 \Cref{tab:final} and \cref{fig:final} compare the final model with the other
 methods on the 109 human-labelled test images. \hybrid{} reaches a maximum
-\Fone{} of $0.6603 \pm 0.0040$; with the threshold fixed in advance on the
-validation set, the pooled \Fone{} is $0.6561 \pm 0.0044$. This is 0.11 above
-\tfunet{} and 0.062 above RFI-Net (0.5979), the best result reported by
-Mesarcik et al.\ (one-sample $t = 27.2$ with 2 degrees of freedom). It is
+\Fone{} of $0.6603 \pm 0.0040$. This is 0.11 above \tfunet{} and 0.062 above
+RFI-Net (0.5979), the best result reported by Mesarcik et al. It is
 achieved while training only on \aoflagger{}'s labels, which themselves score
 0.5698 against the human expert.
 
@@ -53,12 +51,11 @@ achieved while training only on \aoflagger{}'s labels, which themselves score
     \midrule
     \multicolumn{4}{l}{\textit{Our training settings}} \\
     \tfunet{} (3 seeds) & $0.5482 \pm 0.0139$ & $0.9470 \pm 0.0074$ & $0.5562 \pm 0.0152$ \\
-    \hybrid{}, class-weighted (3 seeds) & $0.6467 \pm 0.0079$ & $0.9801 \pm 0.0025$ & $0.6836 \pm 0.0159$ \\
     \textbf{\hybrid{} (3 seeds)} & $\mathbf{0.6603 \pm 0.0040}$ & $0.9378 \pm 0.0111$ & $0.6583 \pm 0.0088$ \\
     \midrule
     \multicolumn{4}{l}{\textit{Mesarcik et al.'s training settings}} \\
     \tfunet{}, closest (3 seeds) & $0.5551 \pm 0.0155$ & $0.9482 \pm 0.0052$ & $0.5608 \pm 0.0167$ \\
-    Mesarcik et al.\ U-Net, run by us (1 run) & 0.6166 & 0.8213 & 0.5283 \\
+    Mesarcik et al.\ U-Net (1 run) & 0.6166 & 0.8213 & 0.5283 \\
     \textbf{\hybrid{} (1 run)} & \textbf{0.6258} & 0.9719 & 0.6401 \\
     \midrule
     \multicolumn{4}{l}{\textit{Published by Mesarcik et al.}} \\
@@ -108,8 +105,7 @@ settings'') and \cref{fig:same_settings}.
   \centering
   \includegraphics[width=\textwidth]{lofar_same_settings}
   \caption[All scores under both training settings]{Maximum \Fone{}, AUROC and AUPRC on the 109 LOFAR test images for
-    the methods in \cref{tab:final}, grouped by training settings (the
-    class-weighted \hybrid{} is not shown). Error bars show the standard
+    the methods in \cref{tab:final}, grouped by training settings. Error bars show the standard
     deviation where one is available (three seeds, or as published).}
   \label{fig:same_settings}
 \end{figure}
@@ -147,12 +143,12 @@ both sides.
     five-fold cross-validation (three seeds). These results use expert labels
     in training, so they are not comparable with \cref{tab:final}.}
   \label{tab:expert_ft}
-  \begin{tabular}{lcc}
+  \begin{tabular}{lc}
     \toprule
-    Setting & max \Fone{} & pooled \Fone{} \\
+    Setting & max \Fone{} \\
     \midrule
-    No fine-tuning & $0.6603 \pm 0.0040$ & $0.6534 \pm 0.0035$ \\
-    \textbf{All expert labels} & $\mathbf{0.6747 \pm 0.0083}$ & $\mathbf{0.6685 \pm 0.0092}$ \\
+    No fine-tuning & $0.6603 \pm 0.0040$ \\
+    \textbf{All expert labels} & $\mathbf{0.6747 \pm 0.0083}$ \\
     \bottomrule
   \end{tabular}
 \end{table}
