@@ -4383,3 +4383,4 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   includes the 35 all-RFI images.) The sentence "the threshold was chosen on 150 of the 735 validation images" is
   highlighted yellow with soul's \hl, temporarily, at the user's request.
 - Fig 4.1 caption cut to "Maximum F1 on the 109 LOFAR test images. Dark bars are our tf_unet runs."; the paragraph before it rewritten in simple words (2026-11-03).
+- Section 4.2.1 (2026-11-03): "(one run)" removed at the user's request; text now says 0.6166 is "close to and slightly above" the published 0.5876, "so we were able to reproduce their result". Fig 4.2 caption no longer mentions the error bar or one run. It is still a single run (Table 5.1 keeps "1 run").
