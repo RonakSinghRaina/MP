@@ -96,15 +96,3 @@ reproduced their result.
     paper and their code run by us.}
   \label{fig:mesarcik_rerun}
 \end{figure}
-
-
-\section{From synthetic to real data}
-\label{sec:gap}
-The same network, trained with the same settings and the same number of
-gradient steps (10{,}500), scores 0.9317 on the synthetic data and 0.4901 on
-LOFAR: a drop of 0.44 in \Fone{}. Even the best LOFAR result, after tuning the
-learning rate, is 0.38 below the synthetic score. The reasons were set out in
-\cref{sec:lofar_harder}: real RFI is far rarer, much of it is fainter than the
-noise, and the training labels themselves are often wrong. A method that
-performs well on a synthetic benchmark can therefore perform much worse on
-real observations, and synthetic results alone should be read with care.

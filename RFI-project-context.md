@@ -4387,3 +4387,7 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
 - HERA run (2026-11-03): the laptop restarted at 02:02 during hybrid_b08_nocw_seed2 (stopped after epoch 12/40, best
   checkpoint saved). 10 of 12 runs finished; left: that run (resumes at epoch 13) and tfunet_lr1e-4_seed2, then the
   last-epoch scoring. Resume with ./scripts/run_hera.sh.
+- Section 4.3 "From synthetic to real data" deleted (2026-11-03). Its sentence "real RFI is far rarer, much of it is
+  fainter than the noise, and the training labels themselves are often wrong" now sits in section 3.1 after "labels
+  checked by a person", so \cref{sec:lofar_harder} finally points at text that says it. Chapter 5's "as Section 4.3
+  showed" became "as noted in Section 3.1". The 0.93 -> 0.49 gap is still in 7.x and the conclusion. Report 39 pages.
