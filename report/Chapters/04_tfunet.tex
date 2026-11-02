@@ -13,9 +13,13 @@ range, and no class weighting is used. We changed only two things:
     card has 6\,GB of memory, and with only 4 LOFAR images per batch \tfunet{}
     already uses 4.3\,GB of it, so 32 images do not fit.
   \item \textbf{Optimiser: Adam with a learning rate of $10^{-3}$ instead of
-    the paper's momentum gradient descent starting at 0.2.} When we tried the
-    paper's setting, the network stopped learning after only 4 steps: it gave
-    every pixel a probability of 0.5. With Adam it trained normally.
+    the paper's momentum gradient descent starting at 0.2.} Both optimisers do the
+    same job; Adam also sets the step size for each weight by itself. With only
+    a few images per batch, the direction of each step is noisy, so smaller
+    steps are safer. In an early test with a different setup (larger images and
+    one image per step), the paper's setting made the network stop learning
+    after only 4 steps. With Adam the network trained normally, so we used it
+    throughout.
 \end{itemize}
 On the synthetic test set
 \tfunet{} reached a maximum \Fone{} of 0.9317, with an AUROC of 0.9908.

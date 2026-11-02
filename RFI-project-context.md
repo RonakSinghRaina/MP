@@ -4372,3 +4372,8 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   matching" Mesarcik's U-Net (tf_unet is 0.039 below it). Section 4.1 now gives the two reasons: batch 4 because tf_unet
   at batch 4 already uses 4.3 GB of the 6 GB card on LOFAR (batch 32 itself was never measured; the HERA run held the
   GPU); Adam because lr 0.2 momentum died at step 4 (tested at batch 1). Report 40 pages.
+- Section 4.1 optimiser bullet corrected (2026-11-03): the lr-0.2 collapse was on the first 1024x1024 synthetic set at
+  batch 1 (confounded run, PART 1 note), and a short 15-step test at 276x600 survived lr 0.2 (PAPER_DIMENSIONS.md).
+  The report now says the failure was "in an early test with a different setup (larger images and one image per
+  step)", explains that small batches give noisy steps so small steps are safer, and that Adam sets per-weight step
+  sizes. Momentum at a small lr and Adam at 0.2 were never tried, so which change mattered is unknown.
