@@ -4382,3 +4382,4 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   1 : 122.8, so the text now says "in the training set ... one RFI pixel for every 123 clean ones". (11.3's 1 : 77.7
   includes the 35 all-RFI images.) The sentence "the threshold was chosen on 150 of the 735 validation images" is
   highlighted yellow with soul's \hl, temporarily, at the user's request.
+- Fig 4.1 caption cut to "Maximum F1 on the 109 LOFAR test images. Dark bars are our tf_unet runs."; the paragraph before it rewritten in simple words (2026-11-03).
