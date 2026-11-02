@@ -151,20 +151,23 @@ Most of the design choices aim to use this kind of spatial context.
 The components are as follows:
 \begin{itemize}
   \item \textbf{Residual blocks}\footcite{he2016} add the input of each block
-    back to its output, so that weak features are not washed out as they pass
-    through many layers. RFI-Net\footcite{yang2020rfinet}, a published RFI
-    network, is also built from residual blocks.
-  \item \textbf{Strip convolutions.} Much RFI is line-shaped, and the idea was
-    that a long, thin $1\times K$ or $K\times1$ filter adds up the signal along
-    such a line: averaging $K$ pixels of a coherent line improves its
-    signal-to-noise ratio by about $\sqrt{K}$ (\cref{eq:radiometer}). In the
-    implementation, each of the three branches applies a $1\times K$ filter
-    followed by a $K\times1$ filter, which together cover a full $K\times K$
-    square. Similar multi-scale designs have been used for RFI
-    before\footcite{gu2024emsca,mars2026}, so this component is not new.
-  \item \textbf{Efficient channel attention} (ECA)\footcite{wang2020eca} learns a
-    weight for each feature channel at very little cost, so that channels
-    carrying faint RFI are not drowned out by those carrying bright RFI.
+    back to its output. Because the number of channels changes inside the block,
+    the input first passes through a small $1\times1$ convolution. The aim was to
+    keep weak features from fading away as they pass through many layers.
+    RFI-Net\footcite{yang2020rfinet}, a published RFI network, is also built from
+    residual blocks.
+  \item \textbf{Strip convolutions.} Much RFI is shaped like a line. A long, thin
+    filter can add up the signal along such a line: averaging $K$ pixels of a
+    line makes it stand out from the noise about $\sqrt{K}$ times more
+    (\cref{eq:radiometer}). Each of the three paths uses a $1\times K$ filter
+    and then a $K\times1$ filter, which together cover a $K\times K$ square.
+    Similar designs have been used for RFI before\footcite{gu2024emsca,mars2026},
+    so this idea is not new.
+  \item \textbf{Efficient channel attention} (ECA)\footcite{wang2020eca} gives
+    each channel a weight between 0 and 1 and multiplies the channel by it. The
+    weights are worked out from each image, using only 3 learned numbers. The
+    aim was to stop channels that carry faint RFI from being drowned out by
+    those that carry bright RFI.
   \item \textbf{GroupNorm}\footcite{wu2018groupnorm} keeps the values inside
     the network in a stable range. Unlike batch normalisation, it computes its
     statistics within a single image, so it works with the single-image batches
