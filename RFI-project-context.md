@@ -4354,3 +4354,5 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   AUROC and AUPRC (Mesarcik settings), all three RFI-Net scores (published). Under our settings tf_unet's AUROC
   (0.9470) is higher than Kestrel's (0.9378) and is not bold. Fig 5.1 label is now just "Kestrel"; the Fig 5.2
   caption keeps only its first sentence.
+- LOFAR dataset footnote in section 3.1 shortened to "Mesarcik et al., MNRAS 516, 5367 (2022). Dataset: <zenodo DOI>"
+  (2026-11-03); the \newpage before Fig 3.2 became \clearpage so Figs 3.1 and 3.2 no longer share an overfull page.
