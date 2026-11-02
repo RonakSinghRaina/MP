@@ -4398,3 +4398,7 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   GroupNorm matters more than the three added modules; "a guide rather than an exact measurement". NOTE: over three
   seeds the GroupNorm gap was only 0.009 and not significant (p = 0.48); its clear effect was 4x larger seed spread.
   The Dice table is now Table 6.2. Report 38 pages.
+- Dice paragraph in 6.3.1 simplified (2026-11-03): paired t = -4.44 and the pooled-F1 drop removed from the text; the
+  table (now Table 6.2) still has its pooled F1 column, so the section 2.7 definition stays. Mesarcik U-Net
+  parameter count 1,179,121 is Keras model.count_params() from our run of their code (metrics.json); their paper
+  does not state it.

@@ -95,12 +95,10 @@ each run pairs with a headline run of the same seed.
   \end{tabular}
 \end{table}
 
-Without Dice the maximum \Fone{} fell for all three seeds, by 0.007 to 0.015
-(mean 0.011; paired $t = -4.44$ with 2 degrees of freedom, significant at the
-5\% level), and the pooled \Fone{} by 0.009 (\cref{tab:dice}). The Dice loss
-is therefore a real part of the gain, but a small one: it accounts for 0.011
-of the 0.112 by which \hybrid{} leads \tfunet{}, about a tenth. Even without
-it, \hybrid{} scores 0.10 above \tfunet{}.
+Without Dice, the maximum \Fone{} was lower for all three seeds, by 0.011 on
+average (\cref{tab:dice}). So the Dice loss does help, but only a little:
+\hybrid{} is 0.112 above \tfunet{}, and Dice explains only 0.011 of that, about
+a tenth. Even without Dice, \hybrid{} is still 0.10 above \tfunet{}.
 
 As with class weighting (\cref{ch:hybrid}), the ROC area moved the other way:
 without Dice it rose from 0.938 to 0.987, and the area under the
