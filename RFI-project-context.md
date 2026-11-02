@@ -4359,3 +4359,7 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
 - Section 3.3 (tf_unet baseline) cut to a two-sentence description pointing to section 2.5 (2026-11-03). The batch
   size (4 vs 32) and optimiser (Adam vs momentum) now appear in the chapter 4 opening instead; the lr-0.2 collapse
   sentence is gone from the report (still in CLAUDE.md section 6). Fig 3.3 shrunk to 0.5 textwidth so it fits on page 12.
+- Fig 3.3 caption cut to "The U-Net of tf_unet applied to RFI. Reproduced from Akeret et al. (2017)."; figure at
+  0.57 textwidth (2026-11-03). Table 3.1 checked against the code and run files: every entry correct (tf_unet VALID
+  padding, ReLU on logits, cross-entropy + L2 0.001, batch 4 / Adam 1e-4; Kestrel 593,842 params, batch 1, lr 1e-3
+  with cosine decay, CE + Dice weight 1.0).
