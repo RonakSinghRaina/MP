@@ -81,7 +81,7 @@ each run pairs with a headline run of the same seed.
 \begin{table}[H]
   \centering
   \caption[Effect of the Dice loss]{\hybrid{} with and without the Dice loss on the 109 LOFAR test
-    images (mean $\pm$ standard deviation over three seeds).}
+    images.}
   \label{tab:dice}
   \small
   \begin{tabular}{lrrrr}
@@ -100,9 +100,7 @@ average (\cref{tab:dice}). So the Dice loss does help, but only a little:
 \hybrid{} is 0.112 above \tfunet{}, and Dice explains only 0.011 of that, about
 a tenth. Even without Dice, \hybrid{} is still 0.10 above \tfunet{}.
 
-As with class weighting (\cref{ch:hybrid}), the ROC area moved the other way:
-without Dice it rose from 0.938 to 0.987, and the area under the
-precision--recall curve from 0.658 to 0.708. The Dice loss improves the
+The Dice loss improves the
 decision at the best threshold but makes the model rank pixels less well
 overall, probably because it pushes outputs towards exactly 0 or 1. It also
 explains why the headline model's ROC area is slightly below \tfunet{}'s.

@@ -4402,3 +4402,4 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   table (now Table 6.2) still has its pooled F1 column, so the section 2.7 definition stays. Mesarcik U-Net
   parameter count 1,179,121 is Keras model.count_params() from our run of their code (metrics.json); their paper
   does not state it.
+- 6.3.1 (2026-11-03): the "as with class weighting, ROC moved the other way (0.938 -> 0.987, AUPRC 0.658 -> 0.708)" sentence and the Table 6.2 caption "(mean +/- s.d. over three seeds)" removed.
