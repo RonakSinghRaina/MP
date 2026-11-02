@@ -63,7 +63,7 @@ def hybrid_lofar_ladder(include_later=False):
     # Swin-UNETR: Ouyang et al. 2024, Table 2 -- the largest of three sizes (408.1 M parameters).
     # include_later=False leaves these two out (the report currently omits them).
     names = ["$\\sigma$-clip", "tf_unet", "AOFlagger", "Mesarcik\nU-Net",
-             "RFI-Net", "RFDL", "Swin-\nUNETR\n(408 M)", "Kestrel\n(this work)"]
+             "RFI-Net", "RFDL", "Swin-\nUNETR\n(408 M)", "Kestrel"]
     v = [0.4103, 0.5482, 0.5698, 0.5876, 0.5979, 0.639, 0.6401, 0.6603]
     e = [0, 0.0139, 0, 0.0031, 0, 0.007, 0, 0.0040]
     shown = ["0.4103", "0.5482", "0.5698", "0.5876", "0.5979", "0.639", "0.6401", "0.6603"]

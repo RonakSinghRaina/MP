@@ -4350,3 +4350,7 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
 - Further cuts: Table 6.1 has no Parameters column; pooled F1 and t-tests removed outside chapter 6 (Table 4.1,
   section 5.2.2 text, fine-tuning Table 5.2); Table 5.1 drops the class-weighted Kestrel row and "run by us" from the
   U-Net (1 run) row. The pooled F1 definition in section 2.7 stays because Table 6.3 uses it. Report 40 pages.
+- Table 5.1 bold (2026-11-03): best score per column within each group -- Kestrel AUPRC (our settings), Kestrel
+  AUROC and AUPRC (Mesarcik settings), all three RFI-Net scores (published). Under our settings tf_unet's AUROC
+  (0.9470) is higher than Kestrel's (0.9378) and is not bold. Fig 5.1 label is now just "Kestrel"; the Fig 5.2
+  caption keeps only its first sentence.
