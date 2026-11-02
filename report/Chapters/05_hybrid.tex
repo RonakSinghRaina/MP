@@ -9,42 +9,18 @@ On the synthetic data the model performs very well, but as
 \cref{sec:gap} showed, this data is much easier than real observations, so
 these results are mainly a check that the model trains correctly.
 The version used in the rest of this report (8 filters, 593{,}842 parameters)
-reached an \Fone{} of 0.9749 (\cref{tab:width}).
-
-The width of the network can be reduced a long way at little cost
-(\cref{tab:width}). Going from 32 to 8 filters in the first layer removes 94\%
-of the parameters and lowers \Fone{} by only 0.006; only at 4 filters does the
-model clearly get worse.
-
-\begin{table}[H]
-  \centering
-  \caption[Effect of network width on synthetic data]{Effect of network width on the 276$\times$600 synthetic dataset
-    (one run each).}
-  \label{tab:width}
-  \begin{tabular}{rrr}
-    \toprule
-    First-layer filters & Parameters & \Fone{} \\
-    \midrule
-    4  & 152{,}582     & 0.9547 \\
-    8  & 593{,}842     & 0.9749 \\
-    16 & 2{,}342{,}474 & 0.9788 \\
-    32 & 9{,}304{,}186 & 0.9812 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+reached an \Fone{} of 0.9749.
 
 \section{Results on LOFAR}
 \label{sec:hybrid_lofar}
 
 \subsection{Class weighting}
-With class weighting (RFI pixels given 57 times the weight of clean ones), the
-model reached a maximum \Fone{} of $0.6467 \pm 0.0079$ over three seeds;
-without it, $0.6603 \pm 0.0040$. Removing the weight improved the result for
-every seed (paired $t = 6.03$ with 2 degrees of freedom, significant at the 5\%
-level), so the unweighted model is used from here on.
+Without class weighting, the model reached a maximum \Fone{} of
+$0.6603 \pm 0.0040$ over three seeds; with class weighting, it reached
+$0.6467 \pm 0.0079$. So the model without class weighting is used from here on.
 
-Interestingly, the area under the ROC curve moved the opposite way, falling
-from 0.980 to 0.938. The ROC curve measures how well the model ranks RFI pixels
+Interestingly, the area under the ROC curve moved the opposite way: it was
+0.980 with class weighting and 0.938 without. The ROC curve measures how well the model ranks RFI pixels
 above clean ones, while \Fone{} measures the quality of the final yes/no
 decision. Class weighting improved the ranking but made the decisions worse,
 which shows that a high ROC area alone does not mean a model flags RFI well.

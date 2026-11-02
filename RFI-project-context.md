@@ -4320,3 +4320,10 @@ training images; with 10 % validation that is 316 train / 35 validation.
 `Hybrid_Model_Slides_2_and_3.pdf` only: slide 2's grey box is removed and the pink key is one full-width band naming ①–⑤,
 with marker ⑦ dropped from the input label. Built with `build_architecture_diagram.py --short-key <out.pptx>`. Slide 3 is
 unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schematic.pdf` keep the full ①–⑨ key, as asked.
+
+### Report edits (2026-11-02)
+- Fig 3.4 (`report/Images/hybrid_schematic.pdf`) now uses the short-key slide 2 (points ①–⑤ only), cropped with
+  `pdfcrop --bbox "40 34 930 416.5"` from page 1 of `Hybrid_Model_Slides_2_and_3.pdf`. Caption: "The numbers mark five
+  design choices that differ from tf_unet."
+- Chapter 5: the network-width paragraph and its table are removed, so the old Tables 5.2 and 5.3 are now 5.1 and 5.2.
+  The class-weighting paragraph is simplified (no 57x factor, no paired t). Report 42 pages, no overfull boxes.
