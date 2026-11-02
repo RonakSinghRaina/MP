@@ -4332,3 +4332,8 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   max F1 over any cut-off 0.4132. Added to Tables 5.1 and 5.2 and Fig 5.2.
 - Tables 5.1 and 5.2: Parameters column removed from both, pooled F1 removed from 5.2; the 32×32 tf_unet paragraph
   shortened. Report 42 pages, no overfull boxes.
+- Tables 5.1 and 5.2 merged into one grouped Table 5.1 (our settings incl. class-weighted hybrid / Mesarcik's settings /
+  published / σ-clip); old 5.2 deleted, fine-tuning table is now 5.2. Section 5.2.3 points to Table 5.1 and Fig 5.2.
+  At the user's request the loss-swap caveat (AUROC/AUPRC not comparable between U-Net and hybrid under Mesarcik's
+  settings, PART 31) and the AOFlagger/σ-clip single-point notes were removed from the report text; the caveat itself
+  still holds.

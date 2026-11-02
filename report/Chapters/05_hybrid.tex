@@ -37,10 +37,13 @@ achieved while training only on \aoflagger{}'s labels, which themselves score
 
 \begin{table}[H]
   \centering
-  \caption[Comparison with published methods on LOFAR]{Results on the 109 human-labelled LOFAR test images. Values for
-    Mesarcik et al.'s U-Net and RFI-Net are as reported in their paper, except the
-    row marked ``run by us''; every
-    learned method was trained only on \aoflagger{}'s labels.}
+  \caption[Comparison with published methods on LOFAR]{Results on the 109 human-labelled LOFAR test images, grouped
+    by training settings. Every learned method was trained only on \aoflagger{}'s
+    labels. Under Mesarcik et al.'s settings, the two models marked ``1 run''
+    were trained with the same data (test images removed), preprocessing,
+    32$\times$32 patches, batch size, learning rate and number of epochs;
+    \tfunet{} cannot be trained on 32$\times$32 patches and is shown with its
+    closest settings. Published values are from Table~2 of Mesarcik et al.}
   \label{tab:final}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -48,14 +51,23 @@ achieved while training only on \aoflagger{}'s labels, which themselves score
     \toprule
     Method & max \Fone{} & AUROC & AUPRC \\
     \midrule
-    $\sigma$-clipping threshold & 0.4103 & 0.7029 & 0.3165 \\
-    \tfunet{} (lr $10^{-4}$, 3 seeds) & $0.5482 \pm 0.0139$ & $0.9470 \pm 0.0074$ & $0.5562 \pm 0.0152$ \\
-    \aoflagger{} & 0.5698 & 0.7883 & 0.5716 \\
-    Mesarcik et al.\ U-Net & $0.5876 \pm 0.0031$ & $0.8017 \pm 0.0058$ & $0.5920 \pm 0.0031$ \\
-    Mesarcik et al.\ U-Net, run by us (1 run) & 0.6166 & 0.8213 & 0.5283 \\
-    RFI-Net & $0.5979 \pm 0.0012$ & $0.8109 \pm 0.0037$ & $0.5991 \pm 0.0038$ \\
+    \multicolumn{4}{l}{\textit{Our training settings}} \\
+    \tfunet{} (3 seeds) & $0.5482 \pm 0.0139$ & $0.9470 \pm 0.0074$ & $0.5562 \pm 0.0152$ \\
     \hybrid{}, class-weighted (3 seeds) & $0.6467 \pm 0.0079$ & $0.9801 \pm 0.0025$ & $0.6836 \pm 0.0159$ \\
     \textbf{\hybrid{} (3 seeds)} & $\mathbf{0.6603 \pm 0.0040}$ & $0.9378 \pm 0.0111$ & $0.6583 \pm 0.0088$ \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Mesarcik et al.'s training settings}} \\
+    \tfunet{}, closest (3 seeds) & $0.5551 \pm 0.0155$ & $0.9482 \pm 0.0052$ & $0.5608 \pm 0.0167$ \\
+    Mesarcik et al.\ U-Net, run by us (1 run) & 0.6166 & 0.8213 & 0.5283 \\
+    \textbf{\hybrid{} (1 run)} & \textbf{0.6258} & 0.9719 & 0.6401 \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Published by Mesarcik et al.}} \\
+    \aoflagger{} & 0.5698 & 0.7883 & 0.5716 \\
+    Mesarcik et al.\ U-Net & $0.5876 \pm 0.0031$ & $0.8017 \pm 0.0058$ & $0.5920 \pm 0.0031$ \\
+    RFI-Net & $0.5979 \pm 0.0012$ & $0.8109 \pm 0.0037$ & $0.5991 \pm 0.0038$ \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Simple threshold, no training}} \\
+    $\sigma$-clipping & 0.4103 & 0.7029 & 0.3165 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -89,56 +101,21 @@ order of training batches.
 \tfunet{} cannot be trained on images as small as 32$\times$32. Instead we used
 its closest run (\cref{sec:tfunet_lofar}) and took the model after the last
 epoch, as the authors do. This gives a maximum \Fone{} of $0.5551 \pm 0.0155$.
-\Cref{tab:same_settings,fig:same_settings} also show the two models trained
-with our own settings.
-
-\begin{table}[H]
-  \centering
-  \caption[All scores under both training settings]{Results on the 109 human-labelled LOFAR test images.
-    Under Mesarcik et al.'s settings, the two models marked ``1 run''
-    were trained with the same data (test images removed), preprocessing,
-    32$\times$32 patches, batch size, learning rate and number of epochs.
-    \tfunet{} cannot be trained on 32$\times$32 patches and is shown with its
-    closest settings, on full 512$\times$512 images. Published values are from
-    Table~2 of Mesarcik et al.}
-  \label{tab:same_settings}
-  \footnotesize
-  \setlength{\tabcolsep}{3.5pt}
-  \begin{tabular}{lccc}
-    \toprule
-    Method & max \Fone{} & AUROC & AUPRC \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Our training settings}} \\
-    \tfunet{} (3 seeds) & $0.5482 \pm 0.0139$ & $0.9470 \pm 0.0074$ & $0.5562 \pm 0.0152$ \\
-    \textbf{\hybrid{} (3 seeds)} & $\mathbf{0.6603 \pm 0.0040}$ & $0.9378 \pm 0.0111$ & $0.6583 \pm 0.0088$ \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Mesarcik et al.'s training settings}} \\
-    \tfunet{}, closest (3 seeds) & $0.5551 \pm 0.0155$ & $0.9482 \pm 0.0052$ & $0.5608 \pm 0.0167$ \\
-    Mesarcik et al.\ U-Net (1 run) & 0.6166 & 0.8213 & 0.5283 \\
-    \textbf{\hybrid{} (1 run)} & \textbf{0.6258} & 0.9719 & 0.6401 \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Published by Mesarcik et al.}} \\
-    \aoflagger{} & 0.5698 & 0.7883 & 0.5716 \\
-    Mesarcik et al.\ U-Net & $0.5876 \pm 0.0031$ & $0.8017 \pm 0.0058$ & $0.5920 \pm 0.0031$ \\
-    RFI-Net & $0.5979 \pm 0.0012$ & $0.8109 \pm 0.0037$ & $0.5991 \pm 0.0038$ \\
-    \midrule
-    \multicolumn{4}{l}{\textit{Simple threshold, no training}} \\
-    $\sigma$-clipping & 0.4103 & 0.7029 & 0.3165 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+All these results are in \cref{tab:final} (under ``Mesarcik et al.'s training
+settings'') and \cref{fig:same_settings}.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{lofar_same_settings}
   \caption[All scores under both training settings]{Maximum \Fone{}, AUROC and AUPRC on the 109 LOFAR test images for
-    every method in \cref{tab:same_settings}. Error bars show the standard
+    the methods in \cref{tab:final}, grouped by training settings (the
+    class-weighted \hybrid{} is not shown). Error bars show the standard
     deviation where one is available (three seeds, or as published).}
   \label{fig:same_settings}
 \end{figure}
 
 Under these settings \hybrid{} reaches a maximum \Fone{} of 0.6258
-(\cref{tab:same_settings,fig:same_settings}), against 0.6166 for Mesarcik et
+(\cref{tab:final,fig:same_settings}), against 0.6166 for Mesarcik et
 al.'s U-Net, with half as many parameters
 (593{,}842 against 1{,}179{,}121). Trained with our own settings on
 full images, the same network scores $0.6603 \pm 0.0040$ (\cref{tab:final}),
@@ -146,15 +123,7 @@ full images, the same network scores $0.6603 \pm 0.0040$ (\cref{tab:final}),
 
 With our own settings \hybrid{} also has the higher AUPRC (0.6583 against
 0.5562), but \tfunet{} has the slightly higher AUROC (0.9470 against 0.9378; see
-\cref{sec:dice}). Under the authors' settings, AUROC and AUPRC should not be
-compared between the two models run by us. Mesarcik et al.'s code passes the
-two inputs of the U-Net's loss in swapped order, which pushes its outputs
-close to 0 or 1 and lowers these two scores. \hybrid{} cannot train with that
-loss, so it used ordinary binary cross-entropy. Only the \Fone{} scores are
-compared between them. \aoflagger{} gives only yes or no flags, not
-probabilities, so its AUROC and AUPRC come from a single point. For
-$\sigma$-clipping they come from varying the cut-off (the number of standard
-deviations above the image's mean).
+\cref{sec:dice}).
 
 \section{Fine-tuning with expert labels}
 \label{sec:expert_ft}
