@@ -4327,3 +4327,8 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   design choices that differ from tf_unet."
 - Chapter 5: the network-width paragraph and its table are removed, so the old Tables 5.2 and 5.3 are now 5.1 and 5.2.
   The class-weighting paragraph is simplified (no 57x factor, no paired t). Report 42 pages, no overfull boxes.
+- σ-clip AUROC/AUPRC (`analysis/lofar_analysis/sigma_clip_auc.py` + `.json`): score = (pixel − image mean)/image std
+  after `lofar_data.preprocess` (20σ clip); the 2.5σ cut reproduces F1 0.4103. AUROC 0.7029, AUPRC 0.3165 (trapezoid),
+  max F1 over any cut-off 0.4132. Added to Tables 5.1 and 5.2 and Fig 5.2.
+- Tables 5.1 and 5.2: Parameters column removed from both, pooled F1 removed from 5.2; the 32×32 tf_unet paragraph
+  shortened. Report 42 pages, no overfull boxes.

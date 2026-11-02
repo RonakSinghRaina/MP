@@ -91,7 +91,7 @@ def lofar_same_settings():
     # Ours: runs/lofar/{lr1e-4_seed*, hybrid_b08_nocw_seed*, mesarcik_unet_clean_seed0,
     # hybrid_mesarcik_clean_bce_seed0}/eval_test/metrics.json; tf_unet closest = last-epoch
     # checkpoint, analysis/last_vs_best/tfunet_last_auc.json (PART 36.1).
-    # Published: Mesarcik et al. 2022, Table 2. Sigma-clip: F1 only (PART 11.9).
+    # Published: Mesarcik et al. 2022, Table 2. Sigma-clip: analysis/lofar_analysis/sigma_clip_auc.json.
     # name, (max F1, sd), (AUROC, sd), (AUPRC, sd); None = no such score
     groups = [
         ("Our settings", [
@@ -109,7 +109,7 @@ def lofar_same_settings():
             ("RFI-Net", (0.5979, 0.0012), (0.8109, 0.0037), (0.5991, 0.0038)),
         ]),
         ("Threshold", [
-            ("$\\sigma$-clip", (0.4103, 0), None, None),
+            ("$\\sigma$-clip", (0.4103, 0), (0.7029, 0), (0.3165, 0)),
         ]),
     ]
     metrics = [("max $F_1$", NAVY), ("AUROC", MUTED), ("AUPRC", ACCENT)]
