@@ -4365,3 +4365,5 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   with cosine decay, CE + Dice weight 1.0).
 - Table 3.1 (2026-11-03): Kestrel learning rate now "1 / 10^-3 (start)" (cosine decay); table set in footnotesize with
   wider columns so it fits on page 13 under Fig 3.4.
+- Section 3.6 "Further Experiments" removed (2026-11-03); the ablation is described in chapter 6 and the five-fold
+  expert-label setup in section 5.x. The fine-tuning learning rate (1e-4) was only stated there. Report 39 pages.

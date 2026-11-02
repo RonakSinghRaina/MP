@@ -173,19 +173,3 @@ The components are as follows:
 All LOFAR results are measured on the 109 expert-labelled test images, using
 the maximum \Fone{}, the AUROC and the AUPRC (\cref{sec:metrics}). Every setting was
 trained with three random seeds, and we report the mean and standard deviation.
-
-\section{Further Experiments}
-To understand what drives the performance of \hybrid{}, we carried out two
-further experiments:
-\begin{itemize}
-  \item \textbf{Ablation.} We wrote a version of the network in which each
-    component can be switched off, and trained every variant through exactly
-    the same pipeline, removing the strip convolutions, the attention, the
-    residual blocks, all three together, and finally also GroupNorm.
-  \item \textbf{Expert labels.} To measure what expert labels add without ever
-    testing on an image whose expert label the model has seen, we used
-    five-fold cross-validation over the 109 expert-labelled images, keeping
-    near-duplicate images in the same fold. In each fold 21--22 images form the
-    test set, 19 the validation set and the remaining 68--69 can be used for
-    fine-tuning, with a learning rate of $10^{-4}$.
-\end{itemize}
