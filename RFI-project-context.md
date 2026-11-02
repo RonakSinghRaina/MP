@@ -4409,3 +4409,59 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   Never call these "plain U-Net". The report text already uses "partial Kestrel"; only the appendix command keeps
   the flag --variant plain_unet. Expert-label fine-tuning (0.6747) starts from the full Kestrel headline checkpoints
   (runs/lofar/hybrid_b08_nocw_seed{0,1,2}/best.pt, al_lofar.py), not the partial Kestrel.
+
+---
+
+## PART 39 — Paper plan (2026-11-03, answer given to the user, saved verbatim at their request)
+
+Context: the user and their professor want a paper. The partial Kestrel is NOT novel (every difference from tf_unet
+is a published, standard choice: GroupNorm, CE+Dice, same padding, no output ReLU, Adam + decaying lr). The answer:
+
+You can get a paper out of this **without inventing a new architecture**. Many good papers are "careful measurement"
+papers, and you already have a strong one nearly built. A forced "novel algorithm" that doesn't hold up is far more
+likely to be rejected than an honest finding with solid evidence.
+
+### The paper you already have most of
+**Working title:** *"What actually matters for deep-learning RFI flagging on real data"*
+
+| Claim | Status |
+|---|---|
+| 1. **Both public RFI benchmarks have test images that are also in their training sets.** All 109 LOFAR test images, and 31 of HERA's 140, are copies of training images. We give corrected, leak-free versions. | measured. In one quick search no paper was found reporting this, even though several later papers (e.g. the spiking-network RFI papers, arXiv 2311.14303, 2412.06124) use the same LOFAR data. **Possibly the strongest point of the paper.** |
+| 2. **A well-configured U-Net beats every published method** on the expert-labelled LOFAR test set (0.66 vs RFI-Net's 0.598). | 3 seeds |
+| 3. **RFI-specific modules (strip, attention, residual) add nothing measurable** on real data, though they looked useful on synthetic data. | done |
+| 4. **Synthetic results don't carry over:** 0.93 synthetic vs 0.49 LOFAR, same network. | done |
+| 5. **Where the gain actually comes from** (GroupNorm? output ReLU? learning rate?) | **missing** -- the proposed ablation (partial Kestrel, switch one difference at a time to tf_unet's setting). Without it a reviewer asks "so what *does* matter?" |
+| 6. **The same findings hold on a second dataset (HERA)** | running; ~3 h left (restart with ./scripts/run_hera.sh) |
+| 7. **A few expert labels help more than any architecture change** (+0.014, 0.6603 -> 0.6747) | done |
+
+This is the argument of *nnU-Net Revisited* (Isensee et al., MICCAI 2024, arXiv 2404.09556) made for radio
+astronomy, with a benchmark problem found on top.
+
+### What's needed to make it submittable
+1. **Finish HERA** (restart the run).
+2. **Run the "what causes the gain" ablation:** ~6 single-seed screening runs (27 min each for a standard run;
+   depth/width and batch-size variants slower, to be measured) + 3 seeds for the biggest effect; ~5-7 h GPU.
+   Differences to switch, partial Kestrel -> tf_unet: GroupNorm; output ReLU; valid padding; 3 levels/32 filters vs
+   4 levels/8; batch 4 vs 1; Adam 1e-4 constant vs 1e-3 cosine; dropout 0.25 every conv + L2 1e-3 vs dropout 0.2.
+   Dice already measured (0.011). Code: switches go in experiments/models_ablation.py, never hybrid_model.py.
+3. **Repeat the Mesarcik-settings comparison over 3 seeds** (currently 1 run: Kestrel 0.6258 vs their U-Net 0.6166).
+4. **Keep the statistics in the paper** (t-tests, seed spreads cut from the report belong in a paper).
+5. **Write it as a short journal paper.**
+
+### Where to send it
+Astronomy and Computing (where Akeret et al. published tf_unet); RAS Techniques and Instruments (RASTI); MNRAS (where
+Mesarcik et al. published). Acceptance cannot be predicted, but every claim is measured.
+
+### If the professor insists on something new
+Add **Idea 1 -- a U-Net that corrects AOFlagger's flags** (inputs: spectrogram + AOFlagger mask; trained on expert
+labels with the existing 5-fold protocol) as an extra section. If it works it is a real method contribution; if not
+the paper still stands. Don't make the paper depend on it. Other ideas considered: noisy-label-aware training
+(known ML method, first applied to RFI?); multi-baseline input (partly done: Tianlai U-Net, ADASS 2018; LOFAR baseline
+grouping unknown). Literature check required before any novelty claim.
+
+**Suggested line for the professor:** *"We found that both public RFI benchmarks leak test images into training, and
+that on real expert-labelled data, configuration matters more than RFI-specific architecture. With one more ablation
+and the HERA results, I think this is a paper for Astronomy and Computing or RASTI."*
+
+Sources: arXiv 2207.00351 (Mesarcik), 2311.14303 and 2412.06124 (spiking RFI, same LOFAR data), 2404.09556
+(nnU-Net Revisited), paperswithcode HERA/LOFAR dataset page.
