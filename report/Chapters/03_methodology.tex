@@ -84,13 +84,14 @@ of the pixel values, averaged over 200 training images.
 
 \section{Baseline Model: \texorpdfstring{\tfunet}{tf\_unet}}
 \label{sec:tfunet_setup}
-We used the \tfunet{} code of Akeret et al.\ without changing the network
-(3 levels, 32 filters in the first layer; \cref{fig:tfunet_arch}). The paper used a batch of 32 images
-and momentum gradient descent with a learning rate of 0.2. We used a batch of 4
-images, and at such a small batch the paper's learning rate stopped the network
-from learning within a few iterations, so we used the Adam optimiser with a
-learning rate of $10^{-3}$ instead. On LOFAR the network was trained both with
-this setting for 60 epochs and with a learning rate of $10^{-4}$ for 150
+We used the \tfunet{} code of Akeret et al.\ without changing the network,
+with 3 levels and 32 filters in the first layer (\cref{fig:tfunet_arch}; the
+paper's preferred setting used 64). The paper used a batch of 32 images and
+momentum gradient descent with a learning rate starting at 0.2. We used a batch
+of 4 images. When we tried the paper's learning rate with a batch of one image,
+the network stopped learning after 4 iterations, so we used the Adam optimiser
+with a learning rate of $10^{-3}$ instead. On LOFAR the network was trained both
+with this setting for 60 epochs and with a learning rate of $10^{-4}$ for 150
 epochs.
 
 \begin{figure}[H]
