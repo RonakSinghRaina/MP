@@ -4473,3 +4473,42 @@ Pretrain on AOFlagger labels, then fine-tune on a few expert labels, is publishe
 27.4). Possible paper claim 8 instead: pixel-level active learning for RFI masks (none found in 25.2) -- uncertainty or
 most-RFI patch selection is WORSE than random patches (17 of 18 seed x budget pairs, PART 27.3), likely because the
 selected patches are ~10x RFI-dense. Literature check from 2026-10-11 needs refreshing before claiming it.
+
+### 39.2 What the paper would say, and why it counts as novel (2026-11-03, answer given to the user, saved at their request)
+
+**A paper doesn't need a new method.** Two kinds of novelty:
+- **A new method** -- "we invented a better network". We don't have this.
+- **A new finding** -- "we measured something nobody knew, and it changes what people should do". **We have several.**
+*nnU-Net Revisited* (MICCAI 2024) invented nothing; its message was "comparisons were unfair, and a well-set-up U-Net
+beats most fancy new networks". It changed how people run experiments. Our paper would do the same for RFI.
+
+**The active-learning finding, simply (measured in PART 27.3):**
+- Expert labels are expensive (a human marks every RFI pixel by hand), so only a small part of the data can be
+  labelled. Question: which parts should the expert label?
+- Common belief ("active learning"): label where the model is most unsure -- like a student asking the teacher only
+  about the hardest questions.
+- Tested four choices: (1) most-unsure patches, (2) patches with the most predicted RFI, (3) random patches,
+  (4) random whole images.
+- Result: the "smart" choices 1 and 2 were **worse than random**, losing in 17 of 18 comparisons, and sometimes worse
+  than no expert labels at all.
+- Why (measured inputs, untested cause): unsure patches are ~10x richer in RFI than normal data, so the model learns
+  that RFI is everywhere and over-flags. Random patches show a realistic mix. (Analogy: learning to spot fake banknotes
+  only from piles of fakes -- you then call real notes fake too.)
+- Why it matters: groups planning expert labelling for RFI (e.g. SKA) would use the standard method and waste their
+  expert's time. No paper found reporting this for RFI masks (search from 2026-10-11; refresh before claiming).
+
+**Paper outline.** Title idea: *"What actually matters for deep-learning RFI flagging on real data"*
+
+| Section | What it says |
+|---|---|
+| 1. Introduction | Many new RFI networks are claimed to be better -- are those claims trustworthy on real data? |
+| 2. Problem 1: the benchmarks leak | In both public datasets, test images are also in the training set. We fix this and give clean versions. |
+| 3. A fair comparison | On clean, expert-labelled LOFAR data, a well-configured U-Net beats all published methods. |
+| 4. What matters | The special RFI modules do nothing on real data; the gain comes from training settings (the new ablation shows which). |
+| 5. Synthetic data misleads | 0.93 on synthetic vs 0.49 on real, so synthetic results can't be trusted alone. |
+| 6. Expert labels | A few expert labels help more than any architecture change -- but choosing them "smartly" is worse than random. |
+| 7. Conclusion | Advice: check for leakage, compare fairly, don't trust synthetic results alone, label random patches. |
+
+**Novelty in one sentence:** *we show that the field's benchmarks, its comparisons and its standard labelling
+strategy all have problems, and we measure what actually works on real data.* Every number is already measured,
+except the "what causes the gain" ablation and HERA.
