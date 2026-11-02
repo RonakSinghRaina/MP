@@ -4391,3 +4391,4 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   fainter than the noise, and the training labels themselves are often wrong" now sits in section 3.1 after "labels
   checked by a person", so \cref{sec:lofar_harder} finally points at text that says it. Chapter 5's "as Section 4.3
   showed" became "as noted in Section 3.1". The 0.93 -> 0.49 gap is still in 7.x and the conclusion. Report 39 pages.
+- Chapter 5 opening sentence removed; Table 6.1 caption simplified ("Maximum F1 ... after removing parts of Kestrel (one run each). Changes smaller than about 0.008 are within normal run-to-run variation.") (2026-11-03).
