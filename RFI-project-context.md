@@ -4377,3 +4377,8 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   The report now says the failure was "in an early test with a different setup (larger images and one image per
   step)", explains that small batches give noisy steps so small steps are safer, and that Adam sets per-weight step
   sizes. Momentum at a small lr and Adam at 0.2 were never tried, so which change mattered is unknown.
+- Section 4.2 (2026-11-03): imbalance paragraph rewritten simply. It said "1 RFI pixel per 129 clean", which is the
+  TEST set (human labels, 0.7661 %); measured on the 7356 clean training images (AOFlagger labels) it is 0.8076 % =
+  1 : 122.8, so the text now says "in the training set ... one RFI pixel for every 123 clean ones". (11.3's 1 : 77.7
+  includes the 35 all-RFI images.) The sentence "the threshold was chosen on 150 of the 735 validation images" is
+  highlighted yellow with soul's \hl, temporarily, at the user's request.

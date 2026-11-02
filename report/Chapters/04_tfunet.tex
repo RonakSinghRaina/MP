@@ -28,16 +28,16 @@ On the synthetic test set
 \label{sec:tfunet_lofar}
 We then trained \tfunet{} on the real LOFAR data with the same settings: the
 unmodified network, fixed-range normalisation and no class weighting. The model was trained on the
-6621 clean training images, the threshold was chosen on 150 of the 735
-validation images, and the result was measured on the 109 images labelled by the human
+6621 clean training images, \hl{the threshold was chosen on 150 of the 735
+validation images}, and the result was measured on the 109 images labelled by the human
 expert. Each setting was run with three random seeds.
 
-Despite the extreme imbalance---one RFI pixel for every 129 clean ones---the
-network did not collapse into predicting ``no RFI'' everywhere. With the same
-training length as on the synthetic data (60 epochs at a learning rate of
-$10^{-3}$) it reached a maximum \Fone{} of $0.4901 \pm 0.0495$. Lowering the
-learning rate to $10^{-4}$ and training for 150 epochs raised this to
-$0.5482 \pm 0.0139$ (\cref{tab:tfunet_lofar}).
+RFI is very rare in these images: in the training set there is only one RFI
+pixel for every 123 clean ones. Even so, the network did not take the easy way
+out of calling every pixel clean. Trained for as long as on the synthetic data
+(60 epochs, learning rate $10^{-3}$), it reached a maximum \Fone{} of
+$0.4901 \pm 0.0495$. With a smaller learning rate ($10^{-4}$) and longer
+training (150 epochs), it reached $0.5482 \pm 0.0139$ (\cref{tab:tfunet_lofar}).
 
 \begin{table}[H]
   \centering
