@@ -4465,3 +4465,11 @@ and the HERA results, I think this is a paper for Astronomy and Computing or RAS
 
 Sources: arXiv 2207.00351 (Mesarcik), 2311.14303 and 2412.06124 (spiking RFI, same LOFAR data), 2404.09556
 (nnU-Net Revisited), paperswithcode HERA/LOFAR dataset page.
+
+### 39.1 Is "Kestrel + expert labels" novel? NO (2026-11-03)
+Pretrain on AOFlagger labels, then fine-tune on a few expert labels, is published: RFDL "Transfer" (AO + 20 expert)
+0.675 +/- 0.012; Du Toit, Grobler & Ludick 2024 fine-tune RFI-Net on 14 expert LOFAR images; Zhu et al. 2026
+(semi-supervised, 24 expert images) 0.700. Ours 0.6747 +/- 0.0083 is level with RFDL, below Zhu (PARTS 22.1, 25.2,
+27.4). Possible paper claim 8 instead: pixel-level active learning for RFI masks (none found in 25.2) -- uncertainty or
+most-RFI patch selection is WORSE than random patches (17 of 18 seed x budget pairs, PART 27.3), likely because the
+selected patches are ~10x RFI-dense. Literature check from 2026-10-11 needs refreshing before claiming it.
