@@ -63,7 +63,7 @@ def hybrid_lofar_ladder(include_later=False):
     # Swin-UNETR: Ouyang et al. 2024, Table 2 -- the largest of three sizes (408.1 M parameters).
     # include_later=False leaves these two out (the report currently omits them).
     names = ["$\\sigma$-clip", "tf_unet", "AOFlagger", "Mesarcik\nU-Net",
-             "RFI-Net", "RFDL", "Swin-\nUNETR\n(408 M)", "Hybrid-\nRFINet\n(this work)"]
+             "RFI-Net", "RFDL", "Swin-\nUNETR\n(408 M)", "Kestrel\n(this work)"]
     v = [0.4103, 0.5482, 0.5698, 0.5876, 0.5979, 0.639, 0.6401, 0.6603]
     e = [0, 0.0139, 0, 0.0031, 0, 0.007, 0, 0.0040]
     shown = ["0.4103", "0.5482", "0.5698", "0.5876", "0.5979", "0.639", "0.6401", "0.6603"]
@@ -96,12 +96,12 @@ def lofar_same_settings():
     groups = [
         ("Our settings", [
             ("tf_unet", (0.5482, 0.0139), (0.9470, 0.0074), (0.5562, 0.0152)),
-            ("Hybrid-\nRFINet", (0.6603, 0.0040), (0.9378, 0.0111), (0.6583, 0.0088)),
+            ("Kestrel", (0.6603, 0.0040), (0.9378, 0.0111), (0.6583, 0.0088)),
         ]),
         ("Mesarcik et al.'s settings", [
             ("tf_unet\n(closest)", (0.5551, 0.0155), (0.9482, 0.0052), (0.5608, 0.0167)),
             ("Mesarcik\nU-Net", (0.6166, 0), (0.8213, 0), (0.5283, 0)),
-            ("Hybrid-\nRFINet", (0.6258, 0), (0.9719, 0), (0.6401, 0)),
+            ("Kestrel", (0.6258, 0), (0.9719, 0), (0.6401, 0)),
         ]),
         ("Published by Mesarcik et al.", [
             ("AOFlagger", (0.5698, 0), (0.7883, 0), (0.5716, 0)),

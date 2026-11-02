@@ -161,8 +161,6 @@ The components are as follows:
     line makes it stand out from the noise about $\sqrt{K}$ times more
     (\cref{eq:radiometer}). Each of the three paths uses a $1\times K$ filter
     and then a $K\times1$ filter, which together cover a $K\times K$ square.
-    Similar designs have been used for RFI before\footcite{gu2024emsca,mars2026},
-    so this idea is not new.
   \item \textbf{Efficient channel attention} (ECA)\footcite{wang2020eca} gives
     each channel a weight between 0 and 1 and multiplies the channel by it. The
     weights are worked out from each image, using only 3 learned numbers. The
@@ -180,13 +178,8 @@ The components are as follows:
 
 \section{Evaluation}
 All LOFAR results are measured on the 109 expert-labelled test images, using
-the maximum and the pooled \Fone{}, the AUROC and the AUPRC (\cref{sec:metrics}). Every setting was
+the maximum \Fone{}, the AUROC and the AUPRC (\cref{sec:metrics}). Every setting was
 trained with three random seeds, and we report the mean and standard deviation.
-To decide whether a difference between two settings is real, we compare them
-seed by seed with a paired $t$-test, which with three seeds has 2 degrees of
-freedom and needs $|t| > 4.30$ for significance at the 5\% level. To estimate
-the uncertainty that comes from the small test set, we also resampled the 109
-test images 2000 times with replacement (bootstrap).
 
 \section{Further Experiments}
 To understand what drives the performance of \hybrid{}, we carried out two

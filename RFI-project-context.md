@@ -4337,3 +4337,13 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   At the user's request the loss-swap caveat (AUROC/AUPRC not comparable between U-Net and hybrid under Mesarcik's
   settings, PART 31) and the AOFlagger/σ-clip single-point notes were removed from the report text; the caveat itself
   still holds.
+
+### Report edits (2026-11-02, later): model renamed Kestrel
+- The hybrid is now called **Kestrel** in the report (`\hybrid` macro in `report/Configuration/ReportExtras.tex`;
+  name option from 2026-10-09, collision search found no RFI method of that name). "Partial hybrid" -> "partial
+  Kestrel". Figs 5.1 and 5.2 regenerated with the new label. Code, run folders and slides keep their old names.
+- First person in the chapters and appendix changed to we/our; the declaration and acknowledgements keep "I".
+- Removed: the "similar designs ... not new" sentence (so gu2024emsca and mars2026 drop out of the bibliography), the
+  pooled F1 / paired t-test / bootstrap description in section 3.5, and the "every variant scored above 0.95" clause
+  in section 7.2. Pooled F1 values and t-tests still appear in results text (5.2.2, Table 5.2, chapter 6).
+  Report 41 pages, no overfull boxes.

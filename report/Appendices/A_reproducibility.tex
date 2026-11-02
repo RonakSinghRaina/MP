@@ -5,7 +5,7 @@
 The work began on Windows 11 using the Windows Subsystem for Linux (WSL2). WSL2
 by default makes only about half of the system memory available to Linux,
 roughly 9\,GB of the 19\,GB here, which is less than the 9.3\,GB LOFAR file. On
-my supervisor's advice the project was moved to a native Linux installation.
+our supervisor's advice the project was moved to a native Linux installation.
 (Raising WSL2's memory limit in its configuration file would also have solved
 this particular problem.) \Cref{tab:env} lists the final environment.
 
@@ -41,7 +41,7 @@ regenerated from the generator with seed 42. The main experiments are run with:
 # tf_unet on LOFAR (TensorFlow environment)
 ~/tf-env/bin/python experiments/lofar_tfunet_baseline.py --lr 1e-4 --epochs 150 --seed 0
 
-# HybridRFINet on LOFAR (PyTorch environment)
+# Kestrel on LOFAR (PyTorch environment)
 ~/torch-env/bin/python experiments/lofar_hybrid.py --base 8 --no_class_weight --seed 0
 
 # Ablation: any variant through the same pipeline
