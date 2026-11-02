@@ -7,8 +7,9 @@ publicly available on GitHub, to the 276$\times$600 version of our synthetic
 data, the image size used by the authors. The network was used unchanged
 (3 levels, 32 filters in the first layer, 465{,}986 parameters), together with
 the authors' preprocessing: every image is scaled with one fixed intensity
-range, and no class weighting is used. Only the batch size and the optimiser
-were adapted to our GPU (\cref{sec:tfunet_setup}). On the synthetic test set
+range, and no class weighting is used. Only the batch size (4 instead of the
+paper's 32) and the optimiser (Adam instead of momentum gradient descent) were
+changed. On the synthetic test set
 \tfunet{} reached a maximum \Fone{} of 0.9317, with an AUROC of 0.9908.
 
 \section{Results on LOFAR}

@@ -4356,3 +4356,6 @@ unchanged. `Hybrid_Model_Schematic.pptx/.pdf` and `report/Images/hybrid_schemati
   caption keeps only its first sentence.
 - LOFAR dataset footnote in section 3.1 shortened to "Mesarcik et al., MNRAS 516, 5367 (2022). Dataset: <zenodo DOI>"
   (2026-11-03); the \newpage before Fig 3.2 became \clearpage so Figs 3.1 and 3.2 no longer share an overfull page.
+- Section 3.3 (tf_unet baseline) cut to a two-sentence description pointing to section 2.5 (2026-11-03). The batch
+  size (4 vs 32) and optimiser (Adam vs momentum) now appear in the chapter 4 opening instead; the lr-0.2 collapse
+  sentence is gone from the report (still in CLAUDE.md section 6). Fig 3.3 shrunk to 0.5 textwidth so it fits on page 12.
