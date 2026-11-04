@@ -153,3 +153,61 @@ Fine-tuning for 600 steps on all available expert labels raised the maximum
 \Fone{} over the 109 images from 0.6603 to $0.6747 \pm 0.0083$
 (\cref{tab:expert_ft}), an improvement for all three seeds (by 0.012 to
 0.020).
+
+\section{Results on HERA}
+\label{sec:hera_results}
+To check whether the LOFAR results hold on a second dataset, we repeated the
+comparison on the simulated HERA data (\cref{fig:datasets}). We first removed
+the 31 test images that are copies of training images, leaving 135 test images.
+As in Mesarcik et al., every model was trained only on labels made by
+\aoflagger{} and tested against the exact labels of the simulation. Every model
+was trained three times (three seeds) under each training setting.
+\tfunet{} only gives an output for the centre 472$\times$472 pixels of each
+image, so under our settings \hybrid{} is scored on the same centre area
+(\cref{tab:hera}).
+
+\begin{table}[H]
+  \centering
+  \caption[Results on HERA]{Results on the 135 HERA test images (mean and
+    standard deviation over three seeds). Every learned method was trained only
+    on \aoflagger{}'s labels. \tfunet{} and, under our settings, \hybrid{} are
+    scored on the centre 472$\times$472 pixels; the other rows on the full
+    image. Published values are from Table~1 of Mesarcik et al., whose test set
+    still contains the 31 copies of training images.}
+  \label{tab:hera}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lccc}
+    \toprule
+    Method & max \Fone{} & AUROC & AUPRC \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Our training settings}} \\
+    \tfunet{} & $\mathbf{0.9550 \pm 0.0025}$ & $0.9971 \pm 0.0004$ & $0.9698 \pm 0.0027$ \\
+    \hybrid{} & $0.9442 \pm 0.0043$ & $\mathbf{0.9983 \pm 0.0007}$ & $\mathbf{0.9797 \pm 0.0022}$ \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Mesarcik et al.'s training settings}} \\
+    \tfunet{}, closest & $\mathbf{0.9533 \pm 0.0019}$ & $0.9955 \pm 0.0028$ & $0.9664 \pm 0.0068$ \\
+    Mesarcik et al.\ U-Net & $0.9160 \pm 0.0062$ & $0.9727 \pm 0.0022$ & $0.8991 \pm 0.0073$ \\
+    \hybrid{} & $0.9450 \pm 0.0020$ & $\mathbf{0.9980 \pm 0.0004}$ & $\mathbf{0.9757 \pm 0.0056}$ \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Published by Mesarcik et al.}} \\
+    \aoflagger{} & 0.8729 & 0.9736 & 0.8799 \\
+    Mesarcik et al.\ U-Net & $\mathbf{0.9015 \pm 0.0074}$ & $\mathbf{0.9746 \pm 0.0009}$ & $\mathbf{0.8963 \pm 0.0074}$ \\
+    RFI-Net & $0.8950 \pm 0.0068$ & $0.9728 \pm 0.0007$ & $0.8898 \pm 0.0086$ \\
+    \midrule
+    \multicolumn{4}{l}{\textit{No training}} \\
+    \aoflagger{}, run by us & 0.8740 & 0.9739 & 0.8808 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The results differ from LOFAR in one important way. Under our settings,
+\tfunet{} has the higher maximum \Fone{} (0.9550 against 0.9442), while
+\hybrid{} has the higher AUROC and AUPRC. So on HERA, \hybrid{} does not beat
+\tfunet{}, although it did by 0.11 on LOFAR. We have not tested why. The other
+results agree with LOFAR: under Mesarcik et al.'s settings \hybrid{} beats their
+U-Net (0.9450 against 0.9160), and our run of their U-Net again scores above
+their published value (0.9015). Every trained model also scores above
+\aoflagger{} (0.8740), even though it learned only from \aoflagger{}'s labels.
+Our own run of \aoflagger{} gives almost the same score as the published one
+(0.8740 against 0.8729).

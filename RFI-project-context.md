@@ -4554,3 +4554,14 @@ What it shows (read off the table; nothing extra measured):
 - AUROC is close to 1 for every network (0.9727-0.9980), so max F1 and AUPRC carry the comparison.
 - Paper plan (PART 39) claim 6 "same findings hold on HERA" is only partly true: the leakage, the benchmark gap to
   AOFlagger and the U-Net rerun hold; "Kestrel beats tf_unet" does not.
+
+### PART 40 addendum (2026-11-04): Kestrel HERA crop AUPRC, report section 5.4
+- `analysis/hera_aoflagger/kestrel_crop472_hera.py` reloads each `runs/hera/hybrid_b08_nocw_seed*/best.pt`, re-scores
+  the 135 test images with `lofar_hybrid.py`'s own functions, and asserts the saved max F1 (full and crop) and crop
+  AUROC are reproduced to 1e-4 (they were). Centre 472x472, mean ± sd over 3 seeds: max F1 **0.9442 ± 0.0043**,
+  pooled F1 0.9333 ± 0.0048, AUROC 0.9983 ± 0.0007, AUPRC **0.9797 ± 0.0022** (per seed 0.9821, 0.9789, 0.9780).
+  RFI fraction on the crop 0.0265, the same as tf_unet's. Saved in `kestrel_crop472_hera.json`.
+- Like-for-like vs tf_unet (0.9550 / 0.9971 / 0.9698): tf_unet wins max F1, Kestrel wins AUROC and AUPRC.
+- Report: new section 5.4 "Results on HERA" with Table 5.3 (all settings, 3 seeds each; Kestrel our-settings row on
+  the 472 crop, as asked; Kestrel under Mesarcik settings and their U-Net on the full image). Report 39 pages, no
+  overfull boxes. Conclusion and abstract do not mention the HERA results yet.
