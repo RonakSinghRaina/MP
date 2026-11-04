@@ -4538,9 +4538,15 @@ Per seed, Kestrel (our settings) max F1: 0.9245, 0.9012, 0.9070. tf_unet (our se
 Mesarcik U-Net (their settings): 0.9091, 0.9178, seed 2 in the summary only.
 
 What it shows (read off the table; nothing extra measured):
-- **HERA does not repeat the LOFAR ranking.** On LOFAR Kestrel beat tf_unet by 0.112 max F1; on HERA under our
-  settings tf_unet is ahead, 0.9550 vs 0.9109 (spreads 0.0025 and 0.0121). Kestrel's lead over tf_unet is therefore
-  dataset-specific, not general. Cause not tested.
+- **CORRECTION (same day): the table above is not like-for-like for tf_unet vs Kestrel.** tf_unet (valid padding) is
+  scored on the centre 472x472 only; Kestrel's row is the full 512x512 (`summarise_hera.py` uses `max_f1`). Kestrel on
+  the same 472 crop (`max_f1_crop472` in each metrics.json): max F1 0.9485, 0.9398, 0.9443 = **0.9442 ± 0.0043**;
+  pooled F1 0.9333 ± 0.0048; AUROC 0.9983 ± 0.0007. So the border costs Kestrel 0.033 on HERA (on LOFAR only 0.006).
+- **HERA does not repeat the LOFAR ranking.** Like-for-like, tf_unet 0.9550 ± 0.0025 vs Kestrel 0.9442 ± 0.0043:
+  tf_unet ahead by 0.011 (on LOFAR Kestrel led by 0.112). Kestrel's lead over tf_unet is dataset-specific. Cause not
+  tested. Fix `summarise_hera.py` to show the crop column before any HERA number goes in the report.
+- Not in conflict with PART 3 (Kestrel-type hybrid 0.9996 on HERA): that run trained on the simulator's TRUE labels
+  (base 32, class weights, 20 epochs) and had no tf_unet arm; here every model trains on AOFlagger labels.
 - Under Mesarcik's settings Kestrel (0.9450) beats their U-Net (0.9160), as on LOFAR.
 - Every trained model beats AOFlagger (0.8740), even though AOFlagger made the training labels (AOFlagger vs simulator
   on the training images: F1 0.8896, PART 38). The networks learn something cleaner than their own labels.
