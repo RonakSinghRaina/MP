@@ -1,0 +1,5 @@
+{
+  "epochs_completed": 150,
+  "best_f1": 0.9482416760532183,
+  "best_epoch": 128
+}

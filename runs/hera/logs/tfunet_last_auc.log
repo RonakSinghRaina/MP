@@ -1,0 +1,74 @@
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/compat/v2_compat.py:98: disable_resource_variables (from tensorflow.python.ops.resource_variables_toggle) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+2026-11-04 11:49:08,174 Layers 3, features 32, filter size 3x3, pool size: 2x2
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+2026-11-04 11:49:08,192 From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed0/best/model.ckpt
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1793773149.077152   29369 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+seed 0 best: max_f1 0.9522  roc_auc 0.9969  pr_auc 0.9669
+2026-11-04 11:49:26,234 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed0/ckpt/model.ckpt
+seed 0 last: max_f1 0.9513  roc_auc 0.9923  pr_auc 0.9586
+2026-11-04 11:49:42,534 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed1/best/model.ckpt
+seed 1 best: max_f1 0.9556  roc_auc 0.9967  pr_auc 0.9700
+2026-11-04 11:49:58,257 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed1/ckpt/model.ckpt
+seed 1 last: max_f1 0.9536  roc_auc 0.9972  pr_auc 0.9708
+2026-11-04 11:50:14,514 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/best/model.ckpt
+E0000 00:00:1793773214.892801   29369 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+seed 2 best: max_f1 0.9571  roc_auc 0.9976  pr_auc 0.9723
+2026-11-04 11:50:30,522 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+seed 2 last: max_f1 0.9550  roc_auc 0.9970  pr_auc 0.9700
+best max_f1: 0.9550 +/- 0.0025
+best roc_auc: 0.9971 +/- 0.0004
+best pr_auc: 0.9698 +/- 0.0027
+last max_f1: 0.9533 +/- 0.0019
+last roc_auc: 0.9955 +/- 0.0028
+last pr_auc: 0.9664 +/- 0.0068
+DONE
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/compat/v2_compat.py:98: disable_resource_variables (from tensorflow.python.ops.resource_variables_toggle) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+2026-11-04 14:23:18,494 Layers 3, features 32, filter size 3x3, pool size: 2x2
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+2026-11-04 14:23:18,510 From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed0/best/model.ckpt
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1793782399.362535   52724 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+seed 0 best: max_f1 0.9522  roc_auc 0.9969  pr_auc 0.9669
+2026-11-04 14:23:36,568 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed0/ckpt/model.ckpt
+seed 0 last: max_f1 0.9513  roc_auc 0.9923  pr_auc 0.9586
+2026-11-04 14:23:52,758 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed1/best/model.ckpt
+seed 1 best: max_f1 0.9556  roc_auc 0.9967  pr_auc 0.9700
+2026-11-04 14:24:08,367 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed1/ckpt/model.ckpt
+seed 1 last: max_f1 0.9536  roc_auc 0.9972  pr_auc 0.9708
+2026-11-04 14:24:24,415 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/best/model.ckpt
+E0000 00:00:1793782464.785812   52724 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+seed 2 best: max_f1 0.9571  roc_auc 0.9976  pr_auc 0.9723
+2026-11-04 14:24:40,307 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+seed 2 last: max_f1 0.9550  roc_auc 0.9970  pr_auc 0.9700
+best max_f1: 0.9550 +/- 0.0025
+best roc_auc: 0.9971 +/- 0.0004
+best pr_auc: 0.9698 +/- 0.0027
+last max_f1: 0.9533 +/- 0.0019
+last roc_auc: 0.9955 +/- 0.0028
+last pr_auc: 0.9664 +/- 0.0068
+DONE

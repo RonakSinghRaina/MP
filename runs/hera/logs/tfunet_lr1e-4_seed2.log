@@ -1,0 +1,1913 @@
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/compat/v2_compat.py:98: disable_resource_variables (from tensorflow.python.ops.resource_variables_toggle) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+==========================================================================
+  tf_unet on simulated HERA   |   norm = fixed   |   class weights = OFF
+==========================================================================
+  train images      : 316
+  val images        : 35
+  test images       : 135  (simulator labels)
+  leaked images excluded from training: 0
+  steps/epoch       : 175   x 150 epochs = 26,250 gradient steps
+                      (PART 1 synthetic baseline got 175 x 60 = 10,500)
+  leakage check     : train clean, 0 of 316 match any test image  (0.1s)
+  leakage check     : val clean, 0 of 35 match any test image  (0.0s)
+  fixed range       : [0.214931, 73.3724]
+==========================================================================
+2026-11-03 02:54:21,105 Layers 3, features 32, filter size 3x3, pool size: 2x2
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+2026-11-03 02:54:21,124 From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+2026-11-03 02:54:21,876 Removing '/home/ronaksingh/Documents/minor project/Minor Project/prediction'
+2026-11-03 02:54:21,877 Removing '/home/ronaksingh/Documents/minor project/Minor Project/runs/hera/tfunet_lr1e-4_seed2/ckpt'
+2026-11-03 02:54:21,877 Allocating '/home/ronaksingh/Documents/minor project/Minor Project/prediction'
+2026-11-03 02:54:21,877 Allocating '/home/ronaksingh/Documents/minor project/Minor Project/runs/hera/tfunet_lr1e-4_seed2/ckpt'
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1793654662.439322   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+2026-11-03 02:54:26,269 Verification error= 96.1%, loss= 1.0744
+2026-11-03 02:54:26,408 Start optimization
+2026-11-03 02:54:40,431 Iter 0, Minibatch Loss= 1.0648, Training Accuracy= 0.2586, Minibatch error= 74.1%
+2026-11-03 02:54:53,241 Iter 43, Minibatch Loss= 0.6168, Training Accuracy= 0.9525, Minibatch error= 4.8%
+2026-11-03 02:55:06,150 Iter 86, Minibatch Loss= 0.4348, Training Accuracy= 0.9799, Minibatch error= 2.0%
+2026-11-03 02:55:19,125 Iter 129, Minibatch Loss= 0.4660, Training Accuracy= 0.9594, Minibatch error= 4.1%
+2026-11-03 02:55:32,243 Iter 172, Minibatch Loss= 0.4409, Training Accuracy= 0.9598, Minibatch error= 4.0%
+2026-11-03 02:55:32,852   [........................] Epoch 1/150  |  loss 0.5602  |  lr 0.00010  |  1.2m elapsed  |  ETA 178.2m
+2026-11-03 02:55:33,001 Verification error= 4.0%, loss= 0.4461
+2026-11-03 02:55:45,785 Iter 215, Minibatch Loss= 0.4233, Training Accuracy= 0.9612, Minibatch error= 3.9%
+2026-11-03 02:55:58,998 Iter 258, Minibatch Loss= 0.3588, Training Accuracy= 0.9769, Minibatch error= 2.3%
+2026-11-03 02:56:12,222 Iter 301, Minibatch Loss= 0.3464, Training Accuracy= 0.9675, Minibatch error= 3.2%
+2026-11-03 02:56:25,566 Iter 344, Minibatch Loss= 0.3319, Training Accuracy= 0.9706, Minibatch error= 2.9%
+2026-11-03 02:56:27,122   [........................] Epoch 2/150  |  loss 0.3573  |  lr 0.00010  |  2.1m elapsed  |  ETA 155.4m
+2026-11-03 02:56:27,275 Verification error= 4.0%, loss= 0.3512
+2026-11-03 02:56:27,475 Optimization Finished!
+2026-11-03 02:56:27,506 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793654787.894528   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.0000  max-F1 0.0995  ROC 0.6633
+     new best checkpoint saved
+2026-11-03 02:56:33,396 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 02:56:34,127 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 02:56:34,187 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 02:56:35,248 Verification error= 1.6%, loss= 0.2951
+2026-11-03 02:56:35,379 Start optimization
+2026-11-03 02:56:36,760 Iter 0, Minibatch Loss= 0.3654, Training Accuracy= 0.9558, Minibatch error= 4.4%
+2026-11-03 02:56:49,800 Iter 43, Minibatch Loss= 0.3759, Training Accuracy= 0.9480, Minibatch error= 5.2%
+2026-11-03 02:57:02,983 Iter 86, Minibatch Loss= 0.3010, Training Accuracy= 0.9717, Minibatch error= 2.8%
+2026-11-03 02:57:16,349 Iter 129, Minibatch Loss= 0.2654, Training Accuracy= 0.9803, Minibatch error= 2.0%
+2026-11-03 02:57:29,863 Iter 172, Minibatch Loss= 0.2815, Training Accuracy= 0.9656, Minibatch error= 3.4%
+2026-11-03 02:57:30,490   [........................] Epoch 3/150  |  loss 0.2997  |  lr 0.00010  |  3.2m elapsed  |  ETA 154.7m
+2026-11-03 02:57:30,641 Verification error= 1.6%, loss= 0.2284
+2026-11-03 02:57:43,576 Iter 215, Minibatch Loss= 0.2857, Training Accuracy= 0.9493, Minibatch error= 5.1%
+2026-11-03 02:57:57,100 Iter 258, Minibatch Loss= 0.2584, Training Accuracy= 0.9725, Minibatch error= 2.8%
+2026-11-03 02:58:10,441 Iter 301, Minibatch Loss= 0.2315, Training Accuracy= 0.9728, Minibatch error= 2.7%
+2026-11-03 02:58:23,944 Iter 344, Minibatch Loss= 0.2103, Training Accuracy= 0.9825, Minibatch error= 1.7%
+2026-11-03 02:58:25,481   [........................] Epoch 4/150  |  loss 0.2310  |  lr 0.00010  |  4.1m elapsed  |  ETA 148.7m
+2026-11-03 02:58:25,633 Verification error= 1.6%, loss= 0.2055
+2026-11-03 02:58:25,838 Optimization Finished!
+2026-11-03 02:58:25,866 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793654906.267483   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.2417  max-F1 0.5065  ROC 0.9447
+     new best checkpoint saved
+2026-11-03 02:58:30,907 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 02:58:31,647 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 02:58:31,713 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 02:58:32,779 Verification error= 2.1%, loss= 0.2064
+2026-11-03 02:58:32,911 Start optimization
+2026-11-03 02:58:34,287 Iter 0, Minibatch Loss= 0.2625, Training Accuracy= 0.9635, Minibatch error= 3.6%
+2026-11-03 02:58:47,383 Iter 43, Minibatch Loss= 0.2212, Training Accuracy= 0.9820, Minibatch error= 1.8%
+2026-11-03 02:59:00,674 Iter 86, Minibatch Loss= 0.2153, Training Accuracy= 0.9774, Minibatch error= 2.3%
+2026-11-03 02:59:14,257 Iter 129, Minibatch Loss= 0.1773, Training Accuracy= 0.9821, Minibatch error= 1.8%
+2026-11-03 02:59:27,703 Iter 172, Minibatch Loss= 0.1983, Training Accuracy= 0.9829, Minibatch error= 1.7%
+2026-11-03 02:59:28,317   [........................] Epoch 5/150  |  loss 0.1931  |  lr 0.00010  |  5.1m elapsed  |  ETA 148.5m
+2026-11-03 02:59:28,474 Verification error= 1.5%, loss= 0.1830
+2026-11-03 02:59:41,577 Iter 215, Minibatch Loss= 0.2913, Training Accuracy= 0.9686, Minibatch error= 3.1%
+2026-11-03 02:59:55,065 Iter 258, Minibatch Loss= 0.1954, Training Accuracy= 0.9826, Minibatch error= 1.7%
+2026-11-03 03:00:08,619 Iter 301, Minibatch Loss= 0.1736, Training Accuracy= 0.9842, Minibatch error= 1.6%
+2026-11-03 03:00:22,049 Iter 344, Minibatch Loss= 0.1565, Training Accuracy= 0.9873, Minibatch error= 1.3%
+2026-11-03 03:00:23,592   [........................] Epoch 6/150  |  loss 0.1704  |  lr 0.00010  |  6.0m elapsed  |  ETA 145.0m
+2026-11-03 03:00:23,744 Verification error= 1.3%, loss= 0.1525
+2026-11-03 03:00:23,949 Optimization Finished!
+2026-11-03 03:00:23,977 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655024.358456   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.6421  max-F1 0.6469  ROC 0.9716
+     new best checkpoint saved
+2026-11-03 03:00:29,048 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:00:29,803 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:00:29,865 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:00:30,916 Verification error= 1.8%, loss= 0.1820
+2026-11-03 03:00:31,052 Start optimization
+2026-11-03 03:00:32,389 Iter 0, Minibatch Loss= 0.1747, Training Accuracy= 0.9850, Minibatch error= 1.5%
+2026-11-03 03:00:45,421 Iter 43, Minibatch Loss= 0.1429, Training Accuracy= 0.9898, Minibatch error= 1.0%
+2026-11-03 03:00:58,713 Iter 86, Minibatch Loss= 0.1445, Training Accuracy= 0.9868, Minibatch error= 1.3%
+2026-11-03 03:01:12,082 Iter 129, Minibatch Loss= 0.1713, Training Accuracy= 0.9789, Minibatch error= 2.1%
+2026-11-03 03:01:25,708 Iter 172, Minibatch Loss= 0.1946, Training Accuracy= 0.9737, Minibatch error= 2.6%
+2026-11-03 03:01:26,321   [#.......................] Epoch 7/150  |  loss 0.1483  |  lr 0.00010  |  7.1m elapsed  |  ETA 144.8m
+2026-11-03 03:01:26,474 Verification error= 1.8%, loss= 0.1610
+2026-11-03 03:01:39,466 Iter 215, Minibatch Loss= 0.1468, Training Accuracy= 0.9851, Minibatch error= 1.5%
+2026-11-03 03:01:52,981 Iter 258, Minibatch Loss= 0.1677, Training Accuracy= 0.9781, Minibatch error= 2.2%
+2026-11-03 03:02:06,566 Iter 301, Minibatch Loss= 0.1466, Training Accuracy= 0.9854, Minibatch error= 1.5%
+2026-11-03 03:02:19,956 Iter 344, Minibatch Loss= 0.1553, Training Accuracy= 0.9838, Minibatch error= 1.6%
+2026-11-03 03:02:21,496   [#.......................] Epoch 8/150  |  loss 0.1374  |  lr 0.00010  |  8.0m elapsed  |  ETA 142.1m
+2026-11-03 03:02:21,647 Verification error= 1.6%, loss= 0.1517
+2026-11-03 03:02:21,862 Optimization Finished!
+2026-11-03 03:02:21,892 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655142.293675   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.7435  max-F1 0.7539  ROC 0.9787
+     new best checkpoint saved
+2026-11-03 03:02:26,927 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:02:27,865 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:02:27,930 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:02:28,977 Verification error= 1.9%, loss= 0.1562
+2026-11-03 03:02:29,114 Start optimization
+2026-11-03 03:02:30,480 Iter 0, Minibatch Loss= 0.1208, Training Accuracy= 0.9890, Minibatch error= 1.1%
+2026-11-03 03:02:43,591 Iter 43, Minibatch Loss= 0.1240, Training Accuracy= 0.9902, Minibatch error= 1.0%
+2026-11-03 03:02:56,829 Iter 86, Minibatch Loss= 0.1136, Training Accuracy= 0.9918, Minibatch error= 0.8%
+2026-11-03 03:03:10,270 Iter 129, Minibatch Loss= 0.1374, Training Accuracy= 0.9875, Minibatch error= 1.2%
+2026-11-03 03:03:23,884 Iter 172, Minibatch Loss= 0.1030, Training Accuracy= 0.9935, Minibatch error= 0.7%
+2026-11-03 03:03:24,497   [#.......................] Epoch 9/150  |  loss 0.1268  |  lr 0.00010  |  9.1m elapsed  |  ETA 141.9m
+2026-11-03 03:03:24,645 Verification error= 1.6%, loss= 0.1458
+2026-11-03 03:03:37,741 Iter 215, Minibatch Loss= 0.1208, Training Accuracy= 0.9891, Minibatch error= 1.1%
+2026-11-03 03:03:51,183 Iter 258, Minibatch Loss= 0.2598, Training Accuracy= 0.9720, Minibatch error= 2.8%
+2026-11-03 03:04:04,832 Iter 301, Minibatch Loss= 0.1379, Training Accuracy= 0.9883, Minibatch error= 1.2%
+2026-11-03 03:04:18,437 Iter 344, Minibatch Loss= 0.1135, Training Accuracy= 0.9908, Minibatch error= 0.9%
+2026-11-03 03:04:19,992   [#.......................] Epoch 10/150  |  loss 0.1202  |  lr 0.00010  |  10.0m elapsed  |  ETA 139.7m
+2026-11-03 03:04:20,145 Verification error= 1.5%, loss= 0.1329
+2026-11-03 03:04:20,359 Optimization Finished!
+2026-11-03 03:04:20,389 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655260.792838   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.8297  max-F1 0.8336  ROC 0.9817
+     new best checkpoint saved
+2026-11-03 03:04:25,448 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:04:26,184 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:04:26,249 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:04:27,315 Verification error= 1.4%, loss= 0.1289
+2026-11-03 03:04:27,452 Start optimization
+2026-11-03 03:04:28,843 Iter 0, Minibatch Loss= 0.1111, Training Accuracy= 0.9924, Minibatch error= 0.8%
+2026-11-03 03:04:42,022 Iter 43, Minibatch Loss= 0.1038, Training Accuracy= 0.9922, Minibatch error= 0.8%
+2026-11-03 03:04:55,439 Iter 86, Minibatch Loss= 0.1098, Training Accuracy= 0.9923, Minibatch error= 0.8%
+2026-11-03 03:05:08,928 Iter 129, Minibatch Loss= 0.1427, Training Accuracy= 0.9868, Minibatch error= 1.3%
+2026-11-03 03:05:22,669 Iter 172, Minibatch Loss= 0.1385, Training Accuracy= 0.9845, Minibatch error= 1.5%
+2026-11-03 03:05:23,301   [#.......................] Epoch 11/150  |  loss 0.1135  |  lr 0.00010  |  11.0m elapsed  |  ETA 139.5m
+2026-11-03 03:05:23,453 Verification error= 1.1%, loss= 0.1189
+2026-11-03 03:05:36,729 Iter 215, Minibatch Loss= 0.0903, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 03:05:50,398 Iter 258, Minibatch Loss= 0.0847, Training Accuracy= 0.9962, Minibatch error= 0.4%
+2026-11-03 03:06:04,049 Iter 301, Minibatch Loss= 0.1023, Training Accuracy= 0.9923, Minibatch error= 0.8%
+2026-11-03 03:06:17,717 Iter 344, Minibatch Loss= 0.0797, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-03 03:06:19,274   [#.......................] Epoch 12/150  |  loss 0.1062  |  lr 0.00010  |  12.0m elapsed  |  ETA 137.6m
+2026-11-03 03:06:19,426 Verification error= 1.3%, loss= 0.1179
+2026-11-03 03:06:19,633 Optimization Finished!
+2026-11-03 03:06:19,665 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655380.061677   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.8417  max-F1 0.8610  ROC 0.9781
+     new best checkpoint saved
+2026-11-03 03:06:24,823 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:06:25,585 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:06:25,649 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:06:26,716 Verification error= 1.2%, loss= 0.1175
+2026-11-03 03:06:26,852 Start optimization
+2026-11-03 03:06:28,205 Iter 0, Minibatch Loss= 0.1141, Training Accuracy= 0.9883, Minibatch error= 1.2%
+2026-11-03 03:06:41,277 Iter 43, Minibatch Loss= 0.0908, Training Accuracy= 0.9946, Minibatch error= 0.5%
+2026-11-03 03:06:54,666 Iter 86, Minibatch Loss= 0.0845, Training Accuracy= 0.9965, Minibatch error= 0.4%
+2026-11-03 03:07:08,083 Iter 129, Minibatch Loss= 0.1019, Training Accuracy= 0.9913, Minibatch error= 0.9%
+2026-11-03 03:07:21,470 Iter 172, Minibatch Loss= 0.2485, Training Accuracy= 0.9697, Minibatch error= 3.0%
+2026-11-03 03:07:22,093   [##......................] Epoch 13/150  |  loss 0.0993  |  lr 0.00010  |  13.0m elapsed  |  ETA 137.2m
+2026-11-03 03:07:22,242 Verification error= 0.9%, loss= 0.1072
+2026-11-03 03:07:35,355 Iter 215, Minibatch Loss= 0.0742, Training Accuracy= 0.9972, Minibatch error= 0.3%
+2026-11-03 03:07:48,931 Iter 258, Minibatch Loss= 0.0830, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 03:08:02,502 Iter 301, Minibatch Loss= 0.0800, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-03 03:08:16,022 Iter 344, Minibatch Loss= 0.2476, Training Accuracy= 0.9703, Minibatch error= 3.0%
+2026-11-03 03:08:17,569   [##......................] Epoch 14/150  |  loss 0.0935  |  lr 0.00010  |  13.9m elapsed  |  ETA 135.4m
+2026-11-03 03:08:17,719 Verification error= 1.0%, loss= 0.1054
+2026-11-03 03:08:17,927 Optimization Finished!
+2026-11-03 03:08:17,955 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655498.348498   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.8693  max-F1 0.8851  ROC 0.9815
+     new best checkpoint saved
+2026-11-03 03:08:23,103 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:08:23,845 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:08:23,907 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:08:24,972 Verification error= 1.1%, loss= 0.1082
+2026-11-03 03:08:25,112 Start optimization
+2026-11-03 03:08:26,466 Iter 0, Minibatch Loss= 0.1061, Training Accuracy= 0.9892, Minibatch error= 1.1%
+2026-11-03 03:08:39,529 Iter 43, Minibatch Loss= 0.0833, Training Accuracy= 0.9940, Minibatch error= 0.6%
+2026-11-03 03:08:52,818 Iter 86, Minibatch Loss= 0.0709, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-03 03:09:06,139 Iter 129, Minibatch Loss= 0.0839, Training Accuracy= 0.9928, Minibatch error= 0.7%
+2026-11-03 03:09:19,709 Iter 172, Minibatch Loss= 0.0975, Training Accuracy= 0.9902, Minibatch error= 1.0%
+2026-11-03 03:09:20,344   [##......................] Epoch 15/150  |  loss 0.0883  |  lr 0.00010  |  15.0m elapsed  |  ETA 134.9m
+2026-11-03 03:09:20,494 Verification error= 0.8%, loss= 0.0972
+2026-11-03 03:09:33,552 Iter 215, Minibatch Loss= 0.0841, Training Accuracy= 0.9942, Minibatch error= 0.6%
+2026-11-03 03:09:47,092 Iter 258, Minibatch Loss= 0.0831, Training Accuracy= 0.9940, Minibatch error= 0.6%
+2026-11-03 03:10:00,748 Iter 301, Minibatch Loss= 0.0664, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-03 03:10:14,212 Iter 344, Minibatch Loss= 0.0795, Training Accuracy= 0.9940, Minibatch error= 0.6%
+2026-11-03 03:10:15,761   [##......................] Epoch 16/150  |  loss 0.0908  |  lr 0.00010  |  15.9m elapsed  |  ETA 133.3m
+2026-11-03 03:10:15,913 Verification error= 0.9%, loss= 0.0963
+2026-11-03 03:10:16,122 Optimization Finished!
+2026-11-03 03:10:16,152 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655616.543287   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.8917  max-F1 0.8918  ROC 0.9790
+     new best checkpoint saved
+2026-11-03 03:10:21,043 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:10:21,783 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:10:21,846 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:10:22,907 Verification error= 0.4%, loss= 0.0716
+2026-11-03 03:10:23,313 Start optimization
+2026-11-03 03:10:24,703 Iter 0, Minibatch Loss= 0.0792, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 03:10:37,772 Iter 43, Minibatch Loss= 0.0907, Training Accuracy= 0.9930, Minibatch error= 0.7%
+2026-11-03 03:10:51,151 Iter 86, Minibatch Loss= 0.0746, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-03 03:11:04,578 Iter 129, Minibatch Loss= 0.0723, Training Accuracy= 0.9949, Minibatch error= 0.5%
+2026-11-03 03:11:17,978 Iter 172, Minibatch Loss= 0.0785, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-03 03:11:18,591   [##......................] Epoch 17/150  |  loss 0.0853  |  lr 0.00010  |  17.0m elapsed  |  ETA 132.7m
+2026-11-03 03:11:18,747 Verification error= 0.4%, loss= 0.0666
+2026-11-03 03:11:31,930 Iter 215, Minibatch Loss= 0.0789, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 03:11:45,423 Iter 258, Minibatch Loss= 0.0758, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-03 03:11:58,951 Iter 301, Minibatch Loss= 0.0876, Training Accuracy= 0.9904, Minibatch error= 1.0%
+2026-11-03 03:12:12,491 Iter 344, Minibatch Loss= 0.0630, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-03 03:12:14,056   [##......................] Epoch 18/150  |  loss 0.0807  |  lr 0.00010  |  17.9m elapsed  |  ETA 131.1m
+2026-11-03 03:12:14,205 Verification error= 0.4%, loss= 0.0642
+2026-11-03 03:12:14,422 Optimization Finished!
+2026-11-03 03:12:14,457 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655734.853393   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9095  max-F1 0.9119  ROC 0.9856
+     new best checkpoint saved
+2026-11-03 03:12:19,626 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:12:20,385 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:12:20,451 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:12:21,527 Verification error= 0.5%, loss= 0.0683
+2026-11-03 03:12:21,665 Start optimization
+2026-11-03 03:12:23,051 Iter 0, Minibatch Loss= 0.0723, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-03 03:12:36,123 Iter 43, Minibatch Loss= 0.0623, Training Accuracy= 0.9965, Minibatch error= 0.3%
+2026-11-03 03:12:49,604 Iter 86, Minibatch Loss= 0.0628, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-03 03:13:03,061 Iter 129, Minibatch Loss= 0.2227, Training Accuracy= 0.9705, Minibatch error= 2.9%
+2026-11-03 03:13:16,913 Iter 172, Minibatch Loss= 0.0577, Training Accuracy= 0.9975, Minibatch error= 0.3%
+2026-11-03 03:13:17,535   [###.....................] Epoch 19/150  |  loss 0.0786  |  lr 0.00010  |  18.9m elapsed  |  ETA 130.6m
+2026-11-03 03:13:17,686 Verification error= 0.4%, loss= 0.0654
+2026-11-03 03:13:30,787 Iter 215, Minibatch Loss= 0.0710, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-03 03:13:44,237 Iter 258, Minibatch Loss= 0.0608, Training Accuracy= 0.9965, Minibatch error= 0.4%
+2026-11-03 03:13:57,654 Iter 301, Minibatch Loss= 0.0700, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 03:14:11,094 Iter 344, Minibatch Loss= 0.0633, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 03:14:12,640   [###.....................] Epoch 20/150  |  loss 0.0765  |  lr 0.00010  |  19.9m elapsed  |  ETA 129.1m
+2026-11-03 03:14:12,790 Verification error= 0.4%, loss= 0.0637
+2026-11-03 03:14:13,005 Optimization Finished!
+2026-11-03 03:14:13,035 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655853.428027   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9132  max-F1 0.9176  ROC 0.9871
+     new best checkpoint saved
+2026-11-03 03:14:17,881 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:14:18,616 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:14:18,678 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:14:19,729 Verification error= 0.5%, loss= 0.0624
+2026-11-03 03:14:19,867 Start optimization
+2026-11-03 03:14:21,217 Iter 0, Minibatch Loss= 0.0607, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-03 03:14:34,384 Iter 43, Minibatch Loss= 0.0614, Training Accuracy= 0.9954, Minibatch error= 0.5%
+2026-11-03 03:14:47,669 Iter 86, Minibatch Loss= 0.1701, Training Accuracy= 0.9756, Minibatch error= 2.4%
+2026-11-03 03:15:00,994 Iter 129, Minibatch Loss= 0.0589, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-03 03:15:14,450 Iter 172, Minibatch Loss= 0.0700, Training Accuracy= 0.9945, Minibatch error= 0.6%
+2026-11-03 03:15:15,063   [###.....................] Epoch 21/150  |  loss 0.0796  |  lr 0.00010  |  20.9m elapsed  |  ETA 128.4m
+2026-11-03 03:15:15,212 Verification error= 0.5%, loss= 0.0617
+2026-11-03 03:15:28,216 Iter 215, Minibatch Loss= 0.0597, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-03 03:15:41,665 Iter 258, Minibatch Loss= 0.0532, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-03 03:15:55,268 Iter 301, Minibatch Loss= 0.0767, Training Accuracy= 0.9917, Minibatch error= 0.8%
+2026-11-03 03:16:08,749 Iter 344, Minibatch Loss= 0.0643, Training Accuracy= 0.9937, Minibatch error= 0.6%
+2026-11-03 03:16:10,296   [###.....................] Epoch 22/150  |  loss 0.0755  |  lr 0.00010  |  21.8m elapsed  |  ETA 127.0m
+2026-11-03 03:16:10,450 Verification error= 0.5%, loss= 0.0578
+2026-11-03 03:16:10,662 Optimization Finished!
+2026-11-03 03:16:10,691 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793655971.083525   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9194  max-F1 0.9202  ROC 0.9880
+     new best checkpoint saved
+2026-11-03 03:16:15,601 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:16:16,332 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:16:16,394 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:16:17,457 Verification error= 0.6%, loss= 0.0661
+2026-11-03 03:16:17,598 Start optimization
+2026-11-03 03:16:18,978 Iter 0, Minibatch Loss= 0.0634, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:16:32,085 Iter 43, Minibatch Loss= 0.0616, Training Accuracy= 0.9950, Minibatch error= 0.5%
+2026-11-03 03:16:45,463 Iter 86, Minibatch Loss= 0.0711, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-03 03:16:58,888 Iter 129, Minibatch Loss= 0.0734, Training Accuracy= 0.9909, Minibatch error= 0.9%
+2026-11-03 03:17:12,294 Iter 172, Minibatch Loss= 0.0542, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-03 03:17:12,924   [###.....................] Epoch 23/150  |  loss 0.0710  |  lr 0.00010  |  22.9m elapsed  |  ETA 126.2m
+2026-11-03 03:17:13,076 Verification error= 0.5%, loss= 0.0628
+2026-11-03 03:17:26,235 Iter 215, Minibatch Loss= 0.0528, Training Accuracy= 0.9974, Minibatch error= 0.3%
+2026-11-03 03:17:39,728 Iter 258, Minibatch Loss= 0.0756, Training Accuracy= 0.9905, Minibatch error= 0.9%
+2026-11-03 03:17:53,240 Iter 301, Minibatch Loss= 0.0649, Training Accuracy= 0.9930, Minibatch error= 0.7%
+2026-11-03 03:18:06,738 Iter 344, Minibatch Loss= 0.0685, Training Accuracy= 0.9920, Minibatch error= 0.8%
+2026-11-03 03:18:08,298   [###.....................] Epoch 24/150  |  loss 0.0717  |  lr 0.00010  |  23.8m elapsed  |  ETA 124.9m
+2026-11-03 03:18:08,451 Verification error= 0.5%, loss= 0.0607
+2026-11-03 03:18:08,661 Optimization Finished!
+2026-11-03 03:18:08,690 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793656089.078614   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9240  max-F1 0.9241  ROC 0.9901
+     new best checkpoint saved
+2026-11-03 03:18:13,721 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:18:14,481 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:18:14,543 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:18:15,587 Verification error= 0.6%, loss= 0.0630
+2026-11-03 03:18:15,730 Start optimization
+2026-11-03 03:18:17,083 Iter 0, Minibatch Loss= 0.0797, Training Accuracy= 0.9897, Minibatch error= 1.0%
+2026-11-03 03:18:30,191 Iter 43, Minibatch Loss= 0.0658, Training Accuracy= 0.9928, Minibatch error= 0.7%
+2026-11-03 03:18:43,488 Iter 86, Minibatch Loss= 0.0688, Training Accuracy= 0.9913, Minibatch error= 0.9%
+2026-11-03 03:18:56,849 Iter 129, Minibatch Loss= 0.0624, Training Accuracy= 0.9939, Minibatch error= 0.6%
+2026-11-03 03:19:10,294 Iter 172, Minibatch Loss= 0.0567, Training Accuracy= 0.9950, Minibatch error= 0.5%
+2026-11-03 03:19:10,921   [####....................] Epoch 25/150  |  loss 0.0680  |  lr 0.00010  |  24.8m elapsed  |  ETA 124.2m
+2026-11-03 03:19:11,072 Verification error= 0.6%, loss= 0.0607
+2026-11-03 03:19:24,204 Iter 215, Minibatch Loss= 0.0613, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 03:19:37,595 Iter 258, Minibatch Loss= 0.0523, Training Accuracy= 0.9970, Minibatch error= 0.3%
+2026-11-03 03:19:51,115 Iter 301, Minibatch Loss= 0.0690, Training Accuracy= 0.9911, Minibatch error= 0.9%
+2026-11-03 03:20:04,579 Iter 344, Minibatch Loss= 0.0486, Training Accuracy= 0.9966, Minibatch error= 0.3%
+2026-11-03 03:20:06,133   [####....................] Epoch 26/150  |  loss 0.0654  |  lr 0.00010  |  25.8m elapsed  |  ETA 122.8m
+2026-11-03 03:20:06,284 Verification error= 0.6%, loss= 0.0589
+2026-11-03 03:20:06,490 Optimization Finished!
+2026-11-03 03:20:06,518 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793656207.146686   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9233  max-F1 0.9255  ROC 0.9920
+     new best checkpoint saved
+2026-11-03 03:20:11,657 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:20:12,398 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:20:12,462 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:20:13,541 Verification error= 0.5%, loss= 0.0583
+2026-11-03 03:20:13,684 Start optimization
+2026-11-03 03:20:15,035 Iter 0, Minibatch Loss= 0.0467, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-03 03:20:28,175 Iter 43, Minibatch Loss= 0.0515, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-03 03:20:41,490 Iter 86, Minibatch Loss= 0.0654, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-03 03:20:54,926 Iter 129, Minibatch Loss= 0.0581, Training Accuracy= 0.9938, Minibatch error= 0.6%
+2026-11-03 03:21:08,481 Iter 172, Minibatch Loss= 0.0631, Training Accuracy= 0.9940, Minibatch error= 0.6%
+2026-11-03 03:21:09,105   [####....................] Epoch 27/150  |  loss 0.0638  |  lr 0.00010  |  26.8m elapsed  |  ETA 122.1m
+2026-11-03 03:21:09,258 Verification error= 0.6%, loss= 0.0580
+2026-11-03 03:21:22,252 Iter 215, Minibatch Loss= 0.0495, Training Accuracy= 0.9970, Minibatch error= 0.3%
+2026-11-03 03:21:35,714 Iter 258, Minibatch Loss= 0.0476, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 03:21:49,223 Iter 301, Minibatch Loss= 0.0536, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-03 03:22:02,950 Iter 344, Minibatch Loss= 0.0496, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-03 03:22:04,499   [####....................] Epoch 28/150  |  loss 0.0661  |  lr 0.00010  |  27.7m elapsed  |  ETA 120.8m
+2026-11-03 03:22:04,650 Verification error= 0.6%, loss= 0.0565
+2026-11-03 03:22:04,858 Optimization Finished!
+2026-11-03 03:22:04,887 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793656325.278350   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9209  max-F1 0.9212  ROC 0.9863
+2026-11-03 03:22:09,742 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:22:10,474 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:22:10,537 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:22:11,589 Verification error= 0.5%, loss= 0.0551
+2026-11-03 03:22:11,726 Start optimization
+2026-11-03 03:22:13,092 Iter 0, Minibatch Loss= 0.0588, Training Accuracy= 0.9932, Minibatch error= 0.7%
+2026-11-03 03:22:26,244 Iter 43, Minibatch Loss= 0.0449, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-03 03:22:39,499 Iter 86, Minibatch Loss= 0.0521, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 03:22:53,077 Iter 129, Minibatch Loss= 0.0621, Training Accuracy= 0.9920, Minibatch error= 0.8%
+2026-11-03 03:23:06,485 Iter 172, Minibatch Loss= 0.0519, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-03 03:23:07,107   [####....................] Epoch 29/150  |  loss 0.0592  |  lr 0.00010  |  28.8m elapsed  |  ETA 120.0m
+2026-11-03 03:23:07,259 Verification error= 0.5%, loss= 0.0527
+2026-11-03 03:23:20,389 Iter 215, Minibatch Loss= 0.0612, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-03 03:23:34,041 Iter 258, Minibatch Loss= 0.1722, Training Accuracy= 0.9713, Minibatch error= 2.9%
+2026-11-03 03:23:47,586 Iter 301, Minibatch Loss= 0.0560, Training Accuracy= 0.9944, Minibatch error= 0.6%
+2026-11-03 03:24:01,024 Iter 344, Minibatch Loss= 0.0705, Training Accuracy= 0.9889, Minibatch error= 1.1%
+2026-11-03 03:24:02,614   [####....................] Epoch 30/150  |  loss 0.0612  |  lr 0.00010  |  29.7m elapsed  |  ETA 118.8m
+2026-11-03 03:24:02,766 Verification error= 0.5%, loss= 0.0520
+2026-11-03 03:24:02,978 Optimization Finished!
+2026-11-03 03:24:03,008 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793656443.411282   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9190  max-F1 0.9277  ROC 0.9913
+     new best checkpoint saved
+2026-11-03 03:24:07,881 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:24:08,661 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:24:08,728 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:24:09,883 Verification error= 0.7%, loss= 0.0589
+2026-11-03 03:24:10,040 Start optimization
+2026-11-03 03:24:11,477 Iter 0, Minibatch Loss= 0.0670, Training Accuracy= 0.9916, Minibatch error= 0.8%
+2026-11-03 03:24:24,566 Iter 43, Minibatch Loss= 0.0450, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:24:38,048 Iter 86, Minibatch Loss= 0.1522, Training Accuracy= 0.9761, Minibatch error= 2.4%
+2026-11-03 03:24:51,490 Iter 129, Minibatch Loss= 0.0502, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:25:04,933 Iter 172, Minibatch Loss= 0.0465, Training Accuracy= 0.9962, Minibatch error= 0.4%
+2026-11-03 03:25:05,558   [####....................] Epoch 31/150  |  loss 0.0577  |  lr 0.00010  |  30.7m elapsed  |  ETA 118.0m
+2026-11-03 03:25:05,709 Verification error= 0.7%, loss= 0.0577
+2026-11-03 03:25:18,699 Iter 215, Minibatch Loss= 0.0611, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-03 03:25:32,125 Iter 258, Minibatch Loss= 0.0649, Training Accuracy= 0.9907, Minibatch error= 0.9%
+2026-11-03 03:25:45,644 Iter 301, Minibatch Loss= 0.0484, Training Accuracy= 0.9954, Minibatch error= 0.5%
+2026-11-03 03:25:59,031 Iter 344, Minibatch Loss= 0.0471, Training Accuracy= 0.9942, Minibatch error= 0.6%
+2026-11-03 03:26:00,645   [#####...................] Epoch 32/150  |  loss 0.0584  |  lr 0.00010  |  31.7m elapsed  |  ETA 116.7m
+2026-11-03 03:26:00,821 Verification error= 0.7%, loss= 0.0560
+2026-11-03 03:26:01,034 Optimization Finished!
+2026-11-03 03:26:01,066 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793656561.454960   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9258  max-F1 0.9267  ROC 0.9912
+2026-11-03 03:26:05,839 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:26:06,582 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:26:06,646 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:26:07,710 Verification error= 0.4%, loss= 0.0413
+2026-11-03 03:26:07,845 Start optimization
+2026-11-03 03:26:09,195 Iter 0, Minibatch Loss= 0.0436, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-03 03:26:22,308 Iter 43, Minibatch Loss= 0.0517, Training Accuracy= 0.9940, Minibatch error= 0.6%
+2026-11-03 03:26:35,629 Iter 86, Minibatch Loss= 0.1341, Training Accuracy= 0.9769, Minibatch error= 2.3%
+2026-11-03 03:26:49,090 Iter 129, Minibatch Loss= 0.0457, Training Accuracy= 0.9969, Minibatch error= 0.3%
+2026-11-03 03:27:02,955 Iter 172, Minibatch Loss= 0.1471, Training Accuracy= 0.9777, Minibatch error= 2.2%
+2026-11-03 03:27:03,574   [#####...................] Epoch 33/150  |  loss 0.0602  |  lr 0.00010  |  32.7m elapsed  |  ETA 116.0m
+2026-11-03 03:27:03,726 Verification error= 0.4%, loss= 0.0409
+2026-11-03 03:27:16,838 Iter 215, Minibatch Loss= 0.0376, Training Accuracy= 0.9983, Minibatch error= 0.2%
+2026-11-03 03:27:30,422 Iter 258, Minibatch Loss= 0.0402, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-03 03:27:44,019 Iter 301, Minibatch Loss= 0.0437, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 03:27:57,515 Iter 344, Minibatch Loss= 0.0442, Training Accuracy= 0.9954, Minibatch error= 0.5%
+2026-11-03 03:27:59,073   [#####...................] Epoch 34/150  |  loss 0.0541  |  lr 0.00010  |  33.6m elapsed  |  ETA 114.7m
+2026-11-03 03:27:59,224 Verification error= 0.4%, loss= 0.0417
+2026-11-03 03:27:59,438 Optimization Finished!
+2026-11-03 03:27:59,467 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793656679.868928   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9236  max-F1 0.9239  ROC 0.9884
+2026-11-03 03:28:04,366 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:28:05,388 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:28:05,456 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:28:06,561 Verification error= 0.5%, loss= 0.0498
+2026-11-03 03:28:06,706 Start optimization
+2026-11-03 03:28:08,101 Iter 0, Minibatch Loss= 0.0462, Training Accuracy= 0.9945, Minibatch error= 0.6%
+2026-11-03 03:28:21,121 Iter 43, Minibatch Loss= 0.0437, Training Accuracy= 0.9960, Minibatch error= 0.4%
+2026-11-03 03:28:34,480 Iter 86, Minibatch Loss= 0.0471, Training Accuracy= 0.9950, Minibatch error= 0.5%
+2026-11-03 03:28:48,143 Iter 129, Minibatch Loss= 0.0439, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-03 03:29:01,731 Iter 172, Minibatch Loss= 0.0481, Training Accuracy= 0.9944, Minibatch error= 0.6%
+2026-11-03 03:29:02,355   [#####...................] Epoch 35/150  |  loss 0.0560  |  lr 0.00010  |  34.7m elapsed  |  ETA 114.0m
+2026-11-03 03:29:02,513 Verification error= 0.5%, loss= 0.0470
+2026-11-03 03:29:15,729 Iter 215, Minibatch Loss= 0.0564, Training Accuracy= 0.9927, Minibatch error= 0.7%
+2026-11-03 03:29:29,325 Iter 258, Minibatch Loss= 0.0524, Training Accuracy= 0.9938, Minibatch error= 0.6%
+2026-11-03 03:29:42,904 Iter 301, Minibatch Loss= 0.0507, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 03:29:56,413 Iter 344, Minibatch Loss= 0.0492, Training Accuracy= 0.9930, Minibatch error= 0.7%
+2026-11-03 03:29:57,967   [#####...................] Epoch 36/150  |  loss 0.0543  |  lr 0.00010  |  35.6m elapsed  |  ETA 112.8m
+2026-11-03 03:29:58,118 Verification error= 0.6%, loss= 0.0473
+2026-11-03 03:29:58,374 Optimization Finished!
+2026-11-03 03:29:58,403 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793656798.795046   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9093  max-F1 0.9230  ROC 0.9922
+2026-11-03 03:30:03,257 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:30:03,989 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:30:04,052 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:30:05,119 Verification error= 0.6%, loss= 0.0461
+2026-11-03 03:30:05,268 Start optimization
+2026-11-03 03:30:06,616 Iter 0, Minibatch Loss= 0.0469, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-03 03:30:19,885 Iter 43, Minibatch Loss= 0.1961, Training Accuracy= 0.9704, Minibatch error= 3.0%
+2026-11-03 03:30:33,321 Iter 86, Minibatch Loss= 0.0381, Training Accuracy= 0.9962, Minibatch error= 0.4%
+2026-11-03 03:30:46,810 Iter 129, Minibatch Loss= 0.0505, Training Accuracy= 0.9932, Minibatch error= 0.7%
+2026-11-03 03:31:00,320 Iter 172, Minibatch Loss= 0.0360, Training Accuracy= 0.9982, Minibatch error= 0.2%
+2026-11-03 03:31:00,901   [#####...................] Epoch 37/150  |  loss 0.0528  |  lr 0.00010  |  36.7m elapsed  |  ETA 112.0m
+2026-11-03 03:31:01,063 Verification error= 0.4%, loss= 0.0422
+2026-11-03 03:31:14,121 Iter 215, Minibatch Loss= 0.0346, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-03 03:31:27,702 Iter 258, Minibatch Loss= 0.0432, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-03 03:31:41,220 Iter 301, Minibatch Loss= 0.0743, Training Accuracy= 0.9889, Minibatch error= 1.1%
+2026-11-03 03:31:54,655 Iter 344, Minibatch Loss= 0.0747, Training Accuracy= 0.9869, Minibatch error= 1.3%
+2026-11-03 03:31:56,211   [######..................] Epoch 38/150  |  loss 0.0491  |  lr 0.00010  |  37.6m elapsed  |  ETA 110.8m
+2026-11-03 03:31:56,370 Verification error= 0.4%, loss= 0.0408
+2026-11-03 03:31:56,593 Optimization Finished!
+2026-11-03 03:31:56,626 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793656917.034061   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9271  max-F1 0.9288  ROC 0.9933
+     new best checkpoint saved
+2026-11-03 03:32:01,632 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:32:02,379 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:32:02,445 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:32:03,510 Verification error= 0.4%, loss= 0.0373
+2026-11-03 03:32:03,647 Start optimization
+2026-11-03 03:32:05,031 Iter 0, Minibatch Loss= 0.0391, Training Accuracy= 0.9965, Minibatch error= 0.4%
+2026-11-03 03:32:18,126 Iter 43, Minibatch Loss= 0.0422, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-03 03:32:31,551 Iter 86, Minibatch Loss= 0.1608, Training Accuracy= 0.9661, Minibatch error= 3.4%
+2026-11-03 03:32:45,067 Iter 129, Minibatch Loss= 0.2100, Training Accuracy= 0.9674, Minibatch error= 3.3%
+2026-11-03 03:32:58,688 Iter 172, Minibatch Loss= 0.0334, Training Accuracy= 0.9977, Minibatch error= 0.2%
+2026-11-03 03:32:59,323   [######..................] Epoch 39/150  |  loss 0.0590  |  lr 0.00010  |  38.6m elapsed  |  ETA 110.0m
+2026-11-03 03:32:59,473 Verification error= 0.4%, loss= 0.0368
+2026-11-03 03:33:12,525 Iter 215, Minibatch Loss= 0.0489, Training Accuracy= 0.9932, Minibatch error= 0.7%
+2026-11-03 03:33:26,074 Iter 258, Minibatch Loss= 0.0415, Training Accuracy= 0.9946, Minibatch error= 0.5%
+2026-11-03 03:33:39,637 Iter 301, Minibatch Loss= 0.0329, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-03 03:33:53,171 Iter 344, Minibatch Loss= 0.0420, Training Accuracy= 0.9955, Minibatch error= 0.5%
+2026-11-03 03:33:54,718   [######..................] Epoch 40/150  |  loss 0.0455  |  lr 0.00010  |  39.6m elapsed  |  ETA 108.8m
+2026-11-03 03:33:54,875 Verification error= 0.4%, loss= 0.0359
+2026-11-03 03:33:55,096 Optimization Finished!
+2026-11-03 03:33:55,127 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657035.527343   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9276  max-F1 0.9284  ROC 0.9919
+2026-11-03 03:34:00,121 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:34:00,859 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:34:00,920 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:34:01,965 Verification error= 0.5%, loss= 0.0434
+2026-11-03 03:34:02,107 Start optimization
+2026-11-03 03:34:03,459 Iter 0, Minibatch Loss= 0.0427, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:34:16,833 Iter 43, Minibatch Loss= 0.0422, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-03 03:34:30,335 Iter 86, Minibatch Loss= 0.1337, Training Accuracy= 0.9800, Minibatch error= 2.0%
+2026-11-03 03:34:43,869 Iter 129, Minibatch Loss= 0.0388, Training Accuracy= 0.9972, Minibatch error= 0.3%
+2026-11-03 03:34:57,371 Iter 172, Minibatch Loss= 0.0485, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 03:34:57,965   [######..................] Epoch 41/150  |  loss 0.0527  |  lr 0.00010  |  40.6m elapsed  |  ETA 108.0m
+2026-11-03 03:34:58,120 Verification error= 0.5%, loss= 0.0428
+2026-11-03 03:35:11,294 Iter 215, Minibatch Loss= 0.0556, Training Accuracy= 0.9921, Minibatch error= 0.8%
+2026-11-03 03:35:24,845 Iter 258, Minibatch Loss= 0.0418, Training Accuracy= 0.9939, Minibatch error= 0.6%
+2026-11-03 03:35:38,362 Iter 301, Minibatch Loss= 0.0435, Training Accuracy= 0.9941, Minibatch error= 0.6%
+2026-11-03 03:35:51,895 Iter 344, Minibatch Loss= 0.0348, Training Accuracy= 0.9969, Minibatch error= 0.3%
+2026-11-03 03:35:53,456   [######..................] Epoch 42/150  |  loss 0.0519  |  lr 0.00010  |  41.5m elapsed  |  ETA 106.8m
+2026-11-03 03:35:53,610 Verification error= 0.6%, loss= 0.0431
+2026-11-03 03:35:53,820 Optimization Finished!
+2026-11-03 03:35:53,850 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657154.253066   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9262  max-F1 0.9290  ROC 0.9928
+     new best checkpoint saved
+2026-11-03 03:35:58,857 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:35:59,600 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:35:59,666 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:36:00,832 Verification error= 0.6%, loss= 0.0425
+2026-11-03 03:36:00,993 Start optimization
+2026-11-03 03:36:02,403 Iter 0, Minibatch Loss= 0.0449, Training Accuracy= 0.9946, Minibatch error= 0.5%
+2026-11-03 03:36:15,674 Iter 43, Minibatch Loss= 0.0438, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-03 03:36:29,074 Iter 86, Minibatch Loss= 0.0466, Training Accuracy= 0.9925, Minibatch error= 0.7%
+2026-11-03 03:36:42,484 Iter 129, Minibatch Loss= 0.0435, Training Accuracy= 0.9950, Minibatch error= 0.5%
+2026-11-03 03:36:55,944 Iter 172, Minibatch Loss= 0.0491, Training Accuracy= 0.9925, Minibatch error= 0.7%
+2026-11-03 03:36:56,560   [######..................] Epoch 43/150  |  loss 0.0476  |  lr 0.00010  |  42.6m elapsed  |  ETA 106.0m
+2026-11-03 03:36:56,710 Verification error= 0.5%, loss= 0.0408
+2026-11-03 03:37:09,835 Iter 215, Minibatch Loss= 0.0378, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-03 03:37:23,294 Iter 258, Minibatch Loss= 0.0467, Training Accuracy= 0.9921, Minibatch error= 0.8%
+2026-11-03 03:37:36,699 Iter 301, Minibatch Loss= 0.2021, Training Accuracy= 0.9694, Minibatch error= 3.1%
+2026-11-03 03:37:50,386 Iter 344, Minibatch Loss= 0.0311, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-03 03:37:51,945   [#######.................] Epoch 44/150  |  loss 0.0517  |  lr 0.00010  |  43.5m elapsed  |  ETA 104.8m
+2026-11-03 03:37:52,096 Verification error= 0.6%, loss= 0.0406
+2026-11-03 03:37:52,306 Optimization Finished!
+2026-11-03 03:37:52,336 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657272.980896   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9302  max-F1 0.9308  ROC 0.9934
+     new best checkpoint saved
+2026-11-03 03:37:57,493 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:37:58,243 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:37:58,307 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:37:59,391 Verification error= 0.4%, loss= 0.0333
+2026-11-03 03:37:59,532 Start optimization
+2026-11-03 03:38:00,929 Iter 0, Minibatch Loss= 0.0403, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 03:38:14,067 Iter 43, Minibatch Loss= 0.0378, Training Accuracy= 0.9950, Minibatch error= 0.5%
+2026-11-03 03:38:27,388 Iter 86, Minibatch Loss= 0.0307, Training Accuracy= 0.9978, Minibatch error= 0.2%
+2026-11-03 03:38:40,713 Iter 129, Minibatch Loss= 0.0463, Training Accuracy= 0.9931, Minibatch error= 0.7%
+2026-11-03 03:38:54,134 Iter 172, Minibatch Loss= 0.0313, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-03 03:38:54,746   [#######.................] Epoch 45/150  |  loss 0.0462  |  lr 0.00010  |  44.6m elapsed  |  ETA 104.0m
+2026-11-03 03:38:54,897 Verification error= 0.4%, loss= 0.0326
+2026-11-03 03:39:07,852 Iter 215, Minibatch Loss= 0.0317, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-03 03:39:21,485 Iter 258, Minibatch Loss= 0.0413, Training Accuracy= 0.9939, Minibatch error= 0.6%
+2026-11-03 03:39:34,896 Iter 301, Minibatch Loss= 0.0381, Training Accuracy= 0.9954, Minibatch error= 0.5%
+2026-11-03 03:39:48,250 Iter 344, Minibatch Loss= 0.0424, Training Accuracy= 0.9942, Minibatch error= 0.6%
+2026-11-03 03:39:49,813   [#######.................] Epoch 46/150  |  loss 0.0463  |  lr 0.00010  |  45.5m elapsed  |  ETA 102.8m
+2026-11-03 03:39:49,964 Verification error= 0.4%, loss= 0.0334
+2026-11-03 03:39:50,178 Optimization Finished!
+2026-11-03 03:39:50,207 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657390.596062   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9264  max-F1 0.9314  ROC 0.9927
+     new best checkpoint saved
+2026-11-03 03:39:55,116 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:39:55,881 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:39:55,949 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:39:57,017 Verification error= 0.7%, loss= 0.0443
+2026-11-03 03:39:57,165 Start optimization
+2026-11-03 03:39:58,541 Iter 0, Minibatch Loss= 0.0389, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:40:11,570 Iter 43, Minibatch Loss= 0.0293, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-03 03:40:24,883 Iter 86, Minibatch Loss= 0.0287, Training Accuracy= 0.9974, Minibatch error= 0.3%
+2026-11-03 03:40:38,347 Iter 129, Minibatch Loss= 0.0399, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-03 03:40:51,883 Iter 172, Minibatch Loss= 0.0275, Training Accuracy= 0.9982, Minibatch error= 0.2%
+2026-11-03 03:40:52,520   [#######.................] Epoch 47/150  |  loss 0.0460  |  lr 0.00010  |  46.5m elapsed  |  ETA 102.0m
+2026-11-03 03:40:52,668 Verification error= 0.7%, loss= 0.0438
+2026-11-03 03:41:06,026 Iter 215, Minibatch Loss= 0.0314, Training Accuracy= 0.9962, Minibatch error= 0.4%
+2026-11-03 03:41:19,688 Iter 258, Minibatch Loss= 0.0341, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-03 03:41:33,363 Iter 301, Minibatch Loss= 0.0252, Training Accuracy= 0.9986, Minibatch error= 0.1%
+2026-11-03 03:41:46,897 Iter 344, Minibatch Loss= 0.0417, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 03:41:48,449   [#######.................] Epoch 48/150  |  loss 0.0462  |  lr 0.00010  |  47.5m elapsed  |  ETA 100.8m
+2026-11-03 03:41:48,602 Verification error= 0.9%, loss= 0.0496
+2026-11-03 03:41:48,826 Optimization Finished!
+2026-11-03 03:41:48,856 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657509.251569   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9237  max-F1 0.9247  ROC 0.9893
+2026-11-03 03:41:53,901 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:41:54,680 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:41:54,746 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:41:55,857 Verification error= 0.7%, loss= 0.0491
+2026-11-03 03:41:56,010 Start optimization
+2026-11-03 03:41:57,384 Iter 0, Minibatch Loss= 0.1165, Training Accuracy= 0.9812, Minibatch error= 1.9%
+2026-11-03 03:42:10,521 Iter 43, Minibatch Loss= 0.0357, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-03 03:42:23,880 Iter 86, Minibatch Loss= 0.0286, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-03 03:42:37,385 Iter 129, Minibatch Loss= 0.0356, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-03 03:42:50,946 Iter 172, Minibatch Loss= 0.0253, Training Accuracy= 0.9989, Minibatch error= 0.1%
+2026-11-03 03:42:51,564   [#######.................] Epoch 49/150  |  loss 0.0456  |  lr 0.00010  |  48.5m elapsed  |  ETA 100.0m
+2026-11-03 03:42:51,715 Verification error= 0.6%, loss= 0.0418
+2026-11-03 03:43:04,878 Iter 215, Minibatch Loss= 0.0213, Training Accuracy= 0.9995, Minibatch error= 0.0%
+2026-11-03 03:43:18,475 Iter 258, Minibatch Loss= 0.0433, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-03 03:43:32,084 Iter 301, Minibatch Loss= 0.0337, Training Accuracy= 0.9960, Minibatch error= 0.4%
+2026-11-03 03:43:45,579 Iter 344, Minibatch Loss= 0.0588, Training Accuracy= 0.9900, Minibatch error= 1.0%
+2026-11-03 03:43:47,116   [########................] Epoch 50/150  |  loss 0.0456  |  lr 0.00010  |  49.4m elapsed  |  ETA 98.9m
+2026-11-03 03:43:47,267 Verification error= 0.6%, loss= 0.0442
+2026-11-03 03:43:47,493 Optimization Finished!
+2026-11-03 03:43:47,526 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657627.921727   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9303  max-F1 0.9311  ROC 0.9940
+2026-11-03 03:43:52,629 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:43:53,417 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:43:53,487 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:43:54,577 Verification error= 1.0%, loss= 0.0504
+2026-11-03 03:43:54,723 Start optimization
+2026-11-03 03:43:56,095 Iter 0, Minibatch Loss= 0.0349, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-03 03:44:09,307 Iter 43, Minibatch Loss= 0.0401, Training Accuracy= 0.9932, Minibatch error= 0.7%
+2026-11-03 03:44:22,839 Iter 86, Minibatch Loss= 0.0436, Training Accuracy= 0.9941, Minibatch error= 0.6%
+2026-11-03 03:44:36,603 Iter 129, Minibatch Loss= 0.0247, Training Accuracy= 0.9983, Minibatch error= 0.2%
+2026-11-03 03:44:50,136 Iter 172, Minibatch Loss= 0.1601, Training Accuracy= 0.9730, Minibatch error= 2.7%
+2026-11-03 03:44:50,766   [########................] Epoch 51/150  |  loss 0.0412  |  lr 0.00010  |  50.5m elapsed  |  ETA 98.0m
+2026-11-03 03:44:50,919 Verification error= 1.1%, loss= 0.0526
+2026-11-03 03:45:04,254 Iter 215, Minibatch Loss= 0.0344, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:45:17,837 Iter 258, Minibatch Loss= 0.1982, Training Accuracy= 0.9679, Minibatch error= 3.2%
+2026-11-03 03:45:31,432 Iter 301, Minibatch Loss= 0.0315, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 03:45:44,912 Iter 344, Minibatch Loss= 0.0419, Training Accuracy= 0.9945, Minibatch error= 0.5%
+2026-11-03 03:45:46,487   [########................] Epoch 52/150  |  loss 0.0443  |  lr 0.00010  |  51.4m elapsed  |  ETA 96.9m
+2026-11-03 03:45:46,639 Verification error= 1.0%, loss= 0.0508
+2026-11-03 03:45:47,010 Optimization Finished!
+2026-11-03 03:45:47,040 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657747.447495   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9303  max-F1 0.9307  ROC 0.9938
+2026-11-03 03:45:52,516 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:45:53,508 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:45:53,572 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:45:54,672 Verification error= 0.7%, loss= 0.0439
+2026-11-03 03:45:54,819 Start optimization
+2026-11-03 03:45:56,241 Iter 0, Minibatch Loss= 0.0382, Training Accuracy= 0.9940, Minibatch error= 0.6%
+2026-11-03 03:46:09,329 Iter 43, Minibatch Loss= 0.0292, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-03 03:46:22,738 Iter 86, Minibatch Loss= 0.0359, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-03 03:46:36,172 Iter 129, Minibatch Loss= 0.0246, Training Accuracy= 0.9983, Minibatch error= 0.2%
+2026-11-03 03:46:49,762 Iter 172, Minibatch Loss= 0.0392, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 03:46:50,377   [########................] Epoch 53/150  |  loss 0.0415  |  lr 0.00010  |  52.5m elapsed  |  ETA 96.1m
+2026-11-03 03:46:50,526 Verification error= 0.8%, loss= 0.0474
+2026-11-03 03:47:03,546 Iter 215, Minibatch Loss= 0.0219, Training Accuracy= 0.9990, Minibatch error= 0.1%
+2026-11-03 03:47:16,842 Iter 258, Minibatch Loss= 0.0334, Training Accuracy= 0.9954, Minibatch error= 0.5%
+2026-11-03 03:47:30,251 Iter 301, Minibatch Loss= 0.0514, Training Accuracy= 0.9905, Minibatch error= 1.0%
+2026-11-03 03:47:43,583 Iter 344, Minibatch Loss= 0.0359, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 03:47:45,111   [########................] Epoch 54/150  |  loss 0.0450  |  lr 0.00010  |  53.4m elapsed  |  ETA 94.9m
+2026-11-03 03:47:45,273 Verification error= 0.8%, loss= 0.0451
+2026-11-03 03:47:45,503 Optimization Finished!
+2026-11-03 03:47:45,533 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657865.929708   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9244  max-F1 0.9299  ROC 0.9941
+2026-11-03 03:47:50,557 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:47:51,303 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:47:51,367 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:47:52,431 Verification error= 0.4%, loss= 0.0375
+2026-11-03 03:47:52,571 Start optimization
+2026-11-03 03:47:53,923 Iter 0, Minibatch Loss= 0.0298, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-03 03:48:07,053 Iter 43, Minibatch Loss= 0.0313, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 03:48:20,363 Iter 86, Minibatch Loss= 0.0394, Training Accuracy= 0.9931, Minibatch error= 0.7%
+2026-11-03 03:48:33,706 Iter 129, Minibatch Loss= 0.0332, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-03 03:48:47,013 Iter 172, Minibatch Loss= 0.0477, Training Accuracy= 0.9912, Minibatch error= 0.9%
+2026-11-03 03:48:47,624   [########................] Epoch 55/150  |  loss 0.0452  |  lr 0.00010  |  54.4m elapsed  |  ETA 94.0m
+2026-11-03 03:48:47,772 Verification error= 0.3%, loss= 0.0353
+2026-11-03 03:49:00,739 Iter 215, Minibatch Loss= 0.0425, Training Accuracy= 0.9926, Minibatch error= 0.7%
+2026-11-03 03:49:14,069 Iter 258, Minibatch Loss= 0.0314, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-03 03:49:27,692 Iter 301, Minibatch Loss= 0.0444, Training Accuracy= 0.9930, Minibatch error= 0.7%
+2026-11-03 03:49:41,027 Iter 344, Minibatch Loss= 0.0280, Training Accuracy= 0.9965, Minibatch error= 0.3%
+2026-11-03 03:49:42,560   [########................] Epoch 56/150  |  loss 0.0458  |  lr 0.00010  |  55.4m elapsed  |  ETA 92.9m
+2026-11-03 03:49:42,715 Verification error= 0.3%, loss= 0.0331
+2026-11-03 03:49:42,919 Optimization Finished!
+2026-11-03 03:49:42,951 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793657983.368410   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9271  max-F1 0.9274  ROC 0.9921
+2026-11-03 03:49:47,834 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:49:48,590 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:49:48,654 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:49:49,716 Verification error= 0.6%, loss= 0.0391
+2026-11-03 03:49:49,855 Start optimization
+2026-11-03 03:49:51,198 Iter 0, Minibatch Loss= 0.0310, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 03:50:04,134 Iter 43, Minibatch Loss= 0.0261, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-03 03:50:17,342 Iter 86, Minibatch Loss= 0.0355, Training Accuracy= 0.9936, Minibatch error= 0.6%
+2026-11-03 03:50:30,539 Iter 129, Minibatch Loss= 0.0356, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-03 03:50:43,979 Iter 172, Minibatch Loss= 0.0402, Training Accuracy= 0.9931, Minibatch error= 0.7%
+2026-11-03 03:50:44,572   [#########...............] Epoch 57/150  |  loss 0.0388  |  lr 0.00010  |  56.4m elapsed  |  ETA 92.0m
+2026-11-03 03:50:44,722 Verification error= 0.7%, loss= 0.0401
+2026-11-03 03:50:57,708 Iter 215, Minibatch Loss= 0.0271, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-03 03:51:11,308 Iter 258, Minibatch Loss= 0.0432, Training Accuracy= 0.9928, Minibatch error= 0.7%
+2026-11-03 03:51:24,755 Iter 301, Minibatch Loss= 0.0273, Training Accuracy= 0.9977, Minibatch error= 0.2%
+2026-11-03 03:51:38,168 Iter 344, Minibatch Loss= 0.0487, Training Accuracy= 0.9908, Minibatch error= 0.9%
+2026-11-03 03:51:39,721   [#########...............] Epoch 58/150  |  loss 0.0408  |  lr 0.00010  |  57.3m elapsed  |  ETA 90.9m
+2026-11-03 03:51:39,870 Verification error= 0.8%, loss= 0.0465
+2026-11-03 03:51:40,100 Optimization Finished!
+2026-11-03 03:51:40,128 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793658100.524410   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9137  max-F1 0.9246  ROC 0.9892
+2026-11-03 03:51:45,123 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:51:45,861 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:51:45,925 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:51:46,996 Verification error= 1.0%, loss= 0.0512
+2026-11-03 03:51:47,136 Start optimization
+2026-11-03 03:51:48,490 Iter 0, Minibatch Loss= 0.0412, Training Accuracy= 0.9937, Minibatch error= 0.6%
+2026-11-03 03:52:01,469 Iter 43, Minibatch Loss= 0.0423, Training Accuracy= 0.9929, Minibatch error= 0.7%
+2026-11-03 03:52:14,601 Iter 86, Minibatch Loss= 0.0237, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-03 03:52:27,834 Iter 129, Minibatch Loss= 0.0381, Training Accuracy= 0.9933, Minibatch error= 0.7%
+2026-11-03 03:52:41,155 Iter 172, Minibatch Loss= 0.0395, Training Accuracy= 0.9931, Minibatch error= 0.7%
+2026-11-03 03:52:41,766   [#########...............] Epoch 59/150  |  loss 0.0417  |  lr 0.00010  |  58.3m elapsed  |  ETA 90.0m
+2026-11-03 03:52:41,914 Verification error= 0.9%, loss= 0.0457
+2026-11-03 03:52:54,984 Iter 215, Minibatch Loss= 0.0304, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:53:08,291 Iter 258, Minibatch Loss= 0.0403, Training Accuracy= 0.9923, Minibatch error= 0.8%
+2026-11-03 03:53:21,861 Iter 301, Minibatch Loss= 0.0240, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-03 03:53:35,366 Iter 344, Minibatch Loss= 0.0470, Training Accuracy= 0.9921, Minibatch error= 0.8%
+2026-11-03 03:53:36,913   [#########...............] Epoch 60/150  |  loss 0.0403  |  lr 0.00010  |  59.3m elapsed  |  ETA 88.9m
+2026-11-03 03:53:37,071 Verification error= 0.9%, loss= 0.0454
+2026-11-03 03:53:37,291 Optimization Finished!
+2026-11-03 03:53:37,319 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793658217.725694   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9287  max-F1 0.9297  ROC 0.9933
+2026-11-03 03:53:42,252 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:53:42,994 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:53:43,054 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:53:44,094 Verification error= 0.8%, loss= 0.0412
+2026-11-03 03:53:44,233 Start optimization
+2026-11-03 03:53:45,577 Iter 0, Minibatch Loss= 0.0439, Training Accuracy= 0.9920, Minibatch error= 0.8%
+2026-11-03 03:53:58,662 Iter 43, Minibatch Loss= 0.0394, Training Accuracy= 0.9926, Minibatch error= 0.7%
+2026-11-03 03:54:11,929 Iter 86, Minibatch Loss= 0.0244, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-03 03:54:25,143 Iter 129, Minibatch Loss= 0.0320, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-03 03:54:38,428 Iter 172, Minibatch Loss= 0.0343, Training Accuracy= 0.9944, Minibatch error= 0.6%
+2026-11-03 03:54:39,077   [#########...............] Epoch 61/150  |  loss 0.0394  |  lr 0.00010  |  60.3m elapsed  |  ETA 88.0m
+2026-11-03 03:54:39,226 Verification error= 0.8%, loss= 0.0391
+2026-11-03 03:54:52,121 Iter 215, Minibatch Loss= 0.0308, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:55:05,438 Iter 258, Minibatch Loss= 0.0212, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-03 03:55:18,911 Iter 301, Minibatch Loss= 0.0248, Training Accuracy= 0.9969, Minibatch error= 0.3%
+2026-11-03 03:55:32,318 Iter 344, Minibatch Loss= 0.0224, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-03 03:55:33,846   [#########...............] Epoch 62/150  |  loss 0.0380  |  lr 0.00010  |  61.2m elapsed  |  ETA 86.9m
+2026-11-03 03:55:33,995 Verification error= 0.7%, loss= 0.0380
+2026-11-03 03:55:34,205 Optimization Finished!
+2026-11-03 03:55:34,233 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793658334.916879   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9306  max-F1 0.9315  ROC 0.9966
+     new best checkpoint saved
+2026-11-03 03:55:39,411 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:55:40,167 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:55:40,235 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:55:41,301 Verification error= 1.1%, loss= 0.0562
+2026-11-03 03:55:41,442 Start optimization
+2026-11-03 03:55:42,784 Iter 0, Minibatch Loss= 0.0223, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-03 03:55:55,795 Iter 43, Minibatch Loss= 0.0369, Training Accuracy= 0.9945, Minibatch error= 0.6%
+2026-11-03 03:56:08,965 Iter 86, Minibatch Loss= 0.0220, Training Accuracy= 0.9992, Minibatch error= 0.1%
+2026-11-03 03:56:22,342 Iter 129, Minibatch Loss= 0.0253, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-03 03:56:35,584 Iter 172, Minibatch Loss= 0.0317, Training Accuracy= 0.9954, Minibatch error= 0.5%
+2026-11-03 03:56:36,207   [##########..............] Epoch 63/150  |  loss 0.0385  |  lr 0.00010  |  62.3m elapsed  |  ETA 86.0m
+2026-11-03 03:56:36,355 Verification error= 1.1%, loss= 0.0514
+2026-11-03 03:56:49,230 Iter 215, Minibatch Loss= 0.0359, Training Accuracy= 0.9928, Minibatch error= 0.7%
+2026-11-03 03:57:02,682 Iter 258, Minibatch Loss= 0.0331, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-03 03:57:16,062 Iter 301, Minibatch Loss= 0.0403, Training Accuracy= 0.9926, Minibatch error= 0.7%
+2026-11-03 03:57:29,528 Iter 344, Minibatch Loss= 0.0323, Training Accuracy= 0.9936, Minibatch error= 0.6%
+2026-11-03 03:57:31,071   [##########..............] Epoch 64/150  |  loss 0.0344  |  lr 0.00010  |  63.2m elapsed  |  ETA 84.9m
+2026-11-03 03:57:31,223 Verification error= 1.1%, loss= 0.0572
+2026-11-03 03:57:31,446 Optimization Finished!
+2026-11-03 03:57:31,477 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793658451.895092   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9324  max-F1 0.9357  ROC 0.9970
+     new best checkpoint saved
+2026-11-03 03:57:36,566 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:57:37,303 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:57:37,367 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:57:38,432 Verification error= 0.3%, loss= 0.0233
+2026-11-03 03:57:38,574 Start optimization
+2026-11-03 03:57:39,929 Iter 0, Minibatch Loss= 0.0362, Training Accuracy= 0.9929, Minibatch error= 0.7%
+2026-11-03 03:57:52,829 Iter 43, Minibatch Loss= 0.0257, Training Accuracy= 0.9970, Minibatch error= 0.3%
+2026-11-03 03:58:06,019 Iter 86, Minibatch Loss= 0.0445, Training Accuracy= 0.9920, Minibatch error= 0.8%
+2026-11-03 03:58:19,355 Iter 129, Minibatch Loss= 0.0401, Training Accuracy= 0.9936, Minibatch error= 0.6%
+2026-11-03 03:58:32,644 Iter 172, Minibatch Loss= 0.0291, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 03:58:33,262   [##########..............] Epoch 65/150  |  loss 0.0405  |  lr 0.00010  |  64.2m elapsed  |  ETA 84.0m
+2026-11-03 03:58:33,417 Verification error= 0.3%, loss= 0.0248
+2026-11-03 03:58:46,555 Iter 215, Minibatch Loss= 0.0255, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 03:58:59,886 Iter 258, Minibatch Loss= 0.1321, Training Accuracy= 0.9793, Minibatch error= 2.1%
+2026-11-03 03:59:13,197 Iter 301, Minibatch Loss= 0.0316, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-03 03:59:26,569 Iter 344, Minibatch Loss= 0.0471, Training Accuracy= 0.9911, Minibatch error= 0.9%
+2026-11-03 03:59:28,109   [##########..............] Epoch 66/150  |  loss 0.0375  |  lr 0.00010  |  65.1m elapsed  |  ETA 82.9m
+2026-11-03 03:59:28,261 Verification error= 0.3%, loss= 0.0287
+2026-11-03 03:59:28,484 Optimization Finished!
+2026-11-03 03:59:28,514 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793658568.920656   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9300  max-F1 0.9355  ROC 0.9930
+2026-11-03 03:59:33,536 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:59:34,312 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:59:34,378 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 03:59:35,443 Verification error= 2.0%, loss= 0.1089
+2026-11-03 03:59:35,581 Start optimization
+2026-11-03 03:59:36,932 Iter 0, Minibatch Loss= 0.0208, Training Accuracy= 0.9989, Minibatch error= 0.1%
+2026-11-03 03:59:49,859 Iter 43, Minibatch Loss= 0.0255, Training Accuracy= 0.9960, Minibatch error= 0.4%
+2026-11-03 04:00:03,159 Iter 86, Minibatch Loss= 0.0266, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-03 04:00:16,592 Iter 129, Minibatch Loss= 0.0363, Training Accuracy= 0.9927, Minibatch error= 0.7%
+2026-11-03 04:00:29,933 Iter 172, Minibatch Loss= 0.0274, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 04:00:30,543   [##########..............] Epoch 67/150  |  loss 0.0376  |  lr 0.00010  |  66.2m elapsed  |  ETA 82.0m
+2026-11-03 04:00:30,693 Verification error= 1.9%, loss= 0.1216
+2026-11-03 04:00:43,764 Iter 215, Minibatch Loss= 0.1834, Training Accuracy= 0.9717, Minibatch error= 2.8%
+2026-11-03 04:00:57,198 Iter 258, Minibatch Loss= 0.0971, Training Accuracy= 0.9796, Minibatch error= 2.0%
+2026-11-03 04:01:10,575 Iter 301, Minibatch Loss= 0.0240, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-03 04:01:24,190 Iter 344, Minibatch Loss= 0.0301, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 04:01:25,800   [##########..............] Epoch 68/150  |  loss 0.0422  |  lr 0.00010  |  67.1m elapsed  |  ETA 80.9m
+2026-11-03 04:01:25,945 Verification error= 1.9%, loss= 0.1330
+2026-11-03 04:01:26,154 Optimization Finished!
+2026-11-03 04:01:26,187 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793658686.607493   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9320  max-F1 0.9333  ROC 0.9944
+2026-11-03 04:01:31,091 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:01:31,830 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:01:31,910 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:01:33,146 Verification error= 0.6%, loss= 0.0322
+2026-11-03 04:01:33,312 Start optimization
+2026-11-03 04:01:34,771 Iter 0, Minibatch Loss= 0.0184, Training Accuracy= 0.9991, Minibatch error= 0.1%
+2026-11-03 04:01:47,887 Iter 43, Minibatch Loss= 0.0264, Training Accuracy= 0.9966, Minibatch error= 0.3%
+2026-11-03 04:02:01,169 Iter 86, Minibatch Loss= 0.0171, Training Accuracy= 0.9994, Minibatch error= 0.1%
+2026-11-03 04:02:14,501 Iter 129, Minibatch Loss= 0.0271, Training Accuracy= 0.9954, Minibatch error= 0.5%
+2026-11-03 04:02:27,873 Iter 172, Minibatch Loss= 0.0305, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-03 04:02:28,487   [###########.............] Epoch 69/150  |  loss 0.0376  |  lr 0.00010  |  68.1m elapsed  |  ETA 80.0m
+2026-11-03 04:02:28,636 Verification error= 0.5%, loss= 0.0323
+2026-11-03 04:02:41,796 Iter 215, Minibatch Loss= 0.0518, Training Accuracy= 0.9886, Minibatch error= 1.1%
+2026-11-03 04:02:55,302 Iter 258, Minibatch Loss= 0.0283, Training Accuracy= 0.9950, Minibatch error= 0.5%
+2026-11-03 04:03:08,668 Iter 301, Minibatch Loss= 0.0236, Training Accuracy= 0.9974, Minibatch error= 0.3%
+2026-11-03 04:03:22,103 Iter 344, Minibatch Loss= 0.0377, Training Accuracy= 0.9926, Minibatch error= 0.7%
+2026-11-03 04:03:23,659   [###########.............] Epoch 70/150  |  loss 0.0358  |  lr 0.00010  |  69.0m elapsed  |  ETA 78.9m
+2026-11-03 04:03:23,811 Verification error= 0.6%, loss= 0.0319
+2026-11-03 04:03:24,026 Optimization Finished!
+2026-11-03 04:03:24,056 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793658804.444108   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9311  max-F1 0.9343  ROC 0.9946
+2026-11-03 04:03:28,997 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:03:30,044 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:03:30,112 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:03:31,218 Verification error= 0.5%, loss= 0.0289
+2026-11-03 04:03:31,374 Start optimization
+2026-11-03 04:03:32,742 Iter 0, Minibatch Loss= 0.0217, Training Accuracy= 0.9977, Minibatch error= 0.2%
+2026-11-03 04:03:45,834 Iter 43, Minibatch Loss= 0.0279, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 04:03:59,219 Iter 86, Minibatch Loss= 0.0210, Training Accuracy= 0.9981, Minibatch error= 0.2%
+2026-11-03 04:04:12,453 Iter 129, Minibatch Loss= 0.0329, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-03 04:04:25,870 Iter 172, Minibatch Loss= 0.0305, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-03 04:04:26,470   [###########.............] Epoch 71/150  |  loss 0.0390  |  lr 0.00010  |  70.1m elapsed  |  ETA 78.0m
+2026-11-03 04:04:26,622 Verification error= 0.5%, loss= 0.0301
+2026-11-03 04:04:39,590 Iter 215, Minibatch Loss= 0.0337, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-03 04:04:52,944 Iter 258, Minibatch Loss= 0.0252, Training Accuracy= 0.9960, Minibatch error= 0.4%
+2026-11-03 04:05:06,274 Iter 301, Minibatch Loss= 0.0275, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-03 04:05:19,767 Iter 344, Minibatch Loss= 0.0217, Training Accuracy= 0.9990, Minibatch error= 0.1%
+2026-11-03 04:05:21,313   [###########.............] Epoch 72/150  |  loss 0.0417  |  lr 0.00010  |  71.0m elapsed  |  ETA 76.9m
+2026-11-03 04:05:21,464 Verification error= 0.5%, loss= 0.0282
+2026-11-03 04:05:21,682 Optimization Finished!
+2026-11-03 04:05:21,713 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793658922.114397   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9389  max-F1 0.9416  ROC 0.9940
+     new best checkpoint saved
+2026-11-03 04:05:26,637 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:05:27,420 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:05:27,485 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:05:28,592 Verification error= 0.4%, loss= 0.0302
+2026-11-03 04:05:28,748 Start optimization
+2026-11-03 04:05:30,113 Iter 0, Minibatch Loss= 0.0238, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-03 04:05:43,126 Iter 43, Minibatch Loss= 0.0230, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-03 04:05:56,592 Iter 86, Minibatch Loss= 0.1293, Training Accuracy= 0.9803, Minibatch error= 2.0%
+2026-11-03 04:06:09,953 Iter 129, Minibatch Loss= 0.0281, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-03 04:06:23,196 Iter 172, Minibatch Loss= 0.0327, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-03 04:06:23,832   [###########.............] Epoch 73/150  |  loss 0.0346  |  lr 0.00010  |  72.0m elapsed  |  ETA 76.0m
+2026-11-03 04:06:23,981 Verification error= 0.4%, loss= 0.0294
+2026-11-03 04:06:36,876 Iter 215, Minibatch Loss= 0.1067, Training Accuracy= 0.9782, Minibatch error= 2.2%
+2026-11-03 04:06:50,173 Iter 258, Minibatch Loss= 0.0235, Training Accuracy= 0.9988, Minibatch error= 0.1%
+2026-11-03 04:07:03,677 Iter 301, Minibatch Loss= 0.0287, Training Accuracy= 0.9960, Minibatch error= 0.4%
+2026-11-03 04:07:17,045 Iter 344, Minibatch Loss= 0.0210, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-03 04:07:18,634   [###########.............] Epoch 74/150  |  loss 0.0385  |  lr 0.00010  |  73.0m elapsed  |  ETA 74.9m
+2026-11-03 04:07:18,783 Verification error= 0.4%, loss= 0.0292
+2026-11-03 04:07:19,054 Optimization Finished!
+2026-11-03 04:07:19,084 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793659039.490993   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9406  max-F1 0.9408  ROC 0.9953
+2026-11-03 04:07:24,240 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:07:25,000 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:07:25,066 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:07:26,144 Verification error= 0.2%, loss= 0.0211
+2026-11-03 04:07:26,296 Start optimization
+2026-11-03 04:07:27,679 Iter 0, Minibatch Loss= 0.0229, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-03 04:07:40,768 Iter 43, Minibatch Loss= 0.0275, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 04:07:53,970 Iter 86, Minibatch Loss= 0.0243, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-03 04:08:07,416 Iter 129, Minibatch Loss= 0.0231, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-03 04:08:20,748 Iter 172, Minibatch Loss= 0.0447, Training Accuracy= 0.9912, Minibatch error= 0.9%
+2026-11-03 04:08:21,363   [############............] Epoch 75/150  |  loss 0.0357  |  lr 0.00010  |  74.0m elapsed  |  ETA 74.0m
+2026-11-03 04:08:21,514 Verification error= 0.2%, loss= 0.0202
+2026-11-03 04:08:34,492 Iter 215, Minibatch Loss= 0.0277, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 04:08:47,981 Iter 258, Minibatch Loss= 0.0331, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-03 04:09:01,468 Iter 301, Minibatch Loss= 0.0316, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-03 04:09:14,818 Iter 344, Minibatch Loss= 0.0228, Training Accuracy= 0.9972, Minibatch error= 0.3%
+2026-11-03 04:09:16,365   [############............] Epoch 76/150  |  loss 0.0387  |  lr 0.00010  |  74.9m elapsed  |  ETA 72.9m
+2026-11-03 04:09:16,517 Verification error= 0.2%, loss= 0.0207
+2026-11-03 04:09:16,741 Optimization Finished!
+2026-11-03 04:09:16,773 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793659157.178844   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9359  max-F1 0.9413  ROC 0.9958
+2026-11-03 04:09:21,900 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:09:22,687 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:09:22,756 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:09:23,863 Verification error= 0.4%, loss= 0.0265
+2026-11-03 04:09:24,008 Start optimization
+2026-11-03 04:09:25,370 Iter 0, Minibatch Loss= 0.0200, Training Accuracy= 0.9985, Minibatch error= 0.1%
+2026-11-03 04:09:38,377 Iter 43, Minibatch Loss= 0.0173, Training Accuracy= 0.9983, Minibatch error= 0.2%
+2026-11-03 04:09:51,698 Iter 86, Minibatch Loss= 0.0165, Training Accuracy= 0.9994, Minibatch error= 0.1%
+2026-11-03 04:10:05,182 Iter 129, Minibatch Loss= 0.0331, Training Accuracy= 0.9940, Minibatch error= 0.6%
+2026-11-03 04:10:18,477 Iter 172, Minibatch Loss= 0.0293, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-03 04:10:19,091   [############............] Epoch 77/150  |  loss 0.0356  |  lr 0.00010  |  76.0m elapsed  |  ETA 72.0m
+2026-11-03 04:10:19,241 Verification error= 0.3%, loss= 0.0266
+2026-11-03 04:10:32,161 Iter 215, Minibatch Loss= 0.0277, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-03 04:10:45,641 Iter 258, Minibatch Loss= 0.0244, Training Accuracy= 0.9969, Minibatch error= 0.3%
+2026-11-03 04:10:59,183 Iter 301, Minibatch Loss= 0.0271, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-03 04:11:12,749 Iter 344, Minibatch Loss= 0.0195, Training Accuracy= 0.9981, Minibatch error= 0.2%
+2026-11-03 04:11:14,291   [############............] Epoch 78/150  |  loss 0.0347  |  lr 0.00010  |  76.9m elapsed  |  ETA 71.0m
+2026-11-03 04:11:14,444 Verification error= 0.3%, loss= 0.0256
+2026-11-03 04:11:14,660 Optimization Finished!
+2026-11-03 04:11:14,697 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793659275.134606   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9405  max-F1 0.9408  ROC 0.9960
+2026-11-03 04:11:19,810 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:11:20,890 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:11:20,957 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:11:22,035 Verification error= 0.2%, loss= 0.0234
+2026-11-03 04:11:22,180 Start optimization
+2026-11-03 04:11:23,541 Iter 0, Minibatch Loss= 0.0341, Training Accuracy= 0.9933, Minibatch error= 0.7%
+2026-11-03 04:11:36,752 Iter 43, Minibatch Loss= 0.0232, Training Accuracy= 0.9965, Minibatch error= 0.4%
+2026-11-03 04:11:50,035 Iter 86, Minibatch Loss= 0.0358, Training Accuracy= 0.9932, Minibatch error= 0.7%
+2026-11-03 04:12:03,470 Iter 129, Minibatch Loss= 0.0235, Training Accuracy= 0.9972, Minibatch error= 0.3%
+2026-11-03 04:12:16,891 Iter 172, Minibatch Loss= 0.0273, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-03 04:12:17,515   [############............] Epoch 79/150  |  loss 0.0341  |  lr 0.00010  |  77.9m elapsed  |  ETA 70.0m
+2026-11-03 04:12:17,668 Verification error= 0.2%, loss= 0.0229
+2026-11-03 04:12:30,679 Iter 215, Minibatch Loss= 0.0262, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-03 04:12:44,150 Iter 258, Minibatch Loss= 0.0264, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-03 04:12:57,693 Iter 301, Minibatch Loss= 0.0323, Training Accuracy= 0.9942, Minibatch error= 0.6%
+2026-11-03 04:13:11,169 Iter 344, Minibatch Loss= 0.0318, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-03 04:13:12,721   [############............] Epoch 80/150  |  loss 0.0368  |  lr 0.00010  |  78.9m elapsed  |  ETA 69.0m
+2026-11-03 04:13:12,872 Verification error= 0.2%, loss= 0.0233
+2026-11-03 04:13:13,083 Optimization Finished!
+2026-11-03 04:13:13,116 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793659393.513355   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9374  max-F1 0.9425  ROC 0.9961
+     new best checkpoint saved
+2026-11-03 04:13:18,109 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:13:18,854 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:13:18,917 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:13:19,999 Verification error= 0.8%, loss= 0.0341
+2026-11-03 04:13:20,147 Start optimization
+2026-11-03 04:13:21,531 Iter 0, Minibatch Loss= 0.0269, Training Accuracy= 0.9962, Minibatch error= 0.4%
+2026-11-03 04:13:34,736 Iter 43, Minibatch Loss= 0.0541, Training Accuracy= 0.9884, Minibatch error= 1.2%
+2026-11-03 04:13:48,120 Iter 86, Minibatch Loss= 0.0152, Training Accuracy= 0.9996, Minibatch error= 0.0%
+2026-11-03 04:14:01,553 Iter 129, Minibatch Loss= 0.0274, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-03 04:14:14,953 Iter 172, Minibatch Loss= 0.0329, Training Accuracy= 0.9941, Minibatch error= 0.6%
+2026-11-03 04:14:15,564   [############............] Epoch 81/150  |  loss 0.0338  |  lr 0.00010  |  79.9m elapsed  |  ETA 68.1m
+2026-11-03 04:14:15,714 Verification error= 0.6%, loss= 0.0303
+2026-11-03 04:14:28,782 Iter 215, Minibatch Loss= 0.0294, Training Accuracy= 0.9946, Minibatch error= 0.5%
+2026-11-03 04:14:42,339 Iter 258, Minibatch Loss= 0.0183, Training Accuracy= 0.9982, Minibatch error= 0.2%
+2026-11-03 04:14:55,820 Iter 301, Minibatch Loss= 0.0274, Training Accuracy= 0.9955, Minibatch error= 0.5%
+2026-11-03 04:15:09,322 Iter 344, Minibatch Loss= 0.0150, Training Accuracy= 0.9994, Minibatch error= 0.1%
+2026-11-03 04:15:10,878   [#############...........] Epoch 82/150  |  loss 0.0323  |  lr 0.00010  |  80.8m elapsed  |  ETA 67.0m
+2026-11-03 04:15:11,037 Verification error= 0.6%, loss= 0.0312
+2026-11-03 04:15:11,245 Optimization Finished!
+2026-11-03 04:15:11,276 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793659511.671221   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9403  max-F1 0.9419  ROC 0.9949
+2026-11-03 04:15:16,131 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:15:16,875 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:15:16,938 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:15:18,020 Verification error= 0.6%, loss= 0.0342
+2026-11-03 04:15:18,168 Start optimization
+2026-11-03 04:15:19,521 Iter 0, Minibatch Loss= 0.0350, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-03 04:15:32,638 Iter 43, Minibatch Loss= 0.0304, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-03 04:15:45,922 Iter 86, Minibatch Loss= 0.0537, Training Accuracy= 0.9892, Minibatch error= 1.1%
+2026-11-03 04:15:59,334 Iter 129, Minibatch Loss= 0.0321, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-03 04:16:12,743 Iter 172, Minibatch Loss= 0.0206, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-03 04:16:13,340   [#############...........] Epoch 83/150  |  loss 0.0372  |  lr 0.00010  |  81.9m elapsed  |  ETA 66.1m
+2026-11-03 04:16:13,501 Verification error= 0.6%, loss= 0.0324
+2026-11-03 04:16:26,635 Iter 215, Minibatch Loss= 0.0246, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-03 04:16:40,023 Iter 258, Minibatch Loss= 0.0310, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-03 04:16:53,417 Iter 301, Minibatch Loss= 0.0301, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-03 04:17:06,745 Iter 344, Minibatch Loss= 0.0396, Training Accuracy= 0.9924, Minibatch error= 0.8%
+2026-11-03 04:17:08,284   [#############...........] Epoch 84/150  |  loss 0.0351  |  lr 0.00010  |  82.8m elapsed  |  ETA 65.0m
+2026-11-03 04:17:08,434 Verification error= 0.6%, loss= 0.0321
+2026-11-03 04:17:08,650 Optimization Finished!
+2026-11-03 04:17:08,681 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793659629.090321   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9413  max-F1 0.9443  ROC 0.9957
+     new best checkpoint saved
+2026-11-03 04:17:13,697 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:17:14,443 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:17:14,508 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:17:15,558 Verification error= 0.6%, loss= 0.0337
+2026-11-03 04:17:15,695 Start optimization
+2026-11-03 04:17:17,046 Iter 0, Minibatch Loss= 0.0207, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-03 04:17:30,000 Iter 43, Minibatch Loss= 0.0277, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-03 04:17:43,160 Iter 86, Minibatch Loss= 0.0526, Training Accuracy= 0.9885, Minibatch error= 1.1%
+2026-11-03 04:17:56,336 Iter 129, Minibatch Loss= 0.0168, Training Accuracy= 0.9989, Minibatch error= 0.1%
+2026-11-03 04:18:09,577 Iter 172, Minibatch Loss= 0.0321, Training Accuracy= 0.9937, Minibatch error= 0.6%
+2026-11-03 04:18:10,185   [#############...........] Epoch 85/150  |  loss 0.0333  |  lr 0.00010  |  83.8m elapsed  |  ETA 64.1m
+2026-11-03 04:18:10,332 Verification error= 0.6%, loss= 0.0333
+2026-11-03 04:18:23,393 Iter 215, Minibatch Loss= 0.0214, Training Accuracy= 0.9977, Minibatch error= 0.2%
+2026-11-03 04:18:36,751 Iter 258, Minibatch Loss= 0.0308, Training Accuracy= 0.9954, Minibatch error= 0.5%
+2026-11-03 04:18:50,223 Iter 301, Minibatch Loss= 0.0446, Training Accuracy= 0.9911, Minibatch error= 0.9%
+2026-11-03 04:19:03,679 Iter 344, Minibatch Loss= 0.0266, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-03 04:19:05,206   [#############...........] Epoch 86/150  |  loss 0.0346  |  lr 0.00010  |  84.7m elapsed  |  ETA 63.1m
+2026-11-03 04:19:05,362 Verification error= 0.5%, loss= 0.0324
+2026-11-03 04:19:05,662 Optimization Finished!
+2026-11-03 04:19:05,690 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793659746.070915   28952 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9394  max-F1 0.9405  ROC 0.9973
+2026-11-03 04:19:10,629 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:19:11,353 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:19:11,412 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-03 04:19:12,401 Verification error= 1.0%, loss= 0.0420
+2026-11-03 04:19:12,538 Start optimization
+2026-11-03 04:19:13,825 Iter 0, Minibatch Loss= 0.0190, Training Accuracy= 0.9973, Minibatch error= 0.3%
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/compat/v2_compat.py:98: disable_resource_variables (from tensorflow.python.ops.resource_variables_toggle) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+==========================================================================
+  tf_unet on simulated HERA   |   norm = fixed   |   class weights = OFF
+==========================================================================
+  train images      : 316
+  val images        : 35
+  test images       : 135  (simulator labels)
+  leaked images excluded from training: 0
+  steps/epoch       : 175   x 150 epochs = 26,250 gradient steps
+                      (PART 1 synthetic baseline got 175 x 60 = 10,500)
+  leakage check     : train clean, 0 of 316 match any test image  (0.3s)
+  leakage check     : val clean, 0 of 35 match any test image  (0.0s)
+  fixed range       : [0.214931, 73.3724]
+==========================================================================
+2026-11-04 10:46:01,429 Layers 3, features 32, filter size 3x3, pool size: 2x2
+WARNING:tensorflow:From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+2026-11-04 10:46:01,445 From /home/ronaksingh/tf-env/lib64/python3.12/site-packages/tensorflow/python/util/dispatch.py:1264: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:46:02,666 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:46:02,734 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1793769362.790461   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+2026-11-04 10:46:06,531 Verification error= 0.5%, loss= 0.0307
+2026-11-04 10:46:06,660 Start optimization
+2026-11-04 10:46:20,837 Iter 0, Minibatch Loss= 0.0343, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-04 10:46:33,021 Iter 43, Minibatch Loss= 0.0173, Training Accuracy= 0.9989, Minibatch error= 0.1%
+2026-11-04 10:46:45,092 Iter 86, Minibatch Loss= 0.0258, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-04 10:46:57,299 Iter 129, Minibatch Loss= 0.0184, Training Accuracy= 0.9987, Minibatch error= 0.1%
+2026-11-04 10:47:09,612 Iter 172, Minibatch Loss= 0.0287, Training Accuracy= 0.9941, Minibatch error= 0.6%
+2026-11-04 10:47:10,186   [#############...........] Epoch 87/150  |  loss 0.0350  |  lr 0.00010  |  1.1m elapsed  |  ETA 72.2m
+2026-11-04 10:47:10,328 Verification error= 0.6%, loss= 0.0343
+2026-11-04 10:47:22,399 Iter 215, Minibatch Loss= 0.0219, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-04 10:47:34,975 Iter 258, Minibatch Loss= 0.0221, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-04 10:47:47,623 Iter 301, Minibatch Loss= 0.0265, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-04 10:48:00,340 Iter 344, Minibatch Loss= 0.0250, Training Accuracy= 0.9966, Minibatch error= 0.3%
+2026-11-04 10:48:01,806   [##############..........] Epoch 88/150  |  loss 0.0298  |  lr 0.00010  |  2.0m elapsed  |  ETA 62.2m
+2026-11-04 10:48:01,950 Verification error= 0.6%, loss= 0.0335
+2026-11-04 10:48:02,146 Optimization Finished!
+2026-11-04 10:48:02,175 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793769482.559220   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9377  max-F1 0.9436  ROC 0.9963
+2026-11-04 10:48:07,904 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:48:08,623 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:48:08,684 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:48:09,723 Verification error= 0.2%, loss= 0.0180
+2026-11-04 10:48:09,844 Start optimization
+2026-11-04 10:48:11,166 Iter 0, Minibatch Loss= 0.0359, Training Accuracy= 0.9933, Minibatch error= 0.7%
+2026-11-04 10:48:23,648 Iter 43, Minibatch Loss= 0.0219, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 10:48:36,442 Iter 86, Minibatch Loss= 0.0199, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-04 10:48:49,548 Iter 129, Minibatch Loss= 0.0211, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 10:49:02,574 Iter 172, Minibatch Loss= 0.0225, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 10:49:03,177   [##############..........] Epoch 89/150  |  loss 0.0309  |  lr 0.00010  |  3.0m elapsed  |  ETA 61.6m
+2026-11-04 10:49:03,325 Verification error= 0.1%, loss= 0.0170
+2026-11-04 10:49:16,061 Iter 215, Minibatch Loss= 0.0292, Training Accuracy= 0.9939, Minibatch error= 0.6%
+2026-11-04 10:49:29,132 Iter 258, Minibatch Loss= 0.0177, Training Accuracy= 0.9991, Minibatch error= 0.1%
+2026-11-04 10:49:42,297 Iter 301, Minibatch Loss= 0.0255, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-04 10:49:55,423 Iter 344, Minibatch Loss= 0.0225, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 10:49:56,918   [##############..........] Epoch 90/150  |  loss 0.0335  |  lr 0.00010  |  3.9m elapsed  |  ETA 58.9m
+2026-11-04 10:49:57,065 Verification error= 0.1%, loss= 0.0181
+2026-11-04 10:49:57,268 Optimization Finished!
+2026-11-04 10:49:57,296 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793769597.680000   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9449  max-F1 0.9450  ROC 0.9960
+     new best checkpoint saved
+2026-11-04 10:50:02,110 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:50:02,847 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:50:02,911 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:50:03,928 Verification error= 0.4%, loss= 0.0273
+2026-11-04 10:50:04,051 Start optimization
+2026-11-04 10:50:05,376 Iter 0, Minibatch Loss= 0.0183, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-04 10:50:18,232 Iter 43, Minibatch Loss= 0.0606, Training Accuracy= 0.9872, Minibatch error= 1.3%
+2026-11-04 10:50:31,176 Iter 86, Minibatch Loss= 0.0216, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 10:50:44,200 Iter 129, Minibatch Loss= 0.0237, Training Accuracy= 0.9974, Minibatch error= 0.3%
+2026-11-04 10:50:57,234 Iter 172, Minibatch Loss= 0.0336, Training Accuracy= 0.9931, Minibatch error= 0.7%
+2026-11-04 10:50:57,833   [##############..........] Epoch 91/150  |  loss 0.0356  |  lr 0.00010  |  4.9m elapsed  |  ETA 58.3m
+2026-11-04 10:50:57,983 Verification error= 0.4%, loss= 0.0276
+2026-11-04 10:51:10,696 Iter 215, Minibatch Loss= 0.1178, Training Accuracy= 0.9799, Minibatch error= 2.0%
+2026-11-04 10:51:23,891 Iter 258, Minibatch Loss= 0.1179, Training Accuracy= 0.9791, Minibatch error= 2.1%
+2026-11-04 10:51:37,033 Iter 301, Minibatch Loss= 0.0232, Training Accuracy= 0.9974, Minibatch error= 0.3%
+2026-11-04 10:51:50,326 Iter 344, Minibatch Loss= 0.0183, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-04 10:51:51,844   [##############..........] Epoch 92/150  |  loss 0.0331  |  lr 0.00010  |  5.8m elapsed  |  ETA 56.5m
+2026-11-04 10:51:51,990 Verification error= 0.4%, loss= 0.0268
+2026-11-04 10:51:52,188 Optimization Finished!
+2026-11-04 10:51:52,217 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793769712.607913   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9410  max-F1 0.9422  ROC 0.9966
+2026-11-04 10:51:56,985 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:51:57,718 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:51:57,783 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:51:58,817 Verification error= 0.1%, loss= 0.0171
+2026-11-04 10:51:58,940 Start optimization
+2026-11-04 10:52:00,244 Iter 0, Minibatch Loss= 0.0253, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-04 10:52:13,173 Iter 43, Minibatch Loss= 0.0326, Training Accuracy= 0.9935, Minibatch error= 0.7%
+2026-11-04 10:52:26,240 Iter 86, Minibatch Loss= 0.0215, Training Accuracy= 0.9974, Minibatch error= 0.3%
+2026-11-04 10:52:39,358 Iter 129, Minibatch Loss= 0.0180, Training Accuracy= 0.9986, Minibatch error= 0.1%
+2026-11-04 10:52:52,456 Iter 172, Minibatch Loss= 0.0333, Training Accuracy= 0.9927, Minibatch error= 0.7%
+2026-11-04 10:52:53,104   [##############..........] Epoch 93/150  |  loss 0.0337  |  lr 0.00010  |  6.9m elapsed  |  ETA 55.9m
+2026-11-04 10:52:53,244 Verification error= 0.1%, loss= 0.0169
+2026-11-04 10:53:05,986 Iter 215, Minibatch Loss= 0.0286, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-04 10:53:19,156 Iter 258, Minibatch Loss= 0.0423, Training Accuracy= 0.9908, Minibatch error= 0.9%
+2026-11-04 10:53:32,419 Iter 301, Minibatch Loss= 0.0193, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 10:53:45,706 Iter 344, Minibatch Loss= 0.0196, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-04 10:53:47,253   [###############.........] Epoch 94/150  |  loss 0.0305  |  lr 0.00010  |  7.8m elapsed  |  ETA 54.3m
+2026-11-04 10:53:47,404 Verification error= 0.1%, loss= 0.0164
+2026-11-04 10:53:47,595 Optimization Finished!
+2026-11-04 10:53:47,623 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793769828.003065   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9444  max-F1 0.9445  ROC 0.9965
+2026-11-04 10:53:52,443 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:53:53,360 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:53:53,431 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:53:54,459 Verification error= 1.2%, loss= 0.0590
+2026-11-04 10:53:54,593 Start optimization
+2026-11-04 10:53:55,921 Iter 0, Minibatch Loss= 0.0199, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-04 10:54:08,873 Iter 43, Minibatch Loss= 0.0385, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-04 10:54:21,953 Iter 86, Minibatch Loss= 0.1263, Training Accuracy= 0.9801, Minibatch error= 2.0%
+2026-11-04 10:54:35,266 Iter 129, Minibatch Loss= 0.0250, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-04 10:54:48,520 Iter 172, Minibatch Loss= 0.0251, Training Accuracy= 0.9955, Minibatch error= 0.5%
+2026-11-04 10:54:49,138   [###############.........] Epoch 95/150  |  loss 0.0341  |  lr 0.00010  |  8.8m elapsed  |  ETA 53.7m
+2026-11-04 10:54:49,289 Verification error= 1.3%, loss= 0.0597
+2026-11-04 10:55:02,172 Iter 215, Minibatch Loss= 0.0215, Training Accuracy= 0.9972, Minibatch error= 0.3%
+2026-11-04 10:55:15,460 Iter 258, Minibatch Loss= 0.0388, Training Accuracy= 0.9922, Minibatch error= 0.8%
+2026-11-04 10:55:28,772 Iter 301, Minibatch Loss= 0.0211, Training Accuracy= 0.9981, Minibatch error= 0.2%
+2026-11-04 10:55:42,002 Iter 344, Minibatch Loss= 0.0300, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-04 10:55:43,533   [###############.........] Epoch 96/150  |  loss 0.0333  |  lr 0.00010  |  9.7m elapsed  |  ETA 52.4m
+2026-11-04 10:55:43,683 Verification error= 1.2%, loss= 0.0538
+2026-11-04 10:55:43,884 Optimization Finished!
+2026-11-04 10:55:43,912 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793769944.298960   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9462  max-F1 0.9470  ROC 0.9965
+     new best checkpoint saved
+2026-11-04 10:55:48,681 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:55:49,417 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:55:49,479 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:55:50,508 Verification error= 0.3%, loss= 0.0216
+2026-11-04 10:55:50,640 Start optimization
+2026-11-04 10:55:51,972 Iter 0, Minibatch Loss= 0.0210, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-04 10:56:04,985 Iter 43, Minibatch Loss= 0.0265, Training Accuracy= 0.9966, Minibatch error= 0.3%
+2026-11-04 10:56:18,167 Iter 86, Minibatch Loss= 0.0331, Training Accuracy= 0.9927, Minibatch error= 0.7%
+2026-11-04 10:56:31,387 Iter 129, Minibatch Loss= 0.0300, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-04 10:56:44,676 Iter 172, Minibatch Loss= 0.0159, Training Accuracy= 0.9991, Minibatch error= 0.1%
+2026-11-04 10:56:45,279   [###############.........] Epoch 97/150  |  loss 0.0338  |  lr 0.00010  |  10.7m elapsed  |  ETA 51.7m
+2026-11-04 10:56:45,430 Verification error= 0.2%, loss= 0.0198
+2026-11-04 10:56:58,420 Iter 215, Minibatch Loss= 0.0255, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 10:57:11,838 Iter 258, Minibatch Loss= 0.0235, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-04 10:57:25,253 Iter 301, Minibatch Loss= 0.0136, Training Accuracy= 0.9995, Minibatch error= 0.1%
+2026-11-04 10:57:38,918 Iter 344, Minibatch Loss= 0.0349, Training Accuracy= 0.9928, Minibatch error= 0.7%
+2026-11-04 10:57:40,496   [###############.........] Epoch 98/150  |  loss 0.0329  |  lr 0.00010  |  11.7m elapsed  |  ETA 50.5m
+2026-11-04 10:57:40,653 Verification error= 0.2%, loss= 0.0200
+2026-11-04 10:57:40,854 Optimization Finished!
+2026-11-04 10:57:40,883 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793770061.267178   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9425  max-F1 0.9429  ROC 0.9948
+2026-11-04 10:57:45,632 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:57:46,369 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:57:46,434 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:57:47,467 Verification error= 0.7%, loss= 0.0370
+2026-11-04 10:57:47,599 Start optimization
+2026-11-04 10:57:48,924 Iter 0, Minibatch Loss= 0.0289, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-04 10:58:01,917 Iter 43, Minibatch Loss= 0.0218, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-04 10:58:15,105 Iter 86, Minibatch Loss= 0.0187, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-04 10:58:28,469 Iter 129, Minibatch Loss= 0.0257, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-04 10:58:42,041 Iter 172, Minibatch Loss= 0.0195, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-04 10:58:42,667   [###############.........] Epoch 99/150  |  loss 0.0290  |  lr 0.00010  |  12.7m elapsed  |  ETA 49.8m
+2026-11-04 10:58:42,819 Verification error= 0.7%, loss= 0.0359
+2026-11-04 10:58:55,678 Iter 215, Minibatch Loss= 0.0245, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-04 10:59:09,122 Iter 258, Minibatch Loss= 0.0170, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-04 10:59:22,435 Iter 301, Minibatch Loss= 0.0152, Training Accuracy= 0.9989, Minibatch error= 0.1%
+2026-11-04 10:59:35,812 Iter 344, Minibatch Loss= 0.0550, Training Accuracy= 0.9888, Minibatch error= 1.1%
+2026-11-04 10:59:37,346   [################........] Epoch 100/150  |  loss 0.0315  |  lr 0.00010  |  13.6m elapsed  |  ETA 48.6m
+2026-11-04 10:59:37,491 Verification error= 0.7%, loss= 0.0354
+2026-11-04 10:59:37,703 Optimization Finished!
+2026-11-04 10:59:37,731 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793770178.118436   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9446  max-F1 0.9450  ROC 0.9974
+2026-11-04 10:59:42,645 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:59:43,376 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:59:43,438 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 10:59:44,485 Verification error= 0.5%, loss= 0.0242
+2026-11-04 10:59:44,618 Start optimization
+2026-11-04 10:59:45,936 Iter 0, Minibatch Loss= 0.0173, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-04 10:59:58,904 Iter 43, Minibatch Loss= 0.0261, Training Accuracy= 0.9960, Minibatch error= 0.4%
+2026-11-04 11:00:12,271 Iter 86, Minibatch Loss= 0.0306, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-04 11:00:25,487 Iter 129, Minibatch Loss= 0.0157, Training Accuracy= 0.9994, Minibatch error= 0.1%
+2026-11-04 11:00:38,869 Iter 172, Minibatch Loss= 0.0271, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-04 11:00:39,611   [################........] Epoch 101/150  |  loss 0.0335  |  lr 0.00010  |  14.6m elapsed  |  ETA 47.8m
+2026-11-04 11:00:39,753 Verification error= 0.5%, loss= 0.0254
+2026-11-04 11:00:52,641 Iter 215, Minibatch Loss= 0.0147, Training Accuracy= 0.9996, Minibatch error= 0.0%
+2026-11-04 11:01:06,147 Iter 258, Minibatch Loss= 0.0176, Training Accuracy= 0.9985, Minibatch error= 0.1%
+2026-11-04 11:01:19,455 Iter 301, Minibatch Loss= 0.0190, Training Accuracy= 0.9978, Minibatch error= 0.2%
+2026-11-04 11:01:32,983 Iter 344, Minibatch Loss= 0.0305, Training Accuracy= 0.9942, Minibatch error= 0.6%
+2026-11-04 11:01:34,520   [################........] Epoch 102/150  |  loss 0.0352  |  lr 0.00010  |  15.6m elapsed  |  ETA 46.7m
+2026-11-04 11:01:34,670 Verification error= 0.5%, loss= 0.0254
+2026-11-04 11:01:34,872 Optimization Finished!
+2026-11-04 11:01:34,900 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793770295.286678   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9433  max-F1 0.9445  ROC 0.9964
+2026-11-04 11:01:39,599 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:01:40,600 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:01:40,663 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:01:41,729 Verification error= 0.1%, loss= 0.0143
+2026-11-04 11:01:41,861 Start optimization
+2026-11-04 11:01:43,212 Iter 0, Minibatch Loss= 0.0315, Training Accuracy= 0.9941, Minibatch error= 0.6%
+2026-11-04 11:01:56,254 Iter 43, Minibatch Loss= 0.0265, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-04 11:02:09,497 Iter 86, Minibatch Loss= 0.0265, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-04 11:02:22,807 Iter 129, Minibatch Loss= 0.0336, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-04 11:02:36,140 Iter 172, Minibatch Loss= 0.0293, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-04 11:02:36,785   [################........] Epoch 103/150  |  loss 0.0297  |  lr 0.00010  |  16.6m elapsed  |  ETA 45.9m
+2026-11-04 11:02:36,937 Verification error= 0.1%, loss= 0.0140
+2026-11-04 11:02:50,027 Iter 215, Minibatch Loss= 0.0306, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-04 11:03:03,387 Iter 258, Minibatch Loss= 0.0203, Training Accuracy= 0.9975, Minibatch error= 0.2%
+2026-11-04 11:03:16,944 Iter 301, Minibatch Loss= 0.0132, Training Accuracy= 0.9995, Minibatch error= 0.0%
+2026-11-04 11:03:30,524 Iter 344, Minibatch Loss= 0.0207, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 11:03:32,119   [################........] Epoch 104/150  |  loss 0.0282  |  lr 0.00010  |  17.5m elapsed  |  ETA 44.8m
+2026-11-04 11:03:32,289 Verification error= 0.1%, loss= 0.0134
+2026-11-04 11:03:32,500 Optimization Finished!
+2026-11-04 11:03:32,530 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793770412.923849   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9437  max-F1 0.9455  ROC 0.9976
+2026-11-04 11:03:37,330 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:03:38,063 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:03:38,127 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:03:39,162 Verification error= 0.6%, loss= 0.0269
+2026-11-04 11:03:39,291 Start optimization
+2026-11-04 11:03:40,621 Iter 0, Minibatch Loss= 0.0368, Training Accuracy= 0.9929, Minibatch error= 0.7%
+2026-11-04 11:03:53,686 Iter 43, Minibatch Loss= 0.0660, Training Accuracy= 0.9845, Minibatch error= 1.6%
+2026-11-04 11:04:06,986 Iter 86, Minibatch Loss= 0.0354, Training Accuracy= 0.9928, Minibatch error= 0.7%
+2026-11-04 11:04:20,470 Iter 129, Minibatch Loss= 0.0335, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-04 11:04:34,068 Iter 172, Minibatch Loss= 0.0347, Training Accuracy= 0.9938, Minibatch error= 0.6%
+2026-11-04 11:04:34,670   [################........] Epoch 105/150  |  loss 0.0359  |  lr 0.00010  |  18.6m elapsed  |  ETA 43.9m
+2026-11-04 11:04:34,840 Verification error= 0.6%, loss= 0.0279
+2026-11-04 11:04:47,840 Iter 215, Minibatch Loss= 0.0170, Training Accuracy= 0.9988, Minibatch error= 0.1%
+2026-11-04 11:05:01,289 Iter 258, Minibatch Loss= 0.0304, Training Accuracy= 0.9942, Minibatch error= 0.6%
+2026-11-04 11:05:14,755 Iter 301, Minibatch Loss= 0.1605, Training Accuracy= 0.9743, Minibatch error= 2.6%
+2026-11-04 11:05:28,190 Iter 344, Minibatch Loss= 0.0211, Training Accuracy= 0.9969, Minibatch error= 0.3%
+2026-11-04 11:05:29,745   [################........] Epoch 106/150  |  loss 0.0311  |  lr 0.00010  |  19.5m elapsed  |  ETA 42.8m
+2026-11-04 11:05:29,897 Verification error= 0.5%, loss= 0.0269
+2026-11-04 11:05:30,096 Optimization Finished!
+2026-11-04 11:05:30,124 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793770530.508747   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9453  max-F1 0.9453  ROC 0.9965
+2026-11-04 11:05:34,883 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:05:35,633 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:05:35,698 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:05:36,738 Verification error= 0.2%, loss= 0.0206
+2026-11-04 11:05:36,875 Start optimization
+2026-11-04 11:05:38,207 Iter 0, Minibatch Loss= 0.0416, Training Accuracy= 0.9922, Minibatch error= 0.8%
+2026-11-04 11:05:51,252 Iter 43, Minibatch Loss= 0.0271, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-04 11:06:04,672 Iter 86, Minibatch Loss= 0.0323, Training Accuracy= 0.9933, Minibatch error= 0.7%
+2026-11-04 11:06:17,946 Iter 129, Minibatch Loss= 0.1300, Training Accuracy= 0.9799, Minibatch error= 2.0%
+2026-11-04 11:06:31,484 Iter 172, Minibatch Loss= 0.0123, Training Accuracy= 0.9998, Minibatch error= 0.0%
+2026-11-04 11:06:32,086   [#################.......] Epoch 107/150  |  loss 0.0280  |  lr 0.00010  |  20.5m elapsed  |  ETA 42.0m
+2026-11-04 11:06:32,236 Verification error= 0.3%, loss= 0.0218
+2026-11-04 11:06:45,304 Iter 215, Minibatch Loss= 0.0329, Training Accuracy= 0.9945, Minibatch error= 0.5%
+2026-11-04 11:06:58,712 Iter 258, Minibatch Loss= 0.0313, Training Accuracy= 0.9942, Minibatch error= 0.6%
+2026-11-04 11:07:12,129 Iter 301, Minibatch Loss= 0.0332, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-04 11:07:25,649 Iter 344, Minibatch Loss= 0.0320, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-04 11:07:27,200   [#################.......] Epoch 108/150  |  loss 0.0330  |  lr 0.00010  |  21.4m elapsed  |  ETA 40.9m
+2026-11-04 11:07:27,350 Verification error= 0.2%, loss= 0.0208
+2026-11-04 11:07:27,548 Optimization Finished!
+2026-11-04 11:07:27,577 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793770647.965138   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9454  max-F1 0.9458  ROC 0.9956
+2026-11-04 11:07:32,333 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:07:33,075 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:07:33,142 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:07:34,200 Verification error= 0.1%, loss= 0.0172
+2026-11-04 11:07:34,332 Start optimization
+2026-11-04 11:07:35,661 Iter 0, Minibatch Loss= 0.0177, Training Accuracy= 0.9986, Minibatch error= 0.1%
+2026-11-04 11:07:48,760 Iter 43, Minibatch Loss= 0.0345, Training Accuracy= 0.9937, Minibatch error= 0.6%
+2026-11-04 11:08:01,981 Iter 86, Minibatch Loss= 0.0270, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-04 11:08:15,551 Iter 129, Minibatch Loss= 0.0130, Training Accuracy= 0.9996, Minibatch error= 0.0%
+2026-11-04 11:08:28,936 Iter 172, Minibatch Loss= 0.0301, Training Accuracy= 0.9946, Minibatch error= 0.5%
+2026-11-04 11:08:29,577   [#################.......] Epoch 109/150  |  loss 0.0325  |  lr 0.00010  |  22.5m elapsed  |  ETA 40.1m
+2026-11-04 11:08:29,726 Verification error= 0.1%, loss= 0.0172
+2026-11-04 11:08:42,712 Iter 215, Minibatch Loss= 0.0201, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 11:08:56,155 Iter 258, Minibatch Loss= 0.0315, Training Accuracy= 0.9950, Minibatch error= 0.5%
+2026-11-04 11:09:09,540 Iter 301, Minibatch Loss= 0.0281, Training Accuracy= 0.9944, Minibatch error= 0.6%
+2026-11-04 11:09:22,929 Iter 344, Minibatch Loss= 0.0126, Training Accuracy= 0.9996, Minibatch error= 0.0%
+2026-11-04 11:09:24,460   [#################.......] Epoch 110/150  |  loss 0.0282  |  lr 0.00010  |  23.4m elapsed  |  ETA 39.0m
+2026-11-04 11:09:24,610 Verification error= 0.1%, loss= 0.0171
+2026-11-04 11:09:24,817 Optimization Finished!
+2026-11-04 11:09:24,846 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793770765.229500   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9449  max-F1 0.9453  ROC 0.9975
+2026-11-04 11:09:29,611 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:09:30,348 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:09:30,414 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:09:31,442 Verification error= 0.1%, loss= 0.0138
+2026-11-04 11:09:31,574 Start optimization
+2026-11-04 11:09:32,905 Iter 0, Minibatch Loss= 0.0325, Training Accuracy= 0.9935, Minibatch error= 0.7%
+2026-11-04 11:09:46,129 Iter 43, Minibatch Loss= 0.0163, Training Accuracy= 0.9985, Minibatch error= 0.2%
+2026-11-04 11:09:59,367 Iter 86, Minibatch Loss= 0.0136, Training Accuracy= 0.9986, Minibatch error= 0.1%
+2026-11-04 11:10:12,744 Iter 129, Minibatch Loss= 0.0366, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-04 11:10:26,117 Iter 172, Minibatch Loss= 0.0238, Training Accuracy= 0.9966, Minibatch error= 0.3%
+2026-11-04 11:10:26,713   [#################.......] Epoch 111/150  |  loss 0.0315  |  lr 0.00010  |  24.4m elapsed  |  ETA 38.1m
+2026-11-04 11:10:26,861 Verification error= 0.1%, loss= 0.0141
+2026-11-04 11:10:40,022 Iter 215, Minibatch Loss= 0.0354, Training Accuracy= 0.9936, Minibatch error= 0.6%
+2026-11-04 11:10:53,394 Iter 258, Minibatch Loss= 0.0242, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-04 11:11:06,940 Iter 301, Minibatch Loss= 0.0230, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-04 11:11:20,347 Iter 344, Minibatch Loss= 0.0236, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-04 11:11:21,936   [#################.......] Epoch 112/150  |  loss 0.0366  |  lr 0.00010  |  25.3m elapsed  |  ETA 37.0m
+2026-11-04 11:11:22,089 Verification error= 0.1%, loss= 0.0150
+2026-11-04 11:11:22,287 Optimization Finished!
+2026-11-04 11:11:22,316 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793770882.933383   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9390  max-F1 0.9434  ROC 0.9936
+2026-11-04 11:11:27,217 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:11:27,956 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:11:28,022 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:11:29,062 Verification error= 0.2%, loss= 0.0164
+2026-11-04 11:11:29,195 Start optimization
+2026-11-04 11:11:30,548 Iter 0, Minibatch Loss= 0.0215, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-04 11:11:43,661 Iter 43, Minibatch Loss= 0.0206, Training Accuracy= 0.9975, Minibatch error= 0.2%
+2026-11-04 11:11:57,049 Iter 86, Minibatch Loss= 0.0415, Training Accuracy= 0.9910, Minibatch error= 0.9%
+2026-11-04 11:12:10,551 Iter 129, Minibatch Loss= 0.0298, Training Accuracy= 0.9949, Minibatch error= 0.5%
+2026-11-04 11:12:23,896 Iter 172, Minibatch Loss= 0.0265, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-04 11:12:24,513   [##################......] Epoch 113/150  |  loss 0.0328  |  lr 0.00010  |  26.4m elapsed  |  ETA 36.2m
+2026-11-04 11:12:24,664 Verification error= 0.1%, loss= 0.0151
+2026-11-04 11:12:37,812 Iter 215, Minibatch Loss= 0.0280, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-04 11:12:51,410 Iter 258, Minibatch Loss= 0.0226, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 11:13:04,901 Iter 301, Minibatch Loss= 0.0301, Training Accuracy= 0.9945, Minibatch error= 0.5%
+2026-11-04 11:13:18,371 Iter 344, Minibatch Loss= 0.0161, Training Accuracy= 0.9981, Minibatch error= 0.2%
+2026-11-04 11:13:19,921   [##################......] Epoch 114/150  |  loss 0.0309  |  lr 0.00010  |  27.3m elapsed  |  ETA 35.1m
+2026-11-04 11:13:20,073 Verification error= 0.1%, loss= 0.0151
+2026-11-04 11:13:20,273 Optimization Finished!
+2026-11-04 11:13:20,302 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771000.686925   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9446  max-F1 0.9448  ROC 0.9967
+2026-11-04 11:13:25,117 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:13:25,855 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:13:25,924 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:13:26,962 Verification error= 0.4%, loss= 0.0233
+2026-11-04 11:13:27,095 Start optimization
+2026-11-04 11:13:28,440 Iter 0, Minibatch Loss= 0.0276, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-04 11:13:41,504 Iter 43, Minibatch Loss= 0.0266, Training Accuracy= 0.9955, Minibatch error= 0.5%
+2026-11-04 11:13:54,938 Iter 86, Minibatch Loss= 0.0143, Training Accuracy= 0.9995, Minibatch error= 0.1%
+2026-11-04 11:14:08,587 Iter 129, Minibatch Loss= 0.0207, Training Accuracy= 0.9969, Minibatch error= 0.3%
+2026-11-04 11:14:21,987 Iter 172, Minibatch Loss= 0.0348, Training Accuracy= 0.9934, Minibatch error= 0.7%
+2026-11-04 11:14:22,628   [##################......] Epoch 115/150  |  loss 0.0313  |  lr 0.00010  |  28.4m elapsed  |  ETA 34.2m
+2026-11-04 11:14:22,783 Verification error= 0.3%, loss= 0.0227
+2026-11-04 11:14:35,979 Iter 215, Minibatch Loss= 0.0265, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-04 11:14:49,498 Iter 258, Minibatch Loss= 0.0236, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-04 11:15:03,031 Iter 301, Minibatch Loss= 0.0235, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-04 11:15:16,396 Iter 344, Minibatch Loss= 0.0250, Training Accuracy= 0.9962, Minibatch error= 0.4%
+2026-11-04 11:15:17,957   [##################......] Epoch 116/150  |  loss 0.0310  |  lr 0.00010  |  29.3m elapsed  |  ETA 33.2m
+2026-11-04 11:15:18,108 Verification error= 0.3%, loss= 0.0231
+2026-11-04 11:15:18,312 Optimization Finished!
+2026-11-04 11:15:18,341 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771118.738495   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9455  max-F1 0.9467  ROC 0.9950
+2026-11-04 11:15:23,137 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:15:23,881 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:15:23,943 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:15:25,013 Verification error= 0.4%, loss= 0.0256
+2026-11-04 11:15:25,150 Start optimization
+2026-11-04 11:15:26,479 Iter 0, Minibatch Loss= 0.0203, Training Accuracy= 0.9978, Minibatch error= 0.2%
+2026-11-04 11:15:39,578 Iter 43, Minibatch Loss= 0.0192, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-04 11:15:52,938 Iter 86, Minibatch Loss= 0.0190, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-04 11:16:06,385 Iter 129, Minibatch Loss= 0.0280, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-04 11:16:19,975 Iter 172, Minibatch Loss= 0.0262, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-04 11:16:20,592   [##################......] Epoch 117/150  |  loss 0.0293  |  lr 0.00010  |  30.3m elapsed  |  ETA 32.3m
+2026-11-04 11:16:20,743 Verification error= 0.5%, loss= 0.0258
+2026-11-04 11:16:33,793 Iter 215, Minibatch Loss= 0.0223, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-04 11:16:47,348 Iter 258, Minibatch Loss= 0.0238, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-04 11:17:00,735 Iter 301, Minibatch Loss= 0.0410, Training Accuracy= 0.9907, Minibatch error= 0.9%
+2026-11-04 11:17:14,133 Iter 344, Minibatch Loss= 0.0242, Training Accuracy= 0.9966, Minibatch error= 0.3%
+2026-11-04 11:17:15,677   [##################......] Epoch 118/150  |  loss 0.0306  |  lr 0.00010  |  31.2m elapsed  |  ETA 31.2m
+2026-11-04 11:17:15,828 Verification error= 0.5%, loss= 0.0266
+2026-11-04 11:17:16,028 Optimization Finished!
+2026-11-04 11:17:16,058 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771236.462893   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9399  max-F1 0.9441  ROC 0.9941
+2026-11-04 11:17:20,774 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:17:21,509 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:17:21,574 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:17:22,657 Verification error= 0.7%, loss= 0.0329
+2026-11-04 11:17:22,791 Start optimization
+2026-11-04 11:17:24,135 Iter 0, Minibatch Loss= 0.0396, Training Accuracy= 0.9910, Minibatch error= 0.9%
+2026-11-04 11:17:37,280 Iter 43, Minibatch Loss= 0.0247, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-04 11:17:50,646 Iter 86, Minibatch Loss= 0.0307, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-04 11:18:03,962 Iter 129, Minibatch Loss= 0.0229, Training Accuracy= 0.9970, Minibatch error= 0.3%
+2026-11-04 11:18:17,299 Iter 172, Minibatch Loss= 0.0351, Training Accuracy= 0.9924, Minibatch error= 0.8%
+2026-11-04 11:18:17,912   [###################.....] Epoch 119/150  |  loss 0.0314  |  lr 0.00010  |  32.3m elapsed  |  ETA 30.3m
+2026-11-04 11:18:18,063 Verification error= 0.7%, loss= 0.0302
+2026-11-04 11:18:31,039 Iter 215, Minibatch Loss= 0.0300, Training Accuracy= 0.9937, Minibatch error= 0.6%
+2026-11-04 11:18:44,474 Iter 258, Minibatch Loss= 0.0241, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-04 11:18:58,011 Iter 301, Minibatch Loss= 0.0150, Training Accuracy= 0.9989, Minibatch error= 0.1%
+2026-11-04 11:19:11,489 Iter 344, Minibatch Loss= 0.0225, Training Accuracy= 0.9969, Minibatch error= 0.3%
+2026-11-04 11:19:13,035   [###################.....] Epoch 120/150  |  loss 0.0292  |  lr 0.00010  |  33.2m elapsed  |  ETA 29.3m
+2026-11-04 11:19:13,187 Verification error= 0.6%, loss= 0.0296
+2026-11-04 11:19:13,389 Optimization Finished!
+2026-11-04 11:19:13,419 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771353.803817   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9472  max-F1 0.9475  ROC 0.9973
+     new best checkpoint saved
+2026-11-04 11:19:18,239 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:19:19,258 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:19:19,327 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:19:20,388 Verification error= 0.3%, loss= 0.0209
+2026-11-04 11:19:20,522 Start optimization
+2026-11-04 11:19:21,864 Iter 0, Minibatch Loss= 0.0232, Training Accuracy= 0.9968, Minibatch error= 0.3%
+2026-11-04 11:19:34,950 Iter 43, Minibatch Loss= 0.0308, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-04 11:19:48,333 Iter 86, Minibatch Loss= 0.0156, Training Accuracy= 0.9990, Minibatch error= 0.1%
+2026-11-04 11:20:01,706 Iter 129, Minibatch Loss= 0.0382, Training Accuracy= 0.9914, Minibatch error= 0.9%
+2026-11-04 11:20:15,066 Iter 172, Minibatch Loss= 0.0274, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-04 11:20:15,681   [###################.....] Epoch 121/150  |  loss 0.0312  |  lr 0.00010  |  34.2m elapsed  |  ETA 28.4m
+2026-11-04 11:20:15,831 Verification error= 0.3%, loss= 0.0212
+2026-11-04 11:20:28,936 Iter 215, Minibatch Loss= 0.0118, Training Accuracy= 0.9997, Minibatch error= 0.0%
+2026-11-04 11:20:42,365 Iter 258, Minibatch Loss= 0.0159, Training Accuracy= 0.9993, Minibatch error= 0.1%
+2026-11-04 11:20:55,866 Iter 301, Minibatch Loss= 0.0138, Training Accuracy= 0.9992, Minibatch error= 0.1%
+2026-11-04 11:21:09,350 Iter 344, Minibatch Loss= 0.0138, Training Accuracy= 0.9991, Minibatch error= 0.1%
+2026-11-04 11:21:10,899   [###################.....] Epoch 122/150  |  loss 0.0276  |  lr 0.00010  |  35.2m elapsed  |  ETA 27.3m
+2026-11-04 11:21:11,050 Verification error= 0.3%, loss= 0.0209
+2026-11-04 11:21:11,256 Optimization Finished!
+2026-11-04 11:21:11,285 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771471.671628   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9443  max-F1 0.9448  ROC 0.9972
+2026-11-04 11:21:16,061 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:21:16,799 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:21:16,865 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:21:17,895 Verification error= 0.5%, loss= 0.0258
+2026-11-04 11:21:18,029 Start optimization
+2026-11-04 11:21:19,387 Iter 0, Minibatch Loss= 0.0166, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-04 11:21:32,389 Iter 43, Minibatch Loss= 0.0216, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-04 11:21:45,584 Iter 86, Minibatch Loss= 0.0253, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-04 11:21:59,032 Iter 129, Minibatch Loss= 0.0229, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-04 11:22:12,437 Iter 172, Minibatch Loss= 0.0235, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-04 11:22:13,056   [###################.....] Epoch 123/150  |  loss 0.0286  |  lr 0.00010  |  36.2m elapsed  |  ETA 26.4m
+2026-11-04 11:22:13,207 Verification error= 0.5%, loss= 0.0239
+2026-11-04 11:22:26,150 Iter 215, Minibatch Loss= 0.0148, Training Accuracy= 0.9992, Minibatch error= 0.1%
+2026-11-04 11:22:39,733 Iter 258, Minibatch Loss= 0.0270, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-04 11:22:53,088 Iter 301, Minibatch Loss= 0.0211, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 11:23:06,497 Iter 344, Minibatch Loss= 0.0268, Training Accuracy= 0.9951, Minibatch error= 0.5%
+2026-11-04 11:23:08,050   [###################.....] Epoch 124/150  |  loss 0.0321  |  lr 0.00010  |  37.1m elapsed  |  ETA 25.4m
+2026-11-04 11:23:08,202 Verification error= 0.5%, loss= 0.0251
+2026-11-04 11:23:08,412 Optimization Finished!
+2026-11-04 11:23:08,441 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771588.831075   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9430  max-F1 0.9449  ROC 0.9968
+2026-11-04 11:23:13,207 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:23:13,946 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:23:14,011 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:23:15,036 Verification error= 0.5%, loss= 0.0268
+2026-11-04 11:23:15,167 Start optimization
+2026-11-04 11:23:16,479 Iter 0, Minibatch Loss= 0.0129, Training Accuracy= 0.9994, Minibatch error= 0.1%
+2026-11-04 11:23:29,527 Iter 43, Minibatch Loss= 0.0248, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-04 11:23:42,776 Iter 86, Minibatch Loss= 0.0174, Training Accuracy= 0.9974, Minibatch error= 0.3%
+2026-11-04 11:23:56,077 Iter 129, Minibatch Loss= 0.0187, Training Accuracy= 0.9972, Minibatch error= 0.3%
+2026-11-04 11:24:09,546 Iter 172, Minibatch Loss= 0.0235, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-04 11:24:10,162   [####################....] Epoch 125/150  |  loss 0.0302  |  lr 0.00010  |  38.1m elapsed  |  ETA 24.5m
+2026-11-04 11:24:10,312 Verification error= 0.5%, loss= 0.0262
+2026-11-04 11:24:23,516 Iter 215, Minibatch Loss= 0.0321, Training Accuracy= 0.9926, Minibatch error= 0.7%
+2026-11-04 11:24:36,864 Iter 258, Minibatch Loss= 0.0248, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-04 11:24:50,347 Iter 301, Minibatch Loss= 0.0225, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-04 11:25:03,763 Iter 344, Minibatch Loss= 0.0387, Training Accuracy= 0.9914, Minibatch error= 0.9%
+2026-11-04 11:25:05,303   [####################....] Epoch 126/150  |  loss 0.0351  |  lr 0.00010  |  39.1m elapsed  |  ETA 23.4m
+2026-11-04 11:25:05,455 Verification error= 0.5%, loss= 0.0269
+2026-11-04 11:25:05,654 Optimization Finished!
+2026-11-04 11:25:05,685 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771706.080957   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9442  max-F1 0.9458  ROC 0.9948
+2026-11-04 11:25:10,475 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:25:11,209 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:25:11,271 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:25:12,302 Verification error= 0.6%, loss= 0.0316
+2026-11-04 11:25:12,437 Start optimization
+2026-11-04 11:25:13,783 Iter 0, Minibatch Loss= 0.0259, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-04 11:25:26,944 Iter 43, Minibatch Loss= 0.0328, Training Accuracy= 0.9937, Minibatch error= 0.6%
+2026-11-04 11:25:40,369 Iter 86, Minibatch Loss= 0.0277, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-04 11:25:53,724 Iter 129, Minibatch Loss= 0.0185, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-04 11:26:07,266 Iter 172, Minibatch Loss= 0.0192, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 11:26:07,871   [####################....] Epoch 127/150  |  loss 0.0301  |  lr 0.00010  |  40.1m elapsed  |  ETA 22.5m
+2026-11-04 11:26:08,023 Verification error= 0.7%, loss= 0.0317
+2026-11-04 11:26:21,207 Iter 215, Minibatch Loss= 0.0244, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-04 11:26:34,822 Iter 258, Minibatch Loss= 0.0429, Training Accuracy= 0.9901, Minibatch error= 1.0%
+2026-11-04 11:26:48,195 Iter 301, Minibatch Loss= 0.0275, Training Accuracy= 0.9949, Minibatch error= 0.5%
+2026-11-04 11:27:01,939 Iter 344, Minibatch Loss= 0.0242, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-04 11:27:03,485   [####################....] Epoch 128/150  |  loss 0.0305  |  lr 0.00010  |  41.0m elapsed  |  ETA 21.5m
+2026-11-04 11:27:03,638 Verification error= 0.6%, loss= 0.0314
+2026-11-04 11:27:03,844 Optimization Finished!
+2026-11-04 11:27:03,873 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771824.260582   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9461  max-F1 0.9482  ROC 0.9965
+     new best checkpoint saved
+2026-11-04 11:27:08,698 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:27:09,666 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:27:09,730 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:27:10,769 Verification error= 0.3%, loss= 0.0204
+2026-11-04 11:27:10,912 Start optimization
+2026-11-04 11:27:12,261 Iter 0, Minibatch Loss= 0.0400, Training Accuracy= 0.9915, Minibatch error= 0.9%
+2026-11-04 11:27:25,337 Iter 43, Minibatch Loss= 0.0384, Training Accuracy= 0.9938, Minibatch error= 0.6%
+2026-11-04 11:27:38,871 Iter 86, Minibatch Loss= 0.0287, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-04 11:27:52,234 Iter 129, Minibatch Loss= 0.0240, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-04 11:28:05,586 Iter 172, Minibatch Loss= 0.0176, Training Accuracy= 0.9987, Minibatch error= 0.1%
+2026-11-04 11:28:06,200   [####################....] Epoch 129/150  |  loss 0.0285  |  lr 0.00010  |  42.1m elapsed  |  ETA 20.6m
+2026-11-04 11:28:06,351 Verification error= 0.3%, loss= 0.0200
+2026-11-04 11:28:19,280 Iter 215, Minibatch Loss= 0.0246, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-04 11:28:32,777 Iter 258, Minibatch Loss= 0.0161, Training Accuracy= 0.9978, Minibatch error= 0.2%
+2026-11-04 11:28:46,293 Iter 301, Minibatch Loss= 0.0128, Training Accuracy= 0.9997, Minibatch error= 0.0%
+2026-11-04 11:28:59,968 Iter 344, Minibatch Loss= 0.0232, Training Accuracy= 0.9955, Minibatch error= 0.4%
+2026-11-04 11:29:01,526   [####################....] Epoch 130/150  |  loss 0.0287  |  lr 0.00010  |  43.0m elapsed  |  ETA 19.5m
+2026-11-04 11:29:01,677 Verification error= 0.4%, loss= 0.0235
+2026-11-04 11:29:01,877 Optimization Finished!
+2026-11-04 11:29:01,907 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793771942.300444   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9391  max-F1 0.9416  ROC 0.9935
+2026-11-04 11:29:06,714 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:29:07,450 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:29:07,514 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:29:08,543 Verification error= 0.7%, loss= 0.0333
+2026-11-04 11:29:08,683 Start optimization
+2026-11-04 11:29:10,019 Iter 0, Minibatch Loss= 0.0287, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-04 11:29:23,315 Iter 43, Minibatch Loss= 0.0237, Training Accuracy= 0.9966, Minibatch error= 0.3%
+2026-11-04 11:29:36,652 Iter 86, Minibatch Loss= 0.0217, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 11:29:50,184 Iter 129, Minibatch Loss= 0.1208, Training Accuracy= 0.9739, Minibatch error= 2.6%
+2026-11-04 11:30:03,777 Iter 172, Minibatch Loss= 0.0332, Training Accuracy= 0.9930, Minibatch error= 0.7%
+2026-11-04 11:30:04,397   [####################....] Epoch 131/150  |  loss 0.0364  |  lr 0.00010  |  44.0m elapsed  |  ETA 18.6m
+2026-11-04 11:30:04,541 Verification error= 0.7%, loss= 0.0293
+2026-11-04 11:30:17,709 Iter 215, Minibatch Loss= 0.0139, Training Accuracy= 0.9990, Minibatch error= 0.1%
+2026-11-04 11:30:31,234 Iter 258, Minibatch Loss= 0.0191, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-04 11:30:44,682 Iter 301, Minibatch Loss= 0.2001, Training Accuracy= 0.9718, Minibatch error= 2.8%
+2026-11-04 11:30:58,337 Iter 344, Minibatch Loss= 0.0359, Training Accuracy= 0.9936, Minibatch error= 0.6%
+2026-11-04 11:30:59,885   [#####################...] Epoch 132/150  |  loss 0.0294  |  lr 0.00010  |  45.0m elapsed  |  ETA 17.6m
+2026-11-04 11:31:00,037 Verification error= 0.6%, loss= 0.0290
+2026-11-04 11:31:00,242 Optimization Finished!
+2026-11-04 11:31:00,270 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793772060.656801   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9466  max-F1 0.9476  ROC 0.9972
+2026-11-04 11:31:05,032 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:31:05,773 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:31:05,841 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:31:06,888 Verification error= 0.4%, loss= 0.0238
+2026-11-04 11:31:07,025 Start optimization
+2026-11-04 11:31:08,370 Iter 0, Minibatch Loss= 0.0135, Training Accuracy= 0.9992, Minibatch error= 0.1%
+2026-11-04 11:31:21,416 Iter 43, Minibatch Loss= 0.0217, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 11:31:34,828 Iter 86, Minibatch Loss= 0.0202, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 11:31:48,264 Iter 129, Minibatch Loss= 0.0118, Training Accuracy= 0.9996, Minibatch error= 0.0%
+2026-11-04 11:32:01,760 Iter 172, Minibatch Loss= 0.0159, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-04 11:32:02,388   [#####################...] Epoch 133/150  |  loss 0.0305  |  lr 0.00010  |  46.0m elapsed  |  ETA 16.6m
+2026-11-04 11:32:02,538 Verification error= 0.5%, loss= 0.0286
+2026-11-04 11:32:15,911 Iter 215, Minibatch Loss= 0.0201, Training Accuracy= 0.9970, Minibatch error= 0.3%
+2026-11-04 11:32:29,422 Iter 258, Minibatch Loss= 0.1413, Training Accuracy= 0.9777, Minibatch error= 2.2%
+2026-11-04 11:32:43,041 Iter 301, Minibatch Loss= 0.0285, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-04 11:33:02,021 Iter 344, Minibatch Loss= 0.0191, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 11:33:05,965   [#####################...] Epoch 134/150  |  loss 0.0329  |  lr 0.00010  |  47.1m elapsed  |  ETA 15.7m
+2026-11-04 11:33:06,329 Verification error= 0.4%, loss= 0.0273
+2026-11-04 11:33:06,605 Optimization Finished!
+2026-11-04 11:33:06,641 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793772187.080722   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9451  max-F1 0.9465  ROC 0.9964
+2026-11-04 11:33:12,334 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:33:13,121 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:33:13,187 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:33:14,408 Verification error= 0.3%, loss= 0.0169
+2026-11-04 11:33:14,551 Start optimization
+2026-11-04 11:33:16,404 Iter 0, Minibatch Loss= 0.0112, Training Accuracy= 0.9996, Minibatch error= 0.0%
+2026-11-04 11:33:37,196 Iter 43, Minibatch Loss= 0.0303, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-04 11:33:54,561 Iter 86, Minibatch Loss= 0.0317, Training Accuracy= 0.9932, Minibatch error= 0.7%
+2026-11-04 11:34:07,609 Iter 129, Minibatch Loss= 0.0236, Training Accuracy= 0.9960, Minibatch error= 0.4%
+2026-11-04 11:34:20,914 Iter 172, Minibatch Loss= 0.0230, Training Accuracy= 0.9960, Minibatch error= 0.4%
+2026-11-04 11:34:21,522   [#####################...] Epoch 135/150  |  loss 0.0318  |  lr 0.00010  |  48.3m elapsed  |  ETA 14.8m
+2026-11-04 11:34:21,673 Verification error= 0.2%, loss= 0.0179
+2026-11-04 11:34:34,627 Iter 215, Minibatch Loss= 0.0208, Training Accuracy= 0.9978, Minibatch error= 0.2%
+2026-11-04 11:34:47,874 Iter 258, Minibatch Loss= 0.0257, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-04 11:35:00,952 Iter 301, Minibatch Loss= 0.0180, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-04 11:35:14,102 Iter 344, Minibatch Loss= 0.0146, Training Accuracy= 0.9986, Minibatch error= 0.1%
+2026-11-04 11:35:15,592   [#####################...] Epoch 136/150  |  loss 0.0321  |  lr 0.00010  |  49.2m elapsed  |  ETA 13.8m
+2026-11-04 11:35:15,755 Verification error= 0.3%, loss= 0.0166
+2026-11-04 11:35:15,965 Optimization Finished!
+2026-11-04 11:35:15,994 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793772316.382976   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9458  max-F1 0.9464  ROC 0.9975
+2026-11-04 11:35:20,810 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:35:21,545 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:35:21,606 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:35:22,656 Verification error= 0.1%, loss= 0.0161
+2026-11-04 11:35:22,792 Start optimization
+2026-11-04 11:35:24,132 Iter 0, Minibatch Loss= 0.0276, Training Accuracy= 0.9952, Minibatch error= 0.5%
+2026-11-04 11:35:36,858 Iter 43, Minibatch Loss= 0.0224, Training Accuracy= 0.9978, Minibatch error= 0.2%
+2026-11-04 11:35:49,917 Iter 86, Minibatch Loss= 0.0161, Training Accuracy= 0.9987, Minibatch error= 0.1%
+2026-11-04 11:36:02,912 Iter 129, Minibatch Loss= 0.0212, Training Accuracy= 0.9948, Minibatch error= 0.5%
+2026-11-04 11:36:15,937 Iter 172, Minibatch Loss= 0.0269, Training Accuracy= 0.9947, Minibatch error= 0.5%
+2026-11-04 11:36:16,529   [#####################...] Epoch 137/150  |  loss 0.0332  |  lr 0.00010  |  50.3m elapsed  |  ETA 12.8m
+2026-11-04 11:36:16,679 Verification error= 0.1%, loss= 0.0162
+2026-11-04 11:36:29,267 Iter 215, Minibatch Loss= 0.0196, Training Accuracy= 0.9975, Minibatch error= 0.2%
+2026-11-04 11:36:42,276 Iter 258, Minibatch Loss= 0.0147, Training Accuracy= 0.9991, Minibatch error= 0.1%
+2026-11-04 11:36:55,273 Iter 301, Minibatch Loss= 0.0304, Training Accuracy= 0.9938, Minibatch error= 0.6%
+2026-11-04 11:37:08,189 Iter 344, Minibatch Loss= 0.0245, Training Accuracy= 0.9955, Minibatch error= 0.5%
+2026-11-04 11:37:09,672   [######################..] Epoch 138/150  |  loss 0.0281  |  lr 0.00010  |  51.1m elapsed  |  ETA 11.8m
+2026-11-04 11:37:09,821 Verification error= 0.1%, loss= 0.0166
+2026-11-04 11:37:10,021 Optimization Finished!
+2026-11-04 11:37:10,050 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793772430.667131   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9438  max-F1 0.9441  ROC 0.9963
+2026-11-04 11:37:14,993 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:37:15,748 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:37:15,820 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:37:16,877 Verification error= 0.3%, loss= 0.0186
+2026-11-04 11:37:17,014 Start optimization
+2026-11-04 11:37:18,353 Iter 0, Minibatch Loss= 0.0180, Training Accuracy= 0.9974, Minibatch error= 0.3%
+2026-11-04 11:37:30,928 Iter 43, Minibatch Loss= 0.0293, Training Accuracy= 0.9936, Minibatch error= 0.6%
+2026-11-04 11:37:43,696 Iter 86, Minibatch Loss= 0.0172, Training Accuracy= 0.9984, Minibatch error= 0.2%
+2026-11-04 11:37:56,457 Iter 129, Minibatch Loss= 0.0177, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-04 11:38:09,281 Iter 172, Minibatch Loss= 0.0208, Training Accuracy= 0.9973, Minibatch error= 0.3%
+2026-11-04 11:38:09,872   [######################..] Epoch 139/150  |  loss 0.0301  |  lr 0.00010  |  52.1m elapsed  |  ETA 10.8m
+2026-11-04 11:38:10,017 Verification error= 0.3%, loss= 0.0183
+2026-11-04 11:38:22,518 Iter 215, Minibatch Loss= 0.0115, Training Accuracy= 0.9998, Minibatch error= 0.0%
+2026-11-04 11:38:35,400 Iter 258, Minibatch Loss= 0.0212, Training Accuracy= 0.9965, Minibatch error= 0.3%
+2026-11-04 11:38:48,299 Iter 301, Minibatch Loss= 0.0235, Training Accuracy= 0.9959, Minibatch error= 0.4%
+2026-11-04 11:39:01,122 Iter 344, Minibatch Loss= 0.0217, Training Accuracy= 0.9966, Minibatch error= 0.3%
+2026-11-04 11:39:02,585   [######################..] Epoch 140/150  |  loss 0.0311  |  lr 0.00010  |  53.0m elapsed  |  ETA 9.8m
+2026-11-04 11:39:02,732 Verification error= 0.3%, loss= 0.0200
+2026-11-04 11:39:02,934 Optimization Finished!
+2026-11-04 11:39:02,963 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793772543.352046   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9407  max-F1 0.9408  ROC 0.9956
+2026-11-04 11:39:07,688 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:39:08,423 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:39:08,489 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:39:09,524 Verification error= 0.5%, loss= 0.0281
+2026-11-04 11:39:09,664 Start optimization
+2026-11-04 11:39:10,986 Iter 0, Minibatch Loss= 0.0142, Training Accuracy= 0.9990, Minibatch error= 0.1%
+2026-11-04 11:39:23,611 Iter 43, Minibatch Loss= 0.0197, Training Accuracy= 0.9979, Minibatch error= 0.2%
+2026-11-04 11:39:36,469 Iter 86, Minibatch Loss= 0.0349, Training Accuracy= 0.9923, Minibatch error= 0.8%
+2026-11-04 11:39:49,340 Iter 129, Minibatch Loss= 0.0325, Training Accuracy= 0.9943, Minibatch error= 0.6%
+2026-11-04 11:40:02,207 Iter 172, Minibatch Loss= 0.0335, Training Accuracy= 0.9939, Minibatch error= 0.6%
+2026-11-04 11:40:02,826   [######################..] Epoch 141/150  |  loss 0.0323  |  lr 0.00010  |  54.0m elapsed  |  ETA 8.8m
+2026-11-04 11:40:02,976 Verification error= 0.4%, loss= 0.0259
+2026-11-04 11:40:15,502 Iter 215, Minibatch Loss= 0.1814, Training Accuracy= 0.9708, Minibatch error= 2.9%
+2026-11-04 11:40:28,429 Iter 258, Minibatch Loss= 0.0139, Training Accuracy= 0.9992, Minibatch error= 0.1%
+2026-11-04 11:40:41,353 Iter 301, Minibatch Loss= 0.1077, Training Accuracy= 0.9824, Minibatch error= 1.8%
+2026-11-04 11:40:54,373 Iter 344, Minibatch Loss= 0.0239, Training Accuracy= 0.9958, Minibatch error= 0.4%
+2026-11-04 11:40:55,872   [######################..] Epoch 142/150  |  loss 0.0352  |  lr 0.00010  |  54.9m elapsed  |  ETA 7.8m
+2026-11-04 11:40:56,022 Verification error= 0.4%, loss= 0.0260
+2026-11-04 11:40:56,230 Optimization Finished!
+2026-11-04 11:40:56,260 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793772656.656096   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9410  max-F1 0.9455  ROC 0.9951
+2026-11-04 11:41:01,018 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:41:01,748 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:41:01,812 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:41:02,848 Verification error= 0.3%, loss= 0.0246
+2026-11-04 11:41:02,987 Start optimization
+2026-11-04 11:41:04,311 Iter 0, Minibatch Loss= 0.0197, Training Accuracy= 0.9972, Minibatch error= 0.3%
+2026-11-04 11:41:16,969 Iter 43, Minibatch Loss= 0.0214, Training Accuracy= 0.9971, Minibatch error= 0.3%
+2026-11-04 11:41:29,773 Iter 86, Minibatch Loss= 0.0199, Training Accuracy= 0.9964, Minibatch error= 0.4%
+2026-11-04 11:41:42,703 Iter 129, Minibatch Loss= 0.0152, Training Accuracy= 0.9983, Minibatch error= 0.2%
+2026-11-04 11:41:55,771 Iter 172, Minibatch Loss= 0.0246, Training Accuracy= 0.9956, Minibatch error= 0.4%
+2026-11-04 11:41:56,368   [######################..] Epoch 143/150  |  loss 0.0292  |  lr 0.00010  |  55.9m elapsed  |  ETA 6.9m
+2026-11-04 11:41:56,515 Verification error= 0.3%, loss= 0.0235
+2026-11-04 11:42:09,212 Iter 215, Minibatch Loss= 0.0136, Training Accuracy= 0.9986, Minibatch error= 0.1%
+2026-11-04 11:42:22,247 Iter 258, Minibatch Loss= 0.0203, Training Accuracy= 0.9975, Minibatch error= 0.2%
+2026-11-04 11:42:35,309 Iter 301, Minibatch Loss= 0.1569, Training Accuracy= 0.9737, Minibatch error= 2.6%
+2026-11-04 11:42:48,392 Iter 344, Minibatch Loss= 0.0193, Training Accuracy= 0.9977, Minibatch error= 0.2%
+2026-11-04 11:42:49,889   [#######################.] Epoch 144/150  |  loss 0.0320  |  lr 0.00010  |  56.8m elapsed  |  ETA 5.9m
+2026-11-04 11:42:50,039 Verification error= 0.3%, loss= 0.0250
+2026-11-04 11:42:50,248 Optimization Finished!
+2026-11-04 11:42:50,279 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793772770.678462   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9449  max-F1 0.9457  ROC 0.9944
+2026-11-04 11:42:55,054 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:42:55,831 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:42:55,898 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:42:56,969 Verification error= 1.1%, loss= 0.0408
+2026-11-04 11:42:57,106 Start optimization
+2026-11-04 11:42:58,500 Iter 0, Minibatch Loss= 0.0158, Training Accuracy= 0.9996, Minibatch error= 0.0%
+2026-11-04 11:43:11,327 Iter 43, Minibatch Loss= 0.0256, Training Accuracy= 0.9957, Minibatch error= 0.4%
+2026-11-04 11:43:24,302 Iter 86, Minibatch Loss= 0.0155, Training Accuracy= 0.9976, Minibatch error= 0.2%
+2026-11-04 11:43:37,449 Iter 129, Minibatch Loss= 0.0183, Training Accuracy= 0.9963, Minibatch error= 0.4%
+2026-11-04 11:43:50,565 Iter 172, Minibatch Loss= 0.0159, Training Accuracy= 0.9983, Minibatch error= 0.2%
+2026-11-04 11:43:51,158   [#######################.] Epoch 145/150  |  loss 0.0302  |  lr 0.00010  |  57.8m elapsed  |  ETA 4.9m
+2026-11-04 11:43:51,308 Verification error= 1.1%, loss= 0.0419
+2026-11-04 11:44:03,946 Iter 215, Minibatch Loss= 0.0218, Training Accuracy= 0.9961, Minibatch error= 0.4%
+2026-11-04 11:44:17,109 Iter 258, Minibatch Loss= 0.0223, Training Accuracy= 0.9967, Minibatch error= 0.3%
+2026-11-04 11:44:30,308 Iter 301, Minibatch Loss= 0.0190, Training Accuracy= 0.9970, Minibatch error= 0.3%
+2026-11-04 11:44:43,826 Iter 344, Minibatch Loss= 0.1429, Training Accuracy= 0.9762, Minibatch error= 2.4%
+2026-11-04 11:44:45,333   [#######################.] Epoch 146/150  |  loss 0.0290  |  lr 0.00010  |  58.7m elapsed  |  ETA 3.9m
+2026-11-04 11:44:45,482 Verification error= 1.1%, loss= 0.0410
+2026-11-04 11:44:45,692 Optimization Finished!
+2026-11-04 11:44:45,720 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793772886.112703   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9452  max-F1 0.9461  ROC 0.9964
+2026-11-04 11:44:50,467 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:44:51,451 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:44:51,521 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:44:52,560 Verification error= 0.1%, loss= 0.0146
+2026-11-04 11:44:52,697 Start optimization
+2026-11-04 11:44:54,038 Iter 0, Minibatch Loss= 0.0174, Training Accuracy= 0.9985, Minibatch error= 0.2%
+2026-11-04 11:45:06,764 Iter 43, Minibatch Loss= 0.0172, Training Accuracy= 0.9977, Minibatch error= 0.2%
+2026-11-04 11:45:19,718 Iter 86, Minibatch Loss= 0.0175, Training Accuracy= 0.9980, Minibatch error= 0.2%
+2026-11-04 11:45:32,739 Iter 129, Minibatch Loss= 0.0175, Training Accuracy= 0.9985, Minibatch error= 0.2%
+2026-11-04 11:45:45,799 Iter 172, Minibatch Loss= 0.0192, Training Accuracy= 0.9981, Minibatch error= 0.2%
+2026-11-04 11:45:46,396   [#######################.] Epoch 147/150  |  loss 0.0352  |  lr 0.00010  |  59.7m elapsed  |  ETA 2.9m
+2026-11-04 11:45:46,549 Verification error= 0.1%, loss= 0.0167
+2026-11-04 11:45:59,339 Iter 215, Minibatch Loss= 0.0317, Training Accuracy= 0.9938, Minibatch error= 0.6%
+2026-11-04 11:46:12,373 Iter 258, Minibatch Loss= 0.0178, Training Accuracy= 0.9990, Minibatch error= 0.1%
+2026-11-04 11:46:25,493 Iter 301, Minibatch Loss= 0.0343, Training Accuracy= 0.9932, Minibatch error= 0.7%
+2026-11-04 11:46:38,754 Iter 344, Minibatch Loss= 0.0224, Training Accuracy= 0.9975, Minibatch error= 0.2%
+2026-11-04 11:46:40,253   [#######################.] Epoch 148/150  |  loss 0.0363  |  lr 0.00010  |  60.6m elapsed  |  ETA 2.0m
+2026-11-04 11:46:40,417 Verification error= 0.1%, loss= 0.0168
+2026-11-04 11:46:40,627 Optimization Finished!
+2026-11-04 11:46:40,656 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793773001.039073   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9404  max-F1 0.9436  ROC 0.9915
+2026-11-04 11:46:45,367 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:46:46,096 Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:46:46,160 Model restored from file: runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+2026-11-04 11:46:47,198 Verification error= 0.7%, loss= 0.0318
+2026-11-04 11:46:47,342 Start optimization
+2026-11-04 11:46:48,676 Iter 0, Minibatch Loss= 0.0182, Training Accuracy= 0.9988, Minibatch error= 0.1%
+2026-11-04 11:47:01,546 Iter 43, Minibatch Loss= 0.1237, Training Accuracy= 0.9809, Minibatch error= 1.9%
+2026-11-04 11:47:14,549 Iter 86, Minibatch Loss= 0.0244, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-04 11:47:27,533 Iter 129, Minibatch Loss= 0.0322, Training Accuracy= 0.9925, Minibatch error= 0.7%
+2026-11-04 11:47:40,645 Iter 172, Minibatch Loss= 0.0261, Training Accuracy= 0.9944, Minibatch error= 0.6%
+2026-11-04 11:47:41,251   [#######################.] Epoch 149/150  |  loss 0.0294  |  lr 0.00010  |  61.7m elapsed  |  ETA 1.0m
+2026-11-04 11:47:41,400 Verification error= 0.6%, loss= 0.0301
+2026-11-04 11:47:54,123 Iter 215, Minibatch Loss= 0.0259, Training Accuracy= 0.9953, Minibatch error= 0.5%
+2026-11-04 11:48:07,235 Iter 258, Minibatch Loss= 0.0186, Training Accuracy= 0.9969, Minibatch error= 0.3%
+2026-11-04 11:48:20,398 Iter 301, Minibatch Loss= 0.1489, Training Accuracy= 0.9773, Minibatch error= 2.3%
+2026-11-04 11:48:33,560 Iter 344, Minibatch Loss= 0.0283, Training Accuracy= 0.9950, Minibatch error= 0.5%
+2026-11-04 11:48:35,064   [########################] Epoch 150/150  |  loss 0.0275  |  lr 0.00010  |  62.6m elapsed  |  ETA 0.0m
+2026-11-04 11:48:35,215 Verification error= 0.6%, loss= 0.0323
+2026-11-04 11:48:35,422 Optimization Finished!
+2026-11-04 11:48:35,452 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/ckpt/model.ckpt
+E0000 00:00:1793773115.849309   11296 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inoutput_map/conv2d/dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+  -> val pooled-F1 0.9422  max-F1 0.9425  ROC 0.9969
+
+Training done. Best val max-F1 0.9482 @ epoch 128
+Evaluating the BEST checkpoint on the 135 test images ...
+2026-11-04 11:48:40,311 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/best/model.ckpt
+2026-11-04 11:48:46,500 Layers 3, features 32, filter size 3x3, pool size: 2x2
+INFO:tensorflow:Restoring parameters from runs/hera/tfunet_lr1e-4_seed2/best/model.ckpt
+  threshold selected on validation: 0.3310  (val F1 there 0.9482)
+    evaluated 25/135
+    evaluated 50/135
+    evaluated 75/135
+    evaluated 100/135
+    evaluated 125/135
+
+==========================================================================
+  RESULT on simulated HERA, simulator labels
+==========================================================================
+  pooled F1      : 0.9348   <-- HEADLINE. threshold 0.3310 chosen on val.
+      precision  : 0.9251
+      recall     : 0.9448
+  max F1 (oracle): 0.9571   (threshold picked ON TEST -- optimistic;
+                            report only to compare with PART 1's convention)
+  ROC AUC        : 0.9976
+  PR  AUC        : 0.9723
+  collapsed      : False   pred range [0.000, 1.000]
+--------------------------------------------------------------------------
+  benchmarks : sigma-clip 0.4103 | AOFlagger 0.5698 | RFI-Net 0.5979
+==========================================================================
+
+Saved: runs/hera/tfunet_lr1e-4_seed2/eval_test/metrics.json

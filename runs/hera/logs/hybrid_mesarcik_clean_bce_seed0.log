@@ -1,0 +1,130 @@
+==========================================================================
+  HybridRFINet with Mesarcik et al.'s settings  |  setup = clean  |  seed 0
+==========================================================================
+  device            : cuda
+  training images   : 316
+  clip (hera)       : train [2.92491, 53.9721] (mu 8.4545, sd 11.3794)   test [2.92491, 53.9721]
+  cache             : clean_seed0_train_316.npy
+  patches per epoch : 80,896  ->  79 steps x 100 epochs, batch 1024
+  model             : HybridRFINet base 8 depth 4 dropout 0.2  (593,842 parameters)
+  optimiser         : Adam lr 0.001 constant, betas (0.9, 0.999), eps 1e-7
+  loss              : bce(y, x_hat) [correct BCE]
+  shuffle           : full shuffle every epoch  |  inputs float16
+  U-Net partner     : runs/hera/mesarcik_unet_clean_bce_seed0  (train_mesarcik_unet.py --correct_loss)
+==========================================================================
+  epoch   1/100  loss 0.37128  0.2 min  ETA 18 min
+  epoch   2/100  loss 0.05805  0.3 min  ETA 17 min
+  epoch   3/100  loss 0.03733  0.5 min  ETA 17 min
+  epoch   4/100  loss 0.03118  0.7 min  ETA 16 min
+  epoch   5/100  loss 0.02867  0.9 min  ETA 16 min
+  epoch   6/100  loss 0.02743  1.0 min  ETA 16 min
+  epoch   7/100  loss 0.02657  1.2 min  ETA 16 min
+  epoch   8/100  loss 0.02593  1.4 min  ETA 16 min
+  epoch   9/100  loss 0.02516  1.5 min  ETA 16 min
+     test @ 10: maxF1 0.9475  float16 scores -> AUROC 0.9974 AUPRC 0.9725
+  epoch  10/100  loss 0.02488  2.3 min  ETA 20 min
+  epoch  11/100  loss 0.02450  2.4 min  ETA 20 min
+  epoch  12/100  loss 0.02399  2.6 min  ETA 19 min
+  epoch  13/100  loss 0.02372  2.8 min  ETA 18 min
+  epoch  14/100  loss 0.02344  2.9 min  ETA 18 min
+  epoch  15/100  loss 0.02319  3.1 min  ETA 18 min
+  epoch  16/100  loss 0.02267  3.3 min  ETA 17 min
+  epoch  17/100  loss 0.02254  3.4 min  ETA 17 min
+  epoch  18/100  loss 0.02238  3.6 min  ETA 16 min
+  epoch  19/100  loss 0.02210  3.8 min  ETA 16 min
+     test @ 20: maxF1 0.9545  float16 scores -> AUROC 0.9976 AUPRC 0.9792
+  epoch  20/100  loss 0.02181  4.5 min  ETA 18 min
+  epoch  21/100  loss 0.02154  4.6 min  ETA 17 min
+  epoch  22/100  loss 0.02143  4.8 min  ETA 17 min
+  epoch  23/100  loss 0.02132  5.0 min  ETA 17 min
+  epoch  24/100  loss 0.02104  5.1 min  ETA 16 min
+  epoch  25/100  loss 0.02109  5.3 min  ETA 16 min
+  epoch  26/100  loss 0.02073  5.5 min  ETA 16 min
+  epoch  27/100  loss 0.02064  5.7 min  ETA 15 min
+  epoch  28/100  loss 0.02048  5.8 min  ETA 15 min
+  epoch  29/100  loss 0.02017  6.0 min  ETA 15 min
+     test @ 30: maxF1 0.9570  float16 scores -> AUROC 0.9976 AUPRC 0.9807
+  epoch  30/100  loss 0.02000  6.7 min  ETA 16 min
+  epoch  31/100  loss 0.02013  6.9 min  ETA 15 min
+  epoch  32/100  loss 0.02027  7.0 min  ETA 15 min
+  epoch  33/100  loss 0.01996  7.2 min  ETA 15 min
+  epoch  34/100  loss 0.01987  7.4 min  ETA 14 min
+  epoch  35/100  loss 0.01957  7.5 min  ETA 14 min
+  epoch  36/100  loss 0.01939  7.7 min  ETA 14 min
+  epoch  37/100  loss 0.01941  7.9 min  ETA 13 min
+  epoch  38/100  loss 0.01946  8.0 min  ETA 13 min
+  epoch  39/100  loss 0.01923  8.2 min  ETA 13 min
+     test @ 40: maxF1 0.9533  float16 scores -> AUROC 0.9980 AUPRC 0.9826
+  epoch  40/100  loss 0.01912  8.9 min  ETA 13 min
+  epoch  41/100  loss 0.01907  9.1 min  ETA 13 min
+  epoch  42/100  loss 0.01891  9.2 min  ETA 13 min
+  epoch  43/100  loss 0.01903  9.4 min  ETA 12 min
+  epoch  44/100  loss 0.01866  9.6 min  ETA 12 min
+  epoch  45/100  loss 0.01857  9.8 min  ETA 12 min
+  epoch  46/100  loss 0.01838  9.9 min  ETA 12 min
+  epoch  47/100  loss 0.01859  10.1 min  ETA 11 min
+  epoch  48/100  loss 0.01854  10.3 min  ETA 11 min
+  epoch  49/100  loss 0.01820  10.4 min  ETA 11 min
+     test @ 50: maxF1 0.9578  float16 scores -> AUROC 0.9984 AUPRC 0.9844
+  epoch  50/100  loss 0.01819  11.1 min  ETA 11 min
+  epoch  51/100  loss 0.01834  11.3 min  ETA 11 min
+  epoch  52/100  loss 0.01810  11.5 min  ETA 11 min
+  epoch  53/100  loss 0.01800  11.6 min  ETA 10 min
+  epoch  54/100  loss 0.01788  11.8 min  ETA 10 min
+  epoch  55/100  loss 0.01775  11.9 min  ETA 10 min
+  epoch  56/100  loss 0.01789  12.1 min  ETA 10 min
+  epoch  57/100  loss 0.01779  12.3 min  ETA 9 min
+  epoch  58/100  loss 0.01772  12.5 min  ETA 9 min
+  epoch  59/100  loss 0.01768  12.6 min  ETA 9 min
+     test @ 60: maxF1 0.9524  float16 scores -> AUROC 0.9980 AUPRC 0.9822
+  epoch  60/100  loss 0.01788  13.3 min  ETA 9 min
+  epoch  61/100  loss 0.01733  13.5 min  ETA 9 min
+  epoch  62/100  loss 0.01744  13.6 min  ETA 8 min
+  epoch  63/100  loss 0.01724  13.8 min  ETA 8 min
+  epoch  64/100  loss 0.01766  14.0 min  ETA 8 min
+  epoch  65/100  loss 0.01736  14.1 min  ETA 8 min
+  epoch  66/100  loss 0.01728  14.3 min  ETA 7 min
+  epoch  67/100  loss 0.01701  14.5 min  ETA 7 min
+  epoch  68/100  loss 0.01691  14.6 min  ETA 7 min
+  epoch  69/100  loss 0.01702  14.8 min  ETA 7 min
+     test @ 70: maxF1 0.9476  float16 scores -> AUROC 0.9978 AUPRC 0.9777
+  epoch  70/100  loss 0.01686  15.5 min  ETA 7 min
+  epoch  71/100  loss 0.01687  15.7 min  ETA 6 min
+  epoch  72/100  loss 0.01677  15.8 min  ETA 6 min
+  epoch  73/100  loss 0.01668  16.0 min  ETA 6 min
+  epoch  74/100  loss 0.01673  16.2 min  ETA 6 min
+  epoch  75/100  loss 0.01696  16.3 min  ETA 5 min
+  epoch  76/100  loss 0.01660  16.5 min  ETA 5 min
+  epoch  77/100  loss 0.01680  16.7 min  ETA 5 min
+  epoch  78/100  loss 0.01669  16.8 min  ETA 5 min
+  epoch  79/100  loss 0.01643  17.0 min  ETA 5 min
+     test @ 80: maxF1 0.9513  float16 scores -> AUROC 0.9982 AUPRC 0.9830
+  epoch  80/100  loss 0.01660  17.7 min  ETA 4 min
+  epoch  81/100  loss 0.01652  17.8 min  ETA 4 min
+  epoch  82/100  loss 0.01622  18.0 min  ETA 4 min
+  epoch  83/100  loss 0.01630  18.2 min  ETA 4 min
+  epoch  84/100  loss 0.01631  18.3 min  ETA 3 min
+  epoch  85/100  loss 0.01617  18.5 min  ETA 3 min
+  epoch  86/100  loss 0.01631  18.7 min  ETA 3 min
+  epoch  87/100  loss 0.01635  18.8 min  ETA 3 min
+  epoch  88/100  loss 0.01611  19.0 min  ETA 3 min
+  epoch  89/100  loss 0.01586  19.2 min  ETA 2 min
+     test @ 90: maxF1 0.9446  float16 scores -> AUROC 0.9982 AUPRC 0.9770
+  epoch  90/100  loss 0.01599  19.8 min  ETA 2 min
+  epoch  91/100  loss 0.01611  20.0 min  ETA 2 min
+  epoch  92/100  loss 0.01576  20.2 min  ETA 2 min
+  epoch  93/100  loss 0.01593  20.3 min  ETA 2 min
+  epoch  94/100  loss 0.01573  20.5 min  ETA 1 min
+  epoch  95/100  loss 0.01566  20.6 min  ETA 1 min
+  epoch  96/100  loss 0.01582  20.8 min  ETA 1 min
+  epoch  97/100  loss 0.01561  21.0 min  ETA 1 min
+  epoch  98/100  loss 0.01551  21.1 min  ETA 0 min
+  epoch  99/100  loss 0.01560  21.3 min  ETA 0 min
+     test @ 100: maxF1 0.9450  float16 scores -> AUROC 0.9977 AUPRC 0.9681
+  epoch 100/100  loss 0.01543  22.0 min  ETA 0 min
+==========================================================================
+  HybridRFINet, Mesarcik settings (clean) : max F1 0.9450
+  their U-Net, same pipeline and loss      : see runs/hera/mesarcik_unet_clean_bce_seed0  (train_mesarcik_unet.py --correct_loss)
+  pooled F1 (threshold from validation)    : 0.9260
+  ROC AUC / PR AUC                         : 0.9978 / 0.9708
+==========================================================================

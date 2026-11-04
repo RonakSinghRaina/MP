@@ -1,0 +1,100 @@
+==========================================================================
+  HybridRFINet on simulated HERA  |  base 8  |  norm = fixed
+==========================================================================
+  parameters        : 593,842
+  device            : cuda
+  train / val / test: 316 / 35 / 135
+  steps/epoch       : 700 x 40 epochs = 28,000 gradient steps
+                      (synthetic run was 700 x 40 = 28,000)
+  leakage check     : train clean, 0 of 316 match a test image  (0.1s)
+  leakage check     : val clean, 0 of 35 match a test image  (0.0s)
+  fixed range       : [0.208122, 70.4443]
+  measured RFI frac : 3.2722%  -> class_weights [1.000, 1.000]
+  edge-aware mode   : none
+==========================================================================
+  epoch 1/40  loss 0.3576  |  0.4m elapsed  ETA 16.9m
+  epoch 2/40  loss 0.1396  |  0.8m elapsed  ETA 16.1m
+     -> val max-F1 0.9227  ROC 0.9923
+        new best checkpoint
+  epoch 3/40  loss 0.1101  |  1.3m elapsed  ETA 16.4m
+  epoch 4/40  loss 0.1040  |  1.8m elapsed  ETA 15.8m
+     -> val max-F1 0.9255  ROC 0.9924
+        new best checkpoint
+  epoch 5/40  loss 0.0973  |  2.2m elapsed  ETA 15.7m
+  epoch 6/40  loss 0.1031  |  2.7m elapsed  ETA 15.1m
+     -> val max-F1 0.9312  ROC 0.9943
+        new best checkpoint
+  epoch 7/40  loss 0.0974  |  3.1m elapsed  ETA 14.8m
+  epoch 8/40  loss 0.1052  |  3.6m elapsed  ETA 14.3m
+     -> val max-F1 0.9375  ROC 0.9943
+        new best checkpoint
+  epoch 9/40  loss 0.0892  |  4.1m elapsed  ETA 14.0m
+  epoch 10/40  loss 0.0881  |  4.5m elapsed  ETA 13.5m
+     -> val max-F1 0.9354  ROC 0.9945
+  epoch 11/40  loss 0.0901  |  5.0m elapsed  ETA 13.1m
+  epoch 12/40  loss 0.0930  |  5.4m elapsed  ETA 12.6m
+     -> val max-F1 0.9482  ROC 0.9936
+        new best checkpoint
+  epoch 13/40  loss 0.0878  |  5.9m elapsed  ETA 12.2m
+  epoch 14/40  loss 0.0936  |  6.3m elapsed  ETA 11.7m
+     -> val max-F1 0.9467  ROC 0.9945
+  epoch 15/40  loss 0.0909  |  6.8m elapsed  ETA 11.3m
+  epoch 16/40  loss 0.0929  |  7.2m elapsed  ETA 10.8m
+     -> val max-F1 0.9513  ROC 0.9958
+        new best checkpoint
+  epoch 17/40  loss 0.0877  |  7.7m elapsed  ETA 10.4m
+  epoch 18/40  loss 0.0842  |  8.1m elapsed  ETA 9.9m
+     -> val max-F1 0.9468  ROC 0.9959
+  epoch 19/40  loss 0.0744  |  8.6m elapsed  ETA 9.5m
+  epoch 20/40  loss 0.0709  |  9.1m elapsed  ETA 9.1m
+     -> val max-F1 0.9510  ROC 0.9959
+  epoch 21/40  loss 0.0623  |  9.5m elapsed  ETA 8.6m
+  epoch 22/40  loss 0.0664  |  10.0m elapsed  ETA 8.2m
+     -> val max-F1 0.9490  ROC 0.9964
+  epoch 23/40  loss 0.0706  |  10.5m elapsed  ETA 7.7m
+  epoch 24/40  loss 0.0767  |  10.9m elapsed  ETA 7.3m
+     -> val max-F1 0.9538  ROC 0.9965
+        new best checkpoint
+  epoch 25/40  loss 0.0720  |  11.4m elapsed  ETA 6.8m
+  epoch 26/40  loss 0.0616  |  11.8m elapsed  ETA 6.4m
+     -> val max-F1 0.9520  ROC 0.9961
+  epoch 27/40  loss 0.0583  |  12.3m elapsed  ETA 5.9m
+  epoch 28/40  loss 0.0633  |  12.7m elapsed  ETA 5.5m
+     -> val max-F1 0.9499  ROC 0.9965
+  epoch 29/40  loss 0.0667  |  13.2m elapsed  ETA 5.0m
+  epoch 30/40  loss 0.0620  |  13.6m elapsed  ETA 4.5m
+     -> val max-F1 0.9542  ROC 0.9966
+        new best checkpoint
+  epoch 31/40  loss 0.0597  |  14.1m elapsed  ETA 4.1m
+  epoch 32/40  loss 0.0618  |  14.5m elapsed  ETA 3.6m
+     -> val max-F1 0.9512  ROC 0.9966
+  epoch 33/40  loss 0.0609  |  15.0m elapsed  ETA 3.2m
+  epoch 34/40  loss 0.0498  |  15.5m elapsed  ETA 2.7m
+     -> val max-F1 0.9529  ROC 0.9967
+  epoch 35/40  loss 0.0647  |  16.0m elapsed  ETA 2.3m
+  epoch 36/40  loss 0.0555  |  16.4m elapsed  ETA 1.8m
+     -> val max-F1 0.9519  ROC 0.9967
+  epoch 37/40  loss 0.0646  |  16.9m elapsed  ETA 1.4m
+  epoch 38/40  loss 0.0623  |  17.3m elapsed  ETA 0.9m
+     -> val max-F1 0.9508  ROC 0.9966
+  epoch 39/40  loss 0.0597  |  17.8m elapsed  ETA 0.5m
+  epoch 40/40  loss 0.0554  |  18.2m elapsed  ETA 0.0m
+     -> val max-F1 0.9519  ROC 0.9966
+
+Best val max-F1 0.9542 @ epoch 30
+Threshold selected on validation: 0.6711 (val F1 0.9542)
+
+==========================================================================
+  RESULT — HybridRFINet on simulated HERA, simulator labels
+==========================================================================
+  pooled F1 (512x512)      : 0.8995   precision 0.8529  recall 0.9516
+  pooled F1 (472 crop)     : 0.9366   <-- compare with tf_unet, PART 12
+  max F1 (oracle, 512)     : 0.9245   <-- compare with the paper's Table 2
+  ROC AUC                  : 0.9985
+  PR  AUC                  : 0.9736
+--------------------------------------------------------------------------
+  benchmarks: sigma-clip 0.4103 | tf_unet lr1e-4 0.5482 | AOFlagger 0.5698
+              paper's U-Net 0.5876 | RFI-Net 0.5979   (all max-F1)
+==========================================================================
+
+Saved: runs/hera/hybrid_b08_nocw_seed0/eval_test/metrics.json

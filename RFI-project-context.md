@@ -4512,3 +4512,39 @@ beats most fancy new networks". It changed how people run experiments. Our paper
 **Novelty in one sentence:** *we show that the field's benchmarks, its comparisons and its standard labelling
 strategy all have problems, and we measure what actually works on real data.* Every number is already measured,
 except the "what causes the gain" ablation and HERA.
+
+---
+
+## PART 40 — HERA results, all models, 3 seeds (finished 2026-11-04 11:50)
+
+All 12 runs of `scripts/run_hera.sh` are done (PART 38 protocol: trained on AOFlagger labels, scored on the simulator's
+labels, 135 leak-free test images). `summarise_hera.py`: "Settings check passed for every finished run." Results in
+`analysis/hera_aoflagger/hera_results.json` and `tfunet_last_auc_hera.json`; logs in `runs/hera/logs/`.
+tf_unet seed 2 was interrupted by a laptop restart and resumed from its checkpoint at epoch 87 on 2026-11-04 10:45.
+
+| Setting | Model | runs | max F1 | pooled F1 | AUROC | AUPRC |
+|---|---|---|---|---|---|---|
+| Ours | tf_unet (Adam 1e-4, 150 ep) | 3 | 0.9550 ± 0.0025 | 0.9393 ± 0.0043 | 0.9971 ± 0.0004 | 0.9698 ± 0.0027 |
+| Ours | Kestrel | 3 | 0.9109 ± 0.0121 | 0.8949 ± 0.0054 | 0.9976 ± 0.0009 | 0.9643 ± 0.0096 |
+| Mesarcik's | tf_unet, closest (last epoch) | 3 | 0.9533 ± 0.0019 | --- | 0.9955 ± 0.0028 | 0.9664 ± 0.0068 |
+| Mesarcik's | Mesarcik U-Net | 3 | 0.9160 ± 0.0062 | 0.9159 ± 0.0063 | 0.9727 ± 0.0022 | 0.8991 ± 0.0073 |
+| Mesarcik's | Kestrel | 3 | 0.9450 ± 0.0020 | 0.9134 ± 0.0172 | 0.9980 ± 0.0004 | 0.9757 ± 0.0056 |
+| No training | AOFlagger, run by us | - | 0.8740 | --- | 0.9739 | 0.8808 |
+| Published (leaky test) | AOFlagger | - | 0.8729 | --- | 0.9736 | 0.8799 |
+| Published (leaky test) | U-Net | - | 0.9015 ± 0.0074 | --- | 0.9746 ± 0.0009 | 0.8963 ± 0.0074 |
+| Published (leaky test) | RFI-Net | - | 0.8950 ± 0.0068 | --- | 0.9728 ± 0.0007 | 0.8898 ± 0.0086 |
+
+Per seed, Kestrel (our settings) max F1: 0.9245, 0.9012, 0.9070. tf_unet (our settings): seed 0 0.9522, seed 2 0.9571.
+Mesarcik U-Net (their settings): 0.9091, 0.9178, seed 2 in the summary only.
+
+What it shows (read off the table; nothing extra measured):
+- **HERA does not repeat the LOFAR ranking.** On LOFAR Kestrel beat tf_unet by 0.112 max F1; on HERA under our
+  settings tf_unet is ahead, 0.9550 vs 0.9109 (spreads 0.0025 and 0.0121). Kestrel's lead over tf_unet is therefore
+  dataset-specific, not general. Cause not tested.
+- Under Mesarcik's settings Kestrel (0.9450) beats their U-Net (0.9160), as on LOFAR.
+- Every trained model beats AOFlagger (0.8740), even though AOFlagger made the training labels (AOFlagger vs simulator
+  on the training images: F1 0.8896, PART 38). The networks learn something cleaner than their own labels.
+- Our Mesarcik U-Net rerun (0.9160) is above their published 0.9015, as on LOFAR (0.6166 vs 0.5876).
+- AUROC is close to 1 for every network (0.9727-0.9980), so max F1 and AUPRC carry the comparison.
+- Paper plan (PART 39) claim 6 "same findings hold on HERA" is only partly true: the leakage, the benchmark gap to
+  AOFlagger and the U-Net rerun hold; "Kestrel beats tf_unet" does not.

@@ -1,0 +1,123 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793630695.405447   67056 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+W0000 00:00:1793630701.598754   67056 gpu_bfc_allocator.cc:47] Overriding orig_value setting because the TF_FORCE_GPU_ALLOW_GROWTH environment variable is set. Original config value was false.
+I0000 00:00:1793630701.600279   67056 gpu_device.cc:2043] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 4190 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3060 Laptop GPU, pci bus id: 0000:01:00.0, compute capability: 8.6
+E0000 00:00:1793630705.844639   67056 meta_optimizer.cc:967] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape infunctional_1/dropout_1/stateless_dropout/SelectV2-2-TransposeNHWCToNCHW-LayoutOptimizer
+I0000 00:00:1793630706.488936   67198 cuda_dnn.cc:461] Loaded cuDNN version 92501
+==========================================================================
+  Mesarcik et al. U-Net reproduction  |  setup = clean  |  seed 1
+==========================================================================
+  GPU               : ['/physical_device:GPU:0']
+  training images   : 316
+  clip (hera)       : train [3.01247, 53.9912] (mu 8.38826, sd 11.4007)   test [3.01247, 53.9912]
+  patches per epoch : 80,896  ->  79 steps x 100 epochs
+  parameters        : 1,179,121
+  loss              : bce(x_hat, y) [their code; effectively L1]
+  shuffle           : full shuffle
+  training dtype    : float16
+  epoch   1/100  loss 4.45294  0.2 min  ETA 24 min
+  epoch   2/100  loss 2.49236  0.3 min  ETA 16 min
+  epoch   3/100  loss 1.51031  0.4 min  ETA 13 min
+  epoch   4/100  loss 0.92737  0.5 min  ETA 12 min
+  epoch   5/100  loss 0.64838  0.6 min  ETA 11 min
+  epoch   6/100  loss 0.48167  0.6 min  ETA 10 min
+  epoch   7/100  loss 0.38128  0.7 min  ETA 10 min
+  epoch   8/100  loss 0.31562  0.8 min  ETA 9 min
+  epoch   9/100  loss 0.27040  0.9 min  ETA 9 min
+  epoch  10/100  loss 0.23733  1.0 min  ETA 9 min
+  epoch  11/100  loss 0.21209  1.1 min  ETA 9 min
+  epoch  12/100  loss 0.19369  1.1 min  ETA 8 min
+  epoch  13/100  loss 0.17880  1.2 min  ETA 8 min
+  epoch  14/100  loss 0.16698  1.3 min  ETA 8 min
+  epoch  15/100  loss 0.15712  1.4 min  ETA 8 min
+  epoch  16/100  loss 0.14965  1.5 min  ETA 8 min
+  epoch  17/100  loss 0.14264  1.6 min  ETA 8 min
+  epoch  18/100  loss 0.13700  1.6 min  ETA 7 min
+  epoch  19/100  loss 0.13201  1.7 min  ETA 7 min
+  epoch  20/100  loss 0.12788  1.8 min  ETA 7 min
+  epoch  21/100  loss 0.12408  1.9 min  ETA 7 min
+  epoch  22/100  loss 0.12100  2.0 min  ETA 7 min
+  epoch  23/100  loss 0.11829  2.1 min  ETA 7 min
+  epoch  24/100  loss 0.11600  2.1 min  ETA 7 min
+  epoch  25/100  loss 0.11363  2.2 min  ETA 7 min
+  epoch  26/100  loss 0.11192  2.3 min  ETA 7 min
+  epoch  27/100  loss 0.11008  2.4 min  ETA 6 min
+  epoch  28/100  loss 0.10833  2.5 min  ETA 6 min
+  epoch  29/100  loss 0.10703  2.6 min  ETA 6 min
+  epoch  30/100  loss 0.10543  2.6 min  ETA 6 min
+  epoch  31/100  loss 0.10408  2.7 min  ETA 6 min
+  epoch  32/100  loss 0.10351  2.8 min  ETA 6 min
+  epoch  33/100  loss 0.10214  2.9 min  ETA 6 min
+  epoch  34/100  loss 0.10112  3.0 min  ETA 6 min
+  epoch  35/100  loss 0.09970  3.1 min  ETA 6 min
+  epoch  36/100  loss 0.09933  3.1 min  ETA 6 min
+  epoch  37/100  loss 0.09845  3.2 min  ETA 5 min
+  epoch  38/100  loss 0.09790  3.3 min  ETA 5 min
+  epoch  39/100  loss 0.09653  3.4 min  ETA 5 min
+  epoch  40/100  loss 0.09665  3.5 min  ETA 5 min
+  epoch  41/100  loss 0.09587  3.6 min  ETA 5 min
+  epoch  42/100  loss 0.09515  3.6 min  ETA 5 min
+  epoch  43/100  loss 0.09488  3.7 min  ETA 5 min
+  epoch  44/100  loss 0.09433  3.8 min  ETA 5 min
+  epoch  45/100  loss 0.09375  3.9 min  ETA 5 min
+  epoch  46/100  loss 0.09281  4.0 min  ETA 5 min
+  epoch  47/100  loss 0.09274  4.1 min  ETA 5 min
+  epoch  48/100  loss 0.09239  4.1 min  ETA 4 min
+  epoch  49/100  loss 0.09196  4.2 min  ETA 4 min
+  epoch  50/100  loss 0.09096  4.3 min  ETA 4 min
+  epoch  51/100  loss 0.09046  4.4 min  ETA 4 min
+  epoch  52/100  loss 0.09118  4.5 min  ETA 4 min
+  epoch  53/100  loss 0.08992  4.6 min  ETA 4 min
+  epoch  54/100  loss 0.09013  4.7 min  ETA 4 min
+  epoch  55/100  loss 0.08967  4.7 min  ETA 4 min
+  epoch  56/100  loss 0.08911  4.8 min  ETA 4 min
+  epoch  57/100  loss 0.08897  4.9 min  ETA 4 min
+  epoch  58/100  loss 0.08855  5.0 min  ETA 4 min
+  epoch  59/100  loss 0.08795  5.1 min  ETA 4 min
+  epoch  60/100  loss 0.08844  5.2 min  ETA 3 min
+  epoch  61/100  loss 0.08821  5.2 min  ETA 3 min
+  epoch  62/100  loss 0.08691  5.3 min  ETA 3 min
+  epoch  63/100  loss 0.08744  5.4 min  ETA 3 min
+  epoch  64/100  loss 0.08756  5.5 min  ETA 3 min
+  epoch  65/100  loss 0.08667  5.6 min  ETA 3 min
+  epoch  66/100  loss 0.08625  5.7 min  ETA 3 min
+  epoch  67/100  loss 0.08809  5.7 min  ETA 3 min
+  epoch  68/100  loss 0.08692  5.8 min  ETA 3 min
+  epoch  69/100  loss 0.08631  5.9 min  ETA 3 min
+  epoch  70/100  loss 0.08649  6.0 min  ETA 3 min
+  epoch  71/100  loss 0.08573  6.1 min  ETA 2 min
+  epoch  72/100  loss 0.08567  6.2 min  ETA 2 min
+  epoch  73/100  loss 0.08540  6.2 min  ETA 2 min
+  epoch  74/100  loss 0.08559  6.3 min  ETA 2 min
+  epoch  75/100  loss 0.08615  6.4 min  ETA 2 min
+  epoch  76/100  loss 0.08606  6.5 min  ETA 2 min
+  epoch  77/100  loss 0.08482  6.6 min  ETA 2 min
+  epoch  78/100  loss 0.08437  6.7 min  ETA 2 min
+  epoch  79/100  loss 0.08417  6.7 min  ETA 2 min
+  epoch  80/100  loss 0.08595  6.8 min  ETA 2 min
+  epoch  81/100  loss 0.08508  6.9 min  ETA 2 min
+  epoch  82/100  loss 0.08373  7.0 min  ETA 2 min
+  epoch  83/100  loss 0.08401  7.1 min  ETA 1 min
+  epoch  84/100  loss 0.08387  7.2 min  ETA 1 min
+  epoch  85/100  loss 0.08301  7.2 min  ETA 1 min
+  epoch  86/100  loss 0.08433  7.3 min  ETA 1 min
+  epoch  87/100  loss 0.08355  7.4 min  ETA 1 min
+  epoch  88/100  loss 0.08394  7.5 min  ETA 1 min
+  epoch  89/100  loss 0.08290  7.6 min  ETA 1 min
+  epoch  90/100  loss 0.08315  7.7 min  ETA 1 min
+  epoch  91/100  loss 0.08212  7.7 min  ETA 1 min
+  epoch  92/100  loss 0.08276  7.8 min  ETA 1 min
+  epoch  93/100  loss 0.08260  7.9 min  ETA 1 min
+  epoch  94/100  loss 0.08191  8.0 min  ETA 1 min
+  epoch  95/100  loss 0.08277  8.1 min  ETA 0 min
+  epoch  96/100  loss 0.08230  8.2 min  ETA 0 min
+  epoch  97/100  loss 0.08104  8.2 min  ETA 0 min
+  epoch  98/100  loss 0.08137  8.3 min  ETA 0 min
+  epoch  99/100  loss 0.08115  8.4 min  ETA 0 min
+  epoch 100/100  loss 0.08240  8.5 min  ETA 0 min
+==========================================================================
+  max F1 (their protocol) : 0.9178    published 0.9015 +/- 0.0074
+  pooled F1 (val thresh)  : 0.9177
+  ROC AUC / PR AUC        : 0.9744 / 0.9068    published AUROC 0.9746, AUPRC 0.8963
+==========================================================================

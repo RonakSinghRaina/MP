@@ -1,0 +1,121 @@
+
+=============== run_hera.sh started 2026-11-01 15:10 ===============
+-- mesarcik_unet_clean_seed0, attempt 1  (2026-11-01 15:10)
+   finished  (15:19):   max F1 (their protocol) : 0.9091    published 0.9015 +/- 0.0074
+-- hybrid_mesarcik_clean_bce_seed0, attempt 1  (2026-11-01 15:19)
+   finished  (15:42):   HybridRFINet, Mesarcik settings (clean) : max F1 0.9450
+-- hybrid_b08_nocw_seed0, attempt 1  (2026-11-01 15:42)
+   finished  (16:01):   max F1 (oracle, 512)     : 0.9245   <-- compare with the paper's Tab
+-- tfunet_lr1e-4_seed0, attempt 1  (2026-11-01 16:01)
+
+=============== run_hera.sh started 2026-11-02 19:52 ===============
+-- mesarcik_unet_clean_seed0 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed0 already finished, skipping
+-- hybrid_b08_nocw_seed0 already finished, skipping
+-- tfunet_lr1e-4_seed0, attempt 1  (2026-11-02 19:52)
+   finished  (20:14):   max F1 (oracle): 0.9522   (threshold picked ON TEST -- optimistic;
+-- mesarcik_unet_clean_seed1, attempt 1  (2026-11-02 20:14)
+   finished  (20:24):   max F1 (their protocol) : 0.9178    published 0.9015 +/- 0.0074
+-- hybrid_mesarcik_clean_bce_seed1, attempt 1  (2026-11-02 20:24)
+
+=============== run_hera.sh started 2026-11-02 22:08 ===============
+-- mesarcik_unet_clean_seed0 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed0 already finished, skipping
+-- hybrid_b08_nocw_seed0 already finished, skipping
+-- tfunet_lr1e-4_seed0 already finished, skipping
+-- mesarcik_unet_clean_seed1 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed1, attempt 1  (2026-11-02 22:08)
+   finished  (22:11):   HybridRFINet, Mesarcik settings (clean) : max F1 0.9471
+-- hybrid_b08_nocw_seed1, attempt 1  (2026-11-02 22:11)
+   finished  (22:31):   max F1 (oracle, 512)     : 0.9012   <-- compare with the paper's Tab
+-- tfunet_lr1e-4_seed1, attempt 1  (2026-11-02 22:31)
+   finished  (01:11):   max F1 (oracle): 0.9556   (threshold picked ON TEST -- optimistic;
+-- mesarcik_unet_clean_seed2, attempt 1  (2026-11-03 01:11)
+   finished  (01:20):   max F1 (their protocol) : 0.9211    published 0.9015 +/- 0.0074
+-- hybrid_mesarcik_clean_bce_seed2, attempt 1  (2026-11-03 01:20)
+   finished  (01:44):   HybridRFINet, Mesarcik settings (clean) : max F1 0.9430
+-- hybrid_b08_nocw_seed2, attempt 1  (2026-11-03 01:44)
+
+=============== run_hera.sh started 2026-11-03 02:39 ===============
+-- mesarcik_unet_clean_seed0 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed0 already finished, skipping
+-- hybrid_b08_nocw_seed0 already finished, skipping
+-- tfunet_lr1e-4_seed0 already finished, skipping
+-- mesarcik_unet_clean_seed1 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed1 already finished, skipping
+-- hybrid_b08_nocw_seed1 already finished, skipping
+-- tfunet_lr1e-4_seed1 already finished, skipping
+-- mesarcik_unet_clean_seed2 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed2 already finished, skipping
+-- hybrid_b08_nocw_seed2, attempt 1  (2026-11-03 02:39)
+   finished  (02:54):   max F1 (oracle, 512)     : 0.9070   <-- compare with the paper's Tab
+-- tfunet_lr1e-4_seed2, attempt 1  (2026-11-03 02:54)
+
+=============== run_hera.sh started 2026-11-04 10:45 ===============
+-- mesarcik_unet_clean_seed0 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed0 already finished, skipping
+-- hybrid_b08_nocw_seed0 already finished, skipping
+-- tfunet_lr1e-4_seed0 already finished, skipping
+-- mesarcik_unet_clean_seed1 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed1 already finished, skipping
+-- hybrid_b08_nocw_seed1 already finished, skipping
+-- tfunet_lr1e-4_seed1 already finished, skipping
+-- mesarcik_unet_clean_seed2 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed2 already finished, skipping
+-- hybrid_b08_nocw_seed2 already finished, skipping
+-- tfunet_lr1e-4_seed2, attempt 1  (2026-11-04 10:45)
+   finished  (11:49):   max F1 (oracle): 0.9571   (threshold picked ON TEST -- optimistic;
+-- scoring tf_unet's last-epoch models  (11:49)
+
+=============== ALL DONE 2026-11-04 11:50 ===============
+HERA: trained on AOFlagger labels, scored on simulator labels, 135 test images
+                                 runs   max F1            pooled F1         AUROC             AUPRC          
+Our settings
+  tf_unet                           3   0.9550 +/- 0.0025   0.9393 +/- 0.0043   0.9971 +/- 0.0004   0.9698 +/- 0.0027
+  HybridRFINet                      3   0.9109 +/- 0.0121   0.8949 +/- 0.0054   0.9976 +/- 0.0009   0.9643 +/- 0.0096
+Mesarcik et al.'s settings
+  tf_unet, closest (last epoch)     3   0.9533 +/- 0.0019   ---               0.9955 +/- 0.0028   0.9664 +/- 0.0068
+  Mesarcik U-Net                    3   0.9160 +/- 0.0062   0.9159 +/- 0.0063   0.9727 +/- 0.0022   0.8991 +/- 0.0073
+  HybridRFINet                      3   0.9450 +/- 0.0020   0.9134 +/- 0.0172   0.9980 +/- 0.0004   0.9757 +/- 0.0056
+No training
+  AOFlagger, run by us              -   0.8740            ---               0.9739            0.8808         
+Published, Mesarcik et al. Table 1 (their test set includes 31 copies of training images)
+  AOFlagger                         -   0.8729            ---               0.9736            0.8799         
+  U-Net                             -   0.9015 +/- 0.0074   ---               0.9746 +/- 0.0009   0.8963 +/- 0.0074
+  RFI-Net                           -   0.8950 +/- 0.0068   ---               0.9728 +/- 0.0007   0.8898 +/- 0.0086
+
+Settings check passed for every finished run.
+
+=============== run_hera.sh started 2026-11-04 14:23 ===============
+-- mesarcik_unet_clean_seed0 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed0 already finished, skipping
+-- hybrid_b08_nocw_seed0 already finished, skipping
+-- tfunet_lr1e-4_seed0 already finished, skipping
+-- mesarcik_unet_clean_seed1 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed1 already finished, skipping
+-- hybrid_b08_nocw_seed1 already finished, skipping
+-- tfunet_lr1e-4_seed1 already finished, skipping
+-- mesarcik_unet_clean_seed2 already finished, skipping
+-- hybrid_mesarcik_clean_bce_seed2 already finished, skipping
+-- hybrid_b08_nocw_seed2 already finished, skipping
+-- tfunet_lr1e-4_seed2 already finished, skipping
+-- scoring tf_unet's last-epoch models  (14:23)
+
+=============== ALL DONE 2026-11-04 14:24 ===============
+HERA: trained on AOFlagger labels, scored on simulator labels, 135 test images
+                                 runs   max F1            pooled F1         AUROC             AUPRC          
+Our settings
+  tf_unet                           3   0.9550 +/- 0.0025   0.9393 +/- 0.0043   0.9971 +/- 0.0004   0.9698 +/- 0.0027
+  HybridRFINet                      3   0.9109 +/- 0.0121   0.8949 +/- 0.0054   0.9976 +/- 0.0009   0.9643 +/- 0.0096
+Mesarcik et al.'s settings
+  tf_unet, closest (last epoch)     3   0.9533 +/- 0.0019   ---               0.9955 +/- 0.0028   0.9664 +/- 0.0068
+  Mesarcik U-Net                    3   0.9160 +/- 0.0062   0.9159 +/- 0.0063   0.9727 +/- 0.0022   0.8991 +/- 0.0073
+  HybridRFINet                      3   0.9450 +/- 0.0020   0.9134 +/- 0.0172   0.9980 +/- 0.0004   0.9757 +/- 0.0056
+No training
+  AOFlagger, run by us              -   0.8740            ---               0.9739            0.8808         
+Published, Mesarcik et al. Table 1 (their test set includes 31 copies of training images)
+  AOFlagger                         -   0.8729            ---               0.9736            0.8799         
+  U-Net                             -   0.9015 +/- 0.0074   ---               0.9746 +/- 0.0009   0.8963 +/- 0.0074
+  RFI-Net                           -   0.8950 +/- 0.0068   ---               0.9728 +/- 0.0007   0.8898 +/- 0.0086
+
+Settings check passed for every finished run.
