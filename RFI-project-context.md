@@ -4040,6 +4040,10 @@ Re-run `./scripts/backup_to_usb.sh` after the HybridRFINet run -- it copies only
 
 ## Still outstanding before publication
 
+0. **TODO, user asked to be reminded (2026-11-04): find out why Kestrel is behind tf_unet on HERA** (max F1 0.9442
+   vs 0.9550 on the same 472 crop, PART 40). First idea: Kestrel's settings (lr 1e-3 cosine, 40 x 700 steps, batch 1,
+   CE+Dice, dropout 0.2) were chosen on LOFAR and never adjusted for HERA (316 training images, 2.7 % RFI). Report any
+   new run with its real numbers. Not started.
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
    failure diagnoses. This is the biggest single issue. **PART 17.3 is the
    experiment that addresses it** — the LOFAR ablation, whose two possible
