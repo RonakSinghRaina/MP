@@ -157,11 +157,7 @@ Fine-tuning for 600 steps on all available expert labels raised the maximum
 \section{Results on HERA}
 \label{sec:hera_results}
 To check whether the LOFAR results hold on a second dataset, we repeated the
-comparison on the simulated HERA data (\cref{fig:datasets}). We first removed
-the 31 test images that are copies of training images, leaving 135 test images.
-As in Mesarcik et al., every model was trained only on labels made by
-\aoflagger{} and tested against the exact labels of the simulation. Every model
-was trained three times (three seeds) under each training setting.
+comparison on the simulated HERA data (\cref{fig:datasets}).
 \tfunet{} only gives an output for the centre 472$\times$472 pixels of each
 image, so under our settings \hybrid{} is scored on the same centre area
 (\cref{tab:hera}).
@@ -169,11 +165,7 @@ image, so under our settings \hybrid{} is scored on the same centre area
 \begin{table}[H]
   \centering
   \caption[Results on HERA]{Results on the 135 HERA test images (mean and
-    standard deviation over three seeds). Every learned method was trained only
-    on \aoflagger{}'s labels. \tfunet{} and, under our settings, \hybrid{} are
-    scored on the centre 472$\times$472 pixels; the other rows on the full
-    image. Published values are from Table~1 of Mesarcik et al., whose test set
-    still contains the 31 copies of training images.}
+    standard deviation over three seeds).}
   \label{tab:hera}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
