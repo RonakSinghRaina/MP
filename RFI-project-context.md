@@ -4668,3 +4668,10 @@ page 1 of `Hybrid_Model_Schematic.pdf`, `pdfcrop --bbox "40 58 930 416.9"` (logo
 note removed). It is drawn at Kestrel's sizes (8..128 filters, 4 levels), so the caption says how tf_unet differs:
 shrinks twice, 32/64/128 filters, 465,986 parameters, no padding, 512 in -> 472 out. `tfunet_schematic.pdf` removed
 (its code stays in make_data_figures.py). Report 44 pages, no overfull boxes.
+
+### 41.7 Section 5.4.1 shortened (user's request, 2026-11-12)
+Kept the first paragraph and Table 5.4 (training labels on LOFAR vs HERA). Removed Table 5.5 (own/copied mistakes),
+Fig 5.3 (the rim example) and the border and "in short" paragraphs; replaced by one short paragraph: Kestrel learns
+its labels more closely; on LOFAR that helps (tf_unet makes almost 4x as many own mistakes), on HERA it also copies
+AOFlagger's rim (repeats 35 % of its false alarms vs 3.5 %), so tf_unet ends up slightly ahead. The full numbers stay
+in PART 41.2 and analysis/hera_vs_lofar/*.json. hera_rim_example.pdf removed (code kept in make_data_figures.py).

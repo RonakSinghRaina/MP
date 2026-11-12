@@ -237,64 +237,9 @@ images (316 against 6621); we did not test whether this matters.
   \end{tabular}
 \end{table}
 
-To see what each model does with these labels, we split its wrong pixels into
-two groups (\cref{tab:error_split}): mistakes on pixels where \aoflagger{} was
-right (the model's own mistakes), and mistakes on pixels where \aoflagger{} was
-wrong too (copied mistakes).
-
-\begin{table}[H]
-  \centering
-  \caption[Own and copied mistakes]{Wrong pixels on the test images (centre
-    472$\times$472, mean of three seeds), with each model at the threshold that
-    gives its maximum \Fone{}. Because only the centre is used, \hybrid{}'s
-    LOFAR score here (0.6664) is slightly higher than on the whole image
-    (0.6603).}
-  \label{tab:error_split}
-  \footnotesize
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lcccc}
-    \toprule
-     & \multicolumn{2}{c}{LOFAR} & \multicolumn{2}{c}{HERA} \\
-     & \hybrid{} & \tfunet{} & \hybrid{} & \tfunet{} \\
-    \midrule
-    Own mistakes (\aoflagger{} was right) & \textbf{18{,}784} & 71{,}411 & \textbf{19{,}542} & 35{,}160 \\
-    Copied mistakes (\aoflagger{} was wrong too) & 93{,}298 & 79{,}180 & 69{,}014 & 34{,}251 \\
-    \quad of which copied false alarms & 26{,}384 & 14{,}586 & 39{,}455 & \textbf{3{,}984} \\
-    Total wrong pixels & \textbf{112{,}082} & 150{,}590 & 88{,}557 & \textbf{69{,}411} \\
-    Maximum \Fone{} & \textbf{0.6664} & 0.5482 & 0.9442 & \textbf{0.9550} \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-On both datasets \hybrid{} makes far fewer mistakes of its own than \tfunet{}:
-about a quarter as many on LOFAR and about half as many on HERA. It also learns
-the training labels more closely. Its predictions agree with \aoflagger{}'s
-masks with an \Fone{} of 0.75 on LOFAR and 0.96 on HERA, against 0.55 and 0.93
-for \tfunet{}. On LOFAR this is a clear advantage: \tfunet{} makes almost four
-times as many mistakes of its own. On HERA, however, learning the labels closely also means
-learning \aoflagger{}'s rim: \hybrid{} repeats 35\% of \aoflagger{}'s false
-alarms, while \tfunet{} repeats only 3.5\% (\cref{fig:hera_rim}). These copied
-false alarms (about 39{,}000 pixels against 4{,}000) cost \hybrid{} more than
-it gains from its fewer own mistakes, so \tfunet{} ends up slightly ahead.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=\textwidth]{hera_rim_example}
-  \caption[Example of the copied rim on HERA]{One 96$\times$96-pixel region of
-    a HERA test image, chosen because the effect is clear there. Next to a thick
-    line of real RFI, \aoflagger{} flags extra pixels (red). \hybrid{} learned
-    to flag them too, while \tfunet{} did not. Each model is shown at the
-    threshold that gives its maximum \Fone{} (seed 0).}
-  \label{fig:hera_rim}
-\end{figure}
-
-The same effect explains why \hybrid{} scores lower on the whole HERA image
-(0.9109) than on its centre (0.9442). At the image border \aoflagger{}'s labels
-are worse (precision 0.58, against 0.87 in the centre), and 97\% of \hybrid{}'s
-false alarms there are pixels that \aoflagger{} also flagged. \tfunet{} gives
-no output for the border, so it is not scored there.
-
-In short, \hybrid{} is the better learner, but it also learns the mistakes in
-its training labels. In these two datasets, this helps when the labels are poor
-and wrong in many different ways (LOFAR), and costs a little when they are good
-but wrong in one consistent way (HERA).
+Why does this let \tfunet{} score higher? \hybrid{} learns its training labels
+much more closely than \tfunet{}. On LOFAR this helps, because \tfunet{} makes
+almost four times as many mistakes of its own. On HERA, however, \hybrid{} also
+learns \aoflagger{}'s rim of extra flags: it repeats 35\% of \aoflagger{}'s false
+alarms, against only 3.5\% for \tfunet{}. These copied mistakes cost \hybrid{}
+more than it gains elsewhere, so \tfunet{} ends up slightly ahead.
