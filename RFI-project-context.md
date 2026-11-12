@@ -4684,3 +4684,8 @@ in 5.4.1 rewritten in plainer words (no percentages).
 ### 41.9 Fig 3.3 without the two grey text boxes (2026-11-12)
 Slide 1 of Hybrid_Model_Schematic.pptx re-exported (python-pptx: removed the two bottom panels and their text; LibreOffice
 to PDF), cropped with --bbox "40 92 930 416.9". Caption now says the box numbers are channels x height x width.
+
+### 41.10 Shorter captions (2026-11-12)
+Fig 3.2: dropped the 0.57 and vertical-lines sentences. Fig 2.2: "The original U-Net architecture of Ronneberger et al.,
+redrawn by us." Fig 2.1: dropped the list of the four types. Table 5.4: dropped "on the centre 472x472 pixels" (the
+numbers are still centre values, see 41.2).

@@ -41,12 +41,8 @@ types on a simulated spectrogram that we made.
   \centering
   \includegraphics[width=0.75\textwidth]{rfi_types_simulated}
   \caption[Four types of RFI]{The four types of RFI described by Chen et
-    al.~\cite{chen2023}, drawn on a simulated spectrogram made by us: constant
-    broadband RFI (wide bands present all the time), instantaneous wideband RFI
-    (a short burst at all frequencies), broadband RFI (many frequencies for a few
-    minutes), and
-    constant narrowband RFI (one frequency, all the time). The values are made
-    up, only to show the shapes.}
+    al.~\cite{chen2023}, drawn on a simulated spectrogram made by us. The values
+    are made up, only to show the shapes.}
   \label{fig:rfi_types}
 \end{figure}
 
@@ -127,12 +123,8 @@ probability is
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{unet_ronneberger_redrawn}
-  \caption[The U-Net architecture]{The U-Net of Ronneberger et
-    al.~\cite{ronneberger2015}, redrawn by us. Each box is a set of feature
-    maps, with the number of channels on top and the size in pixels below;
-    hatched boxes are copies sent along the skip connections, and the arrows
-    show the operations. Each 3$\times$3 convolution trims one pixel from every
-    side, so a 572$\times$572 input gives a 388$\times$388 output.}
+  \caption[The U-Net architecture]{The original U-Net architecture of
+    Ronneberger et al.~\cite{ronneberger2015}, redrawn by us.}
   \label{fig:unet}
 \end{figure}
 
