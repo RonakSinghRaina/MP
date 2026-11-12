@@ -4661,3 +4661,10 @@ LOFAR runs with logging: `runs/lofar/curves_hybrid_b08_nocw_seed{0,1,2}` then `c
 (same flags as hybrid_b08_nocw / lr1e-4; setup check: fixed range [280723, 4.35311e+06], 6621/735). Started
 2026-11-12 16:15. These are new runs: their scores are reported as measured.
 
+
+### 41.6 Fig 3.3 changed to the basic U-Net slide (user's request, 2026-11-12)
+The user asked for the basic U-Net slide instead of the tf_unet drawing. `report/Images/basic_unet_schematic.pdf` =
+page 1 of `Hybrid_Model_Schematic.pdf`, `pdfcrop --bbox "40 58 930 416.9"` (logos, title and the red "slides 1 and 2"
+note removed). It is drawn at Kestrel's sizes (8..128 filters, 4 levels), so the caption says how tf_unet differs:
+shrinks twice, 32/64/128 filters, 465,986 parameters, no padding, 512 in -> 472 out. `tfunet_schematic.pdf` removed
+(its code stays in make_data_figures.py). Report 44 pages, no overfull boxes.

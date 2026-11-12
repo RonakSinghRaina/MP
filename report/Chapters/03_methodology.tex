@@ -97,11 +97,12 @@ RFI, except for a 20-pixel border that it cannot see.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{tfunet_schematic}
-  \caption[\tfunet{} as used in this work]{\tfunet{} as used in this work:
-    two encoder levels, a bottleneck and two decoder levels, with 32 filters in
-    the first layer. The sizes were checked by building the network on a
-    512$\times$512 input.}
+  \includegraphics[width=\textwidth]{basic_unet_schematic}
+  \caption[A basic U-Net]{A basic U-Net, drawn at the sizes of \hybrid{} so
+    that it lines up box for box with \cref{fig:hybrid_arch}. \tfunet{} has the
+    same design, but it shrinks the image only twice, has 32, 64 and 128 filters
+    (465{,}986 parameters), and uses no padding, so a 512$\times$512 input gives
+    a 472$\times$472 output.}
   \label{fig:tfunet_arch}
 \end{figure}
 
