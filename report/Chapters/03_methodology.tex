@@ -99,7 +99,8 @@ RFI, except for a 20-pixel border that it cannot see.
   \centering
   \includegraphics[width=\textwidth]{basic_unet_schematic}
   \caption[A basic U-Net]{A basic U-Net, drawn at the sizes of \hybrid{} so
-    that it lines up box for box with \cref{fig:hybrid_arch}. \tfunet{} has the
+    that it lines up box for box with \cref{fig:hybrid_arch}; the numbers in each
+    box are channels $\times$ height $\times$ width. \tfunet{} has the
     same design, but it shrinks the image only twice, has 32, 64 and 128 filters
     (465{,}986 parameters), and uses no padding, so a 512$\times$512 input gives
     a 472$\times$472 output.}

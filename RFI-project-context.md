@@ -4680,3 +4680,7 @@ in PART 41.2 and analysis/hera_vs_lofar/*.json. hera_rim_example.pdf removed (co
 Fig 2.1 labels capitalised; "broadband RFI lasting a few minutes" label shortened to "Broadband RFI" and moved so it no
 longer covers the narrowband label (caption: "broadband RFI (many frequencies for a few minutes)"). The why-paragraph
 in 5.4.1 rewritten in plainer words (no percentages).
+
+### 41.9 Fig 3.3 without the two grey text boxes (2026-11-12)
+Slide 1 of Hybrid_Model_Schematic.pptx re-exported (python-pptx: removed the two bottom panels and their text; LibreOffice
+to PDF), cropped with --bbox "40 92 930 416.9". Caption now says the box numbers are channels x height x width.
