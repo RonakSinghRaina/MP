@@ -237,9 +237,7 @@ images (316 against 6621); we did not test whether this matters.
   \end{tabular}
 \end{table}
 
-Why does this let \tfunet{} score higher? \hybrid{} learns its training labels
-much more closely than \tfunet{}. On LOFAR this helps, because \tfunet{} makes
-almost four times as many mistakes of its own. On HERA, however, \hybrid{} also
-learns \aoflagger{}'s rim of extra flags: it repeats 35\% of \aoflagger{}'s false
-alarms, against only 3.5\% for \tfunet{}. These copied mistakes cost \hybrid{}
-more than it gains elsewhere, so \tfunet{} ends up slightly ahead.
+Why does \tfunet{} score higher on HERA? \hybrid{} copies its training labels
+more closely than \tfunet{}. On LOFAR this is a strength. On HERA, however, it
+also copies the extra flags that \aoflagger{} puts around real RFI, which are
+mistakes. \tfunet{} copies far fewer of them, so it ends up slightly ahead.

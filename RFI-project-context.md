@@ -4675,3 +4675,8 @@ Fig 5.3 (the rim example) and the border and "in short" paragraphs; replaced by 
 its labels more closely; on LOFAR that helps (tf_unet makes almost 4x as many own mistakes), on HERA it also copies
 AOFlagger's rim (repeats 35 % of its false alarms vs 3.5 %), so tf_unet ends up slightly ahead. The full numbers stay
 in PART 41.2 and analysis/hera_vs_lofar/*.json. hera_rim_example.pdf removed (code kept in make_data_figures.py).
+
+### 41.8 Small edits (2026-11-12)
+Fig 2.1 labels capitalised; "broadband RFI lasting a few minutes" label shortened to "Broadband RFI" and moved so it no
+longer covers the narrowband label (caption: "broadband RFI (many frequencies for a few minutes)"). The why-paragraph
+in 5.4.1 rewritten in plainer words (no percentages).

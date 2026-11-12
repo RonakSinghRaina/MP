@@ -123,10 +123,10 @@ def rfi_types():
     style = dict(fontsize=8.5, color="#1E1E1E", ha="center",
                  bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#888888", lw=0.6),
                  arrowprops=dict(arrowstyle="->", color="white", lw=1.3))
-    ax.annotate("instantaneous\nwideband RFI", xy=(20, 1.43), xytext=(9, 1.465), **style)
-    ax.annotate("constant narrowband RFI", xy=(70, 1.35), xytext=(70, 1.43), **style)
-    ax.annotate("broadband RFI lasting\na few minutes", xy=(46, 1.30), xytext=(40, 1.395), **style)
-    ax.annotate("constant broadband RFI", xy=(80, 1.23), xytext=(72, 1.08), **style)
+    ax.annotate("Instantaneous\nwideband RFI", xy=(20, 1.43), xytext=(9, 1.465), **style)
+    ax.annotate("Constant narrowband RFI", xy=(70, 1.35), xytext=(68, 1.44), **style)
+    ax.annotate("Broadband RFI", xy=(46, 1.30), xytext=(41, 1.40), **style)
+    ax.annotate("Constant broadband RFI", xy=(80, 1.23), xytext=(72, 1.08), **style)
     save(fig, "rfi_types_simulated")
 
 
