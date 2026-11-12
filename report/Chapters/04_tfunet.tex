@@ -2,7 +2,7 @@
 \label{ch:tfunet}
 
 \section{Results on Synthetic Data}
-We applied the \tfunet{} code of Akeret et al.\footcite{akeret2017}, which is
+We applied the \tfunet{} code of Akeret et al.~\cite{akeret2017}, which is
 publicly available on GitHub, to the 276$\times$600 version of our synthetic
 data, the image size used by the authors. The network was used unchanged
 (3 levels, 32 filters in the first layer, 465{,}986 parameters), together with
@@ -61,7 +61,7 @@ seeds: the standard deviation of the maximum \Fone{} fell from 0.0495 to
 
 \Cref{fig:tfunet_lofar} compares \tfunet{} with other methods. The values for
 Mesarcik et al.'s U-Net and RFI-Net are taken from their
-paper\footcite{mesarcik2022}. They report the maximum \Fone{}, so we use the
+paper~\cite{mesarcik2022}. They report the maximum \Fone{}, so we use the
 same score. \tfunet{} does much better than a simple $\sigma$-clipping
 threshold (0.4103), but worse than \aoflagger{} (0.5698), and 0.039 worse than
 Mesarcik et al.'s U-Net (0.5876). These two U-Nets are not the same network.
@@ -79,7 +79,7 @@ Akeret et al.'s original code, and we trained it on full images.
 
 \subsection{Running Mesarcik et al.'s own code}
 \label{sec:mesarcik_rerun}
-Mesarcik et al.\ shared their code on GitHub\footnote{\url{https://github.com/mesarcik/RFI-NLN}}.
+Mesarcik et al.\ shared their code on GitHub~\cite{mesarcik2022code}.
 We ran it with exactly their settings: their own U-Net, the images cut into
 small 32$\times$32 pieces, batches of 1024 pieces, 100 epochs and the same
 maximum \Fone{} score. The only change was that we removed the 109 test images

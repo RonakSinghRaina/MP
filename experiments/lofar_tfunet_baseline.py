@@ -215,12 +215,14 @@ class EpochProgress(logging.Filter):
         super(EpochProgress, self).__init__()
         self.total, self.offset = total, 0
         self.t0, self.done = time.time(), 0
+        self.history = []          # (global epoch, tf_unet's average training loss)
 
     def filter(self, record):
         m = self._pat.match(record.getMessage())
         if not m:
             return True
         done = self.offset + int(m.group(1)) + 1
+        self.history.append((done, float(m.group(2))))
         self.done += 1
         el = time.time() - self.t0
         eta = (el / self.done) * (self.total - done)
@@ -308,6 +310,28 @@ def score(net, model_path, provider, n_images, quiet=True, threshold=0.5):
     )
 
 
+CURVE_COLS = ["epoch", "train_loss", "val_ce", "val_dice_loss", "val_max_f1", "val_roc_auc"]
+
+
+def val_losses(yt2d, yp2d, eps=1.0):
+    """Validation cross-entropy (mean over pixels) and soft Dice loss (mean over images)."""
+    ce_sum, n_px, dice = 0.0, 0, []
+    for t, p in zip(yt2d, yp2d):
+        t = t.astype(np.float64); p = np.clip(p.astype(np.float64), 1e-7, 1 - 1e-7)
+        ce_sum += float(-(t * np.log(p) + (1 - t) * np.log(1 - p)).sum()); n_px += t.size
+        dice.append(1.0 - (2.0 * (p * t).sum() + eps) / (p.sum() + t.sum() + eps))
+    return ce_sum / n_px, float(np.mean(dice))
+
+
+def write_curves(path, rows):
+    new = not os.path.exists(path)
+    with open(path, "a") as f:
+        if new:
+            f.write(",".join(CURVE_COLS) + "\n")
+        for r in rows:
+            f.write(",".join("" if r.get(c) is None else repr(r[c]) for c in CURVE_COLS) + "\n")
+
+
 def load_progress(d):
     p = os.path.join(d, "progress.json")
     return json.load(open(p)) if os.path.exists(p) else \
@@ -351,6 +375,11 @@ def main():
                          "stays comparable to every other run.")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--output_dir", default=None)
+    ap.add_argument("--log_curves", action="store_true",
+                    help="write <output_dir>/curves.csv: tf_unet's average training loss per "
+                         "epoch (cross-entropy + the 0.001 L2 weight penalty), and at every "
+                         "validation the validation cross-entropy, soft Dice loss, max F1 and "
+                         "ROC AUC on the output crop. Logging only; training is unchanged.")
     a = ap.parse_args()
 
     out = a.output_dir or os.path.join(_ROOT, "runs", a.dataset, "tfunet_{}_ncw".format(a.norm))
@@ -436,8 +465,18 @@ def main():
                         features_root=a.features_root, cost="cross_entropy",
                         cost_kwargs=dict(regularizer=0.001), summaries=False)
         val_p.pos = -1
+        n_val_eval = min(len(val_idx), 150)
         m = score(net, os.path.join(ckpt_dir, "model.ckpt"), val_p,
-                  min(len(val_idx), 150))      # 150 = PART 1's validation set size
+                  n_val_eval)      # 150 = PART 1's validation set size
+        if a.log_curves:
+            v_ce, v_dice = val_losses(m["_yt"].reshape(n_val_eval, -1),
+                                      m["_yp"].reshape(n_val_eval, -1))
+            rows = [dict(epoch=e, train_loss=l) for e, l in prog_filter.history]
+            prog_filter.history = []
+            if rows:
+                rows[-1].update(val_ce=v_ce, val_dice_loss=v_dice,
+                                val_max_f1=m["max_f1"], val_roc_auc=m["roc_auc"])
+                write_curves(os.path.join(out, "curves.csv"), rows)
         m.pop("_yt", None); m.pop("_yp", None)
         print("  -> val pooled-F1 {:.4f}  max-F1 {:.4f}  ROC {:.4f}{}".format(
             m["pooled_f1"], m["max_f1"], m["roc_auc"],

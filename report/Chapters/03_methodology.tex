@@ -5,7 +5,7 @@
 \label{ch:datasets}
 \label{sec:synthetic}\label{sec:hera}\label{sec:lofar}\label{sec:lofar_harder}
 Three datasets were used in this work, summarised in \cref{fig:datasets}. The
-LOFAR dataset\footnote{Mesarcik et al., MNRAS 516, 5367 (2022). Dataset: \url{https://doi.org/10.5281/zenodo.6724065}.} is the most important,
+LOFAR dataset~\cite{mesarcik2022,mesarcik2022data} is the most important,
 because it is the only one made of real observations with labels checked by a
 person. It is also much harder than synthetic data: real RFI is far rarer, much
 of it is fainter than the noise, and the training labels themselves are often
@@ -76,11 +76,15 @@ of the pixel values, averaged over 200 training images.
 \clearpage
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth]{fig_lofar_overview}
-  \caption[Example LOFAR spectrograms and their masks]{Example LOFAR spectrograms (after clipping and log scaling for
-    display) and their masks. Top two rows: training images with their
-    \aoflagger{} masks; bottom two rows: test images with the human expert's
-    masks. Vertical lines are RFI at fixed frequencies.}
+  \includegraphics[width=0.9\textwidth]{lofar_label_pairs}
+  \caption[LOFAR test images with their two masks]{Four LOFAR test images
+    (left) with the mask made by \aoflagger{} (middle) and the mask drawn by
+    the human expert (right); black pixels are RFI. Each test image is also in
+    the training set, where its mask comes from \aoflagger{}, so both masks are
+    for exactly the same image. ``Agreement'' is the \Fone{} between the two
+    masks; the images were picked to show a range of it. Over all 109 test
+    images the two masks agree with an \Fone{} of only 0.57. Vertical lines
+    are RFI at fixed frequencies.}
   \label{fig:lofar_overview}
 \end{figure}
 
@@ -88,14 +92,16 @@ of the pixel values, averaged over 200 training images.
 \label{sec:tfunet_setup}
 As the baseline we use \tfunet{}, the U-Net of Akeret et al.\ described in
 \cref{sec:unet} (\cref{fig:tfunet_arch}). It takes a spectrogram, shrinks it to
-learn what is in it, grows it back to full size, and gives every pixel a
-probability of being RFI.
+learn what is in it, grows it back, and gives every pixel a probability of being
+RFI, except for a 20-pixel border that it cannot see.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.57\textwidth]{akeret2017_unet_fig1}
-  \caption[The U-Net of \tfunet{} applied to RFI]{The U-Net of \tfunet{}
-    applied to RFI. Reproduced from Akeret et al.\ (2017).}
+  \includegraphics[width=\textwidth]{tfunet_schematic}
+  \caption[\tfunet{} as used in this work]{\tfunet{} as used in this work:
+    two encoder levels, a bottleneck and two decoder levels, with 32 filters in
+    the first layer. The sizes were checked by building the network on a
+    512$\times$512 input.}
   \label{fig:tfunet_arch}
 \end{figure}
 
@@ -145,23 +151,23 @@ Most of the design choices aim to use this kind of spatial context.
 
 The components are as follows:
 \begin{itemize}
-  \item \textbf{Residual blocks}\footcite{he2016} add the input of each block
+  \item \textbf{Residual blocks}~\cite{he2016} add the input of each block
     back to its output. Because the number of channels changes inside the block,
     the input first passes through a small $1\times1$ convolution. The aim was to
     keep weak features from fading away as they pass through many layers.
-    RFI-Net\footcite{yang2020rfinet}, a published RFI network, is also built from
+    RFI-Net~\cite{yang2020rfinet}, a published RFI network, is also built from
     residual blocks.
   \item \textbf{Strip convolutions.} Much RFI is shaped like a line. A long, thin
     filter can add up the signal along such a line: averaging $K$ pixels of a
     line makes it stand out from the noise about $\sqrt{K}$ times more
     (\cref{eq:radiometer}). Each of the three paths uses a $1\times K$ filter
     and then a $K\times1$ filter, which together cover a $K\times K$ square.
-  \item \textbf{Efficient channel attention} (ECA)\footcite{wang2020eca} gives
+  \item \textbf{Efficient channel attention} (ECA)~\cite{wang2020eca} gives
     each channel a weight between 0 and 1 and multiplies the channel by it. The
     weights are worked out from each image, using only 3 learned numbers. The
     aim was to stop channels that carry faint RFI from being drowned out by
     those that carry bright RFI.
-  \item \textbf{GroupNorm}\footcite{wu2018groupnorm} keeps the values inside
+  \item \textbf{GroupNorm}~\cite{wu2018groupnorm} keeps the values inside
     the network in a stable range. Unlike batch normalisation, it computes its
     statistics within a single image, so it works with the single-image batches
     used here.

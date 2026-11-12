@@ -53,7 +53,7 @@ these numbers are a guide rather than an exact measurement.
 \label{sec:crf}
 A conditional random field (CRF) is an extra step after the network that
 changes each pixel's label to agree better with its neighbours. Chen et
-al.\footcite{chen2023} used one to find weak RFI in pulsar data, so we added one
+al.~\cite{chen2023} used one to find weak RFI in pulsar data, so we added one
 on top of \hybrid{}. It did not help. With Chen et al.'s settings the score fell
 from 0.6592 to 0.4884, because the CRF deleted the thin, scattered RFI that is
 common in LOFAR; with the best settings it rose by only 0.0012, too little to

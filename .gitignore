@@ -62,3 +62,6 @@ RFI_Using_UNET.pdf
 
 # --- misc --------------------------------------------------------------------
 video_transcript_*.txt
+
+# --- LOFAR test predictions saved for analysis (about 100 MB per run) ------
+runs/lofar/**/test_pred*.npy

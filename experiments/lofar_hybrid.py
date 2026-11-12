@@ -255,6 +255,30 @@ def metrics_from(yt2d, yp2d, threshold, crop=None):
                 threshold=float(threshold), positive_fraction=float(yt.mean()))
 
 
+CURVE_COLS = ["epoch", "train_loss", "train_ce", "train_dice_loss",
+              "val_ce", "val_dice_loss", "val_max_f1", "val_roc_auc"]
+
+
+def val_losses(yt2d, yp2d, eps=1.0):
+    """Validation cross-entropy (mean over pixels) and soft Dice loss (mean over images,
+    the same formula as dice_loss with batch 1), from the predicted RFI probabilities."""
+    ce_sum, n_px, dice = 0.0, 0, []
+    for t, p in zip(yt2d, yp2d):
+        t = t.astype(np.float64); p = np.clip(p.astype(np.float64), 1e-7, 1 - 1e-7)
+        ce_sum += float(-(t * np.log(p) + (1 - t) * np.log(1 - p)).sum()); n_px += t.size
+        dice.append(1.0 - (2.0 * (p * t).sum() + eps) / (p.sum() + t.sum() + eps))
+    return ce_sum / n_px, float(np.mean(dice))
+
+
+def write_curves(path, rows):
+    new = not os.path.exists(path)
+    with open(path, "a") as f:
+        if new:
+            f.write(",".join(CURVE_COLS) + "\n")
+        for r in rows:
+            f.write(",".join("" if r.get(c) is None else repr(r[c]) for c in CURVE_COLS) + "\n")
+
+
 def best_threshold(yt2d, yp2d):
     yt = yt2d.ravel().astype(bool); yp = yp2d.ravel()
     pc, rc, th = precision_recall_curve(yt, yp)
@@ -305,6 +329,10 @@ def main():
                          "AOFlagger mask as uncertain. 'none' = original training.")
     ap.add_argument("--edge_sigma", type=float, default=0.7,
                     help="Gaussian sigma (pixels) of the 3x3 blur used by --edge_mode svls")
+    ap.add_argument("--log_curves", action="store_true",
+                    help="write <output_dir>/curves.csv: per-epoch training loss and its CE and "
+                         "Dice parts, and at every validation the validation CE, soft Dice loss, "
+                         "max F1 and ROC AUC. Logging only; training is unchanged.")
     a = ap.parse_args()
 
     out = a.output_dir or os.path.join(_ROOT, "runs", a.dataset,
@@ -382,27 +410,40 @@ def main():
         print("  resumed from epoch {}".format(prog["epochs_completed"]), flush=True)
 
     val_eval = val_idx[:a.n_val_images]
+    curve_rows = []
     t_start = time.time()
     while prog["epochs_completed"] < a.total_epochs:
         n_ep = min(a.epochs_per_chunk, a.total_epochs - prog["epochs_completed"])
         model.train()
         for _ in range(n_ep):
             tot, nb = 0.0, 0
+            tot_ce, tot_dice = 0.0, 0.0
             for x, y in batches(d.train_images, d.train_masks, tr_idx, a.batch_size,
                                 a.norm, lo, hi, rng, a.iters_per_epoch):
                 x, y = x.to(device), y.to(device)
                 opt.zero_grad()
                 logits = model(x)
                 if a.edge_mode == "none":
-                    loss = ce(logits, y) + a.dice_weight * dice_loss(logits, y)
+                    l_ce = ce(logits, y)
+                    l_dice = dice_loss(logits, y)
+                    loss = l_ce + a.dice_weight * l_dice
                 else:
                     t, w = edge_targets(y, a.edge_mode, a.edge_sigma)
-                    loss = soft_ce(logits, t, w, cw) + a.dice_weight * soft_dice(logits, t, w)
+                    l_ce = soft_ce(logits, t, w, cw)
+                    l_dice = soft_dice(logits, t, w)
+                    loss = l_ce + a.dice_weight * l_dice
                 loss.backward()
                 opt.step()
                 tot += float(loss.item()); nb += 1
+                if a.log_curves:
+                    tot_ce += float(l_ce.item()); tot_dice += float(l_dice.item())
             sched.step()
             prog["epochs_completed"] += 1
+            if a.log_curves:
+                curve_rows.append(dict(epoch=prog["epochs_completed"],
+                                       train_loss=tot / max(nb, 1),
+                                       train_ce=tot_ce / max(nb, 1),
+                                       train_dice_loss=tot_dice / max(nb, 1)))
             el = (time.time() - t_start) / 60
             eta = el / max(prog["epochs_completed"], 1) * (a.total_epochs - prog["epochs_completed"])
             print("  epoch {}/{}  loss {:.4f}  |  {:.1f}m elapsed  ETA {:.1f}m".format(
@@ -412,6 +453,12 @@ def main():
                                 a.norm, lo, hi, device)
         vm = metrics_from(yt, yp, 0.5)
         print("     -> val max-F1 {:.4f}  ROC {:.4f}".format(vm["max_f1"], vm["roc_auc"]), flush=True)
+        if a.log_curves:
+            v_ce, v_dice = val_losses(yt, yp)
+            curve_rows[-1].update(val_ce=v_ce, val_dice_loss=v_dice,
+                                  val_max_f1=vm["max_f1"], val_roc_auc=vm["roc_auc"])
+            write_curves(os.path.join(out, "curves.csv"), curve_rows)
+            curve_rows = []
         torch.save({"model": model.state_dict(), "opt": opt.state_dict(),
                     "sched": sched.state_dict()}, ckpt)
         if vm["max_f1"] > prog["best_f1"]:

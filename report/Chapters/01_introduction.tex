@@ -29,8 +29,8 @@ up as lines, bands and patches, and flagging means deciding for every pixel
 whether it is affected by RFI or not. This is the same problem that computer
 vision calls semantic segmentation, and it can therefore be approached with the
 convolutional neural networks used for image segmentation. The
-U-Net\footcite{ronneberger2015} is the standard network for this task, and
-Akeret et al.\footcite{akeret2017} were the first to apply it to RFI, in a code
+U-Net~\cite{ronneberger2015} is the standard network for this task, and
+Akeret et al.~\cite{akeret2017} were the first to apply it to RFI, in a code
 called \tfunet{}.
 
 In this project we treat RFI flagging as an image segmentation problem. We
@@ -46,8 +46,8 @@ pulsars to search for low-frequency gravitational waves, which needs the
 arrival times of the pulses to be measured to better than a microsecond. RFI
 that is not removed distorts the measured pulse profiles and therefore the
 arrival times. The tools commonly used to clean such data, for example
-\texttt{paz} from PSRCHIVE\footcite{vanstraten2012psrchive} and
-\texttt{clfd}\footcite{clfd}, rely on simple statistics such as median
+\texttt{paz} from PSRCHIVE~\cite{vanstraten2012psrchive} and
+\texttt{clfd}~\cite{clfd}, rely on simple statistics such as median
 filters. Since RFI is not Gaussian, these tools can miss weak RFI or, when made
 more aggressive, remove parts of the real signal.
 

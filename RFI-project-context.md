@@ -4040,10 +4040,10 @@ Re-run `./scripts/backup_to_usb.sh` after the HybridRFINet run -- it copies only
 
 ## Still outstanding before publication
 
-0. **TODO, user asked to be reminded (2026-11-04): find out why Kestrel is behind tf_unet on HERA** (max F1 0.9442
-   vs 0.9550 on the same 472 crop, PART 40). First idea: Kestrel's settings (lr 1e-3 cosine, 40 x 700 steps, batch 1,
-   CE+Dice, dropout 0.2) were chosen on LOFAR and never adjusted for HERA (316 training images, 2.7 % RFI). Report any
-   new run with its real numbers. Not started.
+0. ~~**TODO (2026-11-04): find out why Kestrel is behind tf_unet on HERA**~~ **DONE 2026-11-12, PART 41.2:**
+   Kestrel learns its training labels more closely, and on HERA AOFlagger's labels carry a consistent rim of extra
+   flags around real RFI, which Kestrel copies (39,455 copied false-alarm pixels per run vs tf_unet's 3,984).
+   Measured by error decomposition, not by retraining; a retraining check on exact labels was not run.
 1. **The architecture is not novel** (PART 4). Reframe the paper around the
    failure diagnoses. This is the biggest single issue. **PART 17.3 is the
    experiment that addresses it** — the LOFAR ablation, whose two possible
@@ -4569,3 +4569,95 @@ What it shows (read off the table; nothing extra measured):
 - Report: new section 5.4 "Results on HERA" with Table 5.3 (all settings, 3 seeds each; Kestrel our-settings row on
   the 472 crop, as asked; Kestrel under Mesarcik settings and their U-Net on the full image). Report 39 pages, no
   overfull boxes. Conclusion and abstract do not mention the HERA results yet.
+
+---
+
+## PART 41 — Professor's review changes (2026-11-12)
+
+The professor asked for six things: (1) no footnotes, sources in the bibliography; (2) find out why tf_unet is ahead
+of Kestrel on HERA and put it in the report; (3) Fig 3.2 with each AOFlagger mask beside the human mask of the same
+image (the user also suspected the masks were extracted wrongly); (4) a learning curve; (5) loss-vs-epoch graphs
+(Dice where Dice is used, the other loss elsewhere); (6) no figures copied from papers (copyright): redraw Figs 2.1,
+2.2 and 3.3. Everything in simple language.
+
+### 41.1 Footnotes and bibliography
+- biblatex `style=verbose` (every citation was a footnote) -> `style=numeric,sorting=none` (Preamble.tex).
+  17 `\footcite` -> `~\cite`; the two `\footnote`s -> `\cite{mesarcik2022,mesarcik2022data}` and
+  `\cite{mesarcik2022code}` (new bib entry; year 2021 from the repo's LICENSE "Copyright (c) 2021").
+- `\printbibliography` no longer filters on category `core`: every cited source is listed (16 entries).
+
+### 41.2 Why tf_unet is ahead on HERA (the professor's question)
+Scripts in `analysis/hera_vs_lofar/`: `predict_kestrel.py`, `predict_tfunet.py` (save each best checkpoint's test
+predictions; every reported max F1 reproduced to 1e-4, e.g. HERA Kestrel 0.9485/0.9398/0.9443 crop),
+`compare_hera_lofar.py` -> `compare_hera_lofar.json`, `error_split.py` -> `error_split.json`. Prediction .npy files
+are local only (gitignored). All numbers on the centre 472x472 (tf_unet's output), 3 seeds, mean ± sd.
+"Teacher" = AOFlagger's masks of the test images (HERA: test_masks_aof; LOFAR: the twin's training mask).
+
+| | LOFAR | HERA |
+|---|---|---|
+| teacher vs truth (centre) P / R / F1 | 0.5736 / 0.5753 / 0.5745 | 0.8716 / 0.9610 / 0.9141 |
+| teacher vs truth (whole image) F1 | 0.5698 | 0.8740 |
+| flagged / true (centre) | 1.0029 | 1.1026 |
+| teacher false alarms within 1 / 2 px of true RFI | 0.359 / 0.484 | 0.528 / 0.749 |
+| border (outside centre) teacher P / R / F1 | 0.494 / 0.609 / 0.546 | 0.583 / 0.921 / 0.714 |
+| Kestrel max F1 vs truth / vs teacher | 0.6664 ± 0.0029 / 0.7508 ± 0.0053 | 0.9442 ± 0.0043 / 0.9593 ± 0.0004 |
+| tf_unet max F1 vs truth / vs teacher | 0.5482 ± 0.0139 / 0.5467 ± 0.0170 | 0.9550 ± 0.0025 / 0.9286 ± 0.0099 |
+| share of teacher false alarms repeated, Kestrel / tf_unet | 0.330 / 0.183 | 0.350 / 0.035 |
+| model false alarms that the teacher also made, K / U | 0.712 / 0.261 | 0.972 / 0.483 |
+| separation AUROC (real RFI vs teacher false alarms), K / U | 0.897 / 0.860 | 0.963 / 0.983 |
+
+Wrong pixels at each model's max-F1 threshold (mean ± sd over 3 seeds):
+
+| | LOFAR Kestrel | LOFAR tf_unet | HERA Kestrel | HERA tf_unet |
+|---|---|---|---|---|
+| own (teacher right) | 18,784 ± 1,980 | 71,411 ± 1,835 | 19,542 ± 833 | 35,160 ± 2,403 |
+| copied (teacher wrong too) | 93,298 ± 478 | 79,180 ± 766 | 69,014 ± 7,301 | 34,251 ± 1,585 |
+| of which copied false alarms | 26,384 ± 1,613 | 14,586 ± 4,096 | 39,455 ± 7,322 | 3,984 ± 1,335 |
+| total wrong | 112,082 ± 1,976 | 150,590 ± 2,589 | 88,557 ± 7,429 | 69,411 ± 3,987 |
+
+Kestrel border (outside centre, same threshold): F1 LOFAR 0.6255 ± 0.0115, HERA 0.7493 ± 0.0384; share of its border
+false alarms that the teacher also flagged: LOFAR 0.651, HERA 0.971.
+
+**Reading:** Kestrel learns the training labels more closely on both datasets (vs-teacher F1 0.75/0.96 against
+tf_unet's 0.55/0.93) and makes far fewer own mistakes (about 1/4 on LOFAR, 1/2 on HERA). On LOFAR the labels are
+poor and inconsistent, tf_unet under-learns, Kestrel wins. On HERA the labels are good but consistently too wide
+(a rim around real RFI: 75 % of false alarms within 2 px, +10 % flagged), Kestrel copies the rim, and the copied
+false alarms outweigh its fewer own mistakes. The same explains Kestrel's whole-image HERA loss (0.9109 vs 0.9442):
+the teacher is worse at the border and 97 % of Kestrel's border false alarms are the teacher's.
+**Not tested:** retraining both models on HERA's exact labels (the causal check), or whether HERA's 21x smaller
+training set (316 vs 6621) matters. Faint-RFI share (true RFI below the clean median, pooled raw values) is 20.04 %
+LOFAR / 15.96 % HERA; PART 11.7's 24.11 % is a different definition (per-image mean, 4-sigma prep space): not used
+in the report.
+
+Example figure `hera_rim_example.pdf`: HERA test image 92 (0-based), centre rows 320-416, cols 352-448, the 96x96
+window with the most Kestrel copied false alarms (stride-32 search over all test images); seed 0, thresholds Kestrel
+0.9992, tf_unet 0.4085; AOFlagger 337 false alarms there, Kestrel 305, tf_unet 1.
+
+### 41.3 Fig 3.2: the masks were extracted correctly; the old figure paired different images
+The old figure (deep_audit_stage3_quality.py, 65 dpi) showed TRAIN images 0, 3, 11, 2504, 586 with AOFlagger masks
+and different TEST images 0, 5, 20, 35, 55 with human masks, so the two mask rows could not be compared. Re-extracted
+from LOFAR_npy: each of the 109 test images has exactly one byte-identical twin among leak_train_idx; pooling the
+twins' AOFlagger masks against the human masks gives F1 0.5698403 (published 0.5698). Per-image agreement F1
+quantiles 10/25/50/75/90 %: 0.098 / 0.314 / 0.490 / 0.650 / 0.710; no image has an empty mask. New Fig 3.2
+(`report/Images/Figures/lofar_label_pairs.pdf`, `make_data_figures.py lofar_label_pairs`): test images 56, 104,
+14, 49 (1-based; 0-based 55, 103, 13, 48), at the 20/40/60/80th percentile of agreement (0.288, 0.449, 0.601,
+0.664). Spectrograms shown as log10 of raw power, colour range each image's 1st-99.5th percentile (display only).
+
+### 41.4 Redrawn figures (no copied figures)
+`report/Images/Figures/make_data_figures.py`: Fig 2.1 `rfi_types_simulated` (a simulated spectrogram showing the four
+RFI types of Chen et al., caption says values are made up); Fig 2.2 `unet_ronneberger_redrawn` (all channel counts
+and sizes of Ronneberger's Fig 1: 572..28 down, 56..388 up, 1/64/128/256/512/1024, output 2 @ 388; as in theirs,
+boxes where a pool/up arrow starts or ends carry no channel label); Fig 3.3 `tfunet_schematic` (slide style, tf_unet's
+real sizes, checked by building the TF graph on 512x512: 510, 254 (after 508), 252, 125 (after 250), 123, 121,
+deconv 242 (64 ch), concat 128, deconv 476 (32 ch), concat 64, output 2 x 472 x 472; 465,986 params). The copied
+images `akeret2017_unet_fig1.png`, `chen2023_fig1_rfi_types.jpg`, `ronneberger2015_unet_fig1.pdf` were removed from
+the repo (still in git history).
+
+### 41.5 Learning and loss curves (runs in progress)
+`--log_curves` added to `experiments/lofar_hybrid.py` and `experiments/lofar_tfunet_baseline.py` (logging only:
+per-epoch training loss, Kestrel's CE and Dice parts; validation CE, soft Dice loss, max F1, ROC every 2 epochs as
+before; smoke-tested: train_loss = train_ce + train_dice_loss). `scripts/run_lofar_curves.sh` repeats the reported
+LOFAR runs with logging: `runs/lofar/curves_hybrid_b08_nocw_seed{0,1,2}` then `curves_tfunet_lr1e-4_seed{0,1,2}`
+(same flags as hybrid_b08_nocw / lr1e-4; setup check: fixed range [280723, 4.35311e+06], 6621/735). Started
+2026-11-12 16:15. These are new runs: their scores are reported as measured.
+
