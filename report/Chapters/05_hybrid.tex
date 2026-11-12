@@ -270,8 +270,8 @@ On both datasets \hybrid{} makes far fewer mistakes of its own than \tfunet{}:
 about a quarter as many on LOFAR and about half as many on HERA. It also learns
 the training labels more closely. Its predictions agree with \aoflagger{}'s
 masks with an \Fone{} of 0.75 on LOFAR and 0.96 on HERA, against 0.55 and 0.93
-for \tfunet{}. On LOFAR this is a clear advantage, because \tfunet{} misses much
-of the real RFI. On HERA, however, learning the labels closely also means
+for \tfunet{}. On LOFAR this is a clear advantage: \tfunet{} makes almost four
+times as many mistakes of its own. On HERA, however, learning the labels closely also means
 learning \aoflagger{}'s rim: \hybrid{} repeats 35\% of \aoflagger{}'s false
 alarms, while \tfunet{} repeats only 3.5\% (\cref{fig:hera_rim}). These copied
 false alarms (about 39{,}000 pixels against 4{,}000) cost \hybrid{} more than

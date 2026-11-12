@@ -408,25 +408,35 @@ def curves():
     ax.legend(frameon=False, loc="lower right")
     save(fig, "learning_curves")
 
-    # 2. loss curves: Kestrel's two loss terms, tf_unet's cross-entropy
-    fig, ax = plt.subplots(1, 3, figsize=(7.4, 2.6))
+    # 2. loss curves: Kestrel's two loss terms, tf_unet's cross-entropy, and the binary
+    #    cross-entropy of Kestrel's one run under Mesarcik et al.'s settings (from its log;
+    #    the logged value is the mean loss over the epoch's 1,656 steps)
+    import re
+    log = os.path.join(ROOT, "runs/lofar/logs/hybrid_mesarcik_clean_bce_seed0.log")
+    pat = re.compile(r"^\s+epoch\s+(\d+)/(\d+)\s+loss\s+([0-9.]+)")
+    bce = [(int(m.group(1)), float(m.group(3))) for m in map(pat.match, open(log)) if m]
+    assert [e for e, _ in bce] == list(range(1, 101)), "expected epochs 1..100 once each"
+    fig, axs = plt.subplots(2, 2, figsize=(7.0, 4.9))
+    ax = axs.ravel()
     if K:
         _band(ax[0], K["train_dice_loss"][0], 1 - K["train_dice_loss"][1], CK, "training")
         _band(ax[0], K["val_dice_loss"][0], 1 - K["val_dice_loss"][1], CK, "validation", ls="--")
-        ax[0].set_title("Kestrel: Dice score", fontsize=9)
+        ax[0].set_title("Kestrel: Dice score (higher is better)", fontsize=9)
         _band(ax[1], *K["train_ce"], CK, "training")
         _band(ax[1], *K["val_ce"], CK, "validation", ls="--")
-        ax[1].set_title("Kestrel: cross-entropy part", fontsize=9)
+        ax[1].set_title("Kestrel: cross-entropy part of the loss", fontsize=9)
     if U:
-        _band(ax[2], *U["train_loss"], CU, "training (with\nweight penalty)")
+        _band(ax[2], *U["train_loss"], CU, "training (with weight penalty)")
         _band(ax[2], *U["val_ce"], CU, "validation", ls="--")
-        ax[2].set_title("tf_unet: cross-entropy", fontsize=9)
+        ax[2].set_title("tf_unet: cross-entropy loss", fontsize=9)
+    ax[3].plot([e for e, _ in bce], [v for _, v in bce], color=CK, lw=1.4, label="training (one run)")
+    ax[3].set_title("Kestrel, Mesarcik et al.'s settings:\nbinary cross-entropy loss", fontsize=9)
     for a in ax:
         a.set_xlabel("epoch", fontsize=8.5)
         a.tick_params(labelsize=7.5)
         a.spines[["top", "right"]].set_visible(False)
         a.legend(frameon=False, fontsize=7)
-    fig.tight_layout(w_pad=1.2)
+    fig.tight_layout(h_pad=1.4, w_pad=1.4)
     save(fig, "loss_curves")
 
 
