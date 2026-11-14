@@ -4689,3 +4689,73 @@ to PDF), cropped with --bbox "40 92 930 416.9". Caption now says the box numbers
 Fig 3.2: dropped the 0.57 and vertical-lines sentences. Fig 2.2: "The original U-Net architecture of Ronneberger et al.,
 redrawn by us." Fig 2.1: dropped the list of the four types. Table 5.4: dropped "on the centre 472x472 pixels" (the
 numbers are still centre values, see 41.2).
+
+---
+
+## PART 42 — Final presentation for the panel (2026-11-14)
+
+The user presents on 4 December 2026: 10 minutes of talk, then a 5-minute viva. The professor reviews the deck first.
+His guidance: keep the introduction and method short and give the results most of the time; show visual results
+first; put extra theory in appendix slides; show computation time if possible; give only a brief limitation.
+
+### 42.1 Files (all in `presentation/`)
+- `Kestrel_RFI_Presentation.pptx`, 29 slides, built on the lab template `template/Project_Presentation_Template.pptx`
+  (IISER and DIL Lab logos, Calibri Light / Calibri, red bold titles, maroon 920815 title slide; nothing restyled).
+  Main talk: 1 Title, 2 Introduction, 3 Motivation, 4 Literature Review (timeline), 5 Problem Statement, 6 Contributions,
+  7 Methodology (Kestrel schematic), 8 Datasets (tree), 9 Pseudo Code, 10 Experimental Setup, 11-14 Experimental
+  Results (masks; LOFAR benchmark chart; fair comparison and speed; expert labels and HERA), 15 Conclusion,
+  16 Future Work, 17 References, 18 Thank You. Backup: 19 Appendix index, 20-29 A1-A10 (U-Net, Kestrel's changes,
+  loss and metrics, data cleaning, training labels, LOFAR table, ablation, HERA table, synthetic vs real, run time).
+- Speaker notes hold the transcript with start/end times. `Kestrel_Presentation_Transcript.docx/.pdf` (5 pages: how to
+  use, time plan, transcript, backup notes) and `transcript.json` are generated from the same text.
+- Scripts: `make_slide_figures.py` (figures/), `build_deck.py` (checks the headline means against the saved runs and
+  the timings against analysis/timing before building), `make_transcript.py`.
+- Speech: 1035 words, 8:53 at 125 words per minute with 2 s per slide change. Results start at 4:49 (slide 11); the
+  7-minute warning falls during slide 14. Validated with the pptx skill's validate.py (passed) and checked visually.
+
+### 42.2 New measurements for the slides
+- **Inference time** per 512x512 spectrogram, RTX 3060 Laptop GPU on AC, GPU otherwise idle, batch 1, median over the
+  109 LOFAR test images after 10 warm-up passes (`analysis/timing/time_kestrel.py`, `time_tfunet.py`, `*_timing.json`):
+  Kestrel **10.8 ms** (mean 10.88, sd 0.30); tf_unet **17.8 ms** (mean 17.94, sd 0.52). tf_unet is fed the input only;
+  feeding the dummy label as the training script does adds about 0.8 ms (18.7 ms). Different frameworks
+  (PyTorch 2.13 vs TensorFlow 2.21), so part of the gap may be the framework.
+- **Training time** per run, wall clock including validation, settings of the reported results: LOFAR Kestrel 26, 25,
+  25 min (curve reruns, 2026-11-12 16:15-17:31); LOFAR tf_unet 2 h 39 min (curve rerun seed 0, 17:31-20:10); HERA
+  Kestrel 19 and 20 min, tf_unet 2 h 40 min (`runs/hera/logs/run_hera.log`). Slides say "about 25 min / 20 min /
+  2 h 40 min".
+- **Per-image comparison** (centre 472x472, each model at the threshold of its max F1 against the expert): Kestrel's
+  per-image F1 beats tf_unet's on 96, 99 and 93 of the 109 test images (seeds 0, 1, 2). Seed 0 medians: AOFlagger
+  0.495, tf_unet 0.468, Kestrel 0.670. Visual slide uses test images 14 and 49 (60th and 80th percentile of the
+  AOFlagger-vs-expert agreement, the Fig 3.2 rule, not picked by model score): AOFlagger 0.682 / 0.677, tf_unet
+  0.735 / 0.480, Kestrel 0.787 / 0.727.
+
+### 42.3 Wording kept honest on the slides
+- With Mesarcik et al.'s settings Kestrel **matches** their U-Net with half the parameters (0.6258 vs 0.6166, one run
+  each; see the saved note on wording), not "beats".
+- The GroupNorm claim is **not** on a main slide. Appendix A7 shows Table 6.1 (one run each, as in the report) next to
+  the three-run means: Kestrel 0.6603 +/- 0.0040, partial Kestrel 0.6585 +/- 0.0047, without GroupNorm as well
+  0.6495 +/- 0.0178 (p = 0.48, PART 20), Kestrel without Dice 0.6495 +/- 0.0049. NOTE for the user: the report's
+  chapter 6 sentence "GroupNorm matters more than the three changes ... each version was trained only once" rests on
+  seed 0; seeds 1 and 2 of both variants exist and do not support it (PART 20; report edits of 2026-11-03). Kept at
+  the user's request.
+- HERA: with the authors' settings Kestrel 0.9450 +/- 0.0020 beats the published U-Net (0.9015) and our run of it
+  (0.9160 +/- 0.0062); with our settings tf_unet is ahead (0.9550 vs 0.9442, centre crop). Conclusion lists this and
+  "the three added modules contribute little" as the two limitations.
+- sigma-clipping 0.4103 is our own baseline (PART 11.9), labelled "computed by us". No uGMRT data mentioned; future
+  work says "real pulsar observations".
+- Title slide: "Ronak Singh (IMS23319) / Supervisor: Dr. Alwin Poulose / School of Data Science, IISER TVM",
+  "4 December 2026". The user should confirm the supervisor's title.
+
+### 42.4 Report: red line removed from Figs 3.3 and 3.4
+Both schematics are crops of exported slides that carry a red header rule (image /Im6 at y = 416.523-421.654 pt on
+the 960x540 slide). Fig 3.3 (crop top 416.9) showed it as a thin red line; Fig 3.4 (crop top 416.5) showed a 1-pixel
+red line in viewers at some zooms (pixel rounding at 72, 96 and 150 dpi). `report/Images/remove_header_band.py`
+deletes that single draw command (mutool clean -d, blank the bytes, mutool clean -gz). Sizes unchanged (890x324.9,
+890x382.5); otherwise pixel-identical at 600 dpi. Report rebuilt: 43 pages, no overfull boxes, no red line on page 23
+from 60 to 300 dpi.
+
+### 42.5 Curve runs (PART 41.5) status
+Kestrel reruns finished: max F1 0.6598, 0.6645, 0.6599 = 0.6614 +/- 0.0027 (original 0.6603 +/- 0.0040); best epochs
+40, 36, 40. tf_unet rerun seed 0: max F1 0.5304 (original seed 0: 0.5640). The laptop shut down on 2026-11-12 at
+about 21:59 during tf_unet seed 1 (epoch 104); restarted 2026-11-14 07:00 and resumed from progress.json. Still to do
+when seed 2 finishes: the curves figures, a short report subsection, and an appendix slide if wanted.

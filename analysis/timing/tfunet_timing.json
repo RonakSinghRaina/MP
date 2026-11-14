@@ -1,0 +1,15 @@
+{
+ "model": "tf_unet (3 layers, 32 filters)",
+ "checkpoint": "runs/lofar/lr1e-4_seed0/best",
+ "parameters": 465986,
+ "images": 109,
+ "image_size": "512x512 in, 472x472 out",
+ "batch": 1,
+ "device": "/physical_device:GPU:0",
+ "tensorflow": "2.21.0",
+ "ms_per_image_median": 17.79033099978733,
+ "ms_per_image_mean": 17.94250987157267,
+ "ms_per_image_std": 0.5179982330642169,
+ "ms_min": 17.53163900002619,
+ "ms_max": 21.166390999951545
+}

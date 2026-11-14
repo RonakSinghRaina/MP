@@ -1,0 +1,296 @@
+{
+ "wpm": 125,
+ "total": "8:53",
+ "slides": [
+  {
+   "number": 1,
+   "title": "Title",
+   "script": "Good morning, everyone. I am Ronak Singh. I will present my minor project, done under the supervision of Dr. Alwin Poulose, on detecting radio frequency interference in radio spectrograms with convolutional networks.",
+   "spoken": true,
+   "words": 32,
+   "start": "0:00",
+   "end": "0:17",
+   "seconds": 17
+  },
+  {
+   "number": 2,
+   "title": "Introduction",
+   "script": "Radio telescopes record extremely faint signals from space. But mobile phones, satellites and aircraft use the same frequencies, and this radio frequency interference, or RFI, is often far stronger than the signal. On the right is a real spectrogram from the LOFAR telescope. The bright lines and patches are RFI, and the second panel shows where a human expert marked them. Our task is to flag every RFI pixel automatically. This is an image segmentation problem.",
+   "spoken": true,
+   "words": 76,
+   "start": "0:17",
+   "end": "0:56",
+   "seconds": 38
+  },
+  {
+   "number": 3,
+   "title": "Motivation of the Study",
+   "script": "Why is this still an open problem? Classical flaggers use fixed thresholds, so they miss faint RFI. Most neural networks are developed on simulated data, where RFI is easier to see. And real training labels come from another flagger, AOFlagger, which agrees with a human expert at an F1 score of only 0.57. So we wanted a network that works on real data, checked against a human expert.",
+   "spoken": true,
+   "words": 68,
+   "start": "0:56",
+   "end": "1:30",
+   "seconds": 35
+  },
+  {
+   "number": 4,
+   "title": "Literature Review",
+   "script": "We build on the following work. AOFlagger is the standard flagger for LOFAR, and it produced our training labels. The U-Net is the standard network for labelling every pixel. Akeret and colleagues first used it for RFI; their code, tf_unet, is our baseline. And Mesarcik and colleagues released real LOFAR data with expert labels, which is our benchmark.",
+   "spoken": true,
+   "words": 58,
+   "start": "1:30",
+   "end": "2:00",
+   "seconds": 30
+  },
+  {
+   "number": 5,
+   "title": "Problem Statement",
+   "script": "Our problem is therefore: given a spectrogram, give every pixel a probability of being RFI. The difficulty is that the network learns from 6621 real images whose labels come from AOFlagger and are imperfect, but it is judged on 109 images labelled by a human expert.",
+   "spoken": true,
+   "words": 46,
+   "start": "2:00",
+   "end": "2:24",
+   "seconds": 24
+  },
+  {
+   "number": 6,
+   "title": "Contributions",
+   "script": "We make four contributions. Our network, Kestrel, reaches an F1 of 0.660 on real LOFAR data, above every published method. With the original authors' own settings, it matches their U-Net using half the parameters. A few expert labels raise its score to 0.675. And we made the evaluation fair, by removing test-image copies from training and repeating the main experiments three times.",
+   "spoken": true,
+   "words": 62,
+   "start": "2:24",
+   "end": "2:56",
+   "seconds": 32
+  },
+  {
+   "number": 7,
+   "title": "Methodology",
+   "script": "Kestrel keeps the shape of a U-Net. The encoder, on the left, shrinks the spectrogram step by step to learn what is in it. The decoder, on the right, grows it back to full size to find where the RFI is. Skip connections carry fine detail across, and at the end every pixel gets a probability of being RFI. We added five changes, numbered in the figure: strip convolutions for line-shaped RFI, residual shortcuts, channel attention, group normalisation and raw output scores. Details are in the appendix.",
+   "spoken": true,
+   "words": 87,
+   "start": "2:56",
+   "end": "3:40",
+   "seconds": 44
+  },
+  {
+   "number": 8,
+   "title": "Datasets",
+   "script": "We used three datasets. Synthetic data that we generated, and simulated data from the HERA telescope, both with exact labels. And most importantly, real LOFAR data: 6621 training images labelled by AOFlagger, and 109 test images labelled by a human expert. RFI covers less than one percent of the LOFAR test pixels, which makes it much harder.",
+   "spoken": true,
+   "words": 57,
+   "start": "3:40",
+   "end": "4:09",
+   "seconds": 29
+  },
+  {
+   "number": 9,
+   "title": "Pseudo Code",
+   "script": "In short, we clean the data, scale every image with one fixed range, and train with cross-entropy plus Dice loss, keeping the best model on the validation set. We then test it on the 109 expert-labelled images.",
+   "spoken": true,
+   "words": 37,
+   "start": "4:09",
+   "end": "4:29",
+   "seconds": 20
+  },
+  {
+   "number": 10,
+   "title": "Experimental Setup",
+   "script": "Both networks were trained on one laptop GPU with the settings shown here. Our main results are the mean of three runs, and we report the maximum F1 score, as the published results do, with AUROC and AUPRC.",
+   "spoken": true,
+   "words": 38,
+   "start": "4:29",
+   "end": "4:49",
+   "seconds": 20
+  },
+  {
+   "number": 11,
+   "title": "Experimental Results: masks",
+   "script": "Now the results, starting with what the models actually flag. Here are two real test images. From left to right: the spectrogram, the expert's mask, AOFlagger's mask, and the masks from tf_unet and from Kestrel, with each mask's F1 score against the expert below it. Kestrel's masks are the closest to the expert's. On the second image, tf_unet merges the thin lines on the right into large blobs, while Kestrel keeps them thin. This holds broadly: Kestrel beats tf_unet on 93 to 99 of the 109 test images.",
+   "spoken": true,
+   "words": 88,
+   "start": "4:49",
+   "end": "5:34",
+   "seconds": 44
+  },
+  {
+   "number": 12,
+   "title": "Experimental Results: benchmark",
+   "script": "This chart compares all methods on the 109 expert-labelled images, using the maximum F1 score. The blue bar is our baseline, tf_unet, and the grey bars are other methods. Kestrel reaches 0.660, the highest of all: 0.062 above RFI-Net, the best published method, and 0.11 above tf_unet. One point deserves attention. AOFlagger scores 0.570, and Kestrel learned only from AOFlagger's labels. Yet it ends up closer to the human expert than AOFlagger itself.",
+   "spoken": true,
+   "words": 73,
+   "start": "5:34",
+   "end": "6:11",
+   "seconds": 37
+  },
+  {
+   "number": 13,
+   "title": "Experimental Results: fair comparison and speed",
+   "script": "A fair question is whether Kestrel wins only because of its training settings. So we also trained it with exactly the settings of Mesarcik and colleagues. It then matches their U-Net, scoring 0.626 against 0.617, with half the parameters. Kestrel is also efficient. On our laptop GPU it processes one spectrogram in 10.8 milliseconds, against 17.8 for tf_unet, and a complete training run takes about 25 minutes instead of 2 hours 40 minutes.",
+   "spoken": true,
+   "words": 73,
+   "start": "6:11",
+   "end": "6:48",
+   "seconds": 37
+  },
+  {
+   "number": 14,
+   "title": "Experimental Results: expert labels and HERA",
+   "script": "Two further results. On the left: Kestrel learned only from AOFlagger's imperfect labels, so we fine-tuned it on the expert labels of about 68 images. Its score rose from 0.660 to 0.675, and it improved in all three runs. We used cross-validation, so no image was tested by a model that had seen its expert label. On the right is a second dataset, simulated HERA data. With the authors' settings, Kestrel again beats every published result, scoring 0.945. With our own settings, tf_unet is slightly ahead here, because HERA's labels add a thin rim around the RFI, which Kestrel learns very closely.",
+   "spoken": true,
+   "words": 102,
+   "start": "6:48",
+   "end": "7:39",
+   "seconds": 51
+  },
+  {
+   "number": 15,
+   "title": "Conclusion",
+   "script": "To conclude. Kestrel beats every published method on real LOFAR data, with a maximum F1 of 0.660. With the authors' own settings it matches their U-Net at half the size, and it is fast. A few expert labels raise its score to 0.675, and on HERA it also beats the published results. Two limitations: with our settings tf_unet is slightly ahead on HERA, and Kestrel's three added modules contribute little. The broader lesson is that RFI methods must be tested on real data, with several runs.",
+   "spoken": true,
+   "words": 86,
+   "start": "7:39",
+   "end": "8:22",
+   "seconds": 43
+  },
+  {
+   "number": 16,
+   "title": "Future Work",
+   "script": "In future, we would like to test the remaining design choices one at a time to explain the full gain, find which images an expert should label first, and apply Kestrel to real pulsar observations.",
+   "spoken": true,
+   "words": 35,
+   "start": "8:22",
+   "end": "8:41",
+   "seconds": 19
+  },
+  {
+   "number": 17,
+   "title": "References",
+   "script": "These are the main references.",
+   "spoken": true,
+   "words": 5,
+   "start": "8:41",
+   "end": "8:45",
+   "seconds": 4
+  },
+  {
+   "number": 18,
+   "title": "Thank You",
+   "script": "Thank you for your attention. I am happy to take your questions.",
+   "spoken": true,
+   "words": 12,
+   "start": "8:45",
+   "end": "8:53",
+   "seconds": 8
+  },
+  {
+   "number": 19,
+   "title": "Appendix",
+   "script": "Index of the backup slides. Jump to a slide by typing its number and pressing Enter.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 20,
+   "title": "Appendix: U-Net",
+   "script": "If asked how a U-Net works: the encoder halves the image at each level and doubles the number of filters; the decoder doubles it back; skip connections join the encoder's features to the decoder's at the same size. A 1 by 1 convolution and a softmax give each pixel its RFI probability.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 21,
+   "title": "Appendix: Kestrel",
+   "script": "The strip filters average K pixels along a line, which makes a faint line stand out from the noise about square-root-of-K times more. ECA uses only 3 learned numbers.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 22,
+   "title": "Appendix: Loss & Metrics",
+   "script": "Max F1 is optimistic because it uses the test labels to pick the threshold, but it is what the published LOFAR results use. Our headline pooled F1 for Kestrel is 0.6561.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 23,
+   "title": "Appendix: Data Cleaning",
+   "script": "The test-image copies matter: Mesarcik et al.'s own code trains on them. When we ran their code without them it scored 0.6166, against 0.5876 in their paper.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 24,
+   "title": "Appendix: Training Labels",
+   "script": "Left: LOFAR test images with AOFlagger's mask and the expert's mask; 'agreement' is the F1 between the two masks.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 25,
+   "title": "Appendix: LOFAR Table",
+   "script": "Report Table 5.1. Kestrel's AUROC is slightly below tf_unet's because the Dice loss pushes outputs towards 0 or 1; without Dice its AUROC is 0.987.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 26,
+   "title": "Appendix: Ablation",
+   "script": "Report Table 6.1 lists one run per variant. With three runs, partial Kestrel and the version without GroupNorm differ by 0.009, which is not significant (p = 0.48), but without GroupNorm the results vary four times more between runs. The rest of the 0.11 gain over tf_unet lies in the output layer, padding, depth and width, batch size, learning rate and framework, not tested one by one.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 27,
+   "title": "Appendix: HERA Table",
+   "script": "Report Table 5.3. With our settings tf_unet leads on max F1, Kestrel on AUROC and AUPRC.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 28,
+   "title": "Appendix: Synthetic Data",
+   "script": "Max F1: tf_unet 0.9317 on the 276 by 600 synthetic data, 0.4901 on LOFAR at learning rate 1e-3 and 60 epochs; Kestrel 0.9749 on synthetic data.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  },
+  {
+   "number": 29,
+   "title": "Appendix: Run Time",
+   "script": "Measured with analysis/timing/time_kestrel.py and time_tfunet.py. The two networks run in different frameworks, so part of the speed difference may come from the framework.",
+   "spoken": false,
+   "words": 0,
+   "start": "",
+   "end": "",
+   "seconds": 0
+  }
+ ]
+}

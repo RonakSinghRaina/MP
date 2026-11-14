@@ -1,0 +1,15 @@
+{
+ "model": "Kestrel (HybridRFINet base 8)",
+ "checkpoint": "runs/lofar/hybrid_b08_nocw_seed0/best.pt",
+ "parameters": 593842,
+ "images": 109,
+ "image_size": "512x512",
+ "batch": 1,
+ "device": "NVIDIA GeForce RTX 3060 Laptop GPU",
+ "torch": "2.13.0+cu130",
+ "ms_per_image_median": 10.758494000128849,
+ "ms_per_image_mean": 10.880447440375631,
+ "ms_per_image_std": 0.30090642400781825,
+ "ms_min": 10.585148000018307,
+ "ms_max": 11.87986600007207
+}
